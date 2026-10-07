@@ -1,0 +1,11 @@
+# Segment simulation contract
+
+`Track.Segments` is an optional ordered repeating layout. Omission retains the aggregate compatibility model. A provided layout is nonempty and has unique stable segment IDs. The engine copies its collection before running.
+
+Lengths and `RaceEvent.DistanceMetres` are metres; baseline times and effective penalties are seconds. Speed/Cornering demands are independent fractions in [0,1]. Tyre demand is a nonnegative multiplier on distance-based wear. Passing eligibility and difficulty in [0,1] are explicit layout inputs; encounter resolution is delivered by subsequent tickets. The layout's summed baseline time determines segmented pace; `BaseLapTime` continues to describe aggregate inputs.
+
+`SegmentSimulation.Project` is the public, pure physics seam used by the race engine. Immutable `SegmentInputs` supplies attributes, seconds per attribute point, whole-lap tyre/pace effects and already-resolved variation. Whole-lap effects scale by baseline time share, with a positive minimum equal to one second per lap distributed by that share. Returned travel and exit durations are seconds; speed is metres/second; position is metres from the segment start. Projections stop at the segment exit. `PredictCatch` takes two projections and their forward physical gap in metres, returning seconds only when the catch precedes both exits. It neither samples randomness nor resolves passing.
+
+Race resolution schedules every segment exit. Classification exposes normalized lap progress from cumulative segment distance, and gap seconds use trajectory history. Segment events include stable segment identity and cumulative metres. Five leader-lap phase boundaries drain simultaneous events ordered by driver ID. Pace changes preserve current position, affect the remaining segment and persist after stops. Warm-up is spread across the out-lap by time share. Degradation integrates travelled distance times each segment's tyre demand; segment boundaries alone add no wear. A lap's degradation penalty is retained across its segments and refreshed on a new lap or player phase change, preserving equivalent subdivision.
+
+Ticket 01 establishes clear-air segmented races. Spatial traffic, passing visits and rejoin constraints are implemented in dependent tickets 02–04.

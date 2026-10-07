@@ -37,8 +37,25 @@ public record Driver(string Id, string Team, double Speed = 0, double Cornering 
     double Pace = 0, double Gap = 0, TyreCompound StartingCompound = TyreCompound.Medium,
     double TyrePreservation = 0, double TyreManagement = 0, double Racecraft = 0);
 
+// Length is metres; BaselineTime is seconds. Demands are independent fractions.
+public record TrackSegment(string Id, double Length, double BaselineTime,
+    double SpeedDemand = .5, double CorneringDemand = .5, double TyreDemand = 1,
+    bool PassingAllowed = true, double PassingDifficulty = .4)
+{
+    public void Validate()
+    {
+        if (string.IsNullOrWhiteSpace(Id) || !double.IsFinite(Length) || Length <= 0
+            || !double.IsFinite(BaselineTime) || BaselineTime <= 0
+            || !double.IsFinite(SpeedDemand) || SpeedDemand is < 0 or > 1
+            || !double.IsFinite(CorneringDemand) || CorneringDemand is < 0 or > 1
+            || !double.IsFinite(TyreDemand) || TyreDemand < 0
+            || !double.IsFinite(PassingDifficulty) || PassingDifficulty is < 0 or > 1)
+            throw new ArgumentException("Invalid track segment.");
+    }
+}
+
 public record Track(string Name, double BaseLapTime = 90, double SpeedWeight = .5,
-    double PitLaneLoss = 20, double StationaryStop = 3, double PassingChance = .4);
+    double PitLaneLoss = 20, double StationaryStop = 3, double PassingChance = .4, IReadOnlyList<TrackSegment>? Segments = null);
 
 public record TrafficTuning(bool Enabled = true, double FollowingLoss = .3, double BlueFlagLoss = .15,
     double BattleProximity = 3, double AttackMultiplier = 1.7, double DefendMultiplier = .55, double BattleWear = .2);
@@ -54,11 +71,11 @@ public record TyreState(string DriverId, TyreCompound Compound, int Age, double 
     PaceInstruction Pace, bool InPits = false);
 
 public enum RaceEventKind { LapCompleted, TyreCondition, PitEntry, PitService, PitExit,
-    TyreChanged, Overtake, TrafficLoss, BlueFlag, BattleDecision, BattleWear }
+    TyreChanged, Overtake, TrafficLoss, BlueFlag, BattleDecision, BattleWear, SegmentExited }
 
 // Value is seconds for time-loss/service events and a fraction for TyreCondition.
 public record RaceEvent(double Time, string DriverId, int Lap, RaceEventKind Kind, double Value = 0,
-    string? OtherDriverId = null, TyreCompound? Compound = null);
+    string? OtherDriverId = null, TyreCompound? Compound = null, string? SegmentId = null, double? DistanceMetres = null);
 
 public record ClassificationEntry(string DriverId, int Position, int Laps, double Progress,
     double GapSeconds, int GapLaps, double? FinishTime);

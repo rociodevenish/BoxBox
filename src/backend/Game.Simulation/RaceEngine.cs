@@ -8,6 +8,8 @@ public sealed class RaceEngine
     {
         public Driver Driver { get; } = driver;
         public int Laps { get; set; }
+        public int SegmentIndex { get; set; }
+        public double LapPenalty { get; set; }
         public double LapStart { get; set; } = driver.Gap;
         public double LapEnd { get; set; }
         public double? FinishTime { get; set; }
@@ -36,6 +38,12 @@ public sealed class RaceEngine
     private int phaseIndex;
     private double time;
     private bool chequered;
+    private IReadOnlyList<TrackSegment>? Segments => configuration.Track.Segments;
+    private double TrackLength => Segments?.Sum(s => s.Length) ?? 1;
+    private double SegmentStart(Car car) => Segments?.Take(car.SegmentIndex).Sum(s => s.Length) / TrackLength ?? 0;
+    private double SegmentShare(Car car) => Segments is { } layout ? layout[car.SegmentIndex].Length / TrackLength : 1;
+    private double LocalProgress(Car car) => car.FinishTime is not null || car.PitExit is not null ? 0
+        : Math.Clamp((time - car.LapStart) / (car.LapEnd - car.LapStart), 0, 1);
     private TyreTuning Tyres => configuration.Tyres ?? new TyreTuning();
     private TrafficTuning Traffic => configuration.Traffic ?? new TrafficTuning();
 
@@ -71,12 +79,24 @@ public sealed class RaceEngine
                 || !double.IsFinite(d.TyrePreservation) || !double.IsFinite(d.TyreManagement) || !double.IsFinite(d.Racecraft))
             || tyreValues.Any(v => !double.IsFinite(v) || v < 0))
             throw new ArgumentException("Invalid race configuration or starting field.");
+        if (configuration.Track.Segments is { } segments)
+        {
+            if (segments.Count == 0 || segments.Any(s => s is null)
+                || segments.Select(s => s.Id).Distinct().Count() != segments.Count)
+                throw new ArgumentException("A track needs unique ordered segments.");
+            foreach (var segment in segments) segment.Validate();
+            if (!double.IsFinite(segments.Sum(s => s.Length)) || !double.IsFinite(segments.Sum(s => s.BaselineTime)))
+                throw new ArgumentException("Track totals must be finite.");
+            configuration = configuration with { Track = configuration.Track with
+                { Segments = Array.AsReadOnly(segments.ToArray()) } };
+        }
         this.configuration = configuration;
         this.seed = seed;
         cars = drivers.Select(d => new Car(d)).ToList();
         foreach (var car in cars)
         {
             _ = Wear(car);
+            car.LapPenalty = TyrePenalty(car);
             car.LapEnd = car.LapStart + LapTime(car);
             car.FreeDuration = car.LapEnd - car.LapStart;
             car.Trace.Add((0, Distance(car)));
@@ -114,9 +134,10 @@ public sealed class RaceEngine
                 history.Add(new RaceEvent(time, car.Driver.Id, car.Laps, RaceEventKind.BattleDecision, (int)car.Battle));
             var requestedPit = decisions?.GetValueOrDefault(car.Driver.Id)?.PitCompound;
             car.PendingPit ??= requestedPit;
+            car.LapPenalty = TyrePenalty(car);
             var duration = LapTime(car);
             car.FreeDuration = duration;
-            car.LapStart = car.PitExit ?? (time < car.Driver.Gap ? car.Driver.Gap : time - fraction * duration);
+            car.LapStart = car.PitExit ?? (time < car.Driver.Gap ? car.Driver.Gap : time - LocalProgress(car) * duration);
             car.LapEnd = car.LapStart + duration;
         }
         UpdateTraffic();
@@ -149,10 +170,27 @@ public sealed class RaceEngine
                 UpdateTraffic();
                 continue;
             }
+            if (Segments is { } layout)
+            {
+                ConsumeTyres(car, SegmentStart(car) + SegmentShare(car));
+                history.Add(new RaceEvent(time, car.Driver.Id, car.Laps + 1, RaceEventKind.SegmentExited,
+                    SegmentId: layout[car.SegmentIndex].Id,
+                    DistanceMetres: (car.Laps + SegmentStart(car) + SegmentShare(car)) * TrackLength));
+                if (car.SegmentIndex < layout.Count - 1)
+                {
+                    car.SegmentIndex++;
+                    car.LapStart = time;
+                    car.LapEnd = time + LapTime(car);
+                    car.FreeDuration = car.LapEnd - car.LapStart;
+                    UpdateTraffic();
+                    continue;
+                }
+            }
             if (cars.Any(c => c.FinishTime is null && c.LapEnd == time
-                && c.Laps + 1 >= configuration.Laps)) chequered = true;
+                && c.Laps + 1 >= configuration.Laps && (Segments is null || c.SegmentIndex == Segments.Count - 1))) chequered = true;
             ConsumeTyres(car, 1);
             car.Laps++;
+            car.SegmentIndex = 0;
             car.Following = null;
             car.WearProgress = 0;
             car.TyreAge++;
@@ -177,6 +215,7 @@ public sealed class RaceEngine
                     car.PitExit = time + loss;
                     history.Add(new RaceEvent(time, car.Driver.Id, car.Laps, RaceEventKind.TyreChanged, Compound: compound));
                 }
+                car.LapPenalty = TyrePenalty(car);
                 car.LapStart = car.PitExit ?? time;
                 car.LapEnd = car.LapStart + LapTime(car);
                 car.FreeDuration = car.LapEnd - car.LapStart;
@@ -213,7 +252,7 @@ public sealed class RaceEngine
 
     private void UpdateTraffic()
     {
-        if (!Traffic.Enabled) return;
+        if (!Traffic.Enabled || Segments is not null) return;
         var positions = cars.ToDictionary(c => c, Distance);
         foreach (var car in cars.OrderByDescending(c => positions[c]))
         {
@@ -295,6 +334,11 @@ public sealed class RaceEngine
     private double LapTime(Car car)
     {
         var d = car.Driver;
+        if (Segments is { } layout)
+            return SegmentSimulation.Project(layout[car.SegmentIndex], new SegmentInputs(
+                layout.Sum(s => s.BaselineTime), d.Speed, d.Cornering, d.Pace,
+                configuration.AttributeSeconds, car.LapPenalty,
+                (Draw(d.Id, car.Laps + 1, "lap") - .5) * configuration.LapVariation)).TravelSeconds;
         var performance = d.Pace + d.Speed * configuration.Track.SpeedWeight
             + d.Cornering * (1 - configuration.Track.SpeedWeight);
         var duration = configuration.Track.BaseLapTime - performance * configuration.AttributeSeconds
@@ -318,7 +362,8 @@ public sealed class RaceEngine
 
     private void ConsumeTyres(Car car, double fraction)
     {
-        var wear = Wear(car) * Math.Max(0, fraction - car.WearProgress);
+        var wear = Wear(car) * Math.Max(0, fraction - car.WearProgress)
+            * (Segments is { } layout ? layout[car.SegmentIndex].TyreDemand : 1);
         car.Condition = Math.Max(0, car.Condition - wear);
         car.WearProgress = fraction;
     }
@@ -372,7 +417,7 @@ public sealed class RaceEngine
     }
 
     private double Progress(Car car) => car.FinishTime is not null || car.PitExit is not null ? 0
-        : Math.Clamp((time - car.LapStart) / (car.LapEnd - car.LapStart), 0, 1);
+        : SegmentStart(car) + SegmentShare(car) * LocalProgress(car);
 
     private double Gap(Car leader, Car car)
     {
