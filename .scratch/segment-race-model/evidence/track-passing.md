@@ -2,7 +2,7 @@
 
 40-lap, 22-car dry races; paired seeds 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26. All selected difficulty values: 0, 0.4, 0.8. No tuning was selected after inspecting outcomes.
 
-Equal-all means identical drivers AND cars; mixed-car-fit uses the same driver-side attributes with alternating straight/corner car strengths and small base Pace differences. The first strength pair has equal overall clear-air pace. Both layouts have 90-second baseline laps, 5000 metres and integrated Speed/Cornering demand 0.5/0.5; open has two eligible visits and restricted one. PassingChance stays 0.4. Coefficients are hypotheses, not real-world calibration.
+Equal-all means identical drivers AND cars; mixed-car-fit alternates straight/corner car strengths and varies base driver Pace by up to 0.2 seconds/lap. Other driver attributes are unchanged. The first strength pair has equal overall clear-air pace. Both layouts have 90-second baseline laps, 5000 metres and integrated Speed/Cornering demand 0.5/0.5; open has two eligible visits and restricted one. PassingChance stays 0.4. Coefficients are hypotheses, not real-world calibration.
 
 ## How many actual on-track overtakes with equal cars?
 

@@ -14,7 +14,7 @@ internal record ScenarioEvidence(string Id, string Layout, string Field, string 
 internal record PairedClaim(string Claim, Distribution PairedDifference, double? MeanIntervalLow,
     double? MeanIntervalHigh, string Verdict);
 
-internal static class SegmentExperimentSuite
+internal static partial class SegmentExperimentSuite
 {
     public static void RunTrackPassing(string output, int seed, int runs, JsonSerializerOptions json)
     {
@@ -58,7 +58,7 @@ internal static class SegmentExperimentSuite
         }
         var notes = new StringBuilder("# Segment track fit and passing evidence\n\n");
         notes.AppendLine($"40-lap, 22-car dry races; paired seeds {string.Join(", ", seeds)}. All selected difficulty values: 0, 0.4, 0.8. No tuning was selected after inspecting outcomes.\n");
-        notes.AppendLine("Equal-all means identical drivers AND cars; mixed-car-fit uses the same driver-side attributes with alternating straight/corner car strengths and small base Pace differences. The first strength pair has equal overall clear-air pace. Both layouts have 90-second baseline laps, 5000 metres and integrated Speed/Cornering demand 0.5/0.5; open has two eligible visits and restricted one. PassingChance stays 0.4. Coefficients are hypotheses, not real-world calibration.\n");
+        notes.AppendLine("Equal-all means identical drivers AND cars; mixed-car-fit alternates straight/corner car strengths and varies base driver Pace by up to 0.2 seconds/lap. Other driver attributes are unchanged. The first strength pair has equal overall clear-air pace. Both layouts have 90-second baseline laps, 5000 metres and integrated Speed/Cornering demand 0.5/0.5; open has two eligible visits and restricted one. PassingChance stays 0.4. Coefficients are hypotheses, not real-world calibration.\n");
         notes.AppendLine("## How many actual on-track overtakes with equal cars?\n");
         foreach (var scenario in scenarios.Where(s => s.Field == "equal-all" && s.Mode == "segmented" && s.PassingDifficulty == .4))
             notes.AppendLine($"- {scenario.Layout}: baseline {Format(scenario.Baseline.Overtakes)} overtakes/race; target early-stop alternative {Format(scenario.Alternative.Overtakes)}. These count Overtake events only; pit-cycle rank changes and blue flags are excluded.");

@@ -84,4 +84,10 @@ foreach ($suiteArgs in @(@('--suite', 'track-passing', '--runs', '1'), @('--suit
     if ($LASTEXITCODE -eq 0 -or (Test-Path $rejectedOutput)) { throw 'Invalid suite request was accepted or wrote reports' }
 }
 Write-Output 'Segment suite validation smoke checks passed.'
+$rejectedOutput = Join-Path $smokeOutput ([Guid]::NewGuid().ToString())
+$tyreSuiteError = & $Dotnet run --project $runnerProject --no-build -- --suite tyre-pit --runs 1 --output $rejectedOutput 2>&1
+if ($LASTEXITCODE -eq 0 -or (Test-Path $rejectedOutput) -or "$tyreSuiteError" -notmatch 'at least 20 paired seeds') {
+    throw 'Tyre suite must enforce principal sample size before writing reports'
+}
+Write-Output 'Tyre suite validation smoke check passed.'
 exit 0

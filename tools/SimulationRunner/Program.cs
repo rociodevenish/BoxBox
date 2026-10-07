@@ -32,7 +32,8 @@ try
     }
     if (options.Suite is not null)
     {
-        SegmentExperimentSuite.RunTrackPassing(options.Output, options.Seed, options.Runs, json);
+        if (options.Suite == "tyre-pit") SegmentExperimentSuite.RunTyrePit(options.Output, options.Seed, options.Runs, json);
+        else SegmentExperimentSuite.RunTrackPassing(options.Output, options.Seed, options.Runs, json);
         Console.WriteLine($"Segment evidence: {Path.GetFullPath(options.Output)}");
         return 0;
     }
