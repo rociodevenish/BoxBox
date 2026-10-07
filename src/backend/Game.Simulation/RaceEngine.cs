@@ -126,7 +126,7 @@ public sealed class RaceEngine
             var fraction = Progress(car);
             car.Trace.Add((time, Distance(car)));
             car.PassTime = null;
-            car.Following = null;
+            if (Segments is null) car.Following = null;
             ConsumeTyres(car, fraction);
             car.Pace = decisions?.GetValueOrDefault(car.Driver.Id)?.Pace ?? PaceInstruction.Standard;
             car.Battle = decisions?.GetValueOrDefault(car.Driver.Id)?.Battle ?? BattleInstruction.Neutral;
@@ -154,8 +154,10 @@ public sealed class RaceEngine
                 var loss = (nextTime - time) * Math.Max(0, 1 - current.FreeDuration / (current.LapEnd - current.LapStart));
                 if (loss > 0) history.Add(new RaceEvent(nextTime, current.Driver.Id, current.Laps + 1, RaceEventKind.TrafficLoss, loss));
             }
+            var starting = Segments is not null && car.Laps == 0 && time < car.Driver.Gap && nextTime == car.Driver.Gap;
             time = nextTime;
             foreach (var current in cars) current.Trace.Add((time, Distance(current)));
+            if (starting) { UpdateTraffic(); continue; }
             if (car.PassTime == time)
             {
                 ResolveEncounter(car);
@@ -191,7 +193,7 @@ public sealed class RaceEngine
             ConsumeTyres(car, 1);
             car.Laps++;
             car.SegmentIndex = 0;
-            car.Following = null;
+            if (Segments is null) car.Following = null;
             car.WearProgress = 0;
             car.TyreAge++;
             history.Add(new RaceEvent(time, car.Driver.Id, car.Laps, RaceEventKind.TyreCondition, car.Condition));
@@ -252,7 +254,8 @@ public sealed class RaceEngine
 
     private void UpdateTraffic()
     {
-        if (!Traffic.Enabled || Segments is not null) return;
+        if (!Traffic.Enabled) return;
+        if (Segments is not null) { UpdateSegmentTraffic(); return; }
         var positions = cars.ToDictionary(c => c, Distance);
         foreach (var car in cars.OrderByDescending(c => positions[c]))
         {
@@ -281,12 +284,79 @@ public sealed class RaceEngine
         }
     }
 
+    private SegmentProjection Projection(Car car)
+    {
+        var segment = Segments![car.SegmentIndex];
+        var projection = SegmentSimulation.Project(segment, new SegmentInputs(
+            Segments.Sum(s => s.BaselineTime), car.Driver.Speed, car.Driver.Cornering, car.Driver.Pace,
+            configuration.AttributeSeconds, car.LapPenalty,
+            (Draw(car.Driver.Id, car.Laps + 1, "lap") - .5) * configuration.LapVariation),
+            LocalProgress(car) * segment.Length);
+        // Following is a sequencing constraint applied to the same free segment trajectory.
+        var constrainedDuration = car.LapEnd - car.LapStart;
+        return projection with { SpeedMetresPerSecond = segment.Length / constrainedDuration,
+            ExitAfterSeconds = Math.Max(0, car.LapEnd - time) };
+    }
+
+    private void UpdateSegmentTraffic()
+    {
+        var positions = cars.ToDictionary(c => c, Distance);
+        foreach (var car in cars.OrderByDescending(c => Math.Round(positions[c], 6)).ThenBy(c => c.Driver.Gap)
+            .ThenBy(c => c.Driver.Id, StringComparer.Ordinal))
+        {
+            if (car.PassTime is { } pending && pending <= time + 1e-8) continue;
+            car.PassTime = null;
+            if (car.PitExit is not null || car.FinishTime is not null || time < car.Driver.Gap) continue;
+            SetDuration(car, car.FreeDuration);
+            if (car.Following is { } followed)
+            {
+                var gap = positions[followed] - positions[car];
+                if (followed.PitExit is not null || followed.FinishTime is not null || Math.Abs(gap) > 1e-5)
+                    car.Following = null;
+                else
+                {
+                    var speed = Projection(followed).SpeedMetresPerSecond;
+                    var free = Projection(car).SpeedMetresPerSecond;
+                    if (free > speed)
+                        SetDuration(car, Segments![car.SegmentIndex].Length / speed);
+                    else car.Following = null;
+                }
+            }
+            if (car.Following is not null) continue;
+            var contact = cars.Where(c => c != car && c.PitExit is null && c.FinishTime is null
+                && time >= c.Driver.Gap && Math.Abs(positions[c] - positions[car]) <= 1e-6
+                && (c.Driver.Gap < car.Driver.Gap || c.Driver.Gap == car.Driver.Gap
+                    && StringComparer.Ordinal.Compare(c.Driver.Id, car.Driver.Id) < 0))
+                .OrderByDescending(c => c.Driver.Gap).ThenByDescending(c => c.Driver.Id, StringComparer.Ordinal).FirstOrDefault();
+            if (contact is not null && Projection(car).SpeedMetresPerSecond > Projection(contact).SpeedMetresPerSecond)
+            {
+                car.Following = contact;
+                SetDuration(car, Segments![car.SegmentIndex].Length / Projection(contact).SpeedMetresPerSecond);
+                continue;
+            }
+            var ahead = cars.Where(c => c != car && c.PitExit is null && c.FinishTime is null && time >= c.Driver.Gap)
+                .Select(c => (Car: c, Gap: (positions[c] - positions[car]) % TrackLength))
+                .Select(c => (c.Car, Gap: c.Gap < 0 ? c.Gap + TrackLength : c.Gap))
+                .Where(c => c.Gap > 1e-6 && c.Gap < TrackLength - 1e-6)
+                .OrderBy(c => c.Gap).FirstOrDefault();
+            if (ahead.Car is null) continue;
+            var catchAfter = SegmentSimulation.PredictCatch(Projection(car), Projection(ahead.Car), ahead.Gap);
+            if (catchAfter is > 1e-8)
+            { car.PassTime = time + catchAfter.Value; car.PassTarget = ahead.Car.Driver.Id; }
+        }
+    }
+
     private static double PhysicalGap(double distance) => distance - Math.Floor(distance);
 
     private void ResolveEncounter(Car car)
     {
         var other = cars.Single(c => c.Driver.Id == car.PassTarget);
         if (other.PitExit is not null || other.FinishTime is not null) return;
+        if (Segments is not null)
+        {
+            car.Following = other;
+            return;
+        }
         var gap = PhysicalGap(Distance(other) - Distance(car));
         if (gap > 1e-6 && gap < 1 - 1e-6) return;
         if (Distance(car) - Distance(other) > .5)
@@ -312,16 +382,16 @@ public sealed class RaceEngine
     private void SetDuration(Car car, double duration)
     {
         if (Math.Abs(car.LapEnd - car.LapStart - duration) < 1e-9) return;
-        var fraction = Distance(car) - car.Laps;
+        var fraction = Segments is null ? Distance(car) - car.Laps : LocalProgress(car);
         car.LapStart = time - fraction * duration;
         car.LapEnd = time + (1 - fraction) * duration;
     }
 
-    private static double NextEvent(Car car) => Math.Min(car.PassTime ?? double.PositiveInfinity,
-        car.PitExit ?? car.LapEnd);
+    private double NextEvent(Car car) => Segments is not null && car.Laps == 0 && time < car.Driver.Gap
+        ? car.Driver.Gap : Math.Min(car.PassTime ?? double.PositiveInfinity, car.PitExit ?? car.LapEnd);
 
-    private double Distance(Car car) => car.Laps + (car.Laps == 0 && time < car.Driver.Gap
-        ? (time - car.Driver.Gap) / (car.LapEnd - car.LapStart) : Progress(car));
+    private double Distance(Car car) => (car.Laps + (car.Laps == 0 && time < car.Driver.Gap
+        ? (time - car.Driver.Gap) / (car.LapEnd - car.LapStart) * SegmentShare(car) : Progress(car))) * TrackLength;
 
     private void Delay(Car car, double loss)
     {
@@ -376,7 +446,7 @@ public sealed class RaceEngine
         if (!Traffic.Enabled || car.PitExit is not null || car.FinishTime is not null) return options;
         foreach (var other in cars.Where(c => c != car && c.PitExit is null && c.FinishTime is null))
         {
-            var gap = Distance(other) - Distance(car);
+            var gap = (Distance(other) - Distance(car)) / TrackLength;
             if (Math.Abs(gap) * configuration.Track.BaseLapTime > Traffic.BattleProximity || Math.Abs(gap) > .5) continue;
             var choice = gap > 0 ? BattleInstruction.Attack : BattleInstruction.Defend;
             if (!options.Contains(choice)) options.Add(choice);
@@ -438,8 +508,10 @@ public sealed class RaceEngine
 
     private PhaseResult Snapshot()
     {
-        var order = cars.OrderByDescending(c => c.Laps).ThenByDescending(Progress)
-            .ThenBy(c => c.FinishTime ?? c.LapEnd).ThenBy(c => c.Driver.Id, StringComparer.Ordinal).ToList();
+        var order = cars.OrderByDescending(c => c.Laps).ThenByDescending(c => Segments is null ? Progress(c) : Math.Round(Progress(c), 10))
+            .ThenBy(c => Segments is null ? c.FinishTime ?? c.LapEnd : Math.Round(c.FinishTime ?? c.LapEnd, 8))
+            .ThenBy(c => Segments is null ? 0 : c.Driver.Gap)
+            .ThenBy(c => c.Driver.Id, StringComparer.Ordinal).ToList();
         var leader = order[0];
         var classification = order.Select((c, index) => new ClassificationEntry(c.Driver.Id, index + 1,
             c.Laps, Progress(c), Gap(leader, c), Math.Max(0, (int)Math.Floor(
