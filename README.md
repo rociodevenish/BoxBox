@@ -46,3 +46,20 @@ are separate from raw diagnostic and eligibility/distance groups. Variation is
 sample standard deviation. Comparing a plan with itself should give zero differences.
 Use `--output <directory>` to keep experiments separate and `--config <file>` to
 load a complete RaceConfiguration with experimental numerical coefficients.
+
+Generate the strategy evidence suite (20 paired seeds per experiment):
+
+```powershell
+dotnet run --project tools/SimulationRunner -- experiments --runs 20 --output reports/evidence
+powershell -File tools/verify-runner.ps1
+```
+
+The suite writes paired inputs and results for each experiment, full race reports
+for both field/track fixtures, and `evidence.md` with interpretation and timings.
+Some isolation controls deliberately omit mandatory stops and are labelled
+ineligible; legal pit-window comparisons are reported separately.
+
+The current model uses track-weighted whole-lap pace, with linear movement between
+catch, lap-crossing and pit-exit events. Cornering changes aggregate lap time;
+there are no individual corners or passing zones. Sector-specific pace and passing
+remain a modelling question before treating this as the final race model.

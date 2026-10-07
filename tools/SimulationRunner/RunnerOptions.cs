@@ -3,7 +3,8 @@ using Game.Domain;
 namespace SimulationRunner;
 
 internal record RunnerOptions(int Laps, int Seed, bool Mixed, bool Technical, string? Script,
-    string? Strategy, string? Alternative, string Target, int Runs, string Output, string? Configuration, PaceInstruction Pace)
+    string? Strategy, string? Alternative, string Target, int Runs, string Output, string? Configuration,
+    PaceInstruction Pace, bool Experiments)
 {
     public static RunnerOptions Parse(string[] args)
     {
@@ -19,7 +20,7 @@ internal record RunnerOptions(int Laps, int Seed, bool Mixed, bool Technical, st
                     throw new ArgumentException($"{args[i]} needs one value and may appear once.");
                 values[args[i]] = args[++i];
             }
-            else if (new[] { "mixed", "technical", "push", "conserve" }.Contains(args[i])) flags.Add(args[i]);
+            else if (new[] { "mixed", "technical", "push", "conserve", "experiments" }.Contains(args[i])) flags.Add(args[i]);
             else if (args[i].StartsWith("--")) throw new ArgumentException($"Unknown option {args[i]}.");
             else positional.Add(args[i]);
         }
@@ -35,6 +36,7 @@ internal record RunnerOptions(int Laps, int Seed, bool Mixed, bool Technical, st
             values.GetValueOrDefault("--script"), values.GetValueOrDefault("--strategy"),
             values.GetValueOrDefault("--compare"), values.GetValueOrDefault("--driver", "driver-01"), runs,
             values.GetValueOrDefault("--output", "reports"), values.GetValueOrDefault("--config"),
-            flags.Contains("push") ? PaceInstruction.Push : flags.Contains("conserve") ? PaceInstruction.Conserve : PaceInstruction.Standard);
+            flags.Contains("push") ? PaceInstruction.Push : flags.Contains("conserve") ? PaceInstruction.Conserve : PaceInstruction.Standard,
+            flags.Contains("experiments"));
     }
 }

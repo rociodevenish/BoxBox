@@ -41,6 +41,9 @@ public sealed class RaceEngine
 
     public RaceEngine(RaceConfiguration configuration, IReadOnlyList<Driver> drivers, int seed)
     {
+        if (configuration is null || configuration.Track is null || drivers is null
+            || string.IsNullOrWhiteSpace(configuration.Track.Name) || drivers.Any(d => d is null))
+            throw new ArgumentException("Race configuration, track and drivers are required.");
         var tyres = configuration.Tyres ?? new TyreTuning();
         var tyreValues = new[] { tyres.DegradationPerLap, tyres.WarmupPenalty, tyres.DegradationPenalty,
             tyres.ExhaustionPenalty, tyres.PushGain, tyres.PushWear, tyres.ConserveLoss, tyres.ConserveWear,
@@ -54,6 +57,7 @@ public sealed class RaceEngine
             || !double.IsFinite(configuration.Track.StationaryStop) || configuration.Track.StationaryStop < 0
             || !double.IsFinite(configuration.StopVariation) || configuration.StopVariation < 0
             || configuration.StopVariation > configuration.Track.StationaryStop * 2
+            || !double.IsFinite(configuration.Track.PitLaneLoss + configuration.Track.StationaryStop + configuration.StopVariation)
             || !double.IsFinite(configuration.EstimateError) || configuration.EstimateError is < 0 or > 1
             || !double.IsFinite(configuration.Track.PassingChance) || configuration.Track.PassingChance is < 0 or > 1
             || (configuration.Traffic ?? new()).AttackMultiplier < 1 || (configuration.Traffic ?? new()).DefendMultiplier > 1
@@ -121,6 +125,8 @@ public sealed class RaceEngine
         {
             var car = cars.Where(c => c.FinishTime is null).OrderBy(NextEvent)
                 .ThenBy(c => c.Driver.Id, StringComparer.Ordinal).First();
+            // Complete every event at the boundary timestamp before accepting new decisions.
+            if (!chequered && cars.Max(c => c.Laps) >= target && NextEvent(car) > time + 1e-8) break;
             var nextTime = NextEvent(car);
             foreach (var current in cars.Where(c => c.Following is not null && c.FinishTime is null && c.PitExit is null))
             {
@@ -176,8 +182,6 @@ public sealed class RaceEngine
                 car.FreeDuration = car.LapEnd - car.LapStart;
             }
             UpdateTraffic();
-            // Finish the complete field once the leader receives the flag.
-            if (!chequered && car.Laps >= target) break;
         }
         foreach (var car in cars.Where(c => c.FinishTime is null)) ConsumeTyres(car, Progress(car));
         phaseIndex++;

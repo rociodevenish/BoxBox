@@ -1,6 +1,6 @@
 # Dry-race strategy laboratory
 
-Status: ready-for-agent
+Status: resolved
 
 ## Problem Statement
 

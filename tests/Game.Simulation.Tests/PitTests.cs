@@ -7,6 +7,20 @@ namespace Game.Simulation.Tests;
 public class PitTests
 {
     [Fact]
+    public void Simultaneous_crossings_complete_before_new_phase_pit_decisions()
+    {
+        var race = new RaceEngine(new RaceConfiguration(12, new Track("Test", 100),
+            Tyres: new(DegradationPerLap: 0, WarmupPenalty: 0), Traffic: new(Enabled: false)),
+            [new Driver("a", "A"), new Driver("b", "B")], 1);
+        var first = race.ResolvePhase();
+        Assert.All(first.Classification, c => Assert.Equal(5, c.Laps));
+        var second = race.ResolvePhase(new Dictionary<string, DriverDecision>
+            { ["b"] = new(PitCompound: TyreCompound.Hard) });
+        var entry = Assert.Single(second.Events, e => e.Kind == RaceEventKind.PitEntry);
+        Assert.Equal(6, entry.Lap);
+        Assert.Equal(600, entry.Time);
+    }
+    [Fact]
     public void Queued_stop_survives_an_intervening_phase_boundary()
     {
         var race = new RaceEngine(new RaceConfiguration(20, new Track("Test", 100),

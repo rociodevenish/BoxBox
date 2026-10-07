@@ -9,6 +9,7 @@ internal static class ReportWriter
     public static void Race(string directory, RaceConfiguration configuration, Driver[] drivers,
         StrategyPlan plan, RaceRun run, JsonSerializerOptions json)
     {
+        configuration = configuration.WithExplicitTuning();
         Directory.CreateDirectory(directory);
         File.WriteAllText(Path.Combine(directory, "race.json"), JsonSerializer.Serialize(new { configuration, drivers, plan, run }, json));
         var text = new StringBuilder($"Initial numerical hypotheses. Seed {run.Seed}\n");

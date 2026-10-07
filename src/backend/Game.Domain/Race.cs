@@ -45,7 +45,10 @@ public record TrafficTuning(bool Enabled = true, double FollowingLoss = .3, doub
 
 public record RaceConfiguration(int Laps, Track Track, double AttributeSeconds = 1,
     double LapVariation = 0, TyreTuning? Tyres = null, double StopVariation = .6,
-    TrafficTuning? Traffic = null, double EstimateError = .04);
+    TrafficTuning? Traffic = null, double EstimateError = .04)
+{
+    public RaceConfiguration WithExplicitTuning() => this with { Tyres = Tyres ?? new(), Traffic = Traffic ?? new() };
+}
 
 public record TyreState(string DriverId, TyreCompound Compound, int Age, double Condition,
     PaceInstruction Pace, bool InPits = false);

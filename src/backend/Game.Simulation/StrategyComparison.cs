@@ -21,7 +21,8 @@ public static class StrategyComparison
         var ids = request.Drivers.Select(d => d.Id).ToArray();
         StrategyEvaluator.Validate(request.Baseline, ids, request.Configuration.Laps);
         StrategyEvaluator.Validate(request.Alternative, ids, request.Configuration.Laps);
-        request = request with { Drivers = request.Drivers.ToArray(), Seeds = request.Seeds.ToArray(),
+        request = request with { Configuration = request.Configuration.WithExplicitTuning(),
+            Drivers = request.Drivers.ToArray(), Seeds = request.Seeds.ToArray(),
             Baseline = Snapshot(request.Baseline), Alternative = Snapshot(request.Alternative) };
         if (request.Alternative.Scheduled.Any(s => s.DriverId != request.TargetDriver)
             || request.Alternative.Conditional.Any(c => c.DriverId != request.TargetDriver)

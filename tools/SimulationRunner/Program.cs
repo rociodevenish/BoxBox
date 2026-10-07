@@ -10,14 +10,17 @@ try
     var json = new JsonSerializerOptions { WriteIndented = true, PropertyNameCaseInsensitive = true,
         UnmappedMemberHandling = JsonUnmappedMemberHandling.Disallow };
     json.Converters.Add(new JsonStringEnumConverter());
-    var track = options.Technical ? new Track("Technical", 95, .2, PassingChance: .08)
-        : new Track("Fast", 85, .8, PassingChance: .8);
+    if (options.Experiments)
+    {
+        ExperimentSuite.Run(options.Output, options.Seed, options.Runs, json);
+        Console.WriteLine($"Experiment evidence: {Path.GetFullPath(options.Output)}");
+        return 0;
+    }
+    var track = LaboratoryFixtures.Track(options.Technical);
     var configuration = options.Configuration is null
         ? new RaceConfiguration(options.Laps, track, LapVariation: .2, Tyres: new(), Traffic: new())
         : Read<RaceConfiguration>(options.Configuration);
-    var drivers = Enumerable.Range(1, 22).Select(i => new Driver($"driver-{i:00}", $"team-{(i + 1) / 2:00}",
-        Speed: options.Mixed ? (22 - i) * .1 : 0, Cornering: options.Mixed ? (i % 5) * .1 : 0,
-        Gap: (i - 1) * .5)).ToArray();
+    var drivers = LaboratoryFixtures.Field(options.Mixed);
     var plan = options.Strategy is not null ? Read<StrategyPlan>(options.Strategy)
         : new StrategyPlan(options.Script is null ? [] : Read<ScheduledDecision[]>(options.Script), [],
             options.Pace);
@@ -37,8 +40,7 @@ try
     }
     Console.WriteLine($"Reports: {Path.GetFullPath(options.Output)}");
 
-    T Read<T>(string path) => JsonSerializer.Deserialize<T>(File.ReadAllText(path), json)
-        ?? throw new ArgumentException($"{path} contains a null input.");
+    T Read<T>(string path) => JsonInput.Read<T>(path, json);
 }
 catch (Exception error) when (error is ArgumentException or IOException or JsonException or FormatException or OverflowException)
 {
