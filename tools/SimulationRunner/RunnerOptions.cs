@@ -4,14 +4,14 @@ namespace SimulationRunner;
 
 internal record RunnerOptions(int Laps, int Seed, bool Mixed, bool Technical, string? Script,
     string? Strategy, string? Alternative, string Target, int Runs, string Output, string? Configuration,
-    PaceInstruction Pace, bool Experiments, string? Replay)
+    PaceInstruction Pace, bool Experiments, string? Replay, string? Suite)
 {
     public static RunnerOptions Parse(string[] args)
     {
         var positional = new List<string>();
         var values = new Dictionary<string, string>();
         var flags = new HashSet<string>();
-        var named = new[] { "--script", "--strategy", "--compare", "--driver", "--runs", "--output", "--config", "--replay" };
+        var named = new[] { "--script", "--strategy", "--compare", "--driver", "--runs", "--output", "--config", "--replay", "--suite" };
         for (var i = 0; i < args.Length; i++)
         {
             if (named.Contains(args[i]))
@@ -29,6 +29,10 @@ internal record RunnerOptions(int Laps, int Seed, bool Mixed, bool Technical, st
         if (values.ContainsKey("--replay") && (positional.Count != 0 || flags.Count != 0
             || values.Keys.Any(k => k is not "--replay" and not "--output")))
             throw new ArgumentException("Replay accepts only --replay and --output; recorded inputs own the run.");
+        if (values.TryGetValue("--suite", out var suite) && (suite != "track-passing" || flags.Count != 0
+            || values.Keys.Any(k => k is not "--suite" and not "--output" and not "--runs")
+            || positional.Count > 0 && positional[0] != "40"))
+            throw new ArgumentException("Track-passing suite owns its 40-lap fixtures and plans; accepts only --suite, --runs, --output and optional 40/seed.");
         var laps = positional.Count > 0 ? int.Parse(positional[0]) : 50;
         var seed = positional.Count > 1 ? int.Parse(positional[1]) : 7;
         var runs = int.Parse(values.GetValueOrDefault("--runs", "20"));
@@ -40,6 +44,6 @@ internal record RunnerOptions(int Laps, int Seed, bool Mixed, bool Technical, st
             values.GetValueOrDefault("--compare"), values.GetValueOrDefault("--driver", "driver-01"), runs,
             values.GetValueOrDefault("--output", "reports"), values.GetValueOrDefault("--config"),
             flags.Contains("push") ? PaceInstruction.Push : flags.Contains("conserve") ? PaceInstruction.Conserve : PaceInstruction.Standard,
-            flags.Contains("experiments"), values.GetValueOrDefault("--replay"));
+            flags.Contains("experiments"), values.GetValueOrDefault("--replay"), values.GetValueOrDefault("--suite"));
     }
 }

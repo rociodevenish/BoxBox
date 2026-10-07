@@ -31,6 +31,7 @@ public sealed class RaceEngine
         public HashSet<TyreCompound> UsedCompounds { get; } = [driver.StartingCompound];
         public Car? Following { get; set; }
         public double FreeDuration { get; set; }
+        public SegmentProjection? FreeProjection { get; set; }
         public double? PassTime { get; set; }
         public string? PassTarget { get; set; }
         public List<(double Time, double Distance)> Trace { get; } = [];
@@ -344,14 +345,11 @@ public sealed class RaceEngine
     private SegmentProjection Projection(Car car)
     {
         var segment = Segments![car.SegmentIndex];
-        var projection = SegmentSimulation.Project(segment, new SegmentInputs(
-            Segments.Sum(s => s.BaselineTime), car.Driver.Speed, car.Driver.Cornering, car.Driver.Pace,
-            configuration.AttributeSeconds, car.LapPenalty,
-            car.LapVariationSeconds, car.RaceFormSeconds),
-            LocalProgress(car) * segment.Length);
+        var projection = car.FreeProjection ?? throw new InvalidOperationException("Segment trajectory is unresolved.");
         // Following is a sequencing constraint applied to the same free segment trajectory.
         var constrainedDuration = car.LapEnd - car.LapStart;
-        return projection with { SpeedMetresPerSecond = segment.Length / constrainedDuration,
+        return projection with { PositionMetres = LocalProgress(car) * segment.Length,
+            SpeedMetresPerSecond = segment.Length / constrainedDuration,
             ExitAfterSeconds = Math.Max(0, car.LapEnd - time) };
     }
 
@@ -566,10 +564,13 @@ public sealed class RaceEngine
     {
         var d = car.Driver;
         if (Segments is { } layout)
-            return SegmentSimulation.Project(layout[car.SegmentIndex], new SegmentInputs(
+        {
+            car.FreeProjection = SegmentSimulation.Project(layout[car.SegmentIndex], new SegmentInputs(
                 layout.Sum(s => s.BaselineTime), d.Speed, d.Cornering, d.Pace,
                 configuration.AttributeSeconds, car.LapPenalty,
-                car.LapVariationSeconds, car.RaceFormSeconds)).TravelSeconds;
+                car.LapVariationSeconds, car.RaceFormSeconds));
+            return car.FreeProjection.TravelSeconds;
+        }
         var performance = d.Pace + d.Speed * configuration.Track.SpeedWeight
             + d.Cornering * (1 - configuration.Track.SpeedWeight);
         var duration = configuration.Track.BaseLapTime - performance * configuration.AttributeSeconds

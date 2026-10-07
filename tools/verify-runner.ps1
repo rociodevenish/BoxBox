@@ -78,4 +78,10 @@ foreach ($badKind in @('model', 'randomness', 'seed', 'layout')) {
     if ($LASTEXITCODE -eq 0 -or (Test-Path $rejectedOutput)) { throw "Invalid $badKind replay was accepted or wrote reports" }
 }
 Write-Output 'Segment replay smoke checks passed.'
+foreach ($suiteArgs in @(@('--suite', 'track-passing', '--runs', '1'), @('--suite', 'track-passing', '--config', $segmentConfig))) {
+    $rejectedOutput = Join-Path $smokeOutput ([Guid]::NewGuid().ToString())
+    & $Dotnet run --project $runnerProject --no-build -- @suiteArgs --output $rejectedOutput
+    if ($LASTEXITCODE -eq 0 -or (Test-Path $rejectedOutput)) { throw 'Invalid suite request was accepted or wrote reports' }
+}
+Write-Output 'Segment suite validation smoke checks passed.'
 exit 0

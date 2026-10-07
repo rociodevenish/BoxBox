@@ -30,6 +30,12 @@ try
         Console.WriteLine($"Replay reports: {Path.GetFullPath(options.Output)}");
         return 0;
     }
+    if (options.Suite is not null)
+    {
+        SegmentExperimentSuite.RunTrackPassing(options.Output, options.Seed, options.Runs, json);
+        Console.WriteLine($"Segment evidence: {Path.GetFullPath(options.Output)}");
+        return 0;
+    }
     if (options.Experiments)
     {
         ExperimentSuite.Run(options.Output, options.Seed, options.Runs, json);
