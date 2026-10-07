@@ -9,7 +9,7 @@ public class RaceTests
     [Fact]
     public void Equal_time_lapped_finish_is_independent_of_driver_id()
     {
-        var race = new RaceEngine(new RaceConfiguration(12, new Track("Test", 100)),
+        var race = new RaceEngine(new RaceConfiguration(12, new Track("Test", 100), Tyres: new(DegradationPerLap: 0, WarmupPenalty: 0)),
             [new Driver("z-leader", "A"), new Driver("a-lapped", "B", Pace: -100)], 7);
         PhaseResult result;
         do { result = race.ResolvePhase(); } while (!result.Finished);
@@ -20,7 +20,7 @@ public class RaceTests
     [Fact]
     public void Equal_speed_follower_retains_exact_gap_at_phase_boundary()
     {
-        var result = new RaceEngine(new RaceConfiguration(12, new Track("Test", 100)),
+        var result = new RaceEngine(new RaceConfiguration(12, new Track("Test", 100), Tyres: new(DegradationPerLap: 0, WarmupPenalty: 0)),
             [new Driver("a", "A"), new Driver("b", "B", Gap: 2)], 1).ResolvePhase();
         Assert.Equal(2, result.Classification[1].GapSeconds, 6);
         Assert.Equal(.98, result.Classification[1].Progress, 6);
@@ -47,7 +47,7 @@ public class RaceTests
     [Fact]
     public void Relevant_speed_attribute_improves_a_clear_air_race()
     {
-        var race = new RaceEngine(new RaceConfiguration(3, new Track("Fast", 100, 1)),
+        var race = new RaceEngine(new RaceConfiguration(3, new Track("Fast", 100, 1), Tyres: new(DegradationPerLap: 0, WarmupPenalty: 0)),
             [new Driver("slow", "A"), new Driver("fast", "B", Speed: 2)], 1);
         var result = race.ResolvePhase();
         Assert.Equal("fast", result.Classification[0].DriverId);
@@ -66,7 +66,7 @@ public class RaceTests
     [Fact]
     public void Race_phases_follow_leader_and_lapped_cars_finish_at_next_crossing()
     {
-        var race = new RaceEngine(new RaceConfiguration(12, new Track("Test", 100)),
+        var race = new RaceEngine(new RaceConfiguration(12, new Track("Test", 100), Tyres: new(DegradationPerLap: 0, WarmupPenalty: 0)),
             [new Driver("fast", "A"), new Driver("slow", "B", Pace: -100)], 7);
         var first = race.ResolvePhase();
         Assert.Equal(5, first.LeaderLap);
@@ -81,3 +81,4 @@ public class RaceTests
         Assert.Equal(1200, finish.Classification[1].FinishTime);
     }
 }
+
