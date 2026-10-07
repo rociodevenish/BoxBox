@@ -6,7 +6,8 @@ using Game.Simulation;
 var laps = args.Length > 0 ? int.Parse(args[0]) : 50;
 var seed = args.Length > 1 ? int.Parse(args[1]) : 7;
 var mixed = args.Contains("mixed");
-var track = args.Contains("technical") ? new Track("Technical", 95, .2) : new Track("Fast", 85, .8);
+var track = args.Contains("technical") ? new Track("Technical", 95, .2, PassingChance: .08)
+    : new Track("Fast", 85, .8, PassingChance: .8);
 var drivers = Enumerable.Range(1, 22).Select(i => new Driver($"driver-{i:00}", $"team-{(i + 1) / 2:00}",
     Speed: mixed ? (22 - i) * .1 : 0, Cornering: mixed ? (i % 5) * .1 : 0, Gap: (i - 1) * .5)).ToArray();
 var configuration = new RaceConfiguration(laps, track, LapVariation: .2);
@@ -46,7 +47,7 @@ var summary = $"Seed {seed}; {laps} laps; {track.Name}; mixed={mixed}\nFresh sta
         $"Lap {p.LeaderLap}: {t.DriverId} {t.Compound}, age {t.Age}, condition {t.Condition:F3}, pace {t.Pace}")))
     + Environment.NewLine + string.Join(Environment.NewLine, result.Classification.Select(c =>
     $"P{c.Position,2} {c.DriverId}: {c.Laps} laps, {c.FinishTime:F3}s, +{c.GapLaps} laps / {c.GapSeconds:F3}s, eligible={result.Eligibility[c.DriverId]}"))
-    + Environment.NewLine + string.Join(Environment.NewLine, result.Events.Where(e => e.Kind.StartsWith("Pit")
-        || e.Kind == "TyreChanged").Select(e => $"{e.Time:F3}s {e.DriverId} lap {e.Lap}: {e.Kind} {e.Value:F3}"));
+    + Environment.NewLine + string.Join(Environment.NewLine, result.Events.Where(e => e.Kind != RaceEventKind.LapCompleted
+        && e.Kind != RaceEventKind.TyreCondition).Select(e => $"{e.Time:F3}s {e.DriverId} lap {e.Lap}: {e.Kind} {e.Value:F3}"));
 File.WriteAllText("reports/race.txt", summary);
 Console.WriteLine(summary);

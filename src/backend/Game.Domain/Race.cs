@@ -12,18 +12,26 @@ public record TyreTuning(double DegradationPerLap = .025, double WarmupPenalty =
 
 public record Driver(string Id, string Team, double Speed = 0, double Cornering = 0,
     double Pace = 0, double Gap = 0, TyreCompound StartingCompound = TyreCompound.Medium,
-    double TyrePreservation = 0, double TyreManagement = 0);
+    double TyrePreservation = 0, double TyreManagement = 0, double Racecraft = 0);
 
 public record Track(string Name, double BaseLapTime = 90, double SpeedWeight = .5,
-    double PitLaneLoss = 20, double StationaryStop = 3);
+    double PitLaneLoss = 20, double StationaryStop = 3, double PassingChance = .4);
+
+public record TrafficTuning(bool Enabled = true, double FollowingLoss = .3, double BlueFlagLoss = .15);
 
 public record RaceConfiguration(int Laps, Track Track, double AttributeSeconds = 1,
-    double LapVariation = 0, TyreTuning? Tyres = null, double StopVariation = .6);
+    double LapVariation = 0, TyreTuning? Tyres = null, double StopVariation = .6,
+    TrafficTuning? Traffic = null);
 
 public record TyreState(string DriverId, TyreCompound Compound, int Age, double Condition,
     PaceInstruction Pace, bool InPits = false);
 
-public record RaceEvent(double Time, string DriverId, int Lap, string Kind, double Value = 0);
+public enum RaceEventKind { LapCompleted, TyreCondition, PitEntry, PitService, PitExit,
+    TyreChanged, Overtake, TrafficLoss, BlueFlag }
+
+// Value is seconds for time-loss/service events and a fraction for TyreCondition.
+public record RaceEvent(double Time, string DriverId, int Lap, RaceEventKind Kind, double Value = 0,
+    string? OtherDriverId = null, TyreCompound? Compound = null);
 
 public record ClassificationEntry(string DriverId, int Position, int Laps, double Progress,
     double GapSeconds, int GapLaps, double? FinishTime);

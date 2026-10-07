@@ -16,7 +16,7 @@ public class PitTests
         var result = race.ResolvePhase();
         // The leader reaches lap 10 at the same instant as slow completes lap 1.
         result = race.ResolvePhase();
-        Assert.Single(result.Events, e => e.DriverId == "slow" && e.Kind == "PitEntry");
+        Assert.Single(result.Events, e => e.DriverId == "slow" && e.Kind == RaceEventKind.PitEntry);
     }
     [Fact]
     public void Fresh_tyres_can_repay_stop_loss_in_clear_air()
@@ -47,7 +47,7 @@ public class PitTests
         race.ResolvePhase();
         var result = race.ResolvePhase(new Dictionary<string, DriverDecision>
             { ["slow"] = new(PitCompound: TyreCompound.Hard) });
-        var entry = Assert.Single(result.Events, e => e.Kind == "PitEntry");
+        var entry = Assert.Single(result.Events, e => e.Kind == RaceEventKind.PitEntry);
         Assert.Equal(600, entry.Time);
         Assert.Equal(3, entry.Lap);
     }
@@ -59,7 +59,7 @@ public class PitTests
         Assert.True(result.Finished);
         Assert.False(result.Eligibility["a"]);
         Assert.NotNull(result.Classification[0].FinishTime);
-        Assert.DoesNotContain(result.Events, e => e.Kind == "PitEntry");
+        Assert.DoesNotContain(result.Events, e => e.Kind == RaceEventKind.PitEntry);
     }
 
     [Fact]
@@ -84,7 +84,7 @@ public class PitTests
                 { ["other"] = new(PitCompound: pit ? TyreCompound.Hard : null) });
             PhaseResult result = first;
             while (!result.Finished) result = race.ResolvePhase();
-            return result.Events.Where(e => e.DriverId == "leader" && e.Kind == "LapCompleted").ToArray();
+            return result.Events.Where(e => e.DriverId == "leader" && e.Kind == RaceEventKind.LapCompleted).ToArray();
         }
         Assert.Equal(Run(false), Run(true));
     }
@@ -96,7 +96,7 @@ public class PitTests
         race.ResolvePhase();
         var result = race.ResolvePhase(new Dictionary<string, DriverDecision>
         { ["a"] = new(PaceInstruction.Push, TyreCompound.Hard) });
-        var stop = Assert.Single(result.Events, e => e.Kind == "PitEntry");
+        var stop = Assert.Single(result.Events, e => e.Kind == RaceEventKind.PitEntry);
         Assert.Equal(6, stop.Lap);
         Assert.Equal(TyreCompound.Hard, result.Tyres[0].Compound);
         Assert.Equal(4, result.Tyres[0].Age);

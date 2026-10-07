@@ -81,4 +81,3 @@ public class RaceTests
         Assert.Equal(1200, finish.Classification[1].FinishTime);
     }
 }
-
