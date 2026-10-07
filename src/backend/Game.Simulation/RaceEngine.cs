@@ -15,6 +15,7 @@ public sealed class RaceEngine
         public int TyreAge { get; set; }
         public double Condition { get; set; } = 1;
         public PaceInstruction Pace { get; set; }
+        public BattleInstruction Battle { get; set; }
         public double WearProgress { get; set; }
         public TyreCompound? PendingPit { get; set; }
         public double? PitExit { get; set; }
@@ -51,7 +52,10 @@ public sealed class RaceEngine
             || !double.IsFinite(configuration.StopVariation) || configuration.StopVariation < 0
             || configuration.StopVariation > configuration.Track.StationaryStop * 2
             || !double.IsFinite(configuration.Track.PassingChance) || configuration.Track.PassingChance is < 0 or > 1
-            || new[] { (configuration.Traffic ?? new()).FollowingLoss, (configuration.Traffic ?? new()).BlueFlagLoss }.Any(v => !double.IsFinite(v) || v < 0)
+            || (configuration.Traffic ?? new()).AttackMultiplier < 1 || (configuration.Traffic ?? new()).DefendMultiplier > 1
+            || new[] { (configuration.Traffic ?? new()).FollowingLoss, (configuration.Traffic ?? new()).BlueFlagLoss,
+                (configuration.Traffic ?? new()).BattleProximity, (configuration.Traffic ?? new()).AttackMultiplier,
+                (configuration.Traffic ?? new()).DefendMultiplier, (configuration.Traffic ?? new()).BattleWear }.Any(v => !double.IsFinite(v) || v < 0)
             || drivers.Count == 0 || drivers.Select(d => d.Id).Distinct().Count() != drivers.Count
             || drivers.Any(d => string.IsNullOrWhiteSpace(d.Id) || string.IsNullOrWhiteSpace(d.Team)
                 || !double.IsFinite(d.Pace) || !double.IsFinite(d.Speed) || !double.IsFinite(d.Cornering)
@@ -73,10 +77,22 @@ public sealed class RaceEngine
 
     public PhaseResult ResolvePhase(IReadOnlyDictionary<string, DriverDecision>? decisions = null)
     {
-        if (decisions is not null && decisions.Any(d => cars.All(c => c.Driver.Id != d.Key)
-            || d.Value is null || !Enum.IsDefined(d.Value.Pace)
-            || d.Value.PitCompound is { } compound && !Enum.IsDefined(compound)))
-            throw new ArgumentException("Invalid driver decision.");
+        if (decisions is not null)
+            foreach (var (id, decision) in decisions)
+            {
+                if (cars.All(c => c.Driver.Id != id) || decision is null) throw new ArgumentException("Invalid driver decision.");
+                decision.Validate();
+            }
+        foreach (var car in cars)
+        {
+            var decision = decisions?.GetValueOrDefault(car.Driver.Id);
+            if (decision is null) continue;
+            if (!AvailableBattles(car).Contains(decision.Battle))
+                throw new ArgumentException($"Battle instruction is unavailable for {car.Driver.Id}.");
+            if (decision.PitCompound is not null && (car.PitExit is not null
+                || car.PendingPit is not null && car.PendingPit != decision.PitCompound))
+                throw new ArgumentException("A queued or ongoing stop cannot be replaced.");
+        }
         foreach (var car in cars.Where(c => c.FinishTime is null))
         {
             var fraction = Progress(car);
@@ -85,10 +101,10 @@ public sealed class RaceEngine
             car.Following = null;
             ConsumeTyres(car, fraction);
             car.Pace = decisions?.GetValueOrDefault(car.Driver.Id)?.Pace ?? PaceInstruction.Standard;
+            car.Battle = decisions?.GetValueOrDefault(car.Driver.Id)?.Battle ?? BattleInstruction.Neutral;
+            if (car.Battle != BattleInstruction.Neutral)
+                history.Add(new RaceEvent(time, car.Driver.Id, car.Laps, RaceEventKind.BattleDecision, (int)car.Battle));
             var requestedPit = decisions?.GetValueOrDefault(car.Driver.Id)?.PitCompound;
-            if (requestedPit is not null && (car.PitExit is not null
-                || car.PendingPit is not null && car.PendingPit != requestedPit))
-                throw new ArgumentException("A queued or ongoing stop cannot be replaced.");
             car.PendingPit ??= requestedPit;
             var duration = LapTime(car);
             car.FreeDuration = duration;
@@ -125,9 +141,9 @@ public sealed class RaceEngine
             }
             if (cars.Any(c => c.FinishTime is null && c.LapEnd == time
                 && c.Laps + 1 >= configuration.Laps)) chequered = true;
+            ConsumeTyres(car, 1);
             car.Laps++;
             car.Following = null;
-            ConsumeTyres(car, 1);
             car.WearProgress = 0;
             car.TyreAge++;
             history.Add(new RaceEvent(time, car.Driver.Id, car.Laps, RaceEventKind.TyreCondition, car.Condition));
@@ -210,8 +226,12 @@ public sealed class RaceEngine
             return;
         }
         var advantage = Math.Max(0, other.FreeDuration - car.FreeDuration);
+        ChargeBattle(car, BattleInstruction.Attack);
+        ChargeBattle(other, BattleInstruction.Defend);
         var chance = Math.Clamp(configuration.Track.PassingChance * Math.Min(1, advantage / 2)
-            * (1 + (car.Driver.Racecraft - other.Driver.Racecraft) * .03), 0, 1);
+            * (1 + (car.Driver.Racecraft - other.Driver.Racecraft) * .03)
+            * (car.Battle == BattleInstruction.Attack ? Traffic.AttackMultiplier : 1)
+            * (other.Battle == BattleInstruction.Defend ? Traffic.DefendMultiplier : 1), 0, 1);
         if (Draw(car.Driver.Id, car.Laps + 1, $"pass:{other.Driver.Id}") < chance)
             history.Add(new RaceEvent(time, car.Driver.Id, car.Laps + 1, RaceEventKind.Overtake,
                 OtherDriverId: other.Driver.Id));
@@ -271,6 +291,30 @@ public sealed class RaceEngine
         car.WearProgress = fraction;
     }
 
+    public PhaseResult GetState() => Snapshot();
+
+    private IReadOnlyList<BattleInstruction> AvailableBattles(Car car)
+    {
+        var options = new List<BattleInstruction> { BattleInstruction.Neutral };
+        if (!Traffic.Enabled || car.PitExit is not null || car.FinishTime is not null) return options;
+        foreach (var other in cars.Where(c => c != car && c.PitExit is null && c.FinishTime is null))
+        {
+            var gap = Distance(other) - Distance(car);
+            if (Math.Abs(gap) * configuration.Track.BaseLapTime > Traffic.BattleProximity || Math.Abs(gap) > .5) continue;
+            var choice = gap > 0 ? BattleInstruction.Attack : BattleInstruction.Defend;
+            if (!options.Contains(choice)) options.Add(choice);
+        }
+        return options;
+    }
+
+    private void ChargeBattle(Car car, BattleInstruction instruction)
+    {
+        if (car.Battle != instruction) return;
+        var cost = Math.Min(car.Condition, Tyres.DegradationPerLap * Traffic.BattleWear);
+        car.Condition -= cost;
+        history.Add(new RaceEvent(time, car.Driver.Id, car.Laps + 1, RaceEventKind.BattleWear, cost));
+    }
+
     private double TyrePenalty(Car car)
     {
         var compound = car.Compound switch { TyreCompound.Soft => -Tyres.SoftGain,
@@ -326,6 +370,7 @@ public sealed class RaceEngine
         return new PhaseResult(leader.Laps, time, cars.All(c => c.FinishTime is not null), classification,
             history.ToArray(), cars.Select(c => new TyreState(c.Driver.Id, c.Compound, c.TyreAge,
                 c.Condition, c.Pace, c.PitExit is not null)).ToArray(),
-            cars.ToDictionary(c => c.Driver.Id, c => c.UsedCompounds.Count >= 2));
+            cars.ToDictionary(c => c.Driver.Id, c => c.UsedCompounds.Count >= 2),
+            cars.ToDictionary(c => c.Driver.Id, AvailableBattles));
     }
 }

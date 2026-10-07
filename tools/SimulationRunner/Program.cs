@@ -23,10 +23,10 @@ if (scriptIndex >= 0 && scriptIndex + 1 >= args.Length) throw new ArgumentExcept
 var script = scriptIndex < 0 ? [] : JsonSerializer.Deserialize<ScheduledDecision[]>(
     File.ReadAllText(args[scriptIndex + 1]), jsonOptions) ?? throw new ArgumentException("Script must be an array.");
 if (script.Any(s => s is null || s.Phase < 0 || s.Phase >= (laps + 4) / 5
-        || drivers.All(d => d.Id != s.DriverId) || s.Decision is null || !Enum.IsDefined(s.Decision.Pace)
-        || s.Decision.PitCompound is { } compound && !Enum.IsDefined(compound))
+        || drivers.All(d => d.Id != s.DriverId) || s.Decision is null)
     || script.GroupBy(s => (s.Phase, s.DriverId)).Any(g => g.Count() > 1))
     throw new ArgumentException("Script contains an unknown driver, invalid phase or duplicate decision.");
+foreach (var scheduled in script) scheduled.Decision.Validate();
 PhaseResult result;
 var phases = new List<PhaseResult>();
 var phase = 0;

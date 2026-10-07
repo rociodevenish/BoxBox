@@ -4,12 +4,14 @@
 
 **Blocked by:** 04 — Make traffic and track difficulty constrain overtaking.
 
-**Status:** ready-for-agent
+**Status:** resolved
 
-- [ ] Offer Neutral, Attack and Defend where phase-start proximity qualifies, using tunable thresholds.
-- [ ] Battle Instructions last the phase and affect only relevant battles; running alone receives no unrelated battle effect.
-- [ ] Attack improves passing chances and Defend reduces the following car's chances, with tunable tyre costs.
-- [ ] Scripts and simulation requests validate instruction availability consistently and reject invalid choices clearly.
-- [ ] Simultaneous battle choices resolve reproducibly without one strategy reading another's locked decision.
-- [ ] Readable and structured reports identify relevant battle outcomes and tyre costs.
-- [ ] Public-boundary checks and controlled repeated runs demonstrate instruction effects, eligibility and irrelevant-battle behaviour without tests mirroring internal formulas.
+- [x] Offer Neutral, Attack and Defend where phase-start proximity qualifies, using tunable thresholds.
+- [x] Battle Instructions last the phase and affect only relevant battles; running alone receives no unrelated battle effect.
+- [x] Attack improves passing chances and Defend reduces the following car's chances, with tunable tyre costs.
+- [x] Scripts and simulation requests validate instruction availability consistently and reject invalid choices clearly.
+- [x] Simultaneous battle choices resolve reproducibly without one strategy reading another's locked decision.
+- [x] Readable and structured reports identify relevant battle outcomes and tyre costs.
+- [x] Public-boundary checks and controlled repeated runs demonstrate instruction effects, eligibility and irrelevant-battle behaviour without tests mirroring internal formulas.
+
+Battle costs are charged per actual encounter, avoiding retrospective whole-lap proximity assumptions.
