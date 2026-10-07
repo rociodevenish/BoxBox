@@ -17,6 +17,9 @@ public sealed class RaceEngine
         public double Condition { get; set; } = 1;
         public PaceInstruction Pace { get; set; }
         public double WearProgress { get; set; }
+        public TyreCompound? PendingPit { get; set; }
+        public double? PitExit { get; set; }
+        public HashSet<TyreCompound> UsedCompounds { get; } = [driver.StartingCompound];
     }
 
     private readonly RaceConfiguration configuration;
@@ -38,6 +41,10 @@ public sealed class RaceEngine
             || configuration.Track.SpeedWeight is < 0 or > 1
             || !double.IsFinite(configuration.AttributeSeconds) || configuration.AttributeSeconds < 0
             || !double.IsFinite(configuration.LapVariation) || configuration.LapVariation < 0
+            || !double.IsFinite(configuration.Track.PitLaneLoss) || configuration.Track.PitLaneLoss < 0
+            || !double.IsFinite(configuration.Track.StationaryStop) || configuration.Track.StationaryStop < 0
+            || !double.IsFinite(configuration.StopVariation) || configuration.StopVariation < 0
+            || configuration.StopVariation > configuration.Track.StationaryStop * 2
             || drivers.Count == 0 || drivers.Select(d => d.Id).Distinct().Count() != drivers.Count
             || drivers.Any(d => string.IsNullOrWhiteSpace(d.Id) || string.IsNullOrWhiteSpace(d.Team)
                 || !double.IsFinite(d.Pace) || !double.IsFinite(d.Speed) || !double.IsFinite(d.Cornering)
@@ -58,22 +65,35 @@ public sealed class RaceEngine
     public PhaseResult ResolvePhase(IReadOnlyDictionary<string, DriverDecision>? decisions = null)
     {
         if (decisions is not null && decisions.Any(d => cars.All(c => c.Driver.Id != d.Key)
-            || !Enum.IsDefined(d.Value.Pace))) throw new ArgumentException("Invalid driver decision.");
+            || d.Value is null || !Enum.IsDefined(d.Value.Pace)
+            || d.Value.PitCompound is { } compound && !Enum.IsDefined(compound)))
+            throw new ArgumentException("Invalid driver decision.");
         foreach (var car in cars.Where(c => c.FinishTime is null))
         {
             var fraction = Progress(car);
             ConsumeTyres(car, fraction);
             car.Pace = decisions?.GetValueOrDefault(car.Driver.Id)?.Pace ?? PaceInstruction.Standard;
+            var requestedPit = decisions?.GetValueOrDefault(car.Driver.Id)?.PitCompound;
+            if (requestedPit is not null && (car.PitExit is not null
+                || car.PendingPit is not null && car.PendingPit != requestedPit))
+                throw new ArgumentException("A queued or ongoing stop cannot be replaced.");
+            car.PendingPit ??= requestedPit;
             var duration = LapTime(car);
-            car.LapStart = time < car.Driver.Gap ? car.Driver.Gap : time - fraction * duration;
+            car.LapStart = car.PitExit ?? (time < car.Driver.Gap ? car.Driver.Gap : time - fraction * duration);
             car.LapEnd = car.LapStart + duration;
         }
         var target = Math.Min(configuration.Laps, cars.Max(c => c.Laps) + 5);
         while (cars.Any(c => c.FinishTime is null))
         {
-            var car = cars.Where(c => c.FinishTime is null).OrderBy(c => c.LapEnd)
+            var car = cars.Where(c => c.FinishTime is null).OrderBy(c => c.PitExit ?? c.LapEnd)
                 .ThenBy(c => c.Driver.Id, StringComparer.Ordinal).First();
-            time = car.LapEnd;
+            time = car.PitExit ?? car.LapEnd;
+            if (car.PitExit is not null)
+            {
+                car.PitExit = null;
+                history.Add(new RaceEvent(time, car.Driver.Id, car.Laps, "PitExit"));
+                continue;
+            }
             if (cars.Any(c => c.FinishTime is null && c.LapEnd == time
                 && c.Laps + 1 >= configuration.Laps)) chequered = true;
             car.Laps++;
@@ -87,8 +107,23 @@ public sealed class RaceEngine
             if (chequered) car.FinishTime = time;
             else
             {
-                car.LapStart = time;
-                car.LapEnd = time + LapTime(car);
+                if (car.PendingPit is { } compound)
+                {
+                    var service = configuration.Track.StationaryStop
+                        + (Draw(car.Driver.Id, car.Laps, "stop") - .5) * configuration.StopVariation;
+                    var loss = configuration.Track.PitLaneLoss + service;
+                    history.Add(new RaceEvent(time, car.Driver.Id, car.Laps, "PitEntry", loss));
+                    history.Add(new RaceEvent(time, car.Driver.Id, car.Laps, "PitService", service));
+                    car.Compound = compound;
+                    car.UsedCompounds.Add(compound);
+                    car.TyreAge = 0;
+                    car.Condition = 1;
+                    car.PendingPit = null;
+                    car.PitExit = time + loss;
+                    history.Add(new RaceEvent(time, car.Driver.Id, car.Laps, "TyreChanged", (int)compound));
+                }
+                car.LapStart = car.PitExit ?? time;
+                car.LapEnd = car.LapStart + LapTime(car);
             }
             // Finish the complete field once the leader receives the flag.
             if (!chequered && car.Laps >= target) break;
@@ -152,7 +187,7 @@ public sealed class RaceEngine
         return hash / (double)uint.MaxValue;
     }
 
-    private double Progress(Car car) => car.FinishTime is not null ? 0
+    private double Progress(Car car) => car.FinishTime is not null || car.PitExit is not null ? 0
         : Math.Clamp((time - car.LapStart) / (car.LapEnd - car.LapStart), 0, 1);
 
     private double Gap(Car leader, Car car)
@@ -176,6 +211,7 @@ public sealed class RaceEngine
                 leader.Laps + Progress(leader) - c.Laps - Progress(c) + 1e-9)), c.FinishTime)).ToList();
         return new PhaseResult(leader.Laps, time, cars.All(c => c.FinishTime is not null), classification,
             history.ToArray(), cars.Select(c => new TyreState(c.Driver.Id, c.Compound, c.TyreAge,
-                c.Condition, c.Pace)).ToArray());
+                c.Condition, c.Pace, c.PitExit is not null)).ToArray(),
+            cars.ToDictionary(c => c.Driver.Id, c => c.UsedCompounds.Count >= 2));
     }
 }

@@ -1,0 +1,4 @@
+[
+  { "phase": 3, "driverId": "driver-01", "decision": { "pace": "Standard", "pitCompound": "Hard" } },
+  { "phase": 6, "driverId": "driver-01", "decision": { "pace": "Push", "pitCompound": "Medium" } }
+]

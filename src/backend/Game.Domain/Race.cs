@@ -2,7 +2,8 @@ namespace Game.Domain;
 
 public enum TyreCompound { Soft, Medium, Hard }
 public enum PaceInstruction { Conserve, Standard, Push }
-public record DriverDecision(PaceInstruction Pace = PaceInstruction.Standard);
+public record DriverDecision(PaceInstruction Pace = PaceInstruction.Standard, TyreCompound? PitCompound = null);
+public record ScheduledDecision(int Phase, string DriverId, DriverDecision Decision);
 public record TyreTuning(double DegradationPerLap = .025, double WarmupPenalty = .8,
     double DegradationPenalty = 10, double ExhaustionPenalty = 15, double PushGain = 1,
     double PushWear = 1.65, double ConserveLoss = .8, double ConserveWear = .65,
@@ -13,13 +14,14 @@ public record Driver(string Id, string Team, double Speed = 0, double Cornering 
     double Pace = 0, double Gap = 0, TyreCompound StartingCompound = TyreCompound.Medium,
     double TyrePreservation = 0, double TyreManagement = 0);
 
-public record Track(string Name, double BaseLapTime = 90, double SpeedWeight = .5);
+public record Track(string Name, double BaseLapTime = 90, double SpeedWeight = .5,
+    double PitLaneLoss = 20, double StationaryStop = 3);
 
 public record RaceConfiguration(int Laps, Track Track, double AttributeSeconds = 1,
-    double LapVariation = 0, TyreTuning? Tyres = null);
+    double LapVariation = 0, TyreTuning? Tyres = null, double StopVariation = .6);
 
 public record TyreState(string DriverId, TyreCompound Compound, int Age, double Condition,
-    PaceInstruction Pace);
+    PaceInstruction Pace, bool InPits = false);
 
 public record RaceEvent(double Time, string DriverId, int Lap, string Kind, double Value = 0);
 
@@ -28,4 +30,4 @@ public record ClassificationEntry(string DriverId, int Position, int Laps, doubl
 
 public record PhaseResult(int LeaderLap, double Time, bool Finished,
     IReadOnlyList<ClassificationEntry> Classification, IReadOnlyList<RaceEvent> Events,
-    IReadOnlyList<TyreState> Tyres);
+    IReadOnlyList<TyreState> Tyres, IReadOnlyDictionary<string, bool> Eligibility);
