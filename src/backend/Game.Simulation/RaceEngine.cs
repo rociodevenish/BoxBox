@@ -10,6 +10,8 @@ public sealed class RaceEngine
         public int Laps { get; set; }
         public int SegmentIndex { get; set; }
         public double LapPenalty { get; set; }
+        public double RaceFormSeconds { get; set; }
+        public double LapVariationSeconds { get; set; }
         public int ContactOrder { get; set; }
         public double SegmentEntryTime { get; set; } = driver.Gap;
         public Dictionary<string, bool> Opportunities { get; } = [];
@@ -19,6 +21,7 @@ public sealed class RaceEngine
         public double? FinishTime { get; set; }
         public TyreCompound Compound { get; set; } = driver.StartingCompound;
         public int TyreAge { get; set; }
+        public int Stops { get; set; }
         public double Condition { get; set; } = 1;
         public PaceInstruction Pace { get; set; }
         public BattleInstruction Battle { get; set; }
@@ -65,6 +68,8 @@ public sealed class RaceEngine
             || configuration.Track.SpeedWeight is < 0 or > 1
             || !double.IsFinite(configuration.AttributeSeconds) || configuration.AttributeSeconds < 0
             || !double.IsFinite(configuration.LapVariation) || configuration.LapVariation < 0
+            || !double.IsFinite(configuration.RaceFormVariation) || configuration.RaceFormVariation < 0
+            || !double.IsFinite(configuration.PassingVariation) || configuration.PassingVariation is < 0 or > 1
             || !double.IsFinite(configuration.Track.PitLaneLoss) || configuration.Track.PitLaneLoss < 0
             || !double.IsFinite(configuration.Track.StationaryStop) || configuration.Track.StationaryStop < 0
             || !double.IsFinite(configuration.StopVariation) || configuration.StopVariation < 0
@@ -119,6 +124,8 @@ public sealed class RaceEngine
         foreach (var car in cars)
         {
             _ = Wear(car);
+            car.RaceFormSeconds = ScopedRandom.Offset(seed, RandomChannel.RaceForm, car.Driver.Id, 0, configuration.RaceFormVariation);
+            car.LapVariationSeconds = ScopedRandom.Offset(seed, RandomChannel.LapVariation, car.Driver.Id, 1, configuration.LapVariation);
             car.LapPenalty = TyrePenalty(car);
             car.LapEnd = car.LapStart + LapTime(car);
             car.FreeDuration = car.LapEnd - car.LapStart;
@@ -235,10 +242,14 @@ public sealed class RaceEngine
             if (chequered) car.FinishTime = time;
             else
             {
+                car.LapVariationSeconds = ScopedRandom.Offset(seed, RandomChannel.LapVariation,
+                    car.Driver.Id, car.Laps + 1, configuration.LapVariation);
                 if (car.PendingPit is { } compound)
                 {
+                    car.Stops++;
                     var service = configuration.Track.StationaryStop
-                        + (Draw(car.Driver.Id, car.Laps, "stop") - .5) * configuration.StopVariation;
+                        + ScopedRandom.Offset(seed, RandomChannel.PitService, car.Driver.Id,
+                            Segments is null ? car.Laps : car.Stops, configuration.StopVariation);
                     var loss = configuration.Track.PitLaneLoss + service;
                     history.Add(new RaceEvent(time, car.Driver.Id, car.Laps, RaceEventKind.PitEntry, loss,
                         SegmentId: Segments?[0].Id, DistanceMetres: Segments is null ? null : car.Laps * TrackLength));
@@ -282,8 +293,8 @@ public sealed class RaceEngine
         if (cars.All(c => c.Driver.Team != team)) throw new ArgumentException("Unknown team.");
         var state = Snapshot();
         var own = cars.Where(c => c.Driver.Team == team).Select(c => new EstimatedTyreState(c.Driver.Id,
-            c.Compound, c.TyreAge, Math.Clamp(c.Condition + (Draw(c.Driver.Id, phaseIndex, "estimate") - .5)
-                * 2 * configuration.EstimateError, 0, 1), c.PitExit is not null, c.PendingPit is not null)).ToArray();
+            c.Compound, c.TyreAge, Math.Clamp(c.Condition + ScopedRandom.Offset(seed, RandomChannel.EstimateError, c.Driver.Id, phaseIndex,
+                2 * configuration.EstimateError), 0, 1), c.PitExit is not null, c.PendingPit is not null)).ToArray();
         return new TeamObservation(time, state.LeaderLap, state.Classification, own,
             state.BattleOptions.Where(kv => own.Any(t => t.DriverId == kv.Key)).ToDictionary());
     }
@@ -332,7 +343,7 @@ public sealed class RaceEngine
         var projection = SegmentSimulation.Project(segment, new SegmentInputs(
             Segments.Sum(s => s.BaselineTime), car.Driver.Speed, car.Driver.Cornering, car.Driver.Pace,
             configuration.AttributeSeconds, car.LapPenalty,
-            (Draw(car.Driver.Id, car.Laps + 1, "lap") - .5) * configuration.LapVariation),
+            car.LapVariationSeconds, car.RaceFormSeconds),
             LocalProgress(car) * segment.Length);
         // Following is a sequencing constraint applied to the same free segment trajectory.
         var constrainedDuration = car.LapEnd - car.LapStart;
@@ -471,7 +482,7 @@ public sealed class RaceEngine
                 * Math.Min(1, advantage / 2) * (1 + (car.Driver.Racecraft - other.Driver.Racecraft) * .03)
                 * (car.Battle == BattleInstruction.Attack ? Traffic.AttackMultiplier : 1)
                 * (other.Battle == BattleInstruction.Defend ? Traffic.DefendMultiplier : 1), 0, 1);
-            success = Draw(car.Driver.Id, Visit(car), $"encounter:{identity}") < chance;
+            success = ScopedRandom.PassingThreshold(seed, car.Driver.Id, Visit(car), $"encounter:{identity}", configuration.PassingVariation) < chance;
             car.Opportunities.Add(identity, success);
             history.Add(new RaceEvent(time, car.Driver.Id, car.Laps + 1, RaceEventKind.PassingAttempt,
                 0, other.Driver.Id, SegmentId: segment.Id,
@@ -519,7 +530,7 @@ public sealed class RaceEngine
             * (1 + (car.Driver.Racecraft - other.Driver.Racecraft) * .03)
             * (car.Battle == BattleInstruction.Attack ? Traffic.AttackMultiplier : 1)
             * (other.Battle == BattleInstruction.Defend ? Traffic.DefendMultiplier : 1), 0, 1);
-        if (Draw(car.Driver.Id, car.Laps + 1, $"pass:{other.Driver.Id}") < chance)
+        if (ScopedRandom.PassingThreshold(seed, car.Driver.Id, car.Laps + 1, $"pass:{other.Driver.Id}", configuration.PassingVariation) < chance)
             history.Add(new RaceEvent(time, car.Driver.Id, car.Laps + 1, RaceEventKind.Overtake,
                 OtherDriverId: other.Driver.Id));
         else car.Following = other;
@@ -554,11 +565,11 @@ public sealed class RaceEngine
             return SegmentSimulation.Project(layout[car.SegmentIndex], new SegmentInputs(
                 layout.Sum(s => s.BaselineTime), d.Speed, d.Cornering, d.Pace,
                 configuration.AttributeSeconds, car.LapPenalty,
-                (Draw(d.Id, car.Laps + 1, "lap") - .5) * configuration.LapVariation)).TravelSeconds;
+                car.LapVariationSeconds, car.RaceFormSeconds)).TravelSeconds;
         var performance = d.Pace + d.Speed * configuration.Track.SpeedWeight
             + d.Cornering * (1 - configuration.Track.SpeedWeight);
         var duration = configuration.Track.BaseLapTime - performance * configuration.AttributeSeconds
-            + (Draw(d.Id, car.Laps + 1, "lap") - .5) * configuration.LapVariation
+            + car.LapVariationSeconds + car.RaceFormSeconds
             + TyrePenalty(car);
         if (!double.IsFinite(duration)) throw new ArgumentException("Lap duration must be finite.");
         return Math.Max(1, duration);
@@ -619,17 +630,6 @@ public sealed class RaceEngine
         return compound + instruction + (car.TyreAge == 0 ? Tyres.WarmupPenalty * warmup : 0)
             + Math.Pow(1 - car.Condition, 2) * Tyres.DegradationPenalty
             + (car.Condition <= 0 ? Tyres.ExhaustionPenalty : 0);
-    }
-
-    private double Draw(string driver, int lap, string kind)
-    {
-        // Explicit stable hash: string.GetHashCode is intentionally process-dependent.
-        uint hash = 2166136261;
-        foreach (var ch in $"{seed}:{driver}:{lap}:{kind}") hash = unchecked((hash ^ ch) * 16777619);
-        hash ^= hash >> 16;
-        hash = unchecked(hash * 0x7feb352d);
-        hash ^= hash >> 15;
-        return hash / (double)uint.MaxValue;
     }
 
     private double Progress(Car car) => car.FinishTime is not null || car.PitExit is not null ? 0

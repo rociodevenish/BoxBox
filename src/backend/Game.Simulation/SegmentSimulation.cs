@@ -3,7 +3,7 @@ namespace Game.Simulation;
 
 // Pace, tyre penalties and resolved variability are seconds per lap; attributes use AttributeSeconds.
 public record SegmentInputs(double BaselineLapSeconds, double Speed, double Cornering,
-    double Pace, double AttributeSeconds, double TyrePenaltySeconds = 0, double VariationSeconds = 0);
+    double Pace, double AttributeSeconds, double TyrePenaltySeconds = 0, double VariationSeconds = 0, double RaceFormSeconds = 0);
 public record SegmentProjection(double TravelSeconds, double SpeedMetresPerSecond,
     double PositionMetres, double ExitAfterSeconds);
 public static class SegmentSimulation
@@ -13,14 +13,14 @@ public static class SegmentSimulation
     {
         segment.Validate();
         var values = new[] { inputs.BaselineLapSeconds, inputs.Speed, inputs.Cornering,
-            inputs.Pace, inputs.AttributeSeconds, inputs.TyrePenaltySeconds, inputs.VariationSeconds,
+            inputs.Pace, inputs.AttributeSeconds, inputs.TyrePenaltySeconds, inputs.VariationSeconds, inputs.RaceFormSeconds,
             positionMetres, elapsedSeconds };
         if (values.Any(v => !double.IsFinite(v)) || inputs.BaselineLapSeconds <= 0
             || inputs.AttributeSeconds < 0 || positionMetres < 0 || positionMetres > segment.Length || elapsedSeconds < 0)
             throw new ArgumentException("Invalid effective segment inputs.");
         var share = segment.BaselineTime / inputs.BaselineLapSeconds;
         var seconds = Math.Max(share, segment.BaselineTime + share *
-            (inputs.TyrePenaltySeconds + inputs.VariationSeconds - inputs.AttributeSeconds *
+            (inputs.TyrePenaltySeconds + inputs.VariationSeconds + inputs.RaceFormSeconds - inputs.AttributeSeconds *
                 (inputs.Pace + inputs.Speed * segment.SpeedDemand + inputs.Cornering * segment.CorneringDemand)));
         var speed = segment.Length / seconds;
         if (!double.IsFinite(seconds) || !double.IsFinite(speed) || speed <= 0)
