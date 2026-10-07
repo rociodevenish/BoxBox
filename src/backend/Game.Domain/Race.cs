@@ -40,11 +40,12 @@ public record Driver(string Id, string Team, double Speed = 0, double Cornering 
 // Length is metres; BaselineTime is seconds. Demands are independent fractions.
 public record TrackSegment(string Id, double Length, double BaselineTime,
     double SpeedDemand = .5, double CorneringDemand = .5, double TyreDemand = 1,
-    bool PassingAllowed = true, double PassingDifficulty = .4)
+    bool PassingAllowed = true, double PassingDifficulty = .4, string? PassingZoneId = null)
 {
     public void Validate()
     {
-        if (string.IsNullOrWhiteSpace(Id) || !double.IsFinite(Length) || Length <= 0
+        if (string.IsNullOrWhiteSpace(Id) || PassingZoneId is not null && string.IsNullOrWhiteSpace(PassingZoneId)
+            || !double.IsFinite(Length) || Length <= 0
             || !double.IsFinite(BaselineTime) || BaselineTime <= 0
             || !double.IsFinite(SpeedDemand) || SpeedDemand is < 0 or > 1
             || !double.IsFinite(CorneringDemand) || CorneringDemand is < 0 or > 1
@@ -71,11 +72,11 @@ public record TyreState(string DriverId, TyreCompound Compound, int Age, double 
     PaceInstruction Pace, bool InPits = false);
 
 public enum RaceEventKind { LapCompleted, TyreCondition, PitEntry, PitService, PitExit,
-    TyreChanged, Overtake, TrafficLoss, BlueFlag, BattleDecision, BattleWear, SegmentExited }
+    TyreChanged, Overtake, TrafficLoss, BlueFlag, BattleDecision, BattleWear, SegmentExited, PassingAttempt }
 
 // Value is seconds for time-loss/service events and a fraction for TyreCondition.
 public record RaceEvent(double Time, string DriverId, int Lap, RaceEventKind Kind, double Value = 0,
-    string? OtherDriverId = null, TyreCompound? Compound = null, string? SegmentId = null, double? DistanceMetres = null);
+    string? OtherDriverId = null, TyreCompound? Compound = null, string? SegmentId = null, double? DistanceMetres = null, string? EncounterId = null);
 
 public record ClassificationEntry(string DriverId, int Position, int Laps, double Progress,
     double GapSeconds, int GapLaps, double? FinishTime);

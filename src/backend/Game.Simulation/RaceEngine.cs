@@ -10,6 +10,10 @@ public sealed class RaceEngine
         public int Laps { get; set; }
         public int SegmentIndex { get; set; }
         public double LapPenalty { get; set; }
+        public int ContactOrder { get; set; }
+        public double SegmentEntryTime { get; set; } = driver.Gap;
+        public Dictionary<string, bool> Opportunities { get; } = [];
+        public HashSet<string> PassedOpportunities { get; } = [];
         public double LapStart { get; set; } = driver.Gap;
         public double LapEnd { get; set; }
         public double? FinishTime { get; set; }
@@ -85,6 +89,23 @@ public sealed class RaceEngine
                 || segments.Select(s => s.Id).Distinct().Count() != segments.Count)
                 throw new ArgumentException("A track needs unique ordered segments.");
             foreach (var segment in segments) segment.Validate();
+            var zoneGroups = segments.GroupBy(s => s.PassingZoneId ?? s.Id);
+            foreach (var group in zoneGroups)
+            {
+                var first = group.First();
+                if (group.Any(s => s.PassingAllowed != first.PassingAllowed || s.PassingDifficulty != first.PassingDifficulty
+                    || s.SpeedDemand != first.SpeedDemand || s.CorneringDemand != first.CorneringDemand
+                    || s.TyreDemand != first.TyreDemand
+                    || Math.Abs(s.Length / s.BaselineTime - first.Length / first.BaselineTime) > 1e-8))
+                    throw new ArgumentException("Shared zones must describe equivalent subdivisions.");
+                var entries = Enumerable.Range(0, segments.Count).Count(i =>
+                    (segments[i].PassingZoneId ?? segments[i].Id) == group.Key
+                    && (i == 0 || (segments[i - 1].PassingZoneId ?? segments[i - 1].Id) != group.Key));
+                var wraps = (segments[0].PassingZoneId ?? segments[0].Id) == group.Key
+                    && (segments[^1].PassingZoneId ?? segments[^1].Id) == group.Key;
+                if (entries > (wraps ? 2 : 1))
+                    throw new ArgumentException("A passing zone must be contiguous around the lap.");
+            }
             if (!double.IsFinite(segments.Sum(s => s.Length)) || !double.IsFinite(segments.Sum(s => s.BaselineTime)))
                 throw new ArgumentException("Track totals must be finite.");
             configuration = configuration with { Track = configuration.Track with
@@ -93,6 +114,8 @@ public sealed class RaceEngine
         this.configuration = configuration;
         this.seed = seed;
         cars = drivers.Select(d => new Car(d)).ToList();
+        var ordered = cars.OrderBy(c => c.Driver.Gap).ThenBy(c => c.Driver.Id, StringComparer.Ordinal).ToArray();
+        for (var i = 0; i < ordered.Length; i++) ordered[i].ContactOrder = i;
         foreach (var car in cars)
         {
             _ = Wear(car);
@@ -181,6 +204,7 @@ public sealed class RaceEngine
                 if (car.SegmentIndex < layout.Count - 1)
                 {
                     car.SegmentIndex++;
+                    car.SegmentEntryTime = time;
                     car.LapStart = time;
                     car.LapEnd = time + LapTime(car);
                     car.FreeDuration = car.LapEnd - car.LapStart;
@@ -218,6 +242,7 @@ public sealed class RaceEngine
                     history.Add(new RaceEvent(time, car.Driver.Id, car.Laps, RaceEventKind.TyreChanged, Compound: compound));
                 }
                 car.LapPenalty = TyrePenalty(car);
+                car.SegmentEntryTime = car.PitExit ?? time;
                 car.LapStart = car.PitExit ?? time;
                 car.LapEnd = car.LapStart + LapTime(car);
                 car.FreeDuration = car.LapEnd - car.LapStart;
@@ -301,8 +326,7 @@ public sealed class RaceEngine
     private void UpdateSegmentTraffic()
     {
         var positions = cars.ToDictionary(c => c, Distance);
-        foreach (var car in cars.OrderByDescending(c => Math.Round(positions[c], 6)).ThenBy(c => c.Driver.Gap)
-            .ThenBy(c => c.Driver.Id, StringComparer.Ordinal))
+        foreach (var car in cars.OrderByDescending(c => Math.Round(positions[c], 6)).ThenBy(c => c.ContactOrder))
         {
             if (car.PassTime is { } pending && pending <= time + 1e-8) continue;
             car.PassTime = null;
@@ -315,9 +339,10 @@ public sealed class RaceEngine
                     car.Following = null;
                 else
                 {
+                    if (AttemptSegmentPass(car, followed)) car.Following = null;
                     var speed = Projection(followed).SpeedMetresPerSecond;
                     var free = Projection(car).SpeedMetresPerSecond;
-                    if (free > speed)
+                    if (free > speed && car.Following is not null)
                         SetDuration(car, Segments![car.SegmentIndex].Length / speed);
                     else car.Following = null;
                 }
@@ -325,11 +350,11 @@ public sealed class RaceEngine
             if (car.Following is not null) continue;
             var contact = cars.Where(c => c != car && c.PitExit is null && c.FinishTime is null
                 && time >= c.Driver.Gap && Math.Abs(positions[c] - positions[car]) <= 1e-6
-                && (c.Driver.Gap < car.Driver.Gap || c.Driver.Gap == car.Driver.Gap
-                    && StringComparer.Ordinal.Compare(c.Driver.Id, car.Driver.Id) < 0))
-                .OrderByDescending(c => c.Driver.Gap).ThenByDescending(c => c.Driver.Id, StringComparer.Ordinal).FirstOrDefault();
+                && c.ContactOrder < car.ContactOrder)
+                .OrderByDescending(c => c.ContactOrder).FirstOrDefault();
             if (contact is not null && Projection(car).SpeedMetresPerSecond > Projection(contact).SpeedMetresPerSecond)
             {
+                if (AttemptSegmentPass(car, contact)) continue;
                 car.Following = contact;
                 SetDuration(car, Segments![car.SegmentIndex].Length / Projection(contact).SpeedMetresPerSecond);
                 continue;
@@ -340,10 +365,77 @@ public sealed class RaceEngine
                 .Where(c => c.Gap > 1e-6 && c.Gap < TrackLength - 1e-6)
                 .OrderBy(c => c.Gap).FirstOrDefault();
             if (ahead.Car is null) continue;
+            if (Math.Abs(time - car.SegmentEntryTime) <= 1e-8
+                && ahead.Gap / Projection(car).SpeedMetresPerSecond <= Traffic.BattleProximity)
+                _ = AttemptSegmentPass(car, ahead.Car, false);
             var catchAfter = SegmentSimulation.PredictCatch(Projection(car), Projection(ahead.Car), ahead.Gap);
             if (catchAfter is > 1e-8)
             { car.PassTime = time + catchAfter.Value; car.PassTarget = ahead.Car.Driver.Id; }
         }
+    }
+
+    private string Opportunity(Car car, Car other)
+    {
+        var segment = Segments![car.SegmentIndex];
+        return string.Join("|", Uri.EscapeDataString(car.Driver.Id), Uri.EscapeDataString(other.Driver.Id),
+            Visit(car), Uri.EscapeDataString(segment.PassingZoneId ?? segment.Id));
+    }
+
+    private int Visit(Car car)
+    {
+        var zone = Segments![car.SegmentIndex].PassingZoneId ?? Segments[car.SegmentIndex].Id;
+        var firstZone = Segments[0].PassingZoneId ?? Segments[0].Id;
+        var lastZone = Segments[^1].PassingZoneId ?? Segments[^1].Id;
+        var wraps = firstZone == lastZone && Segments.Any(s => (s.PassingZoneId ?? s.Id) != firstZone);
+        var prefix = Segments.Take(car.SegmentIndex + 1).All(s => (s.PassingZoneId ?? s.Id) == zone);
+        return car.Laps + 1 - (wraps && prefix ? 1 : 0);
+    }
+
+    private bool AttemptSegmentPass(Car car, Car other, bool caught = true)
+    {
+        if (other.PitExit is not null || other.FinishTime is not null || car.FinishTime is not null) return false;
+        var segment = Segments![car.SegmentIndex];
+        var identity = Opportunity(car, other);
+        if (caught && Distance(car) - Distance(other) > TrackLength * .5)
+        {
+            if (car.PassedOpportunities.Add($"blue:{identity}"))
+            {
+                Delay(car, Traffic.BlueFlagLoss);
+                car.FreeDuration = car.LapEnd - car.LapStart;
+                history.Add(new RaceEvent(time, car.Driver.Id, car.Laps + 1, RaceEventKind.BlueFlag,
+                    Traffic.BlueFlagLoss, other.Driver.Id, SegmentId: segment.Id,
+                    DistanceMetres: Distance(car), EncounterId: identity));
+            }
+            return true;
+        }
+        if (!segment.PassingAllowed) return false;
+        if (!car.Opportunities.TryGetValue(identity, out var success))
+        {
+            var carSpeed = segment.Length / car.FreeDuration;
+            var otherSpeed = Segments[other.SegmentIndex].Length / other.FreeDuration;
+            var advantage = Math.Max(0, 1 - otherSpeed / carSpeed) * Segments.Sum(s => s.BaselineTime);
+            if (advantage <= 0) return false;
+            ChargeBattle(car, BattleInstruction.Attack);
+            ChargeBattle(other, BattleInstruction.Defend);
+            var chance = Math.Clamp(configuration.Track.PassingChance * (1 - segment.PassingDifficulty)
+                * Math.Min(1, advantage / 2) * (1 + (car.Driver.Racecraft - other.Driver.Racecraft) * .03)
+                * (car.Battle == BattleInstruction.Attack ? Traffic.AttackMultiplier : 1)
+                * (other.Battle == BattleInstruction.Defend ? Traffic.DefendMultiplier : 1), 0, 1);
+            success = Draw(car.Driver.Id, Visit(car), $"encounter:{identity}") < chance;
+            car.Opportunities.Add(identity, success);
+            history.Add(new RaceEvent(time, car.Driver.Id, car.Laps + 1, RaceEventKind.PassingAttempt,
+                0, other.Driver.Id, SegmentId: segment.Id,
+                DistanceMetres: Distance(car), EncounterId: identity));
+        }
+        if (success && caught && car.PassedOpportunities.Add(identity))
+        {
+            if (car.ContactOrder > other.ContactOrder)
+                (car.ContactOrder, other.ContactOrder) = (other.ContactOrder, car.ContactOrder);
+            history.Add(new RaceEvent(time, car.Driver.Id, car.Laps + 1, RaceEventKind.Overtake,
+                OtherDriverId: other.Driver.Id, SegmentId: segment.Id,
+                DistanceMetres: Distance(car), EncounterId: identity));
+        }
+        return success;
     }
 
     private static double PhysicalGap(double distance) => distance - Math.Floor(distance);
@@ -354,7 +446,7 @@ public sealed class RaceEngine
         if (other.PitExit is not null || other.FinishTime is not null) return;
         if (Segments is not null)
         {
-            car.Following = other;
+            if (!AttemptSegmentPass(car, other)) car.Following = other;
             return;
         }
         var gap = PhysicalGap(Distance(other) - Distance(car));
@@ -395,7 +487,7 @@ public sealed class RaceEngine
 
     private void Delay(Car car, double loss)
     {
-        var fraction = Progress(car);
+        var fraction = Segments is null ? Progress(car) : LocalProgress(car);
         var duration = (car.LapEnd - time + loss) / Math.Max(1e-9, 1 - fraction);
         car.LapStart = time - fraction * duration;
         car.LapEnd = time + (1 - fraction) * duration;
@@ -510,7 +602,7 @@ public sealed class RaceEngine
     {
         var order = cars.OrderByDescending(c => c.Laps).ThenByDescending(c => Segments is null ? Progress(c) : Math.Round(Progress(c), 10))
             .ThenBy(c => Segments is null ? c.FinishTime ?? c.LapEnd : Math.Round(c.FinishTime ?? c.LapEnd, 8))
-            .ThenBy(c => Segments is null ? 0 : c.Driver.Gap)
+            .ThenBy(c => Segments is null ? 0 : c.ContactOrder)
             .ThenBy(c => c.Driver.Id, StringComparer.Ordinal).ToList();
         var leader = order[0];
         var classification = order.Select((c, index) => new ClassificationEntry(c.Driver.Id, index + 1,
