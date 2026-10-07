@@ -103,10 +103,12 @@ The clearest next move is **Browser dry-race vertical slice**, after the segment
 
 Review the boundary between shared sessions and continuity/AI after the browser slice. If it is smaller and clearer as one deliverable, combine them; if the slice exposes a pacing or comprehension problem, address that before adding new race systems.
 
-The first two candidate specs have been drafted in the local tracker:
+The next four specs have been published in the local tracker:
 
 - [Visual direction and design-system foundation](../.scratch/visual-design-foundation/spec.md)
 - [Browser dry-race vertical slice](../.scratch/browser-dry-race/spec.md)
+- [Shared sessions and controller ownership](../.scratch/shared-sessions/spec.md)
+- [Race continuity, AI and assistance](../.scratch/race-continuity-ai-assistance/spec.md)
 
 Their status and implementation blockers are recorded in each spec.
 
