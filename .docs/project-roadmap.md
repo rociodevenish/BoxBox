@@ -20,6 +20,21 @@ The two existing specs form the first milestone:
 
 The laboratory demonstrates model behaviour. It does not yet demonstrate that people understand the choices, enjoy making them, or complete a race within the intended time. That is the next major uncertainty to resolve.
 
+## Written spec index
+
+All six delivery specs currently written in the local tracker are linked below in milestone order. Each spec is the source of truth for its current status, blockers, scope and testing decisions. Future candidates in this roadmap are not written specs until their tracker documents exist.
+
+| Stage | Written spec | Scope |
+| --- | --- | --- |
+| 1 | [Dry-race strategy laboratory](../.scratch/dry-race-strategy-laboratory/spec.md) | Standalone race simulation, strategy scripts, replay and paired evidence. |
+| 1 | [Segment race model and controlled variability](../.scratch/segment-race-model/spec.md) | Spatial track demands, passing zones, controlled random scopes and modelling evidence. |
+| 2 | [Visual direction and design-system foundation](../.scratch/visual-design-foundation/spec.md) | Broadcast visual language, driver cards, F1-style timing tower, reusable controls and representative-screen gallery. |
+| 2 | [Browser dry-race vertical slice](../.scratch/browser-dry-race/spec.md) | One human team managing two cars through a complete authoritative browser race. |
+| 3 | [Shared sessions and controller ownership](../.scratch/shared-sessions/spec.md) | Multiple players, team assignment, simultaneous locks, private controllers, pass-and-play and open-family control. |
+| 3 | [Race continuity, AI and assistance](../.scratch/race-continuity-ai-assistance/spec.md) | Durable recovery, deadlines, fallback/takeover, fair AI and recommendations, and hosted family play. |
+
+Supporting design reference: [Driver card sample design specification](driver-card-design-spec.sample.md) preserves the selected card direction and prototype handoff. It is an illustrative design reference, not an additional delivery spec, and is excluded from the delivery-spec count.
+
 ## Milestones
 
 | Stage | Player outcome | Main work | Evidence to move forward |
@@ -103,12 +118,32 @@ The clearest next move is **Browser dry-race vertical slice**, after the segment
 
 Review the boundary between shared sessions and continuity/AI after the browser slice. If it is smaller and clearer as one deliverable, combine them; if the slice exposes a pacing or comprehension problem, address that before adding new race systems.
 
-The first two candidate specs have been drafted in the local tracker:
+The Stage 2 and Stage 3 specs are published in the local tracker and included in the written spec index above. Their status and implementation blockers are recorded in each spec.
 
-- [Visual direction and design-system foundation](../.scratch/visual-design-foundation/spec.md)
-- [Browser dry-race vertical slice](../.scratch/browser-dry-race/spec.md)
+## Remaining spec plan and estimate
 
-Their status and implementation blockers are recorded in each spec.
+Six specs have been written, as listed in the written spec index. Plan for **another 10–14 specs** to reach the complete game, for approximately **16–20 specs in total**. This counts documents still to be written, not unfinished implementation: the existing specs still have to be delivered according to their status and dependencies.
+
+The following breakdown is a planning estimate. These are candidate boundaries rather than approved specs or fixed delivery commitments.
+
+| Stage | Area | Additional specs | Proposed deliverables |
+| --- | --- | --- | --- |
+| 4 | Weekend preparation, qualifying and race start | 2 | **Weekend preparation and effective attributes:** car/driver/circuit fit, team-wide setup, practice feedback and setup lock using preset rosters and cars. **Qualifying and automatic race start:** Q1/Q2/Q3, Safe/Push/All-Out, grid generation and opening race events. |
+| 4 | Incidents, reliability and Safety Cars | 1–2 | Contextual errors, damage/failures, interrupted Race Phases, Safety-Car gap compression and the simultaneous cheap-pit window. Split incidents/reliability from Safety-Car orchestration if the combined scope is too large. |
+| 4 | Weather strategy | 1 | Probabilistic forecasts, track-condition progression, appropriate tyres and significant-weather reaction windows, building on interrupted phases. |
+| 5 | Campaign, calendar and championships | 1 | Saved season progression, both championships, post-race reports, asynchronous preparation and player/AI continuity. Prove a short campaign with presets before filling the calendar. |
+| 6 | Personnel acquisition and initial car construction | 2 | **Personnel acquisition:** unique fixed-price offers, Scouts, rotating priority, roster completion and personnel effects. **Initial car construction:** equal-access compromise choices, car philosophy and preseason budget allocation. |
+| 6 | Development, economy and Race Packages | 2–3 | **Season economy and permanent development:** starting-budget consequences, modest income, one development decision per GP and permanent refinements. **Race Package library and development:** creation, selection, refinement, compromises, risk and Rush. Separate development outcomes/Rush if their interaction needs its own spec. |
+| 7 | Full-calendar content, presentation and release readiness | 1–3 | Complete circuit/roster content and cards; Babylon.js race board and event presentation; Simple/Full views, onboarding, accessibility, device performance, operational readiness and integrated season balance. Split into content, presentation and release-readiness specs when their scope warrants separate delivery. |
+| | **Total still to write** | **10–14** | The final boundaries depend on implementation and playtest evidence. |
+
+The next specification areas, in order, are weekend preparation/qualifying, incidents/Safety Cars, and weather. With the proposed two-spec weekend split, the **next two individual specs** are **Weekend preparation and effective attributes** and **Qualifying and automatic race start**.
+
+Write those around stable browser contracts and the relevant simulation evidence. Use browser playtest findings to sharpen the campaign and economy specs before publishing them. Correct pacing or comprehension problems before adding complexity when the findings warrant it.
+
+Attribute definitions and effects, card treatments, design-system extensions, legitimate information and relevant balancing belong in each system's spec. The final content/release work completes their coverage and integrated validation; it does not postpone them until Stage 7. This avoids separate speculative attribute or balancing specs disconnected from playable systems.
+
+Revisit the estimate at each milestone. Splitting a large deliverable may increase the document count without adding product scope; merging tightly related work may reduce it. Additional corrective work discovered in playtests is not included in this estimate.
 
 ## Later spec families
 
