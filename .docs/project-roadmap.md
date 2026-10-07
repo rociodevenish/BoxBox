@@ -20,6 +20,21 @@ The two existing specs form the first milestone:
 
 The laboratory demonstrates model behaviour. It does not yet demonstrate that people understand the choices, enjoy making them, or complete a race within the intended time. That is the next major uncertainty to resolve.
 
+## Written spec index
+
+All six delivery specs currently written in the local tracker are linked below in milestone order. Each spec is the source of truth for its current status, blockers, scope and testing decisions. Future candidates in this roadmap are not written specs until their tracker documents exist.
+
+| Stage | Written spec | Scope |
+| --- | --- | --- |
+| 1 | [Dry-race strategy laboratory](../.scratch/dry-race-strategy-laboratory/spec.md) | Standalone race simulation, strategy scripts, replay and paired evidence. |
+| 1 | [Segment race model and controlled variability](../.scratch/segment-race-model/spec.md) | Spatial track demands, passing zones, controlled random scopes and modelling evidence. |
+| 2 | [Visual direction and design-system foundation](../.scratch/visual-design-foundation/spec.md) | Broadcast visual language, driver cards, F1-style timing tower, reusable controls and representative-screen gallery. |
+| 2 | [Browser dry-race vertical slice](../.scratch/browser-dry-race/spec.md) | One human team managing two cars through a complete authoritative browser race. |
+| 3 | [Shared sessions and controller ownership](../.scratch/shared-sessions/spec.md) | Multiple players, team assignment, simultaneous locks, private controllers, pass-and-play and open-family control. |
+| 3 | [Race continuity, AI and assistance](../.scratch/race-continuity-ai-assistance/spec.md) | Durable recovery, deadlines, fallback/takeover, fair AI and recommendations, and hosted family play. |
+
+Supporting design reference: [Driver card sample design specification](driver-card-design-spec.sample.md) preserves the selected card direction and prototype handoff. It is an illustrative design reference, not an additional delivery spec, and is excluded from the delivery-spec count.
+
 ## Milestones
 
 | Stage | Player outcome | Main work | Evidence to move forward |
@@ -103,18 +118,11 @@ The clearest next move is **Browser dry-race vertical slice**, after the segment
 
 Review the boundary between shared sessions and continuity/AI after the browser slice. If it is smaller and clearer as one deliverable, combine them; if the slice exposes a pacing or comprehension problem, address that before adding new race systems.
 
-The next four specs have been published in the local tracker:
-
-- [Visual direction and design-system foundation](../.scratch/visual-design-foundation/spec.md)
-- [Browser dry-race vertical slice](../.scratch/browser-dry-race/spec.md)
-- [Shared sessions and controller ownership](../.scratch/shared-sessions/spec.md)
-- [Race continuity, AI and assistance](../.scratch/race-continuity-ai-assistance/spec.md)
-
-Their status and implementation blockers are recorded in each spec.
+The Stage 2 and Stage 3 specs are published in the local tracker and included in the written spec index above. Their status and implementation blockers are recorded in each spec.
 
 ## Remaining spec plan and estimate
 
-Six specs have been written: the two simulation-foundation specs and the four linked above. Plan for **another 10–14 specs** to reach the complete game, for approximately **16–20 specs in total**. This counts documents still to be written, not unfinished implementation: the existing specs still have to be delivered according to their status and dependencies.
+Six specs have been written, as listed in the written spec index. Plan for **another 10–14 specs** to reach the complete game, for approximately **16–20 specs in total**. This counts documents still to be written, not unfinished implementation: the existing specs still have to be delivered according to their status and dependencies.
 
 The following breakdown is a planning estimate. These are candidate boundaries rather than approved specs or fixed delivery commitments.
 
