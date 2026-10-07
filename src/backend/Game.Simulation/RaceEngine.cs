@@ -191,7 +191,16 @@ public sealed class RaceEngine
             if (car.PitExit is not null)
             {
                 car.PitExit = null;
-                history.Add(new RaceEvent(time, car.Driver.Id, car.Laps, RaceEventKind.PitExit));
+                if (Segments is not null)
+                {
+                    var rejoinDistance = Distance(car);
+                    var contact = cars.Where(c => c != car && c.PitExit is null && c.FinishTime is null
+                        && SameCoordinate(Distance(c), rejoinDistance))
+                        .OrderByDescending(c => c.ContactOrder).FirstOrDefault();
+                    if (contact is not null) { MoveBehind(car, contact); car.Following = contact; }
+                }
+                history.Add(new RaceEvent(time, car.Driver.Id, car.Laps, RaceEventKind.PitExit,
+                    SegmentId: Segments?[0].Id, DistanceMetres: Segments is null ? null : car.Laps * TrackLength));
                 UpdateTraffic();
                 continue;
             }
@@ -231,8 +240,10 @@ public sealed class RaceEngine
                     var service = configuration.Track.StationaryStop
                         + (Draw(car.Driver.Id, car.Laps, "stop") - .5) * configuration.StopVariation;
                     var loss = configuration.Track.PitLaneLoss + service;
-                    history.Add(new RaceEvent(time, car.Driver.Id, car.Laps, RaceEventKind.PitEntry, loss));
-                    history.Add(new RaceEvent(time, car.Driver.Id, car.Laps, RaceEventKind.PitService, service));
+                    history.Add(new RaceEvent(time, car.Driver.Id, car.Laps, RaceEventKind.PitEntry, loss,
+                        SegmentId: Segments?[0].Id, DistanceMetres: Segments is null ? null : car.Laps * TrackLength));
+                    history.Add(new RaceEvent(time, car.Driver.Id, car.Laps, RaceEventKind.PitService, service,
+                        SegmentId: Segments?[0].Id, DistanceMetres: Segments is null ? null : car.Laps * TrackLength));
                     car.Compound = compound;
                     car.UsedCompounds.Add(compound);
                     car.TyreAge = 0;
@@ -280,7 +291,13 @@ public sealed class RaceEngine
     private void UpdateTraffic()
     {
         if (!Traffic.Enabled) return;
-        if (Segments is not null) { UpdateSegmentTraffic(); return; }
+        if (Segments is not null)
+        {
+            // Apply all trajectories at a timestamp before deriving entry encounters from them.
+            if (cars.Any(c => c.FinishTime is null && NextEvent(c) <= time + 1e-8)) return;
+            UpdateSegmentTraffic();
+            return;
+        }
         var positions = cars.ToDictionary(c => c, Distance);
         foreach (var car in cars.OrderByDescending(c => positions[c]))
         {
@@ -332,10 +349,16 @@ public sealed class RaceEngine
             car.PassTime = null;
             if (car.PitExit is not null || car.FinishTime is not null || time < car.Driver.Gap) continue;
             SetDuration(car, car.FreeDuration);
+            if (car.Following is not null)
+            {
+                var nearestContact = cars.Where(c => c != car && c.PitExit is null && c.FinishTime is null
+                    && SameCoordinate(positions[c], positions[car]) && c.ContactOrder < car.ContactOrder)
+                    .OrderByDescending(c => c.ContactOrder).FirstOrDefault();
+                if (nearestContact is not null) car.Following = nearestContact;
+            }
             if (car.Following is { } followed)
             {
-                var gap = positions[followed] - positions[car];
-                if (followed.PitExit is not null || followed.FinishTime is not null || Math.Abs(gap) > 1e-5)
+                if (followed.PitExit is not null || followed.FinishTime is not null || !SameCoordinate(positions[followed], positions[car]))
                     car.Following = null;
                 else
                 {
@@ -348,17 +371,19 @@ public sealed class RaceEngine
                 }
             }
             if (car.Following is not null) continue;
-            var contact = cars.Where(c => c != car && c.PitExit is null && c.FinishTime is null
-                && time >= c.Driver.Gap && Math.Abs(positions[c] - positions[car]) <= 1e-6
-                && c.ContactOrder < car.ContactOrder)
-                .OrderByDescending(c => c.ContactOrder).FirstOrDefault();
-            if (contact is not null && Projection(car).SpeedMetresPerSecond > Projection(contact).SpeedMetresPerSecond)
+            while (true)
             {
+                var contact = cars.Where(c => c != car && c.PitExit is null && c.FinishTime is null
+                    && time >= c.Driver.Gap && SameCoordinate(positions[c], positions[car])
+                    && c.ContactOrder < car.ContactOrder)
+                    .OrderByDescending(c => c.ContactOrder).FirstOrDefault();
+                if (contact is null || Projection(car).SpeedMetresPerSecond <= Projection(contact).SpeedMetresPerSecond) break;
                 if (AttemptSegmentPass(car, contact)) continue;
                 car.Following = contact;
                 SetDuration(car, Segments![car.SegmentIndex].Length / Projection(contact).SpeedMetresPerSecond);
-                continue;
+                break;
             }
+            if (car.Following is not null) continue;
             var ahead = cars.Where(c => c != car && c.PitExit is null && c.FinishTime is null && time >= c.Driver.Gap)
                 .Select(c => (Car: c, Gap: (positions[c] - positions[car]) % TrackLength))
                 .Select(c => (c.Car, Gap: c.Gap < 0 ? c.Gap + TrackLength : c.Gap))
@@ -372,6 +397,30 @@ public sealed class RaceEngine
             if (catchAfter is > 1e-8)
             { car.PassTime = time + catchAfter.Value; car.PassTarget = ahead.Car.Driver.Id; }
         }
+    }
+
+    private bool SameCoordinate(double first, double second)
+    {
+        var separation = Math.Abs(first - second) % TrackLength;
+        return separation <= 1e-6 || TrackLength - separation <= 1e-6;
+    }
+
+    private void MoveBehind(Car car, Car other)
+    {
+        if (car.ContactOrder >= other.ContactOrder) return;
+        var destination = other.ContactOrder;
+        foreach (var current in cars.Where(c => c != car && c.ContactOrder > car.ContactOrder && c.ContactOrder <= destination))
+            current.ContactOrder--;
+        car.ContactOrder = destination;
+    }
+
+    private void MoveAhead(Car car, Car other)
+    {
+        if (car.ContactOrder <= other.ContactOrder) return;
+        var destination = other.ContactOrder;
+        foreach (var current in cars.Where(c => c != car && c.ContactOrder >= destination && c.ContactOrder < car.ContactOrder))
+            current.ContactOrder++;
+        car.ContactOrder = destination;
     }
 
     private string Opportunity(Car car, Car other)
@@ -406,6 +455,7 @@ public sealed class RaceEngine
                     Traffic.BlueFlagLoss, other.Driver.Id, SegmentId: segment.Id,
                     DistanceMetres: Distance(car), EncounterId: identity));
             }
+            MoveAhead(car, other);
             return true;
         }
         if (!segment.PassingAllowed) return false;
@@ -427,10 +477,10 @@ public sealed class RaceEngine
                 0, other.Driver.Id, SegmentId: segment.Id,
                 DistanceMetres: Distance(car), EncounterId: identity));
         }
-        if (success && caught && car.PassedOpportunities.Add(identity))
+        if (success && caught)
         {
-            if (car.ContactOrder > other.ContactOrder)
-                (car.ContactOrder, other.ContactOrder) = (other.ContactOrder, car.ContactOrder);
+            MoveAhead(car, other);
+            if (!car.PassedOpportunities.Add(identity)) return true;
             history.Add(new RaceEvent(time, car.Driver.Id, car.Laps + 1, RaceEventKind.Overtake,
                 OtherDriverId: other.Driver.Id, SegmentId: segment.Id,
                 DistanceMetres: Distance(car), EncounterId: identity));
@@ -446,7 +496,11 @@ public sealed class RaceEngine
         if (other.PitExit is not null || other.FinishTime is not null) return;
         if (Segments is not null)
         {
-            if (!AttemptSegmentPass(car, other)) car.Following = other;
+            if (!AttemptSegmentPass(car, other))
+            {
+                MoveBehind(car, other);
+                car.Following = other;
+            }
             return;
         }
         var gap = PhysicalGap(Distance(other) - Distance(car));
