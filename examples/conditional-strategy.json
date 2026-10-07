@@ -1,0 +1,8 @@
+{
+  "scheduled": [],
+  "conditional": [
+    { "driverId": "driver-01", "field": "EstimatedTyreCondition", "threshold": 0.65,
+      "decision": { "pace": "Standard", "pitCompound": "Hard" }, "once": true }
+  ],
+  "defaultPace": "Standard"
+}

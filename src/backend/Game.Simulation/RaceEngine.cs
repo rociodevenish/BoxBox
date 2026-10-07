@@ -31,6 +31,9 @@ public sealed class RaceEngine
     private readonly int seed;
     private readonly List<Car> cars;
     private readonly List<RaceEvent> history = [];
+    private readonly List<DecisionRecord> decisionHistory = [];
+    private StrategyEvaluator? strategies;
+    private int phaseIndex;
     private double time;
     private bool chequered;
     private TyreTuning Tyres => configuration.Tyres ?? new TyreTuning();
@@ -51,6 +54,7 @@ public sealed class RaceEngine
             || !double.IsFinite(configuration.Track.StationaryStop) || configuration.Track.StationaryStop < 0
             || !double.IsFinite(configuration.StopVariation) || configuration.StopVariation < 0
             || configuration.StopVariation > configuration.Track.StationaryStop * 2
+            || !double.IsFinite(configuration.EstimateError) || configuration.EstimateError is < 0 or > 1
             || !double.IsFinite(configuration.Track.PassingChance) || configuration.Track.PassingChance is < 0 or > 1
             || (configuration.Traffic ?? new()).AttackMultiplier < 1 || (configuration.Traffic ?? new()).DefendMultiplier > 1
             || new[] { (configuration.Traffic ?? new()).FollowingLoss, (configuration.Traffic ?? new()).BlueFlagLoss,
@@ -176,7 +180,31 @@ public sealed class RaceEngine
             if (!chequered && car.Laps >= target) break;
         }
         foreach (var car in cars.Where(c => c.FinishTime is null)) ConsumeTyres(car, Progress(car));
+        phaseIndex++;
         return Snapshot();
+    }
+
+    public PhaseResult ResolvePhase(StrategyPlan plan)
+    {
+        var evaluator = strategies ?? new StrategyEvaluator(plan, cars.Select(c => c.Driver.Id).ToArray(), configuration.Laps);
+        evaluator.RequireSamePlan(plan);
+        var observations = cars.Select(c => c.Driver.Team).Distinct().Select(GetTeamObservation).ToArray();
+        var evaluation = evaluator.Evaluate(phaseIndex, observations);
+        _ = ResolvePhase(evaluation.Choices);
+        evaluator.Accept(evaluation);
+        strategies = evaluator;
+        decisionHistory.AddRange(evaluation.Records);
+        return Snapshot();
+    }
+    public TeamObservation GetTeamObservation(string team)
+    {
+        if (cars.All(c => c.Driver.Team != team)) throw new ArgumentException("Unknown team.");
+        var state = Snapshot();
+        var own = cars.Where(c => c.Driver.Team == team).Select(c => new EstimatedTyreState(c.Driver.Id,
+            c.Compound, c.TyreAge, Math.Clamp(c.Condition + (Draw(c.Driver.Id, phaseIndex, "estimate") - .5)
+                * 2 * configuration.EstimateError, 0, 1), c.PitExit is not null, c.PendingPit is not null)).ToArray();
+        return new TeamObservation(time, state.LeaderLap, state.Classification, own,
+            state.BattleOptions.Where(kv => own.Any(t => t.DriverId == kv.Key)).ToDictionary());
     }
 
     private void UpdateTraffic()
@@ -371,6 +399,6 @@ public sealed class RaceEngine
             history.ToArray(), cars.Select(c => new TyreState(c.Driver.Id, c.Compound, c.TyreAge,
                 c.Condition, c.Pace, c.PitExit is not null)).ToArray(),
             cars.ToDictionary(c => c.Driver.Id, c => c.UsedCompounds.Count >= 2),
-            cars.ToDictionary(c => c.Driver.Id, AvailableBattles));
+            cars.ToDictionary(c => c.Driver.Id, AvailableBattles), decisionHistory.ToArray());
     }
 }

@@ -14,6 +14,19 @@ public record DriverDecision(PaceInstruction Pace = PaceInstruction.Standard, Ty
     }
 }
 public record ScheduledDecision(int Phase, string DriverId, DriverDecision Decision);
+public enum ConditionField { EstimatedTyreCondition, GapToLeader, LeaderLap, Position }
+public enum ConditionComparison { LessThanOrEqual, GreaterThanOrEqual }
+public record ConditionalDecision(string DriverId, ConditionField Field, double Threshold,
+    DriverDecision Decision, ConditionComparison Comparison = ConditionComparison.LessThanOrEqual, bool Once = true);
+public record StrategyPlan(ScheduledDecision[] Scheduled, ConditionalDecision[] Conditional,
+    PaceInstruction DefaultPace = PaceInstruction.Standard);
+public record EstimatedTyreState(string DriverId, TyreCompound Compound, int Age,
+    double EstimatedCondition, bool InPits, bool StopQueued);
+public record TeamObservation(double Time, int LeaderLap, IReadOnlyList<ClassificationEntry> Classification,
+    IReadOnlyList<EstimatedTyreState> TeamTyres,
+    IReadOnlyDictionary<string, IReadOnlyList<BattleInstruction>> BattleOptions);
+public record DecisionRecord(int Phase, double Time, string DriverId, DriverDecision Decision,
+    double EstimatedCondition, string Source);
 public record TyreTuning(double DegradationPerLap = .025, double WarmupPenalty = .8,
     double DegradationPenalty = 10, double ExhaustionPenalty = 15, double PushGain = 1,
     double PushWear = 1.65, double ConserveLoss = .8, double ConserveWear = .65,
@@ -32,7 +45,7 @@ public record TrafficTuning(bool Enabled = true, double FollowingLoss = .3, doub
 
 public record RaceConfiguration(int Laps, Track Track, double AttributeSeconds = 1,
     double LapVariation = 0, TyreTuning? Tyres = null, double StopVariation = .6,
-    TrafficTuning? Traffic = null);
+    TrafficTuning? Traffic = null, double EstimateError = .04);
 
 public record TyreState(string DriverId, TyreCompound Compound, int Age, double Condition,
     PaceInstruction Pace, bool InPits = false);
@@ -50,4 +63,5 @@ public record ClassificationEntry(string DriverId, int Position, int Laps, doubl
 public record PhaseResult(int LeaderLap, double Time, bool Finished,
     IReadOnlyList<ClassificationEntry> Classification, IReadOnlyList<RaceEvent> Events,
     IReadOnlyList<TyreState> Tyres, IReadOnlyDictionary<string, bool> Eligibility,
-    IReadOnlyDictionary<string, IReadOnlyList<BattleInstruction>> BattleOptions);
+    IReadOnlyDictionary<string, IReadOnlyList<BattleInstruction>> BattleOptions,
+    IReadOnlyList<DecisionRecord> Decisions);

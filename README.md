@@ -24,3 +24,11 @@ dotnet run --project tools/SimulationRunner -- 50 7 mixed technical --script exa
 
 Unspecified pace/pit choices are Standard/Stay Out. Results using fewer than two
 compounds are marked ineligible and retained for diagnosis.
+
+Conditional plans use `--strategy examples/conditional-strategy.json`. Scheduled
+decisions override conditions; otherwise the first matching condition wins.
+Conditions use team estimates or public leader lap, position and gap. A rule with
+`once: true` is consumed only when selected. Pending or ongoing stops suppress
+conditional pit rules. The default pace applies when no rule matches.
+Exact tyre condition is diagnostic information and is excluded from team observations.
+Plans are fixed for the duration of a run; replacing or mutating a bound plan is rejected.

@@ -27,20 +27,25 @@ if (script.Any(s => s is null || s.Phase < 0 || s.Phase >= (laps + 4) / 5
     || script.GroupBy(s => (s.Phase, s.DriverId)).Any(g => g.Count() > 1))
     throw new ArgumentException("Script contains an unknown driver, invalid phase or duplicate decision.");
 foreach (var scheduled in script) scheduled.Decision.Validate();
+var strategyIndex = Array.IndexOf(args, "--strategy");
+if (strategyIndex >= 0 && (strategyIndex + 1 >= args.Length || scriptIndex >= 0))
+    throw new ArgumentException("Provide a strategy file, or a scheduled script, not both.");
+var plan = strategyIndex < 0 ? new StrategyPlan(script, [], pace)
+    : JsonSerializer.Deserialize<StrategyPlan>(File.ReadAllText(args[strategyIndex + 1]), jsonOptions)
+        ?? throw new ArgumentException("Strategy must be an object.");
 PhaseResult result;
 var phases = new List<PhaseResult>();
 var phase = 0;
 do
 {
-    var phaseDecisions = new Dictionary<string, DriverDecision>(decisions);
-    foreach (var scheduled in script.Where(s => s.Phase == phase)) phaseDecisions[scheduled.DriverId] = scheduled.Decision;
-    result = engine.ResolvePhase(phaseDecisions);
+    result = engine.ResolvePhase(plan);
     phases.Add(result);
     phase++;
 } while (!result.Finished);
 Directory.CreateDirectory("reports");
-File.WriteAllText("reports/race.json", JsonSerializer.Serialize(new { seed, configuration, drivers, decisions, script, phases, result }, jsonOptions));
+File.WriteAllText("reports/race.json", JsonSerializer.Serialize(new { seed, configuration, drivers, plan, phases, result }, jsonOptions));
 var summary = $"Seed {seed}; {laps} laps; {track.Name}; mixed={mixed}\nFresh starting tyres: Medium\n"
+    + "Strategy: " + JsonSerializer.Serialize(plan, jsonOptions) + Environment.NewLine
     + string.Join(Environment.NewLine, phases.Select(p => $"Phase: leader lap {p.LeaderLap}, clock {p.Time:F3}s; "
         + string.Join(", ", p.Classification.Select(c => $"{c.DriverId} +{c.GapSeconds:F3}s / {c.GapLaps} laps"))))
     + Environment.NewLine + string.Join(Environment.NewLine, phases.SelectMany(p => p.Tyres.Select(t =>
@@ -48,6 +53,8 @@ var summary = $"Seed {seed}; {laps} laps; {track.Name}; mixed={mixed}\nFresh sta
     + Environment.NewLine + string.Join(Environment.NewLine, result.Classification.Select(c =>
     $"P{c.Position,2} {c.DriverId}: {c.Laps} laps, {c.FinishTime:F3}s, +{c.GapLaps} laps / {c.GapSeconds:F3}s, eligible={result.Eligibility[c.DriverId]}"))
     + Environment.NewLine + string.Join(Environment.NewLine, result.Events.Where(e => e.Kind != RaceEventKind.LapCompleted
-        && e.Kind != RaceEventKind.TyreCondition).Select(e => $"{e.Time:F3}s {e.DriverId} lap {e.Lap}: {e.Kind} {e.Value:F3}"));
+        && e.Kind != RaceEventKind.TyreCondition).Select(e => $"{e.Time:F3}s {e.DriverId} lap {e.Lap}: {e.Kind} {e.Value:F3}"))
+    + Environment.NewLine + string.Join(Environment.NewLine, result.Decisions.Select(d =>
+        $"Phase {d.Phase} {d.DriverId}: estimate {d.EstimatedCondition:F3}, {d.Source}, {d.Decision}"));
 File.WriteAllText("reports/race.txt", summary);
 Console.WriteLine(summary);
