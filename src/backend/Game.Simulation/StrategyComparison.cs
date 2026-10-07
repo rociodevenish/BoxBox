@@ -6,24 +6,43 @@ public static class StrategyComparison
 {
     public static RaceRun Run(RaceConfiguration configuration, IReadOnlyList<Driver> drivers, StrategyPlan plan, int seed)
     {
+        var replay = SimulationReplay.Capture(configuration, drivers, plan, seed);
+        configuration = replay.Configuration;
+        drivers = replay.Drivers;
+        plan = replay.Plan;
         var engine = new RaceEngine(configuration, drivers, seed);
         var phases = new List<PhaseResult>();
         PhaseResult result;
         do { result = engine.ResolvePhase(plan); phases.Add(result); } while (!result.Finished);
-        return new RaceRun(seed, phases, result);
+        return new RaceRun(seed, phases, result, replay, SimulationReplay.Metadata(configuration), engine.GetDesignerDiagnostics());
+    }
+
+    public static RaceRun Replay(RaceReplay replay)
+    {
+        if (replay is null || replay.Configuration is null || replay.Configuration.Track is null
+            || string.IsNullOrWhiteSpace(replay.ModelVersion) || string.IsNullOrWhiteSpace(replay.RandomnessVersion))
+            throw new ArgumentException("Replay requires explicit contract versions.");
+        SimulationReplay.RequireVersion(replay.Configuration, replay.ModelVersion, replay.RandomnessVersion);
+        return Run(replay.Configuration, replay.Drivers, replay.Plan, replay.Seed);
     }
 
     public static ComparisonReport Compare(ComparisonRequest request)
     {
+        if (request is null || request.Configuration is null || request.Configuration.Track is null
+            || request.Drivers is null || request.Drivers.Any(d => d is null)
+            || request.Baseline is null || request.Alternative is null)
+            throw new ArgumentException("Comparison configuration, field and strategies are required.");
         if (request.Seeds is null || request.Seeds.Length == 0 || request.Seeds.Distinct().Count() != request.Seeds.Length
             || request.Drivers.All(d => d.Id != request.TargetDriver))
             throw new ArgumentException("Comparison needs a known target and nonempty unique seeds.");
+        SimulationReplay.RequireVersion(request.Configuration, request.ModelVersion, request.RandomnessVersion);
         var ids = request.Drivers.Select(d => d.Id).ToArray();
         StrategyEvaluator.Validate(request.Baseline, ids, request.Configuration.Laps);
         StrategyEvaluator.Validate(request.Alternative, ids, request.Configuration.Laps);
         request = request with { Configuration = request.Configuration.WithExplicitTuning(),
             Drivers = request.Drivers.ToArray(), Seeds = request.Seeds.ToArray(),
-            Baseline = Snapshot(request.Baseline), Alternative = Snapshot(request.Alternative) };
+            Baseline = SimulationReplay.Snapshot(request.Baseline), Alternative = SimulationReplay.Snapshot(request.Alternative),
+            ModelVersion = SimulationReplay.Model(request.Configuration), RandomnessVersion = SimulationReplay.Randomness(request.Configuration) };
         if (request.Alternative.Scheduled.Any(s => s.DriverId != request.TargetDriver)
             || request.Alternative.Conditional.Any(c => c.DriverId != request.TargetDriver)
             || request.Alternative.DriverPaces?.Any(d => d.Key != request.TargetDriver) == true)
@@ -58,11 +77,8 @@ public static class StrategyComparison
             .ToArray();
         return new ComparisonReport(request, pairs, Summarize(eligible.Select(p => (double)p.PositionDifference)),
             Summarize(eligible.Where(p => p.ComparableTimeDifference.HasValue).Select(p => p.ComparableTimeDifference!.Value)),
-            Summarize(pairs.Select(p => (double)p.PositionDifference)), groups);
+            Summarize(pairs.Select(p => (double)p.PositionDifference)), groups, SimulationReplay.Metadata(request.Configuration));
     }
-
-    private static StrategyPlan Snapshot(StrategyPlan plan) => plan with
-    { Scheduled = plan.Scheduled.ToArray(), Conditional = plan.Conditional.ToArray(), DriverPaces = plan.DriverPaces?.ToDictionary() };
 
     private static Distribution Summarize(IEnumerable<double> source)
     {

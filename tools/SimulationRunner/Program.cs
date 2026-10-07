@@ -10,6 +10,26 @@ try
     var json = new JsonSerializerOptions { WriteIndented = true, PropertyNameCaseInsensitive = true,
         UnmappedMemberHandling = JsonUnmappedMemberHandling.Disallow };
     json.Converters.Add(new JsonStringEnumConverter());
+    if (options.Replay is not null)
+    {
+        using var replayDocument = JsonDocument.Parse(File.ReadAllText(options.Replay));
+        if (replayDocument.RootElement.ValueKind != JsonValueKind.Object)
+            throw new ArgumentException("Replay must be an object.");
+        if (replayDocument.RootElement.EnumerateObject().Any(p => p.Name.Equals("seeds", StringComparison.OrdinalIgnoreCase)))
+        {
+            var request = JsonInput.Read<ComparisonRequest>(options.Replay, json);
+            var report = StrategyComparison.Compare(request);
+            ReportWriter.Comparison(options.Output, report, json);
+        }
+        else
+        {
+            var replay = JsonInput.Read<RaceReplay>(options.Replay, json);
+            var run = StrategyComparison.Replay(replay);
+            ReportWriter.Race(options.Output, replay.Configuration, replay.Drivers, replay.Plan, run, json);
+        }
+        Console.WriteLine($"Replay reports: {Path.GetFullPath(options.Output)}");
+        return 0;
+    }
     if (options.Experiments)
     {
         ExperimentSuite.Run(options.Output, options.Seed, options.Runs, json);

@@ -41,6 +41,8 @@ public sealed class RaceEngine
     private readonly List<Car> cars;
     private readonly List<RaceEvent> history = [];
     private readonly List<DecisionRecord> decisionHistory = [];
+    private readonly List<RandomDiagnostic> randomDiagnostics = [];
+    private readonly HashSet<string> diagnosticScopes = [];
     private StrategyEvaluator? strategies;
     private int phaseIndex;
     private double time;
@@ -124,8 +126,8 @@ public sealed class RaceEngine
         foreach (var car in cars)
         {
             _ = Wear(car);
-            car.RaceFormSeconds = ScopedRandom.Offset(seed, RandomChannel.RaceForm, car.Driver.Id, 0, configuration.RaceFormVariation);
-            car.LapVariationSeconds = ScopedRandom.Offset(seed, RandomChannel.LapVariation, car.Driver.Id, 1, configuration.LapVariation);
+            car.RaceFormSeconds = RandomOffset(RandomChannel.RaceForm, "race-form", car.Driver.Id, 0, "race", configuration.RaceFormVariation);
+            car.LapVariationSeconds = RandomOffset(RandomChannel.LapVariation, "lap-variation", car.Driver.Id, 1, "lap:1", configuration.LapVariation);
             car.LapPenalty = TyrePenalty(car);
             car.LapEnd = car.LapStart + LapTime(car);
             car.FreeDuration = car.LapEnd - car.LapStart;
@@ -182,7 +184,7 @@ public sealed class RaceEngine
             foreach (var current in cars.Where(c => c.Following is not null && c.FinishTime is null && c.PitExit is null))
             {
                 var loss = (nextTime - time) * Math.Max(0, 1 - current.FreeDuration / (current.LapEnd - current.LapStart));
-                if (loss > 0) history.Add(new RaceEvent(nextTime, current.Driver.Id, current.Laps + 1, RaceEventKind.TrafficLoss, loss));
+                if (loss > 0) history.Add(new RaceEvent(nextTime, current.Driver.Id, current.Laps + 1, RaceEventKind.TrafficLoss, loss, SegmentId: Segments?[current.SegmentIndex].Id));
             }
             var starting = Segments is not null && car.Laps == 0 && time < car.Driver.Gap && nextTime == car.Driver.Gap;
             time = nextTime;
@@ -237,19 +239,21 @@ public sealed class RaceEngine
             car.WearProgress = 0;
             car.TyreAge++;
             history.Add(new RaceEvent(time, car.Driver.Id, car.Laps, RaceEventKind.TyreCondition, car.Condition));
-            history.Add(new RaceEvent(time, car.Driver.Id, car.Laps, RaceEventKind.LapCompleted));
+            history.Add(new RaceEvent(time, car.Driver.Id, car.Laps, RaceEventKind.LapCompleted,
+                SegmentId: Segments?[^1].Id, DistanceMetres: Segments is null ? null : car.Laps * TrackLength));
             if (car.Laps >= configuration.Laps) chequered = true;
             if (chequered) car.FinishTime = time;
             else
             {
-                car.LapVariationSeconds = ScopedRandom.Offset(seed, RandomChannel.LapVariation,
-                    car.Driver.Id, car.Laps + 1, configuration.LapVariation);
+                car.LapVariationSeconds = RandomOffset(RandomChannel.LapVariation, "lap-variation",
+                    car.Driver.Id, car.Laps + 1, $"lap:{car.Laps + 1}", configuration.LapVariation);
                 if (car.PendingPit is { } compound)
                 {
                     car.Stops++;
                     var service = configuration.Track.StationaryStop
-                        + ScopedRandom.Offset(seed, RandomChannel.PitService, car.Driver.Id,
-                            Segments is null ? car.Laps : car.Stops, configuration.StopVariation);
+                        + RandomOffset(RandomChannel.PitService, "pit-service", car.Driver.Id,
+                            Segments is null ? car.Laps : car.Stops,
+                            Segments is null ? $"lap:{car.Laps}" : $"stop:{car.Stops}", configuration.StopVariation);
                     var loss = configuration.Track.PitLaneLoss + service;
                     history.Add(new RaceEvent(time, car.Driver.Id, car.Laps, RaceEventKind.PitEntry, loss,
                         SegmentId: Segments?[0].Id, DistanceMetres: Segments is null ? null : car.Laps * TrackLength));
@@ -293,8 +297,8 @@ public sealed class RaceEngine
         if (cars.All(c => c.Driver.Team != team)) throw new ArgumentException("Unknown team.");
         var state = Snapshot();
         var own = cars.Where(c => c.Driver.Team == team).Select(c => new EstimatedTyreState(c.Driver.Id,
-            c.Compound, c.TyreAge, Math.Clamp(c.Condition + ScopedRandom.Offset(seed, RandomChannel.EstimateError, c.Driver.Id, phaseIndex,
-                2 * configuration.EstimateError), 0, 1), c.PitExit is not null, c.PendingPit is not null)).ToArray();
+            c.Compound, c.TyreAge, Math.Clamp(c.Condition + RandomOffset(RandomChannel.EstimateError, "estimate-error", c.Driver.Id, phaseIndex,
+                $"phase:{phaseIndex}", 2 * configuration.EstimateError), 0, 1), c.PitExit is not null, c.PendingPit is not null)).ToArray();
         return new TeamObservation(time, state.LeaderLap, state.Classification, own,
             state.BattleOptions.Where(kv => own.Any(t => t.DriverId == kv.Key)).ToDictionary());
     }
@@ -476,13 +480,13 @@ public sealed class RaceEngine
             var otherSpeed = Segments[other.SegmentIndex].Length / other.FreeDuration;
             var advantage = Math.Max(0, 1 - otherSpeed / carSpeed) * Segments.Sum(s => s.BaselineTime);
             if (advantage <= 0) return false;
-            ChargeBattle(car, BattleInstruction.Attack);
-            ChargeBattle(other, BattleInstruction.Defend);
+            ChargeBattle(car, BattleInstruction.Attack, identity);
+            ChargeBattle(other, BattleInstruction.Defend, identity);
             var chance = Math.Clamp(configuration.Track.PassingChance * (1 - segment.PassingDifficulty)
                 * Math.Min(1, advantage / 2) * (1 + (car.Driver.Racecraft - other.Driver.Racecraft) * .03)
                 * (car.Battle == BattleInstruction.Attack ? Traffic.AttackMultiplier : 1)
                 * (other.Battle == BattleInstruction.Defend ? Traffic.DefendMultiplier : 1), 0, 1);
-            success = ScopedRandom.PassingThreshold(seed, car.Driver.Id, Visit(car), $"encounter:{identity}", configuration.PassingVariation) < chance;
+            success = PassingThreshold(car, Visit(car), $"encounter:{identity}") < chance;
             car.Opportunities.Add(identity, success);
             history.Add(new RaceEvent(time, car.Driver.Id, car.Laps + 1, RaceEventKind.PassingAttempt,
                 0, other.Driver.Id, SegmentId: segment.Id,
@@ -530,7 +534,7 @@ public sealed class RaceEngine
             * (1 + (car.Driver.Racecraft - other.Driver.Racecraft) * .03)
             * (car.Battle == BattleInstruction.Attack ? Traffic.AttackMultiplier : 1)
             * (other.Battle == BattleInstruction.Defend ? Traffic.DefendMultiplier : 1), 0, 1);
-        if (ScopedRandom.PassingThreshold(seed, car.Driver.Id, car.Laps + 1, $"pass:{other.Driver.Id}", configuration.PassingVariation) < chance)
+        if (PassingThreshold(car, car.Laps + 1, $"pass:{other.Driver.Id}") < chance)
             history.Add(new RaceEvent(time, car.Driver.Id, car.Laps + 1, RaceEventKind.Overtake,
                 OtherDriverId: other.Driver.Id));
         else car.Following = other;
@@ -595,6 +599,25 @@ public sealed class RaceEngine
         car.WearProgress = fraction;
     }
 
+    private double RandomOffset(RandomChannel channel, string name, string driver, int scope, string identity, double magnitude)
+    {
+        var value = ScopedRandom.Offset(seed, channel, driver, scope, magnitude);
+        RecordRandom(name, driver, identity, value);
+        return value;
+    }
+    private double PassingThreshold(Car car, int scope, string encounter)
+    {
+        var value = ScopedRandom.PassingThreshold(seed, car.Driver.Id, scope, encounter, configuration.PassingVariation);
+        RecordRandom("passing", car.Driver.Id, $"{scope}:{encounter}", value);
+        return value;
+    }
+    private void RecordRandom(string channel, string driver, string scope, double value)
+    {
+        if (diagnosticScopes.Add(string.Join("|", channel, Uri.EscapeDataString(driver), scope)))
+            randomDiagnostics.Add(new(channel, driver, scope, value));
+    }
+    public IReadOnlyList<RandomDiagnostic> GetDesignerDiagnostics() => randomDiagnostics.ToArray();
+
     public PhaseResult GetState() => Snapshot();
 
     private IReadOnlyList<BattleInstruction> AvailableBattles(Car car)
@@ -611,12 +634,13 @@ public sealed class RaceEngine
         return options;
     }
 
-    private void ChargeBattle(Car car, BattleInstruction instruction)
+    private void ChargeBattle(Car car, BattleInstruction instruction, string? encounter = null)
     {
         if (car.Battle != instruction) return;
         var cost = Math.Min(car.Condition, Tyres.DegradationPerLap * Traffic.BattleWear);
         car.Condition -= cost;
-        history.Add(new RaceEvent(time, car.Driver.Id, car.Laps + 1, RaceEventKind.BattleWear, cost));
+        history.Add(new RaceEvent(time, car.Driver.Id, car.Laps + 1, RaceEventKind.BattleWear, cost,
+            SegmentId: Segments?[car.SegmentIndex].Id, DistanceMetres: Segments is null ? null : Distance(car), EncounterId: encounter));
     }
 
     private double TyrePenalty(Car car)

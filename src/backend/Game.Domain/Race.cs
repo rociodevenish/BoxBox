@@ -65,7 +65,8 @@ public record RaceConfiguration(int Laps, Track Track, double AttributeSeconds =
     double LapVariation = 0, TyreTuning? Tyres = null, double StopVariation = .6,
     TrafficTuning? Traffic = null, double EstimateError = .04, double RaceFormVariation = 0, double PassingVariation = 1)
 {
-    public RaceConfiguration WithExplicitTuning() => this with { Tyres = Tyres ?? new(), Traffic = Traffic ?? new() };
+    public RaceConfiguration WithExplicitTuning() => this with { Tyres = Tyres ?? new(), Traffic = Traffic ?? new(),
+        Track = Track with { Segments = Track.Segments is null ? null : Array.AsReadOnly(Track.Segments.ToArray()) } };
 }
 
 public record TyreState(string DriverId, TyreCompound Compound, int Age, double Condition,
