@@ -10,14 +10,17 @@ internal sealed class StrategyEvaluator
     public StrategyEvaluator(StrategyPlan source, IReadOnlyList<string> drivers, int laps)
     {
         Validate(source, drivers, laps);
-        plan = source with { Scheduled = source.Scheduled.ToArray(), Conditional = source.Conditional.ToArray() };
+        plan = source with { Scheduled = source.Scheduled.ToArray(), Conditional = source.Conditional.ToArray(),
+            DriverPaces = source.DriverPaces?.ToDictionary() };
     }
 
     public void RequireSamePlan(StrategyPlan source)
     {
         if (source is null || source.DefaultPace != plan.DefaultPace || source.Scheduled is null
             || source.Conditional is null || !source.Scheduled.SequenceEqual(plan.Scheduled)
-            || !source.Conditional.SequenceEqual(plan.Conditional))
+            || !source.Conditional.SequenceEqual(plan.Conditional)
+            || !(source.DriverPaces ?? new Dictionary<string, PaceInstruction>()).OrderBy(k => k.Key)
+                .SequenceEqual((plan.DriverPaces ?? new Dictionary<string, PaceInstruction>()).OrderBy(k => k.Key)))
             throw new ArgumentException("A race's strategy plan cannot change between phases.");
     }
 
@@ -25,6 +28,8 @@ internal sealed class StrategyEvaluator
     {
         if (source is null || source.Scheduled is null || source.Conditional is null || !Enum.IsDefined(source.DefaultPace))
             throw new ArgumentException("Invalid strategy plan.");
+        if (source.DriverPaces?.Any(p => !drivers.Contains(p.Key) || !Enum.IsDefined(p.Value)) == true)
+            throw new ArgumentException("Invalid per-driver default pace.");
         foreach (var entry in source.Scheduled)
         {
             if (entry is null || entry.Phase < 0 || entry.Phase >= (laps - 1) / 5 + 1
@@ -56,7 +61,7 @@ internal sealed class StrategyEvaluator
         {
             var classification = observation.Classification.Single(c => c.DriverId == tyre.DriverId);
             if (classification.FinishTime is not null) continue;
-            var decision = new DriverDecision(plan.DefaultPace);
+            var decision = new DriverDecision(plan.DriverPaces?.GetValueOrDefault(tyre.DriverId, plan.DefaultPace) ?? plan.DefaultPace);
             var source = "default";
             var scheduled = plan.Scheduled.SingleOrDefault(s => s.Phase == phase && s.DriverId == tyre.DriverId);
             if (scheduled is not null) { decision = scheduled.Decision; source = "scheduled"; }

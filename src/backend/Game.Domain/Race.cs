@@ -19,7 +19,7 @@ public enum ConditionComparison { LessThanOrEqual, GreaterThanOrEqual }
 public record ConditionalDecision(string DriverId, ConditionField Field, double Threshold,
     DriverDecision Decision, ConditionComparison Comparison = ConditionComparison.LessThanOrEqual, bool Once = true);
 public record StrategyPlan(ScheduledDecision[] Scheduled, ConditionalDecision[] Conditional,
-    PaceInstruction DefaultPace = PaceInstruction.Standard);
+    PaceInstruction DefaultPace = PaceInstruction.Standard, IReadOnlyDictionary<string, PaceInstruction>? DriverPaces = null);
 public record EstimatedTyreState(string DriverId, TyreCompound Compound, int Age,
     double EstimatedCondition, bool InPits, bool StopQueued);
 public record TeamObservation(double Time, int LeaderLap, IReadOnlyList<ClassificationEntry> Classification,

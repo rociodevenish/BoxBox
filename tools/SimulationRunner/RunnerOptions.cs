@@ -1,0 +1,40 @@
+using Game.Domain;
+
+namespace SimulationRunner;
+
+internal record RunnerOptions(int Laps, int Seed, bool Mixed, bool Technical, string? Script,
+    string? Strategy, string? Alternative, string Target, int Runs, string Output, string? Configuration, PaceInstruction Pace)
+{
+    public static RunnerOptions Parse(string[] args)
+    {
+        var positional = new List<string>();
+        var values = new Dictionary<string, string>();
+        var flags = new HashSet<string>();
+        var named = new[] { "--script", "--strategy", "--compare", "--driver", "--runs", "--output", "--config" };
+        for (var i = 0; i < args.Length; i++)
+        {
+            if (named.Contains(args[i]))
+            {
+                if (i + 1 >= args.Length || args[i + 1].StartsWith("--") || values.ContainsKey(args[i]))
+                    throw new ArgumentException($"{args[i]} needs one value and may appear once.");
+                values[args[i]] = args[++i];
+            }
+            else if (new[] { "mixed", "technical", "push", "conserve" }.Contains(args[i])) flags.Add(args[i]);
+            else if (args[i].StartsWith("--")) throw new ArgumentException($"Unknown option {args[i]}.");
+            else positional.Add(args[i]);
+        }
+        if (positional.Count > 2 || flags.Contains("push") && flags.Contains("conserve"))
+            throw new ArgumentException("Expected optional distance and seed, and one baseline pace.");
+        var laps = positional.Count > 0 ? int.Parse(positional[0]) : 50;
+        var seed = positional.Count > 1 ? int.Parse(positional[1]) : 7;
+        var runs = int.Parse(values.GetValueOrDefault("--runs", "20"));
+        if (laps < 1 || runs < 1 || (long)seed + runs - 1 > int.MaxValue
+            || values.ContainsKey("--script") && values.ContainsKey("--strategy"))
+            throw new ArgumentException("Invalid distance, run count or conflicting strategy sources.");
+        return new RunnerOptions(laps, seed, flags.Contains("mixed"), flags.Contains("technical"),
+            values.GetValueOrDefault("--script"), values.GetValueOrDefault("--strategy"),
+            values.GetValueOrDefault("--compare"), values.GetValueOrDefault("--driver", "driver-01"), runs,
+            values.GetValueOrDefault("--output", "reports"), values.GetValueOrDefault("--config"),
+            flags.Contains("push") ? PaceInstruction.Push : flags.Contains("conserve") ? PaceInstruction.Conserve : PaceInstruction.Standard);
+    }
+}
