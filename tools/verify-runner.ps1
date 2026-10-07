@@ -90,4 +90,10 @@ if ($LASTEXITCODE -eq 0 -or (Test-Path $rejectedOutput) -or "$tyreSuiteError" -n
     throw 'Tyre suite must enforce principal sample size before writing reports'
 }
 Write-Output 'Tyre suite validation smoke check passed.'
+$rejectedOutput = Join-Path $smokeOutput ([Guid]::NewGuid().ToString())
+$formSuiteError = & $Dotnet run --project $runnerProject --no-build -- --suite form-noise --runs 1 --output $rejectedOutput 2>&1
+if ($LASTEXITCODE -eq 0 -or (Test-Path $rejectedOutput) -or "$formSuiteError" -notmatch 'at least 20 paired seeds') {
+    throw 'Form suite must enforce principal sample size before writing reports'
+}
+Write-Output 'Form suite validation smoke check passed.'
 exit 0

@@ -29,7 +29,7 @@ internal record RunnerOptions(int Laps, int Seed, bool Mixed, bool Technical, st
         if (values.ContainsKey("--replay") && (positional.Count != 0 || flags.Count != 0
             || values.Keys.Any(k => k is not "--replay" and not "--output")))
             throw new ArgumentException("Replay accepts only --replay and --output; recorded inputs own the run.");
-        if (values.TryGetValue("--suite", out var suite) && (suite is not "track-passing" and not "tyre-pit" || flags.Count != 0
+        if (values.TryGetValue("--suite", out var suite) && (suite is not "track-passing" and not "tyre-pit" and not "form-noise" || flags.Count != 0
             || values.Keys.Any(k => k is not "--suite" and not "--output" and not "--runs")
             || positional.Count > 0 && positional[0] != "40"))
             throw new ArgumentException("Segment suite owns its 40-lap fixtures and plans; accepts only --suite, --runs, --output and optional 40/seed.");
