@@ -4,7 +4,7 @@ import { TimingRow } from "./timing-row";
 @Component({
   selector: "app-timing-tower",
   imports: [TimingRow],
-  template: `<div class="tower-panel">
+  template: `<div class="tower-panel" [class.compact]="classification().compact" [class.finished]="classification().rows[0]?.eligibleAtFinish != null">
     <div class="tower-heading">
       <h3>CLASSIFICATION</h3>
       <p>
@@ -28,12 +28,12 @@ import { TimingRow } from "./timing-row";
           <th scope="col">Driver</th>
           <th scope="col">Gap</th>
           <th scope="col">Tyre</th>
-          <th scope="col" class="status-heading">Stop status</th>
+          <th scope="col" class="status-heading">{{classification().rows[0]?.eligibleAtFinish != null ? 'Distance / eligibility' : 'Stop status'}}</th>
         </tr>
       </thead>
       <tbody>
         @for (row of classification().rows; track row.driver.id) {
-          <tr app-timing-row [row]="row"></tr>
+          <tr app-timing-row [row]="row" [compact]="classification().compact ?? false"></tr>
         }
       </tbody>
     </table>
@@ -97,6 +97,8 @@ import { TimingRow } from "./timing-row";
     .status-column {
       width: 126px;
     }
+    .finished .status-column { width:190px; }
+    @media(min-width:1200px){.compact .tower-heading {padding:10px 16px;} .compact caption {padding:8px 16px;} }
     @media (max-width: 600px) {
       .tower-heading {
         padding: 12px;

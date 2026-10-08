@@ -19,6 +19,8 @@ app.MapPost("/api/sessions", (CreateSessionInput input, SessionCoordinator sessi
 app.MapGet("/api/sessions/{id}", (string id, SessionCoordinator sessions) => sessions.Public(id));
 app.MapGet("/api/sessions/{id}/team", (string id, HttpRequest request, SessionCoordinator sessions) => sessions.Team(id, Capability(request)));
 app.MapPost("/api/sessions/{id}/plans", (string id, TeamCommand command, HttpRequest request, SessionCoordinator sessions) => sessions.Submit(id, Capability(request), command));
+app.MapPost("/api/sessions/{id}/continue", (string id, ContinueCommand command, HttpRequest request, SessionCoordinator sessions) => sessions.Continue(id, Capability(request), command));
+app.MapPost("/api/sessions/{id}/restart", (string id, HttpRequest request, SessionCoordinator sessions) => sessions.Restart(id, Capability(request)));
 app.MapHub<RaceHub>("/hubs/race");
 app.MapGet("/health", () => Results.Ok(new { status = "ready" }));
 app.Run();

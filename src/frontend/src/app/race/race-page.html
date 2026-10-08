@@ -8,20 +8,25 @@
  </div>
 }
 @if(mode==='new'){
- <h1>Local dry race</h1><p>Designer setup · one authoritative phase</p>
+ <h1>Local dry race</h1><p>Designer setup · complete authoritative dry race</p>
+ <p>Dry race rule: use at least two different tyre compounds.</p><p>Finishing with one compound remains ineligible; the game will not change your plan automatically.</p>
  <form (submit)="$event.preventDefault();create(preset.value,laps.value,seed.value)">
  <label>Preset<select #preset><option value="open-equal">Open · equal field</option><option value="restricted-equal">Restricted · equal field</option><option value="open-mixed">Open · mixed field</option><option value="restricted-mixed">Restricted · mixed field</option></select></label>
  <label>Race distance<select #laps><option>6</option><option>10</option><option>20</option><option>40</option><option>50</option></select></label>
  <label>Designer seed<input #seed type="number" value="123" required /></label><button>Create race</button></form>
  @if(created();as session){<nav><a [href]="session.displayUrl">Open public display</a><a [href]="session.controllerUrl">Open controller</a></nav><p>Keep the controller link private. The public session ID does not authorize team access.</p>}
 } @else if(mode==='controller'){
- @if(team();as state){<p class="lifecycle" aria-live="polite">{{lifecycleLabel(state.lifecycle)}}</p><app-two-car-controller [model]="controller()" (submitPlan)="submitPlan($event)" />
+ @if(team();as state){<p class="lifecycle" aria-live="polite">{{lifecycleLabel(state.lifecycle)}}</p><p class="rule">Dry race rule: use at least two different tyre compounds.</p><app-two-car-controller [model]="controller()" (submitPlan)="submitPlan($event)" />
+ @if(state.lifecycle==='ready-next'){<section class="next-phase"><p>Ready for next phase. Both cars remain locked until you continue. Display playback does not block this action.</p><button [disabled]="!canContinue()" (click)="continuePhase()">Continue to next phase</button></section>}
+ @if(state.lifecycle==='finished'){<section class="finish-summary" aria-label="Your team final results"><h2>Your team final results</h2>@for(car of publicState()?.classification;track car.driverId){@if(car.teamId==='team-01'){<p>{{car.name}} · {{car.completedLaps}} laps · {{car.eligibleAtFinish ? 'Eligible' : 'Ineligible — only one tyre compound used'}}</p>}}<button [disabled]="connectionState()!=='connected'" (click)="restart()">Restart same preset</button><a href="/race/new">Choose another preset</a></section>}
+ @if(created();as session){<nav><a [href]="session.displayUrl">Open public display</a><a [href]="session.controllerUrl">Open controller</a></nav>}
  }@else{<h1>Private team controller</h1><p>Connecting to authorized team…</p>}
 } @else {
- <header><div><p class="eyebrow">Public race display</p><h1>Race Phase {{(publicState()?.phase??0)+1}}</h1></div>@if(publicState();as state){<div><strong>Lap {{state.leaderLap}} / {{state.totalLaps}}</strong><p aria-live="polite">{{lifecycleLabel(state.lifecycle)}}</p></div>}
- <div class="gap-options" aria-label="Timing reference"><button [attr.aria-pressed]="gapReference()==='leader'" (click)="gapReference.set('leader')">Gap to leader</button><button [attr.aria-pressed]="gapReference()==='ahead'" (click)="gapReference.set('ahead')">Gap to car ahead</button></div></header>
- @if(publicState();as state){<div class="public-layout"><app-timing-tower [classification]="classification()" />
- <aside aria-label="Public race context"><div class="identity-fallback" aria-label="Synthetic laboratory field">22</div><h2>Dry race laboratory</h2><p>Synthetic drivers · 11 teams</p><p>Fixed rolling-order start. Timing uses recorded race evidence; lap deficits and seconds are shown separately.</p><p>Race leader: {{state.classification[0].name}}</p><ol aria-label="Public race events">@for(event of state.events;track event.id){<li>Lap {{event.lap}} · {{event.driverId}} · {{event.kind}}</li>}</ol></aside></div>
+ @if(publicState();as state){<div class="display-controls"><div class="gap-options" aria-label="Timing reference"><button [attr.aria-pressed]="gapReference()==='leader'" (click)="gapReference.set('leader')">Gap to leader</button><button [attr.aria-pressed]="gapReference()==='ahead'" (click)="gapReference.set('ahead')">Gap to car ahead</button></div><label class="playback-setting">Playback seconds<input #playbackInput type="number" min="0" max="10" [value]="playbackSeconds()" (input)="setPlaybackSeconds(playbackInput.value)" /></label>
+ @if(state.lifecycle==='finished'){<span class="server-finish">Finish confirmed</span>}@else{<span class="server-state">{{lifecycleLabel(state.lifecycle)}}</span>}
+ @if(state.presentation){<p role="status">{{playing() ? 'Presenting phase feedback' : state.lifecycle==='finished' ? 'Final results ready' : 'Ready for next phase'}}</p>@if(playing()){<button (click)="skipPlayback()">Skip playback</button>}@else{<button (click)="playFeedback()">Replay feedback</button>}}
+ </div><app-phase-result [result]="phaseResult()" [compact]="true" />
+ @if(state.lifecycle==='finished'){<p class="final-rule">Eligibility requires at least two different dry tyre compounds. Ineligible finishes remain shown in their recorded Classification.</p><a href="/race/new">Choose another preset</a>}
  }@else{<p>Connecting to race…</p>}
 }
 </main>

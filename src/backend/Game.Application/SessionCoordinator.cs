@@ -5,11 +5,12 @@ namespace Game.Application;
 public sealed class SessionCoordinator(ISessionNotifications notifications)
 {
     private sealed class Session(string id, string player, string device, byte[] grantHash,
-        RaceConfiguration configuration, Driver[] drivers, int seed)
+        RaceConfiguration configuration, Driver[] drivers, int seed, CreateSessionInput input)
     {
         public string Id { get; } = id;
         public string Player { get; } = player;
         public string Device { get; } = device;
+        public CreateSessionInput Input { get; } = input;
         public byte[] GrantHash { get; } = grantHash;
         public RaceConfiguration Configuration { get; } = configuration;
         public Driver[] Drivers { get; } = drivers;
@@ -18,11 +19,14 @@ public sealed class SessionCoordinator(ISessionNotifications notifications)
         public List<IReadOnlyDictionary<string, DriverDecision>> AcceptedPlans { get; } = [];
         public string ScriptVersion { get; } = OpponentScript.Version;
         public Dictionary<Guid, (string Fingerprint, SubmissionAck Ack)> AcceptedCommands { get; } = [];
+        public Dictionary<Guid, (ContinueCommand Command, SubmissionAck Ack)> ContinuedCommands { get; } = [];
         public TeamCommand? ConfirmedPlan { get; set; }
         public int Phase { get; set; }
         public long Revision { get; set; } = 1;
         public string Lifecycle { get; set; } = "awaiting-decisions";
         public IReadOnlyList<PublicEvent> Events { get; set; } = [];
+        public int EngineEventCursor { get; set; }
+        public PublicPresentation? Presentation { get; set; }
     }
     private readonly object gate = new();
     private readonly SemaphoreSlim mutations = new(1, 1);
@@ -42,7 +46,7 @@ public sealed class SessionCoordinator(ISessionNotifications notifications)
         var configuration = new RaceConfiguration(input.Laps.Value, LaboratoryFixtures.SegmentedTrack(variant.Restricted),
             LapVariation: .2).WithExplicitTuning();
         var session = new Session(id, player, device, SHA256.HashData(System.Text.Encoding.UTF8.GetBytes(capability)),
-            configuration, LaboratoryFixtures.SegmentedField(variant.Mixed), input.Seed.Value);
+            configuration, LaboratoryFixtures.SegmentedField(variant.Mixed), input.Seed.Value, input);
         session.FrozenOpponents = OpponentScript.Freeze(session.Engine, session.Drivers.Select(driver => driver.Team).Distinct(), configuration.Laps);
         mutations.Wait();
         try { lock (gate) active = session; }
@@ -52,6 +56,12 @@ public sealed class SessionCoordinator(ISessionNotifications notifications)
     }
     public PublicSnapshot Public(string id)
     { lock (gate) return Project(Require(id)); }
+    public SessionCreated Restart(string id, string? capability)
+    {
+        CreateSessionInput input;
+        lock (gate) input = Authorise(id, capability).Input;
+        return Create(input);
+    }
     private Session Require(string id) => active is { } session && session.Id == id ? session
         : throw new SessionFault(SessionFailure.Unavailable, "Session unavailable. Create a new local playtest.");
     private static PublicSnapshot Project(Session session)
@@ -77,7 +87,7 @@ public sealed class SessionCoordinator(ISessionNotifications notifications)
                 tyre.InPits ? "in-pit-lane" : "on-track", state.Finished ? state.Eligibility[entry.DriverId] : null);
         }).ToArray();
         return new(session.Id, session.Phase, session.Revision, session.Lifecycle, state.LeaderLap,
-            session.Configuration.Laps, state.Time, Array.AsReadOnly(rows), session.Events);
+            session.Configuration.Laps, state.Time, Array.AsReadOnly(rows), session.Events, session.Presentation);
     }
     private static PublicGap ProjectGap(TimingGap gap) => gap.Laps > 0 ? new("laps", Laps: gap.Laps)
         : gap.Seconds is { } seconds ? new("time", seconds) : new("unavailable");
@@ -104,6 +114,36 @@ public sealed class SessionCoordinator(ISessionNotifications notifications)
     {
         await mutations.WaitAsync();
         try { return await SubmitSerially(id, capability, command); }
+        finally { mutations.Release(); }
+    }
+    public async Task<SubmissionAck> Continue(string id, string? capability, ContinueCommand? command)
+    {
+        await mutations.WaitAsync();
+        try
+        {
+            PublicSnapshot display; TeamSnapshot own; SubmissionAck acknowledgement;
+            lock (gate)
+            {
+                var session = Authorise(id, capability);
+                if (command is null || !Guid.TryParse(command.CommandId, out var commandId))
+                    throw new SessionFault(SessionFailure.InvalidInput, "Continue needs a command identity and current phase revision.");
+                command = command with { CommandId = commandId.ToString() };
+                if (session.ContinuedCommands.TryGetValue(commandId, out var previous))
+                    return previous.Command == command ? previous.Ack
+                        : throw new SessionFault(SessionFailure.Conflict, "This continuation identity already has a different request.");
+                if (session.Lifecycle != "ready-next" || command.Phase != session.Phase || command.Revision != session.Revision)
+                    throw new SessionFault(SessionFailure.Conflict, "Only the current completed phase can continue.");
+                session.Phase++; session.Revision++; session.Lifecycle = "awaiting-decisions";
+                session.ConfirmedPlan = null; session.Events = []; session.Presentation = null;
+                session.FrozenOpponents = OpponentScript.Freeze(session.Engine,
+                    session.Drivers.Select(driver => driver.Team).Distinct(), session.Configuration.Laps);
+                display = Project(session); own = ProjectTeam(session);
+                acknowledgement = new(command.CommandId, session.Id, session.Phase, session.Revision, session.Lifecycle);
+                session.ContinuedCommands.Add(commandId, (command, acknowledgement));
+            }
+            await PublishSafely(display, own);
+            return acknowledgement;
+        }
         finally { mutations.Release(); }
     }
     private async Task<SubmissionAck> SubmitSerially(string id, string? capability, TeamCommand? command)
@@ -148,16 +188,37 @@ public sealed class SessionCoordinator(ISessionNotifications notifications)
             _ = Require(id);
             var result = session.Engine.ResolvePhase(complete);
             session.AcceptedPlans.Add(new System.Collections.ObjectModel.ReadOnlyDictionary<string, DriverDecision>(complete));
-            session.Events = Array.AsReadOnly(result.Events.Select((item, index) => (item, index))
-                .Where(pair => pair.item.Kind is RaceEventKind.Overtake or RaceEventKind.PitEntry or RaceEventKind.PitExit or RaceEventKind.TyreChanged)
-                .Select(pair => new PublicEvent($"{session.Id}:{pair.index}", pair.item.Kind.ToString(), pair.item.Time,
-                    pair.item.Lap, pair.item.DriverId, pair.item.OtherDriverId, pair.item.Compound?.ToString())).ToArray());
+            var fresh = result.Events.Skip(session.EngineEventCursor).Select((item, index) => (item, index))
+                .Where(pair => pair.item.Kind is RaceEventKind.Overtake or RaceEventKind.PitEntry or RaceEventKind.PitExit or RaceEventKind.TyreChanged).ToArray();
+            session.EngineEventCursor = result.Events.Count;
+            var selected = fresh.OrderBy(pair => pair.item.Kind == RaceEventKind.Overtake ? 0 : 1)
+                .ThenBy(pair => pair.index).Take(12).OrderBy(pair => pair.index).ToArray();
+            session.Events = Array.AsReadOnly(selected.Select(pair => new PublicEvent(Guid.NewGuid().ToString(),
+                pair.item.Kind.ToString(), pair.item.Time, pair.item.Lap, pair.item.DriverId, pair.item.OtherDriverId,
+                pair.item.Compound?.ToString())).ToArray());
+            var overtakes = fresh.Count(pair => pair.item.Kind == RaceEventKind.Overtake);
+            var entries = fresh.Count(pair => pair.item.Kind == RaceEventKind.PitEntry);
+            var exits = fresh.Count(pair => pair.item.Kind == RaceEventKind.PitExit);
+            var changes = fresh.Count(pair => pair.item.Kind == RaceEventKind.TyreChanged);
+            session.Presentation = new(Guid.NewGuid().ToString(), fresh.Length, overtakes, entries, exits, changes,
+                fresh.Length - selected.Length, fresh.Length == 0 ? "Quiet phase: no overtakes or pit events recorded."
+                : $"{overtakes} overtakes · {entries} pit entries · {exits} pit exits · {changes} tyre changes."
+                    + (fresh.Length > selected.Length ? $" Showing {selected.Length} highlights of {fresh.Length} recorded events." : ""));
             session.Lifecycle = result.Finished ? "finished" : "phase-result"; session.Revision++;
             resolved = Project(session); teamResolved = ProjectTeam(session);
         }
+        await PublishSafely(resolved, teamResolved);
+        if (resolved.Lifecycle != "finished")
+        {
+            lock (gate)
+            {
+                session.Lifecycle = "ready-next"; session.Revision++;
+                resolved = Project(session); teamResolved = ProjectTeam(session);
+            }
+        }
         var acknowledgement = new SubmissionAck(command.CommandId, session.Id, session.Phase, resolved.Revision, resolved.Lifecycle);
         lock (gate) session.AcceptedCommands.Add(commandId, (fingerprint, acknowledgement));
-        await PublishSafely(resolved, teamResolved);
+        if (resolved.Lifecycle == "ready-next") await PublishSafely(resolved, teamResolved);
         return acknowledgement;
     }
     private async Task PublishSafely(PublicSnapshot display, TeamSnapshot team)

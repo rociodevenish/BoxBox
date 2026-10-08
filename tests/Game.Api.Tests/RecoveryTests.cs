@@ -26,10 +26,10 @@ public sealed class RecoveryTests
         foreach (var response in responses) response.EnsureSuccessStatusCode();
         Assert.Equal(await responses[0].Content.ReadAsStringAsync(), await responses[1].Content.ReadAsStringAsync());
         var snapshot = (await client.GetFromJsonAsync<PublicSnapshot>($"/api/sessions/{session.SessionId}"))!;
-        Assert.Equal(3, snapshot.Revision);
+        Assert.Equal(4, snapshot.Revision);
         Assert.Equal(5, snapshot.LeaderLap);
         var recovered = (await client.GetFromJsonAsync<TeamSnapshot>($"/api/sessions/{session.SessionId}/team"))!;
-        Assert.Equal("phase-result", recovered.Lifecycle);
+        Assert.Equal("ready-next", recovered.Lifecycle);
         Assert.Equal(command.CommandId, recovered.ConfirmedPlan!.CommandId);
     }
     // External realtime delivery is deliberately unavailable; physics and HTTP authority remain real.
@@ -69,14 +69,14 @@ public sealed class RecoveryTests
         Assert.Single(attempts, response => response.IsSuccessStatusCode);
         Assert.Single(attempts, response => response.StatusCode == HttpStatusCode.Conflict);
         var publicState = (await client.GetFromJsonAsync<PublicSnapshot>($"/api/sessions/{session.SessionId}"))!;
-        Assert.Equal(3, publicState.Revision);
+        Assert.Equal(4, publicState.Revision);
         Assert.Equal(5, publicState.LeaderLap);
         await using var connection = new Microsoft.AspNetCore.SignalR.Client.HubConnectionBuilder()
             .WithUrl(new Uri(server.Server.BaseAddress, "/hubs/race"), options =>
             { options.Transports = Microsoft.AspNetCore.Http.Connections.HttpTransportType.LongPolling; options.HttpMessageHandlerFactory = _ => server.Server.CreateHandler(); }).Build();
         await connection.StartAsync();
         var recovered = await connection.InvokeAsync<System.Text.Json.JsonElement>("SubscribeTeam", session.SessionId, session.ControllerCapability);
-        Assert.Equal("phase-result", recovered.GetProperty("lifecycle").GetString());
+        Assert.Equal("ready-next", recovered.GetProperty("lifecycle").GetString());
         Assert.Equal("Push", recovered.GetProperty("confirmedPlan").GetProperty("cars")[0].GetProperty("pace").GetString());
         Assert.Equal("Hard", recovered.GetProperty("confirmedPlan").GetProperty("cars")[1].GetProperty("compound").GetString());
         Assert.Equal(2, recovered.GetProperty("confirmedPlan").GetProperty("cars").GetArrayLength());

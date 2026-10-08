@@ -2,7 +2,7 @@ import { signal } from '@angular/core';
 import { HubConnection, HubConnectionBuilder } from '@microsoft/signalr';
 import { PublicGap, TyreCompound } from '../ui/timing/public-classification.model';
 import { Pace, Battle } from '../ui/controller/controller.model';
-interface PublicState {
+export interface PublicState {
     sessionId: string;
     phase: number;
     revision: number;
@@ -19,13 +19,18 @@ interface PublicState {
         tyreAge: number;
         compound: TyreCompound;
         pitState: string;
+        completedLaps: number;
+        eligibleAtFinish: boolean | null;
     }[];
     events: {
         id: string;
         kind: string;
         driverId: string;
         lap: number;
+        otherDriverId: string | null;
+        compound: TyreCompound | null;
     }[];
+    presentation: { cursor: string; totalEvents: number; overtakes: number; pitEntries: number; pitExits: number; tyreChanges: number; omittedEvents: number; summary: string } | null;
 }
 interface Command {
     commandId: string;
@@ -90,6 +95,7 @@ export class RaceSession {
     readonly pending = signal<Command | null>(null);
     readonly acknowledged = signal<Acknowledgement | null>(null);
     private connection?: HubConnection;
+    private pendingContinue?: { commandId: string; phase: number; revision: number };
     constructor(url: URL) {
         this.mode = url.pathname.split('/')[2];
         this.id = url.pathname.split('/')[3];
@@ -165,6 +171,12 @@ export class RaceSession {
     private acceptTeam(state: TeamState) {
         if (state.sessionId !== this.id || state.revision <= (this.team()?.revision ?? -1))
             return;
+        if (state.phase !== this.team()?.phase) {
+            this.acknowledged.set(null);
+            this.pendingContinue = undefined;
+            this.pending.set(null);
+            this.choices.set(state.cars.map(car => ({ driverId: car.driverId, pace: 'Standard', pit: 'StayOut', compound: 'Hard', battle: 'Neutral' })));
+        }
         if (state.confirmedPlan) {
             this.choices.set(state.confirmedPlan.cars.map(car => ({ ...car, pit: car.pit === 'Pit' ? 'Pit' : 'StayOut', compound: car.compound ?? 'Hard' })));
             this.pending.set(null);
@@ -176,6 +188,29 @@ export class RaceSession {
     private canSubmit() { return !this.busy() && !this.acknowledged() && this.connectionState() === 'connected' && this.team()?.lifecycle === 'awaiting-decisions'; }
     editable() { return this.canSubmit() && !this.pending(); }
     canRetry() { return this.canSubmit() && !!this.pending(); }
+    canContinue() { return !this.busy() && this.connectionState() === 'connected' && this.team()?.lifecycle === 'ready-next'; }
+    async continuePhase() {
+        if (!this.canContinue()) return;
+        const own = this.team()!;
+        this.pendingContinue ??= { commandId: crypto.randomUUID(), phase: own.phase, revision: own.revision };
+        this.busy.set(true); this.error.set('');
+        try {
+            await this.request('/api/sessions/' + this.id + '/continue', this.pendingContinue, this.capability);
+            if (this.connection) await this.rejoin(this.connection);
+        } catch (error) {
+            if (this.team()?.phase !== own.phase) return;
+            this.fail(error);
+            if (error instanceof RequestFailure) {
+                this.pendingContinue = undefined;
+                if (this.connection) await this.rejoin(this.connection);
+            } else this.connectionState.set('disconnected');
+        } finally { this.busy.set(false); }
+    }
+    async restart() {
+        this.error.set('');
+        try { this.created.set(await this.request<Created>('/api/sessions/' + this.id + '/restart', {}, this.capability)); }
+        catch (error) { this.fail(error); }
+    }
     async submit() {
         const team = this.team();
         if (!team || !this.canSubmit())
@@ -186,6 +221,7 @@ export class RaceSession {
         this.error.set('');
         try {
             const ack = await this.request<Acknowledgement>('/api/sessions/' + this.id + '/plans', command, this.capability);
+            if (this.team()?.phase !== command.phase) return;
             if (ack.sessionId === this.id && ack.commandId === command.commandId) {
                 this.acknowledged.set(ack);
                 this.pending.set(null);
@@ -201,6 +237,7 @@ export class RaceSession {
             }
         }
         catch (error) {
+            if (this.team()?.phase !== command.phase) return;
             if (this.team()?.confirmedPlan?.commandId === command.commandId)
                 return;
             if (error instanceof RequestFailure && error.status >= 400 && error.status < 500) {

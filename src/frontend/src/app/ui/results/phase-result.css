@@ -1,6 +1,15 @@
 :host {
   display: block;
 }
+@media(min-width:1200px){
+ .result-screen.compact { padding:0; }
+ .compact .result-header { margin-bottom:8px; gap:16px; }
+ .compact .result-header h1 { font-size:30px; }
+ .compact .result-header [role=status] { font-size:13px; }
+ .compact .result-layout { grid-template-columns:minmax(760px,1.7fr) minmax(300px,1fr); }
+ .compact .classification > h2 {font-size:13px;margin-bottom:4px;}
+ .compact.finished .result-header {padding-bottom:4px;}
+}
 .result-screen {
   padding: 16px;
   max-width: 1920px;

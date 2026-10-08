@@ -23,7 +23,7 @@ test('real display and capability controller resolve exactly one phase', async (
     await expect(page.getByRole('dialog')).toContainText('Hard');
     await page.getByRole('button', { name: 'Submit both cars' }).click();
     await expect(display.getByText('Phase complete', { exact: true })).toBeVisible();
-    await expect(display.getByText('Lap 5 / 6', { exact: true })).toBeVisible();
+    await expect(display.getByText('LAP 5 / 6', { exact: true })).toBeVisible();
     await expect(display.getByRole('row')).toHaveCount(23);
     await expect(page.getByRole('region', { name: 'Car 2 — Driver 02' }).getByLabel('New compound')).toHaveValue('Hard');
     await expect(page.getByRole('button', { name: 'Review team plan' })).toBeDisabled();

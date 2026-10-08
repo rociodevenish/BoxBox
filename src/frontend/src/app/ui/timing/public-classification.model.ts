@@ -22,6 +22,8 @@ export interface PublicTimingRow {
   readonly compound: TyreCompound | null;
   readonly stopStatus: PublicStopStatus;
   readonly tyreAge?: number;
+  readonly completedLaps?: number;
+  readonly eligibleAtFinish?: boolean | null;
 }
 export interface PublicClassification {
   readonly phase: number;
@@ -29,4 +31,5 @@ export interface PublicClassification {
   readonly totalLaps: number;
   readonly rows: readonly PublicTimingRow[];
   readonly gapReference?: 'leader' | 'ahead';
+  readonly compact?: boolean;
 }

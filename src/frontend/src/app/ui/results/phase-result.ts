@@ -10,9 +10,12 @@ import { PublicPhaseResult } from "./public-phase-result.model";
 })
 export class PhaseResult {
   readonly fixtureLabel = input<string | null>(null);
+  readonly compact = input(false);
   readonly result = input.required<PublicPhaseResult>();
   readonly failedContextUrl = signal<string | null>(null);
   title() {
+    if (this.result().state === 'awaiting') return 'Phase ' + this.result().classification.phase + ' ready';
+    if (this.result().state === 'presenting') return 'Recorded phase feedback';
     if (this.result().state === "initial") return "Race ready";
     return this.result().state === "finished"
       ? "Race finished"

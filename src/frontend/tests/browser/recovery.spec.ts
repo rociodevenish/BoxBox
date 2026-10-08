@@ -36,13 +36,13 @@ test('automatic reconnect rejoins authorized groups and older duplicated wire up
             route.send(message);
             if (typeof message !== 'string')
                 return;
-            if (message.includes('"type":3') && message.includes('"confirmedPlan"') && message.includes('"revision":3'))
+            if (message.includes('"type":3') && message.includes('"confirmedPlan"') && message.includes('"revision":4'))
                 refreshed++;
             if (message.includes('"target":"teamSnapshot"') && message.includes('"revision":2')) {
                 older = message;
                 replayOlder = () => route.send(message);
             }
-            if (message.includes('"target":"teamSnapshot"') && message.includes('"revision":3')) {
+            if (message.includes('"target":"teamSnapshot"') && message.includes('"revision":4')) {
                 if (older)
                     route.send(older);
                 route.send(message);

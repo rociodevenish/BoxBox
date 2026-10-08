@@ -13,10 +13,11 @@ export interface PublicRaceEvent {
 }
 /** Already-public result data; filtering and lifecycle authority belong to the session adapter. */
 export interface PublicPhaseResult {
-  readonly state: "initial" | "resolving" | "phase-results" | "finished";
+  readonly state: "initial" | "awaiting" | "resolving" | "presenting" | "phase-results" | "finished";
   readonly classification: PublicClassification;
   readonly events: readonly PublicRaceEvent[];
   readonly context: {
+    readonly label?: string;
     readonly name: string;
     readonly description: string;
     readonly imageUrl: string | null;
