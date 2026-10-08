@@ -24,7 +24,7 @@ The player does **not** directly drive a car. The player runs an F1 team across 
 - attack/defend decisions;
 - reactions to Safety Cars, weather, traffic and incidents.
 
-A single Grand Prix should take roughly **30 minutes including qualifying**, while the full season unfolds over a number of days. Between races, players make asynchronous decisions about development and preparation.
+A single Grand Prix should allow a pleasant rhythm of decisions and feedback, with its duration determined by play rather than a fixed race or weekend time target. The full season unfolds over a number of days. Between races, players make asynchronous decisions about development and preparation.
 
 The computer should handle exact lap-time simulation, probability and variability, tyre degradation, reliability, traffic, overtaking resolution, pit-stop timing, race gaps, weather evolution, incident generation, Safety Cars, and detailed attribute interactions.
 
@@ -654,8 +654,8 @@ Locked philosophy:
 - Preseason should not require spreadsheet-like valuation work.
 - Between races, a casual player can act quickly; an enthusiast can analyse the same limited choices more deeply.
 - Qualifying target: **4–5 minutes**.
-- Race target: **20–25 minutes**.
-- Full GP weekend target: approximately **30 minutes**.
+- Race pacing: aim for a pleasant experience; no fixed duration target. Measure decision, waiting, resolution and presentation time to identify friction.
+- Full GP weekend duration follows the playable experience rather than a fixed total. The former 20–25 minute race estimate informed the design and was retired by the user on 9 October 2026.
 
 ---
 

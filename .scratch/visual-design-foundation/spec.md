@@ -88,6 +88,20 @@ The result should provide production-usable UI primitives and a clear visual bas
 - Babylon.js scene, final race animation, qualifying, starts, incidents, weather and campaign screens.
 - Race cards, qualifying cards, recommendations and AI strategy.
 
+## Data and asset references
+
+Review these repository inputs before implementing this spec:
+- [f1_strategy_driver_cards_2026.json](../../.docs/data/f1_strategy_driver_cards_2026.json) - driver identities, headline/detailed ratings and compatibility preferences.
+- [f1_strategy_track_cards_2026.json](../../.docs/data/f1_strategy_track_cards_2026.json) - circuit identities, event-to-track calendar mapping, demands and race characteristics.
+- [f1_strategy_car_attribute_spec_2026.json](../../.docs/data/f1_strategy_car_attribute_spec_2026.json) - car attribute vocabulary, scales, headline derivation, setup and development/package domains.
+- [f1_strategy_preseason_car_construction_2026.json](../../.docs/data/f1_strategy_preseason_car_construction_2026.json) - shared preseason construction menu, baseline, option modifiers, costs and example builds.
+
+Use [driver portraits](../../assets/driver%20images/) and [track imagery](../../assets/track%20images/) wherever this feature presents those identities. Inspect the current [assets collection](../../assets/) at implementation time, including later additions; map files through stable content identities, record provenance, preserve originals and package suitable runtime variants. Keep readable text and missing-image fallbacks. Simulation-only work uses imagery only for associated reports or galleries.
+
+The JSON files are provisional design inputs. Preserve schema/data versions, validate references, units and bounds, and document mappings to supported runtime attributes; do not silently convert headline stars into simulation values. Data availability does not expand the mechanics in this spec. Keep active campaign/race inputs stable when files or assets change.
+
+Use realistic records for gallery content and shared labels; distinguish unsupported effects. Construction examples inform future car-card anatomy without introducing construction gameplay.
+
 ## Further Notes
 
 This is the roadmap's visual foundation before or alongside the browser race. It extends the existing selected direction rather than reopening a visual-style interview. The browser slice consumes its usable components; both efforts can progress using fixtures while the engine evidence is reviewed.

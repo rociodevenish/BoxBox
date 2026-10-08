@@ -82,6 +82,19 @@ Extend the laboratory and live weekend with contextual incidents and component r
 - Weather-triggered events until the weather spec, new player restart tactics and final incident calibration.
 - Campaign economy/standings, full graphical animation and continuous driving physics.
 
+## Data and asset references
+
+Review these repository inputs before implementing this spec:
+- [f1_strategy_driver_cards_2026.json](../../.docs/data/f1_strategy_driver_cards_2026.json) - driver identities, headline/detailed ratings and compatibility preferences.
+- [f1_strategy_track_cards_2026.json](../../.docs/data/f1_strategy_track_cards_2026.json) - circuit identities, event-to-track calendar mapping, demands and race characteristics.
+- [f1_strategy_car_attribute_spec_2026.json](../../.docs/data/f1_strategy_car_attribute_spec_2026.json) - car attribute vocabulary, scales, headline derivation, setup and development/package domains.
+
+Use [driver portraits](../../assets/driver%20images/) and [track imagery](../../assets/track%20images/) wherever this feature presents those identities. Inspect the current [assets collection](../../assets/) at implementation time, including later additions; map files through stable content identities, record provenance, preserve originals and package suitable runtime variants. Keep readable text and missing-image fallbacks. Simulation-only work uses imagery only for associated reports or galleries.
+
+The JSON files are provisional design inputs. Preserve schema/data versions, validate references, units and bounds, and document mappings to supported runtime attributes; do not silently convert headline stars into simulation values. Data availability does not expand the mechanics in this spec. Keep active campaign/race inputs stable when files or assets change.
+
+Review driver consistency/error inputs, car reliability and circuit characteristics as candidate risk inputs. Incident rates, wear and neutralisation behaviour still need explicit tuning.
+
 ## Further Notes
 
 This spec deliberately combines context-driven disruption with its first usable reaction window. Deliver risks and interrupted-state evidence before live Safety Car orchestration; later tickets can split those slices while preserving one phase contract. Some interruption and pit semantics refine the earlier uninterrupted dry-race milestone explicitly. The user approved the shared testing boundaries.
