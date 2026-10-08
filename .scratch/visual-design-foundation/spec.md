@@ -1,6 +1,6 @@
 # Visual direction and design-system foundation
 
-Status: ready-for-agent
+Status: resolved
 
 ## Problem Statement
 
@@ -97,3 +97,8 @@ Completion means a working gallery, reusable foundation, documented rules and re
 ## Comments
 
 The user confirmed the proposed testing boundary and requested that broadcast elements such as the timing tower resemble the current F1 television broadcast.
+
+## Completion evidence
+
+All six tickets are resolved on integration branch codex/visual-design-foundation. Final standards and spec reviews reported zero actionable findings; all 34 rendered browser tests, production build and strict type checking passed. See [final review](review.md) and [integrated evidence](evidence/integrated-review.md). Real TV viewing-distance validation remains an explicit playtest limitation.
+
