@@ -4,7 +4,9 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Security.Cryptography;
 var builder = WebApplication.CreateBuilder(args);
+builder.Logging.AddFilter("Microsoft.AspNetCore.Hosting.Diagnostics", LogLevel.Warning);
 builder.Services.AddSignalR();
+builder.Services.AddSingleton<FirebaseIdentity>();
 builder.Services.AddSingleton<ISessionNotifications, SessionNotifications>();
 builder.Services.AddSingleton<IRacePresets,DryRacePresets>();
 builder.Services.AddSingleton<SessionCoordinator>();
@@ -20,6 +22,7 @@ app.Use(async (context, next) =>
         await context.Response.WriteAsJsonAsync(new { code = fault.Failure.ToString(), message = fault.Message });
     }
 });
+app.MapLobbyEndpoints();
 app.MapPost("/api/sessions", (CreateSessionInput input, SessionCoordinator sessions) => sessions.Create(input));
 app.MapGet("/api/sessions/{id}", (string id, SessionCoordinator sessions) => sessions.Public(id));
 app.MapGet("/api/sessions/{id}/team", (string id, HttpRequest request, SessionCoordinator sessions) => sessions.Team(id, Capability(request)));

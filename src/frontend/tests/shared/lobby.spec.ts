@@ -1,0 +1,23 @@
+import { mkdirSync } from 'node:fs';
+import { test, expect } from '@playwright/test';
+test('account host and guest join the same lobby, claim separate constructors and host starts frozen grid',async({page,browser})=>{
+ await page.goto('/shared/new');await expect(page.getByRole('heading',{name:'Create household lobby'})).toBeVisible();
+ await page.getByLabel('Your name').fill('Alex');await page.getByLabel('Email').fill('host-'+Date.now()+'@example.test');await page.getByLabel('Password').fill('Local-test-password-123');await page.getByRole('button',{name:'Create account'}).click();
+ await expect(page.getByText('Signed in as Alex')).toBeVisible();await page.getByRole('button',{name:'Create lobby',exact:true}).click();
+ await expect(page.getByRole('heading',{name:'Household lobby'})).toBeVisible();await page.getByRole('button',{name:'Claim McLaren',exact:true}).click();
+ const join=await page.getByRole('link',{name:'Join link'}).getAttribute('href');const guestContext=await browser.newContext();const guest=await guestContext.newPage();await guest.goto(join!);await guest.getByLabel('Your name').fill('Sam');await guest.getByRole('button',{name:'Join as guest'}).click();
+ await expect(guest.getByRole('heading',{name:'Household lobby'})).toBeVisible();await expect(guest.getByRole('button',{name:'Claim McLaren',exact:true})).toBeDisabled();await guest.getByRole('button',{name:'Claim Ferrari',exact:true}).click();
+ await expect(page.getByRole('region',{name:'Ferrari'})).toContainText('Sam');await page.getByRole('region',{name:'Ferrari'}).getByRole('button',{name:'Approve assignment'}).click();
+ await expect(guest.getByRole('button',{name:'Start race',exact:true})).toHaveCount(0);await page.getByRole('button',{name:'Start race',exact:true}).click();await expect(guest.getByText('2 human teams · 9 scripted teams')).toBeVisible();
+ await expect(page.getByRole('link',{name:'Public race display'})).toBeVisible();await expect(page.getByRole('img',{name:'QR code for public join link'})).toBeVisible();await guestContext.close();
+});
+
+test('host corrects a shared participant assignment and phone lobby keeps QR and controls contained on refresh',async({page})=>{
+ await page.setViewportSize({width:360,height:800});await page.goto('/shared/new');await page.getByLabel('Your name').fill('Household host');await page.getByLabel('Email').fill('shared-'+Date.now()+'@example.test');await page.getByLabel('Password').fill('Local-test-password-123');await page.getByRole('button',{name:'Create account'}).click();await expect(page.getByRole('button',{name:'Create lobby',exact:true})).toBeEnabled();await page.getByLabel('Privacy mode').selectOption('Mixed');await page.getByRole('button',{name:'Create lobby',exact:true}).click();
+ await page.getByLabel('Shared participant name').fill('Junior with a longer household name');await page.getByRole('button',{name:'Add shared participant'}).click();
+ const mercedes=page.getByRole('region',{name:'Mercedes',exact:true});await mercedes.getByRole('combobox',{name:'Assign Mercedes',exact:true}).selectOption({label:'Junior with a longer household name · shared participant'});await mercedes.getByLabel('Control arrangement').selectOption('SharedTablet');await mercedes.getByRole('button',{name:'Save assignment'}).click();await expect(mercedes).toContainText('Shared tablet · Approved');
+ const ferrari=page.getByRole('region',{name:'Ferrari',exact:true});await ferrari.getByRole('combobox',{name:'Assign Ferrari',exact:true}).selectOption({label:'Junior with a longer household name · shared participant'});await ferrari.getByLabel('Control arrangement').selectOption('SharedTablet');await ferrari.getByRole('button',{name:'Save assignment'}).click();await expect(mercedes).toContainText('Unclaimed');await expect(ferrari).toContainText('Junior with a longer household name');
+ await page.reload();await expect(page.getByRole('heading',{name:'Household lobby'})).toBeVisible();await expect(ferrari).toContainText('Shared tablet · Approved');await expect(page.getByRole('button',{name:'Start race',exact:true})).toBeEnabled();
+ expect(await page.evaluate(()=>document.documentElement.scrollWidth)).toBeLessThanOrEqual(360);const qr=await page.getByRole('img',{name:'QR code for public join link'}).boundingBox();expect(qr!.x+qr!.width).toBeLessThanOrEqual(360);
+ mkdirSync('../../.tools/reports/shared-sessions',{recursive:true});await page.evaluate(()=>window.scrollTo(0,0));await page.screenshot({path:'../../.tools/reports/shared-sessions/lobby-host-360.png'});await ferrari.screenshot({path:'../../.tools/reports/shared-sessions/shared-assignment-360.png'});
+});

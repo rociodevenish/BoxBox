@@ -1,7 +1,7 @@
 import { defineConfig } from "@playwright/test";
 export default defineConfig({
   testDir: "tests",
-  testIgnore: ["**/browser/**","**/browser-boundary/**"],
+  testIgnore: ["**/browser/**","**/browser-boundary/**","**/shared/**"],
   timeout: 20000,
   expect: { timeout: 5000 },
   use: {

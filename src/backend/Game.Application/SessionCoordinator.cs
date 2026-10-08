@@ -3,7 +3,7 @@ using Game.Simulation;
 using System.Security.Cryptography;
 using System.Diagnostics;
 namespace Game.Application;
-public sealed class SessionCoordinator(ISessionNotifications notifications,IRacePresets presets)
+public sealed partial class SessionCoordinator(ISessionNotifications notifications,IRacePresets presets)
 {
     private sealed class Session(string id, string player, string device, byte[] grantHash,
         RaceConfiguration configuration, Driver[] drivers, int seed, CreateSessionInput input)
@@ -51,7 +51,7 @@ public sealed class SessionCoordinator(ISessionNotifications notifications,IRace
         var configuration = preset.Configuration.WithExplicitTuning();
         var session = new Session(id, player, device, SHA256.HashData(System.Text.Encoding.UTF8.GetBytes(capability)),
             configuration, preset.Drivers.ToArray(), input.Seed.Value, input);
-        session.FrozenOpponents = OpponentScript.Freeze(session.Engine, session.Drivers.Select(driver => driver.Team).Distinct(), configuration.Laps);
+        session.FrozenOpponents = OpponentScript.Freeze(session.Engine, session.Drivers.Select(driver => driver.Team).Distinct().Where(team => team != "team-01"), configuration.Laps);
         session.WindowTimestamp = Stopwatch.GetTimestamp();
         mutations.Wait();
         try { lock (gate) active = session; }
@@ -83,7 +83,7 @@ public sealed class SessionCoordinator(ISessionNotifications notifications,IRace
         }
     }
     private Session Require(string id) => active is { } session && session.Id == id ? session
-        : throw new SessionFault(SessionFailure.Unavailable, "Session unavailable. Create a new local playtest.");
+        : lobbies.GetValueOrDefault(id)?.Race ?? throw new SessionFault(SessionFailure.Unavailable, "Session unavailable. Create a new local playtest.");
     public bool RecordPresentationTiming(string id, PresentationTimingInput? input)
     {
         lock (gate)
@@ -137,6 +137,7 @@ public sealed class SessionCoordinator(ISessionNotifications notifications,IRace
     private Session Authorise(string id, string? capability)
     {
         var session = Require(id);
+        if (lobbies.ContainsKey(id))throw new SessionFault(SessionFailure.Forbidden,"Household control requires current authenticated membership and assignment.");
         if (capability is null || !CryptographicOperations.FixedTimeEquals(session.GrantHash,
             SHA256.HashData(System.Text.Encoding.UTF8.GetBytes(capability))))
             throw new SessionFault(SessionFailure.Forbidden, "A separate team controller capability is required.");
@@ -237,7 +238,7 @@ public sealed class SessionCoordinator(ISessionNotifications notifications,IRace
                 session.Phase++; session.Revision++; session.Lifecycle = "awaiting-decisions";
                 session.ConfirmedPlan = null;
                 session.FrozenOpponents = OpponentScript.Freeze(session.Engine,
-                    session.Drivers.Select(driver => driver.Team).Distinct(), session.Configuration.Laps);
+                    session.Drivers.Select(driver => driver.Team).Distinct().Where(team => team != "team-01"), session.Configuration.Laps);
                 session.WindowTimestamp = Stopwatch.GetTimestamp();
                 resolved = Project(session); teamResolved = ProjectTeam(session);
             }

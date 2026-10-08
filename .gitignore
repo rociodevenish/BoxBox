@@ -3,3 +3,5 @@
 .tools/
 reports/
 /.worktrees/
+
+**/*-debug.log

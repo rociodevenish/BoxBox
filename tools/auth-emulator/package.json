@@ -1,0 +1,1 @@
+{"name":"f1game-local-auth","private":true,"scripts":{"start":"firebase emulators:start --only auth --project demo-f1game --config firebase.json --non-interactive"},"devDependencies":{"firebase-tools":"15.33.0"}}

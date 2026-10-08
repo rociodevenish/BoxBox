@@ -1,8 +1,18 @@
 using Game.Application;
 using Microsoft.AspNetCore.SignalR;
 namespace Game.Api;
-public sealed class RaceHub(SessionCoordinator sessions) : Hub
+public sealed class RaceHub(SessionCoordinator sessions,FirebaseIdentity auth) : Hub
 {
+    public async Task<JoinedLobby> SubscribeLobby(string id,string deviceId)
+    {
+        try {
+            var request=Context.GetHttpContext()!.Request;
+            var identity=await auth.Verify(LobbyEndpoints.Token(request)??request.Query["access_token"].FirstOrDefault());
+            var membership=sessions.LobbyMembership(id,identity,deviceId);
+            await Groups.AddToGroupAsync(Context.ConnectionId,"lobby:"+id);
+            return new(sessions.LobbyPublic(id),membership);
+        } catch(SessionFault fault){throw new HubException(fault.Message);}
+    }
     public async Task<PublicSnapshot> SubscribePublic(string id)
     {
         try { _ = sessions.Public(id); await Groups.AddToGroupAsync(Context.ConnectionId, "public:" + id); return sessions.Public(id); }

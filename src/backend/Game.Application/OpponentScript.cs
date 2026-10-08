@@ -8,7 +8,7 @@ internal static class OpponentScript
     public static IReadOnlyDictionary<string, DriverDecision> Freeze(RaceEngine engine, IEnumerable<string> teams, int laps)
     {
         var decisions = new Dictionary<string, DriverDecision>();
-        foreach (var team in teams.Where(team => team != "team-01"))
+        foreach (var team in teams)
             {
             var observation = engine.GetTeamObservation(team);
             foreach (var tyre in observation.TeamTyres)
