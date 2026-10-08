@@ -16,7 +16,7 @@ const fixture: PrivateControllerViewModel = {
       name: "Max Verstappen",
       currentCompound: "Medium",
       tyreEstimate: "62–70%",
-      battleAvailable: true,
+      battleOptions: ['Neutral', 'Attack', 'Defend'],
       battleExplanation: "Nearby opponent: battle choices available.",
       pendingStop: null,
       selected: {
@@ -31,7 +31,7 @@ const fixture: PrivateControllerViewModel = {
       name: "Alexandra Montgomery-Sutherland",
       currentCompound: "Hard",
       tyreEstimate: "44–52%",
-      battleAvailable: false,
+      battleOptions: ['Neutral'],
       battleExplanation: "No nearby battle. Neutral remains selected.",
       pendingStop: null,
       selected: {

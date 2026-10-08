@@ -96,6 +96,11 @@ select:disabled {
   opacity: 1;
   cursor: not-allowed;
 }
+.primary:disabled {
+  background: var(--color-raised);
+  color: var(--color-muted);
+  border-color: var(--color-border);
+}
 .explanation {
   color: var(--color-muted);
   font-size: 14px;

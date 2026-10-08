@@ -19,7 +19,8 @@ export interface PrivateCarViewModel {
   readonly name: string;
   readonly tyreEstimate: string;
   readonly currentCompound: Compound;
-  readonly battleAvailable: boolean;
+  readonly battleOptions: readonly Battle[];
+  readonly tyreAge?: number;
   readonly battleExplanation: string;
   readonly pendingStop: string | null;
   readonly selected: CarInstruction;
@@ -30,6 +31,7 @@ export interface PrivateControllerViewModel {
   readonly cars: readonly PrivateCarViewModel[];
   readonly state: ControllerState;
   readonly message: string;
+  readonly confirmedRevision?: number;
 }
 export interface TeamPlan {
   readonly phase: number;

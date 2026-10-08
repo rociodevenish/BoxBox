@@ -59,24 +59,28 @@ public sealed class SessionCoordinator(ISessionNotifications notifications)
         var state = session.Engine.GetState();
         var tyres = state.Tyres.ToDictionary(t => t.DriverId);
         var drivers = session.Drivers.ToDictionary(d => d.Id);
-        var rows = state.Classification.Select((entry, index) =>
+        var timing = session.Engine.GetTimingObservation().ToDictionary(row => row.DriverId);
+        var ordered = (state.Time == 0 ? state.Classification.OrderBy(entry => drivers[entry.DriverId].Gap)
+            .ThenBy(entry => entry.DriverId, StringComparer.Ordinal) : state.Classification.AsEnumerable()).ToArray();
+        var rows = ordered.Select((entry, index) =>
         {
             var tyre = tyres[entry.DriverId];
             var driver = drivers[entry.DriverId];
-            var gap = entry.Position == 1 ? new PublicGap("leader") : state.Time == 0
+            var gap = index == 0 ? new PublicGap("leader") : state.Time == 0
                 ? new PublicGap("time", driver.Gap)
-                : entry.GapLaps > 0 ? new PublicGap("laps", Laps: entry.GapLaps)
-                : entry.GapSeconds > 0 ? new PublicGap("time", entry.GapSeconds) : new PublicGap("unavailable");
+                : ProjectGap(timing[entry.DriverId].ToLeader);
             var ahead = index == 0 ? new PublicGap("unavailable") : state.Time == 0
-                ? new PublicGap("time", driver.Gap - drivers[state.Classification[index - 1].DriverId].Gap)
-                : new PublicGap("unavailable");
+                ? new PublicGap("time", driver.Gap - drivers[ordered[index - 1].DriverId].Gap)
+                : ProjectGap(timing[entry.DriverId].ToAhead);
             return new PublicCar(entry.DriverId, "Driver " + entry.DriverId[^2..], driver.Team,
-                entry.Position, entry.Laps, entry.Progress, gap, ahead, tyre.Compound.ToString(), tyre.Age,
+                index + 1, entry.Laps, entry.Progress, gap, ahead, tyre.Compound.ToString(), tyre.Age,
                 tyre.InPits ? "in-pit-lane" : "on-track", state.Finished ? state.Eligibility[entry.DriverId] : null);
         }).ToArray();
         return new(session.Id, session.Phase, session.Revision, session.Lifecycle, state.LeaderLap,
             session.Configuration.Laps, state.Time, Array.AsReadOnly(rows), session.Events);
     }
+    private static PublicGap ProjectGap(TimingGap gap) => gap.Laps > 0 ? new("laps", Laps: gap.Laps)
+        : gap.Seconds is { } seconds ? new("time", seconds) : new("unavailable");
     public TeamSnapshot Team(string id, string? capability)
     { lock (gate) return ProjectTeam(Authorise(id, capability)); }
     private Session Authorise(string id, string? capability)

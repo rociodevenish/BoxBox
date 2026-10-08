@@ -82,6 +82,10 @@ public record RaceEvent(double Time, string DriverId, int Lap, RaceEventKind Kin
 public record ClassificationEntry(string DriverId, int Position, int Laps, double Progress,
     double GapSeconds, int GapLaps, double? FinishTime);
 
+// Nullable seconds distinguish missing timing evidence from a genuine zero gap.
+public record TimingGap(double? Seconds, int Laps = 0);
+public record RaceTimingEntry(string DriverId, TimingGap ToLeader, TimingGap ToAhead);
+
 public record PhaseResult(int LeaderLap, double Time, bool Finished,
     IReadOnlyList<ClassificationEntry> Classification, IReadOnlyList<RaceEvent> Events,
     IReadOnlyList<TyreState> Tyres, IReadOnlyDictionary<string, bool> Eligibility,

@@ -29,13 +29,14 @@ export class TwoCarController {
   readonly confirmation =
     viewChild.required<ElementRef<HTMLDialogElement>>("confirmation");
   readonly paces: readonly Pace[] = ["Conserve", "Standard", "Push"];
-  readonly battles: readonly Battle[] = ["Neutral", "Attack", "Defend"];
   private draftPhase: number | undefined;
+  private confirmedRevision: number | undefined;
   constructor() {
     effect(() => {
       const model = this.model();
-      if (this.draftPhase !== model.phase) {
+      if (this.draftPhase !== model.phase || model.confirmedRevision !== undefined && this.confirmedRevision !== model.confirmedRevision) {
         this.draftPhase = model.phase;
+        this.confirmedRevision = model.confirmedRevision;
         this.choices.set(model.cars.map((car) => ({ ...car.selected })));
       }
     });

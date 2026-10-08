@@ -1,6 +1,6 @@
 # Angular visual foundation
 
-The production Angular workspace contains reusable UI and an independently runnable fixture gallery. It demonstrates presentation and interaction; it has no authoritative race session, network API, simulation dependency or 3D renderer.
+The production Angular workspace contains reusable UI, an independently runnable fixture gallery and a local race client. The gallery demonstrates presentation and interaction. The race client consumes authoritative HTTP/SignalR snapshots; neither frontend owns simulation or a 3D renderer.
 
 ## Run and verify
 
@@ -35,7 +35,7 @@ Gallery controls switch explicit local fixtures. They do not model server valida
 | `TwoCarController` | `PrivateControllerViewModel`; emits a `TeamPlan` snapshot only after both-car confirmation. Stable car order/identity within a phase; new phase initializes supplied choices, while acknowledgement/rejection retains the current draft. |
 | `PhaseResult` / `RaceEvent` | `PublicPhaseResult` and ordered `PublicRaceEvent` summaries. Filtering, chronology and authoritative lifecycle are supplied by the caller. |
 
-Native dialogs retain keyboard focus and return it to the initiating control on Escape/close. Driver details currently has one interactive control; extend its focus cycling if more controls are added. Controller rejection is an assertive recovery alert; normal waiting states are polite status messages. Pending stop and battle availability are supplied, not calculated in the component. The current battle boolean enables the full group or retains Neutral; an adapter needing separate Attack/Defend legality must extend this input to explicit allowed options before live integration. Public contracts have no tyre condition, private estimates, random draws or opponent decisions. Server filtering remains the browser milestone's responsibility.
+Native dialogs retain keyboard focus and return it to the initiating control on Escape/close. Driver details currently has one interactive control; extend its focus cycling if more controls are added. Controller rejection is an assertive recovery alert; normal waiting states are polite status messages. Pending stop and per-car allowed battle options are supplied, not calculated in the component. A confirmed revision restores accepted choices while rejection preserves the editable draft. Public contracts have no tyre condition, private estimates, random draws or opponent decisions. The server filters wire contracts before the race adapter maps them into component models.
 
 `design/tokens.css` is canonical. `src/styles.css` maps semantic aliases into Tailwind's inline theme and supplies shared focus treatment; component CSS owns stripes, portraits and complex graphics. Ownership, role, ratings and preferences remain distinct. See [the visual system](../../docs/visual-design-system.md) for rules and extension guidance.
 

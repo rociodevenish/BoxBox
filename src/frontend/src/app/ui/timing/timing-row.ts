@@ -7,7 +7,7 @@ import { CompoundBadge } from "../compound-badge";
 @Component({
   selector: "tr[app-timing-row]",
   imports: [DriverIdentity, RaceGap, StopStatus, CompoundBadge],
-  host: { "[class.leader]": 'row().gap.kind === "leader"' },
+  host: { "[class.leader]": 'row().position === 1' },
   styleUrl: "./timing-row.css",
   template: `<td class="position">{{ row().position }}</td>
     <th scope="row">
@@ -19,7 +19,9 @@ import { CompoundBadge } from "../compound-badge";
       }
     </th>
     <td><app-race-gap [gap]="row().gap" /></td>
-    <td><app-compound-badge [compound]="row().compound" /></td>
+    <td><div class="tyre-content"><app-compound-badge [compound]="row().compound" />
+      @if(row().tyreAge!==undefined){<span class="tyre-age" [attr.aria-label]="'Tyre age ' + row().tyreAge + ' laps'">{{row().tyreAge}} {{row().tyreAge===1?'lap':'laps'}}</span>}
+    </div></td>
     <td class="status-cell">
       <app-stop-status [status]="row().stopStatus" />
     </td>`,
@@ -47,6 +49,8 @@ import { CompoundBadge } from "../compound-badge";
     .mobile-status {
       display: none;
     }
+    .tyre-content { display:flex; align-items:center; gap:8px; }
+    .tyre-age { font-size:12px; color:var(--color-muted); white-space:nowrap; }
     @media (max-width: 600px) {
       td,
       th {
@@ -60,6 +64,7 @@ import { CompoundBadge } from "../compound-badge";
         display: block;
         margin-top: 4px;
       }
+      .tyre-content { flex-direction:column; align-items:flex-start; gap:3px; }
     }
   `,
 })

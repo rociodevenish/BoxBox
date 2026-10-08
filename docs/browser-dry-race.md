@@ -39,7 +39,9 @@ npm run test:browser
 
 Browser smoke starts API 4510 and Angular 4410 itself; stop manual processes on those ports first. Playwright needs installed Chromium or PLAYWRIGHT_BROWSERS_PATH. API tests negotiate SignalR LongPolling through TestServer and verify exact engine outcome, ordered lifecycle updates, permission boundaries and atomic rejection. Browser test uses real server and separate pages, verifies capability denial and both-car submission, then observes the five-lap result.
 
-The minimal live controller/display establish one phase. Ticket 03 integrates polished foundation components; ticket 04 adds full-race presentation. Current 1920 × 1080 capture partly clips row 22, so is not evidence that all rows fit. Complete table remains in the page. No living-room TV playtest is claimed.
+The live routes reuse the production TimingTower and TwoCarController. New choices visibly start at Standard, Stay Out and Neutral. Each car receives its own allowed battle options and public stop restriction from the server. Confirmation covers both cars; rejected drafts remain editable and confirmed snapshots restore the actual accepted choices. Connection and lifecycle labels use readable player text.
+
+The display offers leader or immediate-ahead timing, compound names, tyre ages and stop status. Recorded engine timing supplies each reference independently; missing evidence is unavailable and lap deficits are separate from seconds. The initial public order follows known rolling gaps, without changing historical engine Classification or replay physics. All 22 rows fit in the reviewed 1920 × 1080 viewport before and after the phase. Full-race presentation remains ticket 04. No living-room TV playtest is claimed. See [screen integration evidence](../.scratch/browser-dry-race/evidence/03-screens.md).
 
 
 ## Submission and connection recovery

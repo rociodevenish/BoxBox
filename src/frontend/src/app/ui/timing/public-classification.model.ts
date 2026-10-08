@@ -21,10 +21,12 @@ export interface PublicTimingRow {
   readonly gap: PublicGap;
   readonly compound: TyreCompound | null;
   readonly stopStatus: PublicStopStatus;
+  readonly tyreAge?: number;
 }
 export interface PublicClassification {
   readonly phase: number;
   readonly leaderLap: number;
   readonly totalLaps: number;
   readonly rows: readonly PublicTimingRow[];
+  readonly gapReference?: 'leader' | 'ahead';
 }

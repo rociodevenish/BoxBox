@@ -712,11 +712,28 @@ public sealed class RaceEngine
     private double Progress(Car car) => car.FinishTime is not null || car.PitExit is not null ? 0
         : SegmentStart(car) + SegmentShare(car) * LocalProgress(car);
 
-    private double Gap(Car leader, Car car)
+    public IReadOnlyList<RaceTimingEntry> GetTimingObservation()
+    {
+        var byId = cars.ToDictionary(car => car.Driver.Id);
+        var order = Snapshot().Classification.Select(row => byId[row.DriverId]).ToArray();
+        return Array.AsReadOnly(order.Select((car, index) => new RaceTimingEntry(car.Driver.Id,
+            ObservedGap(order[0], car), index == 0 ? new TimingGap(null) : ObservedGap(order[index - 1], car))).ToArray());
+    }
+
+    private TimingGap ObservedGap(Car reference, Car car)
+    {
+        var laps = Math.Max(0, (int)Math.Floor(reference.Laps + Progress(reference) - car.Laps - Progress(car) + 1e-9));
+        return new(laps > 0 || time == 0 && reference != car ? null : RecordedGap(reference, car), laps);
+    }
+
+    // Keep the historical diagnostic/replay contract's numeric fallback unchanged.
+    private double Gap(Car leader, Car car) => RecordedGap(leader, car) ?? 0;
+
+    private double? RecordedGap(Car leader, Car car)
     {
         if (car == leader) return 0;
         if (car.FinishTime is not null && leader.FinishTime is not null)
-            return car.Laps == leader.Laps ? car.FinishTime.Value - leader.FinishTime.Value : 0;
+            return car.Laps == leader.Laps ? car.FinishTime.Value - leader.FinishTime.Value : null;
         var distance = Distance(car);
         for (var i = leader.Trace.Count - 1; i > 0; i--)
         {
@@ -726,7 +743,7 @@ public sealed class RaceEngine
                 return Math.Max(0, time - (start.Time + (distance - start.Distance)
                     / (end.Distance - start.Distance) * (end.Time - start.Time)));
         }
-        return 0;
+        return null;
     }
 
     private PhaseResult Snapshot()

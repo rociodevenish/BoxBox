@@ -13,13 +13,13 @@ import { TimingRow } from "./timing-row";
     </div>
     <table>
       <caption>
-        Classification — gap to leader
+        Classification — gap to {{ classification().gapReference === 'ahead' ? 'car ahead' : 'leader' }}
       </caption>
       <colgroup>
         <col class="position-column" />
         <col />
         <col class="gap-column" />
-        <col class="compound-column" />
+        <col class="compound-column" [class.with-age]="hasAge()" />
         <col class="status-column" />
       </colgroup>
       <thead>
@@ -93,6 +93,7 @@ import { TimingRow } from "./timing-row";
     .compound-column {
       width: 108px;
     }
+    .compound-column.with-age { width:166px; }
     .status-column {
       width: 126px;
     }
@@ -107,7 +108,7 @@ import { TimingRow } from "./timing-row";
       .gap-column {
         width: 82px;
       }
-      .compound-column {
+      .compound-column, .compound-column.with-age {
         width: 94px;
       }
       .status-column,
@@ -125,4 +126,5 @@ import { TimingRow } from "./timing-row";
 })
 export class TimingTower {
   readonly classification = input.required<PublicClassification>();
+  hasAge(){return this.classification().rows.some(row=>row.tyreAge!==undefined);}
 }

@@ -1,11 +1,11 @@
-<main>
-@if(error()){<p role="alert">{{error()}}</p>}
+<main [class.public-screen]="mode==='display'">
+@if(error() && (mode!=='controller'||!team()||connectionState()!=='connected')){<p role="alert">{{error()}}</p>}
 @if(mode!=='new'){
- <p role="status">Connection: {{connectionState()}}</p>
- @if(acknowledged()&&team()?.lifecycle==='awaiting-decisions'){<p>Server confirmed your plan. Current observations are unavailable until reconnect.</p>}
+ <div class="connection"><p role="status">Connection: {{connectionState()}}</p>
  @if(connectionState()==='disconnected'){<button (click)="connect()">Reconnect</button>}
  @if(connectionState()==='unavailable'){<a href="/race/new">Create a fresh session</a>}
  @if(pending()){<p>Confirmation pending. Both choices are retained until the server confirms or rejects this plan.</p><button [disabled]="!canRetry()" (click)="submit()">Retry pending submission</button>}
+ </div>
 }
 @if(mode==='new'){
  <h1>Local dry race</h1><p>Designer setup · one authoritative phase</p>
@@ -15,18 +15,13 @@
  <label>Designer seed<input #seed type="number" value="123" required /></label><button>Create race</button></form>
  @if(created();as session){<nav><a [href]="session.displayUrl">Open public display</a><a [href]="session.controllerUrl">Open controller</a></nav><p>Keep the controller link private. The public session ID does not authorize team access.</p>}
 } @else if(mode==='controller'){
- <h1>Team 01 controller</h1>
- @if(team();as state){<p aria-live="polite">{{state.lifecycle}}</p><p>Private team observations · tyre condition is an estimate.</p>
- @for(car of state.cars;track car.driverId;let i=$index){<section><h2>Car {{i+1}} · {{car.driverId}}</h2><p>{{car.compound}} · {{car.tyreAge}} laps · estimated condition {{(car.estimatedTyreCondition*100).toFixed(0)}}%</p>@if(car.stopQueued){<p>Stop queued</p>}@if(car.inPits){<p>In pit lane</p>}
- <fieldset [disabled]="!editable()"><legend>Car {{i+1}} instructions</legend>
- <label>Car {{i+1}} pace<select [value]="choices()[i].pace" (change)="choose(i,'pace',$event)"><option>Conserve</option><option>Standard</option><option>Push</option></select></label>
- <label>Car {{i+1}} pit instruction<select [disabled]="car.inPits||car.stopQueued" [value]="choices()[i].pit" (change)="choose(i,'pit',$event)"><option value="StayOut">Stay out</option><option value="Pit">Pit</option></select></label>
- <label>Car {{i+1}} compound<select [value]="choices()[i].compound" (change)="choose(i,'compound',$event)"><option>Soft</option><option>Medium</option><option>Hard</option></select></label>
- <label>Car {{i+1}} battle<select [value]="choices()[i].battle" (change)="choose(i,'battle',$event)">@for(option of car.battleOptions;track option){<option>{{option}}</option>}</select></label></fieldset></section>}
- <button [disabled]="!editable()" (click)="review()">Review both cars</button>
- <dialog #confirmation><h2>Confirm both cars</h2>@for(car of choices();track car.driverId){<p>{{car.driverId}} · {{car.pace}} · {{car.pit}} · {{car.compound}} · {{car.battle}}</p>}<button (click)="close()">Back to choices</button><button (click)="submit()">Submit both cars</button></dialog>
- }@else{<p>Connecting to authorized team…</p>}
+ @if(team();as state){<p class="lifecycle" aria-live="polite">{{lifecycleLabel(state.lifecycle)}}</p><app-two-car-controller [model]="controller()" (submitPlan)="submitPlan($event)" />
+ }@else{<h1>Private team controller</h1><p>Connecting to authorized team…</p>}
 } @else {
- <h1>Public race display</h1>@if(publicState();as state){<p aria-live="polite">{{state.lifecycle}}</p><p>Lap {{state.leaderLap}} / {{state.totalLaps}}</p><app-timing-tower [classification]="classification()" /><ol aria-label="Public race events">@for(event of state.events;track event.id){<li>Lap {{event.lap}} · {{event.driverId}} · {{event.kind}}</li>}</ol>}@else{<p>Connecting to race…</p>}
+ <header><div><p class="eyebrow">Public race display</p><h1>Race Phase {{(publicState()?.phase??0)+1}}</h1></div>@if(publicState();as state){<div><strong>Lap {{state.leaderLap}} / {{state.totalLaps}}</strong><p aria-live="polite">{{lifecycleLabel(state.lifecycle)}}</p></div>}
+ <div class="gap-options" aria-label="Timing reference"><button [attr.aria-pressed]="gapReference()==='leader'" (click)="gapReference.set('leader')">Gap to leader</button><button [attr.aria-pressed]="gapReference()==='ahead'" (click)="gapReference.set('ahead')">Gap to car ahead</button></div></header>
+ @if(publicState();as state){<div class="public-layout"><app-timing-tower [classification]="classification()" />
+ <aside aria-label="Public race context"><div class="identity-fallback" aria-label="Synthetic laboratory field">22</div><h2>Dry race laboratory</h2><p>Synthetic drivers · 11 teams</p><p>Fixed rolling-order start. Timing uses recorded race evidence; lap deficits and seconds are shown separately.</p><p>Race leader: {{state.classification[0].name}}</p><ol aria-label="Public race events">@for(event of state.events;track event.id){<li>Lap {{event.lap}} · {{event.driverId}} · {{event.kind}}</li>}</ol></aside></div>
+ }@else{<p>Connecting to race…</p>}
 }
 </main>

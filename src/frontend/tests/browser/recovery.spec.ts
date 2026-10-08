@@ -9,15 +9,15 @@ test('lost HTTP acknowledgement recovers the confirmed lock rather than submitti
     const id = new URL(page.url()).pathname.split('/').at(-1);
     let posts = 0;
     await page.route('**/api/sessions/*/plans', async (route) => { posts++; await route.fetch(); await route.abort(); });
-    await page.getByLabel('Car 1 pace').selectOption('Push');
-    await page.getByRole('button', { name: 'Review both cars' }).click();
+    await page.getByRole('region',{name:'Car 1 — Driver 01'}).getByRole('button',{name:'Push',exact:true}).click();
+    await page.getByRole('button', { name: 'Review team plan' }).click();
     await page.getByRole('button', { name: 'Submit both cars' }).click();
     await expect(page.getByRole('button', { name: 'Reconnect' })).toBeVisible();
-    await expect(page.getByRole('button', { name: 'Review both cars' })).toBeDisabled();
+    await expect(page.getByRole('button', { name: 'Review team plan' })).toBeDisabled();
     const before = await (await page.request.get('/api/sessions/' + id)).json();
     await page.getByRole('button', { name: 'Reconnect' }).click();
-    await expect(page.getByText('phase-result', { exact: true })).toBeVisible();
-    await expect(page.getByLabel('Car 1 pace')).toHaveValue('Push');
+    await expect(page.getByText('Phase complete', { exact: true })).toBeVisible();
+    await expect(page.getByRole('region',{name:'Car 1 — Driver 01'}).getByRole('button',{name:'Push',exact:true})).toHaveAttribute('aria-pressed','true');
     await expect(page.getByRole('button', { name: 'Retry pending submission' })).toHaveCount(0);
     expect(posts).toBe(1);
     expect(await (await page.request.get('/api/sessions/' + id)).json()).toEqual(before);
@@ -53,26 +53,26 @@ test('automatic reconnect rejoins authorized groups and older duplicated wire up
     await page.getByRole('button', { name: 'Create race' }).click();
     const url = await page.getByRole('link', { name: 'Open controller' }).getAttribute('href');
     await page.goto(url!);
-    await expect(page.getByRole('button', { name: 'Review both cars' })).toBeEnabled();
+    await expect(page.getByRole('button', { name: 'Review team plan' })).toBeEnabled();
     disconnect();
     await expect.poll(() => connections).toBe(2);
     await expect(page.getByText('Connection: connected', { exact: true })).toBeVisible();
-    await expect(page.getByRole('button', { name: 'Review both cars' })).toBeEnabled();
-    await page.getByLabel('Car 1 pace').selectOption('Push');
-    await page.getByRole('button', { name: 'Review both cars' }).click();
+    await expect(page.getByRole('button', { name: 'Review team plan' })).toBeEnabled();
+    await page.getByRole('region',{name:'Car 1 — Driver 01'}).getByRole('button',{name:'Push',exact:true}).click();
+    await page.getByRole('button', { name: 'Review team plan' }).click();
     await page.getByRole('button', { name: 'Submit both cars' }).click();
-    await expect(page.getByText('phase-result', { exact: true })).toBeVisible();
-    await expect(page.getByRole('button', { name: 'Review both cars' })).toBeDisabled();
+    await expect(page.getByText('Phase complete', { exact: true })).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Review team plan' })).toBeDisabled();
     await expect.poll(() => refreshed).toBeGreaterThan(0);
     replayOlder();
     // This negative assertion needs a delivery window: the old frame must not cause any state transition.
     await page.waitForTimeout(100);
-    await expect(page.getByText('phase-result', { exact: true })).toBeVisible();
+    await expect(page.getByText('Phase complete', { exact: true })).toBeVisible();
     disconnect();
     await expect.poll(() => connections).toBe(3);
     await expect(page.getByText('Connection: connected', { exact: true })).toBeVisible();
-    await expect(page.getByLabel('Car 1 pace')).toHaveValue('Push');
-    await expect(page.getByRole('button', { name: 'Review both cars' })).toBeDisabled();
+    await expect(page.getByRole('region',{name:'Car 1 — Driver 01'}).getByRole('button',{name:'Push',exact:true})).toHaveAttribute('aria-pressed','true');
+    await expect(page.getByRole('button', { name: 'Review team plan' })).toBeDisabled();
 });
 test('a confirmed HTTP acknowledgement retrieves actual observations when realtime team messages are lost', async ({ page }) => {
     await page.routeWebSocket('**/hubs/race*', route => { const server = route.connectToServer(); server.onMessage(message => { if (typeof message === 'string' && message.includes('"target":"teamSnapshot"'))
@@ -81,11 +81,11 @@ test('a confirmed HTTP acknowledgement retrieves actual observations when realti
     await page.getByRole('button', { name: 'Create race' }).click();
     const url = await page.getByRole('link', { name: 'Open controller' }).getAttribute('href');
     await page.goto(url!);
-    await page.getByLabel('Car 2 pit instruction').selectOption('Pit');
-    await page.getByRole('button', { name: 'Review both cars' }).click();
+    await page.getByRole('region',{name:'Car 2 — Driver 02'}).getByRole('button',{name:'Pit',exact:true}).click();
+    await page.getByRole('button', { name: 'Review team plan' }).click();
     await page.getByRole('button', { name: 'Submit both cars' }).click();
-    await expect(page.getByText('phase-result', { exact: true })).toBeVisible();
-    await expect(page.getByText(/^Hard · \d+ laps · estimated condition/)).toBeVisible();
+    await expect(page.getByText('Phase complete', { exact: true })).toBeVisible();
+    await expect(page.getByRole('region',{name:'Car 2 — Driver 02'}).getByLabel('Tyre compound Hard',{exact:true})).toBeVisible();
 });
 test('unavailable connections disable actions and a retry preserves the same in-flight command identity', async ({ page }) => {
     await page.goto('/race/new');
@@ -101,39 +101,39 @@ test('unavailable connections disable actions and a retry preserves the same in-
     await page.goto(url!);
     await expect(page.getByRole('button', { name: 'Reconnect' })).toBeVisible();
     await page.getByRole('button', { name: 'Reconnect' }).click();
-    await expect(page.getByRole('button', { name: 'Review both cars' })).toBeEnabled();
-    await page.getByLabel('Car 1 pace').selectOption('Push');
+    await expect(page.getByRole('button', { name: 'Review team plan' })).toBeEnabled();
+    await page.getByRole('region',{name:'Car 1 — Driver 01'}).getByRole('button',{name:'Push',exact:true}).click();
     const ids: string[] = [];
     await page.route('**/api/sessions/*/plans', async (route) => { ids.push(route.request().postDataJSON().commandId); if (ids.length === 1)
         await route.abort();
     else
         await route.continue(); });
-    await page.getByRole('button', { name: 'Review both cars' }).click();
+    await page.getByRole('button', { name: 'Review team plan' }).click();
     await page.getByRole('button', { name: 'Submit both cars' }).click();
-    await expect(page.getByRole('button', { name: 'Review both cars' })).toBeDisabled();
+    await expect(page.getByRole('button', { name: 'Review team plan' })).toBeDisabled();
     await expect(page.getByRole('button', { name: 'Reconnect' })).toBeVisible();
-    await expect(page.getByLabel('Car 1 pace')).toHaveValue('Push');
+    await expect(page.getByRole('region',{name:'Car 1 — Driver 01'}).getByRole('button',{name:'Push',exact:true})).toHaveAttribute('aria-pressed','true');
     await page.getByRole('button', { name: 'Reconnect' }).click();
     await expect(page.getByRole('button', { name: 'Retry pending submission' })).toBeEnabled();
     await page.getByRole('button', { name: 'Retry pending submission' }).click();
-    await expect(page.getByText('phase-result', { exact: true })).toBeVisible();
+    await expect(page.getByText('Phase complete', { exact: true })).toBeVisible();
     expect(ids).toHaveLength(2);
     expect(ids[1]).toBe(ids[0]);
     await page.reload();
-    await expect(page.getByLabel('Car 1 pace')).toHaveValue('Push');
-    await expect(page.getByRole('button', { name: 'Review both cars' })).toBeDisabled();
+    await expect(page.getByRole('region',{name:'Car 1 — Driver 01'}).getByRole('button',{name:'Push',exact:true})).toHaveAttribute('aria-pressed','true');
+    await expect(page.getByRole('button', { name: 'Review team plan' })).toBeDisabled();
 });
 test('refresh recovers own confirmed choices, rejects edits atomically and expires replaced sessions', async ({ page }) => {
     await page.goto('/race/new');
     await page.getByRole('button', { name: 'Create race' }).click();
     const url = await page.getByRole('link', { name: 'Open controller' }).getAttribute('href');
     await page.goto(url!);
-    await page.getByLabel('Car 1 pace').selectOption('Push');
+    await page.getByRole('region',{name:'Car 1 — Driver 01'}).getByRole('button',{name:'Push',exact:true}).click();
     await page.reload();
-    await expect(page.getByRole('button', { name: 'Review both cars' })).toBeEnabled();
-    await page.getByLabel('Car 1 pace').selectOption('Push');
-    await page.getByLabel('Car 2 pit instruction').selectOption('Pit');
-    await page.getByLabel('Car 2 compound').selectOption('Hard');
+    await expect(page.getByRole('button', { name: 'Review team plan' })).toBeEnabled();
+    await page.getByRole('region',{name:'Car 1 — Driver 01'}).getByRole('button',{name:'Push',exact:true}).click();
+    await page.getByRole('region',{name:'Car 2 — Driver 02'}).getByRole('button',{name:'Pit',exact:true}).click();
+    await page.getByRole('region',{name:'Car 2 — Driver 02'}).getByLabel('New compound').selectOption('Hard');
     let rejected = false;
     await page.route('**/api/sessions/*/plans', async (route) => { if (!rejected) {
         rejected = true;
@@ -143,18 +143,18 @@ test('refresh recovers own confirmed choices, rejects edits atomically and expir
     }
     else
         await route.continue(); });
-    await page.getByRole('button', { name: 'Review both cars' }).click();
+    await page.getByRole('button', { name: 'Review team plan' }).click();
     await page.getByRole('button', { name: 'Submit both cars' }).click();
     await expect(page.getByRole('alert')).toContainText('valid');
-    await expect(page.getByLabel('Car 1 pace')).toHaveValue('Push');
-    await expect(page.getByRole('button', { name: 'Review both cars' })).toBeEnabled();
-    await page.getByRole('button', { name: 'Review both cars' }).click();
+    await expect(page.getByRole('region',{name:'Car 1 — Driver 01'}).getByRole('button',{name:'Push',exact:true})).toHaveAttribute('aria-pressed','true');
+    await expect(page.getByRole('button', { name: 'Review team plan' })).toBeEnabled();
+    await page.getByRole('button', { name: 'Review team plan' }).click();
     await page.getByRole('button', { name: 'Submit both cars' }).click();
-    await expect(page.getByText('phase-result', { exact: true })).toBeVisible();
+    await expect(page.getByText('Phase complete', { exact: true })).toBeVisible();
     await page.reload();
-    await expect(page.getByRole('button', { name: 'Review both cars' })).toBeDisabled();
-    await expect(page.getByLabel('Car 1 pace')).toHaveValue('Push');
-    await expect(page.getByLabel('Car 2 pit instruction')).toHaveValue('Pit');
+    await expect(page.getByRole('button', { name: 'Review team plan' })).toBeDisabled();
+    await expect(page.getByRole('region',{name:'Car 1 — Driver 01'}).getByRole('button',{name:'Push',exact:true})).toHaveAttribute('aria-pressed','true');
+    await expect(page.getByRole('region',{name:'Car 2 — Driver 02'}).getByRole('button',{name:'Pit',exact:true})).toHaveAttribute('aria-pressed','true');
     await page.request.post('/api/sessions', { data: { preset: 'open-equal', laps: 6, seed: 123 } });
     await page.reload();
     await expect(page.getByRole('alert')).toContainText('unavailable');

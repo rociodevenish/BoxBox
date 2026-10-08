@@ -27,6 +27,7 @@
       <div class="tyres">
         <app-compound-badge [compound]="car.currentCompound" />
         <p>Tyre condition estimate: <strong>{{car.tyreEstimate}}</strong></p>
+        @if(car.tyreAge!==undefined){<p>Tyre age: {{car.tyreAge}} {{car.tyreAge===1?'lap':'laps'}}</p>}
       </div>
       @if(choices()[i]; as choice){
       <fieldset [disabled]="!editable()">
@@ -79,11 +80,11 @@
       </fieldset>
       @if(car.pendingStop){
       <p class="notice">{{car.pendingStop}}</p>
-      } @if(car.battleAvailable){
+      } @if(car.battleOptions.length>1){
       <fieldset [disabled]="!editable()">
         <legend>Battle approach</legend>
         <div class="options">
-          @for(battle of battles; track battle){<button
+          @for(battle of car.battleOptions; track battle){<button
             type="button"
             [attr.aria-pressed]="choice.battle === battle"
             (click)="choose(i, {battle})"
