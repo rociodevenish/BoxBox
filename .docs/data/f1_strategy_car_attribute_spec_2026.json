@@ -1,0 +1,577 @@
+{
+  "schemaVersion": "1.0.0",
+  "dataVersion": "2026.10.08-initial-model",
+  "entityType": "car-attribute-specification",
+  "seasonReference": 2026,
+  "generatedOn": "2026-10-08",
+  "status": "provisional",
+  "designIntent": {
+    "summary": "Shared car-performance model used by preseason construction, permanent development, race packages, weekend setup and race simulation.",
+    "principles": [
+      "Constructor identity does not determine starting performance.",
+      "All players build from the same fixed menu of car choices.",
+      "Car construction creates strengths and compromises rather than objectively best builds.",
+      "Permanent development makes small durable changes.",
+      "Exactly one race package may be active per Grand Prix.",
+      "Weekend setup redistributes performance rather than creating free performance.",
+      "Headline ratings are player-facing summaries; simulation uses detailed ratings.",
+      "The 2026 active-aero system is represented through speed and aero attributes rather than a separate Active Aero stat.",
+      "The increased importance of electrical energy is represented inside Acceleration / Deployment rather than a separate ERS stat."
+    ]
+  },
+  "ratingScales": {
+    "headline": {
+      "min": 1,
+      "max": 5,
+      "thresholdsFromDetailedComposite": {
+        "1": {
+          "min": 0,
+          "max": 67
+        },
+        "2": {
+          "min": 68,
+          "max": 75
+        },
+        "3": {
+          "min": 76,
+          "max": 83
+        },
+        "4": {
+          "min": 84,
+          "max": 90
+        },
+        "5": {
+          "min": 91,
+          "max": 100
+        }
+      }
+    },
+    "detailed": {
+      "min": 1,
+      "max": 100,
+      "recommendedCompetitiveBand": {
+        "min": 72,
+        "max": 94
+      },
+      "referenceNeutralValue": 82
+    }
+  },
+  "headlineAttributes": [
+    {
+      "key": "speed",
+      "label": "Speed",
+      "description": "Straight-line performance and the ability to accelerate and deploy electrical energy effectively.",
+      "derivedFrom": {
+        "topSpeed": 0.5,
+        "accelerationDeployment": 0.5
+      }
+    },
+    {
+      "key": "cornering",
+      "label": "Cornering",
+      "description": "Aerodynamic performance through both fast and slow corners.",
+      "derivedFrom": {
+        "highSpeedAero": 0.55,
+        "lowSpeedAero": 0.45
+      }
+    },
+    {
+      "key": "mechanicalGrip",
+      "label": "Mechanical Grip",
+      "description": "Chassis performance under braking, rotation and traction, especially where aero is less dominant.",
+      "derivedFrom": {
+        "mechanicalGrip": 0.4,
+        "braking": 0.3,
+        "traction": 0.3
+      }
+    },
+    {
+      "key": "tyres",
+      "label": "Tyres",
+      "description": "Ability to preserve tyres and keep them inside a useful operating window.",
+      "derivedFrom": {
+        "tyreWear": 0.55,
+        "tyreTemperature": 0.45
+      }
+    },
+    {
+      "key": "reliability",
+      "label": "Reliability",
+      "description": "Resistance to mechanical problems and performance loss across demanding race weekends.",
+      "derivedFrom": {
+        "reliability": 1.0
+      }
+    }
+  ],
+  "detailedAttributes": [
+    {
+      "key": "topSpeed",
+      "label": "Top Speed",
+      "category": "speed",
+      "trackDemandKey": "topSpeed",
+      "description": "Maximum straight-line capability after accounting for drag, active-aero efficiency and gearing/power characteristics.",
+      "higherIsBetter": true
+    },
+    {
+      "key": "accelerationDeployment",
+      "label": "Acceleration / Deployment",
+      "category": "speed",
+      "trackDemandKey": "accelerationDeployment",
+      "description": "Acceleration out of corners and the ability to deploy hybrid electrical energy effectively across a lap and race phase.",
+      "higherIsBetter": true
+    },
+    {
+      "key": "highSpeedAero",
+      "label": "High-Speed Aero",
+      "category": "cornering",
+      "trackDemandKey": "highSpeedCornering",
+      "description": "Downforce, efficiency and stability through high-speed corners in Corner Mode.",
+      "higherIsBetter": true
+    },
+    {
+      "key": "lowSpeedAero",
+      "label": "Low-Speed Aero",
+      "category": "cornering",
+      "trackDemandKey": "lowSpeedCornering",
+      "description": "Aerodynamic support, rotation and balance in slower corners where aero load is reduced.",
+      "higherIsBetter": true
+    },
+    {
+      "key": "mechanicalGrip",
+      "label": "Mechanical Grip",
+      "category": "mechanicalGrip",
+      "trackDemandKey": "mechanicalGrip",
+      "description": "Underlying chassis and suspension grip independent of pure aerodynamic load.",
+      "higherIsBetter": true
+    },
+    {
+      "key": "braking",
+      "label": "Braking",
+      "category": "mechanicalGrip",
+      "trackDemandKey": "braking",
+      "description": "Braking stability, controllability and confidence during heavy deceleration and corner entry.",
+      "higherIsBetter": true
+    },
+    {
+      "key": "traction",
+      "label": "Traction",
+      "category": "mechanicalGrip",
+      "trackDemandKey": "traction",
+      "description": "Ability to put power down effectively on corner exit without excessive wheelspin or instability.",
+      "higherIsBetter": true
+    },
+    {
+      "key": "tyreWear",
+      "label": "Tyre Wear",
+      "category": "tyres",
+      "trackDemandKey": "tyreDegradation",
+      "description": "Ability of the car to preserve tyre performance over a stint. Higher values mean lower degradation for equivalent driving.",
+      "higherIsBetter": true
+    },
+    {
+      "key": "tyreTemperature",
+      "label": "Tyre Temperature",
+      "category": "tyres",
+      "trackDemandKey": "tyreThermalDemand",
+      "description": "Ability to bring tyres into and keep them within the useful operating window in both cold and hot conditions.",
+      "higherIsBetter": true
+    },
+    {
+      "key": "reliability",
+      "label": "Reliability",
+      "category": "reliability",
+      "trackDemandKey": null,
+      "description": "Resistance to component faults, overheating, derating and race-ending failures.",
+      "higherIsBetter": true
+    }
+  ],
+  "headlineDerivation": {
+    "method": "weighted-average-then-threshold",
+    "formulas": {
+      "speed": {
+        "topSpeed": 0.5,
+        "accelerationDeployment": 0.5
+      },
+      "cornering": {
+        "highSpeedAero": 0.55,
+        "lowSpeedAero": 0.45
+      },
+      "mechanicalGrip": {
+        "mechanicalGrip": 0.4,
+        "braking": 0.3,
+        "traction": 0.3
+      },
+      "tyres": {
+        "tyreWear": 0.55,
+        "tyreTemperature": 0.45
+      },
+      "reliability": {
+        "reliability": 1.0
+      }
+    }
+  },
+  "trackFitModel": {
+    "paceRelevantDetailedAttributes": [
+      "topSpeed",
+      "accelerationDeployment",
+      "highSpeedAero",
+      "lowSpeedAero",
+      "braking",
+      "traction",
+      "mechanicalGrip",
+      "tyreWear",
+      "tyreTemperature"
+    ],
+    "conceptualFormula": "weightedMean(carAttribute, trackDemand)",
+    "description": "Each track's detailed demand value acts as the importance weight for the matching car attribute. Reliability is resolved separately against track mechanical stress.",
+    "reliabilityInteraction": {
+      "carAttribute": "reliability",
+      "trackCharacteristic": "mechanicalStress",
+      "effect": "Higher mechanical stress magnifies the consequence of low reliability; it should not directly reduce normal lap pace until a reliability event occurs."
+    }
+  },
+  "referenceBaseline": {
+    "purpose": "Neutral tuning reference only; not a playable pre-built car.",
+    "detailedRatings": {
+      "topSpeed": 82,
+      "accelerationDeployment": 82,
+      "highSpeedAero": 82,
+      "lowSpeedAero": 82,
+      "mechanicalGrip": 82,
+      "braking": 82,
+      "traction": 82,
+      "tyreWear": 82,
+      "tyreTemperature": 82,
+      "reliability": 84
+    }
+  },
+  "changeMagnitudeGuidance": {
+    "preseasonArchitecture": {
+      "typicalPrimaryGain": 2,
+      "typicalSecondaryGain": 1,
+      "typicalCompromise": -1,
+      "guidance": "Most preseason choices should look like +2/+1/-1 rather than extreme +3/0/-3 swings."
+    },
+    "permanentDevelopment": {
+      "minor": {
+        "typicalNetChange": 1
+      },
+      "major": {
+        "typicalPrimaryGain": 2,
+        "mayIncludeTradeoff": true
+      },
+      "guidance": "Permanent upgrades are deliberately incremental so the season does not become an upgrade race."
+    },
+    "racePackage": {
+      "typicalPrimaryGain": 3,
+      "typicalSecondaryGain": 1,
+      "typicalCompromise": -1,
+      "guidance": "Race packages may be stronger than permanent upgrades because only one package can be active at a Grand Prix."
+    },
+    "weekendSetup": {
+      "maximumTypicalSingleAttributeShift": 2,
+      "guidance": "Setup changes redistribute performance and should be near-zero-sum across the affected attributes."
+    }
+  },
+  "weekendSetup": {
+    "teamWideByDefault": true,
+    "axes": [
+      {
+        "key": "aero",
+        "label": "Aero",
+        "leftLabel": "Speed",
+        "centreLabel": "Balanced",
+        "rightLabel": "Downforce",
+        "positions": [
+          -2,
+          -1,
+          0,
+          1,
+          2
+        ],
+        "suggestedEffects": {
+          "-2": {
+            "topSpeed": 2,
+            "highSpeedAero": -1,
+            "lowSpeedAero": -1
+          },
+          "-1": {
+            "topSpeed": 1,
+            "highSpeedAero": -1
+          },
+          "0": {},
+          "1": {
+            "topSpeed": -1,
+            "highSpeedAero": 1
+          },
+          "2": {
+            "topSpeed": -2,
+            "highSpeedAero": 1,
+            "lowSpeedAero": 1
+          }
+        },
+        "notes": "Because 2026 uses active front and rear aero, setup trade-offs should be meaningful but less binary than a traditional fixed-wing high/low-downforce model."
+      },
+      {
+        "key": "mechanical",
+        "label": "Mechanical",
+        "leftLabel": "Responsive",
+        "centreLabel": "Balanced",
+        "rightLabel": "Stable",
+        "positions": [
+          -2,
+          -1,
+          0,
+          1,
+          2
+        ],
+        "suggestedEffects": {
+          "-2": {
+            "lowSpeedAero": 1,
+            "mechanicalGrip": 1,
+            "traction": -1,
+            "tyreWear": -1
+          },
+          "-1": {
+            "mechanicalGrip": 1,
+            "traction": -1
+          },
+          "0": {},
+          "1": {
+            "mechanicalGrip": -1,
+            "traction": 1
+          },
+          "2": {
+            "lowSpeedAero": -1,
+            "mechanicalGrip": -1,
+            "traction": 1,
+            "tyreWear": 1
+          }
+        },
+        "notes": "This axis also feeds driver-preference compatibility; responsive setups favour drivers seeking rotation, stable setups favour drivers seeking rear confidence."
+      },
+      {
+        "key": "tyres",
+        "label": "Tyres",
+        "leftLabel": "Warm-up",
+        "centreLabel": "Balanced",
+        "rightLabel": "Preservation",
+        "positions": [
+          -2,
+          -1,
+          0,
+          1,
+          2
+        ],
+        "suggestedEffects": {
+          "-2": {
+            "tyreTemperature": 2,
+            "tyreWear": -2
+          },
+          "-1": {
+            "tyreTemperature": 1,
+            "tyreWear": -1
+          },
+          "0": {},
+          "1": {
+            "tyreTemperature": -1,
+            "tyreWear": 1
+          },
+          "2": {
+            "tyreTemperature": -2,
+            "tyreWear": 2
+          }
+        },
+        "notes": "Warm-up setup improves immediate tyre readiness but consumes more tyre life; preservation does the reverse."
+      }
+    ]
+  },
+  "developmentDomains": [
+    {
+      "key": "aerodynamics",
+      "label": "Aerodynamics",
+      "primarilyInfluences": [
+        "topSpeed",
+        "highSpeedAero",
+        "lowSpeedAero"
+      ]
+    },
+    {
+      "key": "chassis-suspension",
+      "label": "Chassis / Suspension",
+      "primarilyInfluences": [
+        "mechanicalGrip",
+        "braking",
+        "traction",
+        "tyreWear"
+      ]
+    },
+    {
+      "key": "power-energy",
+      "label": "Power / Energy",
+      "primarilyInfluences": [
+        "topSpeed",
+        "accelerationDeployment",
+        "reliability"
+      ]
+    },
+    {
+      "key": "brakes-cooling",
+      "label": "Brakes / Cooling",
+      "primarilyInfluences": [
+        "braking",
+        "tyreTemperature",
+        "reliability"
+      ]
+    },
+    {
+      "key": "tyre-platform",
+      "label": "Tyre Platform",
+      "primarilyInfluences": [
+        "mechanicalGrip",
+        "tyreWear",
+        "tyreTemperature"
+      ]
+    },
+    {
+      "key": "reliability",
+      "label": "Reliability",
+      "primarilyInfluences": [
+        "reliability"
+      ]
+    }
+  ],
+  "racePackageDomains": [
+    {
+      "key": "low-drag",
+      "label": "Low-Drag",
+      "typicalTargets": [
+        "topSpeed",
+        "accelerationDeployment"
+      ],
+      "typicalTradeoffs": [
+        "highSpeedAero",
+        "lowSpeedAero"
+      ]
+    },
+    {
+      "key": "high-downforce",
+      "label": "High-Downforce",
+      "typicalTargets": [
+        "highSpeedAero",
+        "lowSpeedAero"
+      ],
+      "typicalTradeoffs": [
+        "topSpeed"
+      ]
+    },
+    {
+      "key": "mechanical-grip",
+      "label": "Mechanical Grip",
+      "typicalTargets": [
+        "mechanicalGrip",
+        "traction",
+        "braking"
+      ],
+      "typicalTradeoffs": [
+        "topSpeed",
+        "tyreWear"
+      ]
+    },
+    {
+      "key": "tyre-management",
+      "label": "Tyre Management",
+      "typicalTargets": [
+        "tyreWear",
+        "tyreTemperature"
+      ],
+      "typicalTradeoffs": [
+        "topSpeed",
+        "lowSpeedAero"
+      ]
+    },
+    {
+      "key": "cooling-reliability",
+      "label": "Cooling / Reliability",
+      "typicalTargets": [
+        "reliability",
+        "tyreTemperature"
+      ],
+      "typicalTradeoffs": [
+        "topSpeed",
+        "highSpeedAero"
+      ]
+    }
+  ],
+  "driverCompatibilityDimensions": [
+    {
+      "key": "frontResponse",
+      "description": "How immediate and assertive the front axle feels on turn-in.",
+      "influencedBy": [
+        "lowSpeedAero",
+        "mechanicalGrip",
+        "braking",
+        "mechanicalSetup"
+      ]
+    },
+    {
+      "key": "rearStability",
+      "description": "Rear confidence during braking, rotation and traction phases.",
+      "influencedBy": [
+        "braking",
+        "traction",
+        "mechanicalGrip",
+        "mechanicalSetup"
+      ]
+    },
+    {
+      "key": "rotation",
+      "description": "How readily the car rotates into and through slower corners.",
+      "influencedBy": [
+        "lowSpeedAero",
+        "mechanicalGrip",
+        "mechanicalSetup"
+      ]
+    },
+    {
+      "key": "brakingEntryStability",
+      "description": "Stability and confidence under heavy braking and initial turn-in.",
+      "influencedBy": [
+        "braking",
+        "mechanicalGrip",
+        "mechanicalSetup"
+      ]
+    },
+    {
+      "key": "tractionConfidence",
+      "description": "Predictability and grip when applying power on corner exit.",
+      "influencedBy": [
+        "traction",
+        "mechanicalGrip"
+      ]
+    },
+    {
+      "key": "highSpeedStability",
+      "description": "Confidence in the car's rear and aero platform through fast corners.",
+      "influencedBy": [
+        "highSpeedAero",
+        "mechanicalGrip"
+      ]
+    }
+  ],
+  "assetConvention": {
+    "carHero": "/assets/cars/{team-id}/hero.webp",
+    "carSilhouette": "/assets/cars/shared/silhouette.svg",
+    "attributeIcon": "/assets/icons/car-attributes/{attribute-key}.svg",
+    "packageArtwork": "/assets/car-packages/{slug}.webp"
+  },
+  "implementationNotes": [
+    "Store detailed ratings as authoritative performance values; derive headline ratings at runtime or during seed validation.",
+    "Apply base architecture, permanent development, race package and setup as separate modifier layers before clamping the effective detailed rating.",
+    "Do not permanently mutate the base-car rating when applying a race package or weekend setup.",
+    "Recommended effective-rating clamp for initial balancing is 60-100.",
+    "Reliability should drive probability/severity of faults rather than act as a constant lap-time modifier.",
+    "Driver technical skill should improve setup information and adaptation, not directly add raw car rating points.",
+    "Driver preferences should create small compatibility effects; Adaptability should reduce mismatch penalties."
+  ]
+}
