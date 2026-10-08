@@ -1,3 +1,4 @@
+@if(resultsView){<app-results-gallery />}@else{
 @if(controllerView){<app-controller-gallery />}@else{ @if(publicView){
 <main class="public-screen">
   <header class="public-heading">
@@ -57,7 +58,8 @@
       ><a href="#expanded">Expanded details</a><a href="#tv">TV treatment</a
       ><a href="#classification">Classification</a
       ><a href="/?view=public">Public display</a
-      ><a href="/?view=controller">Private controller</a>
+      ><a href="/?view=controller">Private controller</a
+      ><a href="/?view=results">Phase results and finish</a>
     </nav>
   </header>
   <section id="compact" aria-labelledby="compact-title">
@@ -103,4 +105,4 @@
   </footer>
 </main>
 
-} }
+} } }

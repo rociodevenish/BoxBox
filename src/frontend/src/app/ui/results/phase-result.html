@@ -1,0 +1,67 @@
+<main class="result-screen" [class.finished]="result().state === 'finished'">
+  <header class="result-header">
+    <div>
+      <p class="eyebrow">
+        Public race @if(fixtureLabel()){ · {{fixtureLabel()}}}
+      </p>
+      <h1>{{title()}}</h1>
+    </div>
+    <p role="status">
+      @switch(result().state){@case('resolving'){Resolution in progress. Showing
+      the last published Classification.}@case('finished'){Chequered flag · No
+      further decision phases.}@default{Phase complete · Race continues.}}
+    </p>
+  </header>
+  <div class="result-layout">
+    <section class="classification" aria-labelledby="result-classification">
+      <h2 id="result-classification">
+        {{result().state === 'finished' ? 'Final Classification' :
+        result().state === 'resolving' ? 'Last published Classification' :
+        'Phase Classification'}}
+      </h2>
+      <app-timing-tower [classification]="result().classification" />
+    </section>
+    <div class="feedback">
+      <section class="context" aria-label="Result context">
+        @if(result().context.imageUrl && failedContextUrl() !==
+        result().context.imageUrl){<img
+          [src]="result().context.imageUrl"
+          [alt]="result().context.name + ' portrait'"
+          (error)="failedContextUrl.set(result().context.imageUrl)"
+        />}@else{
+        <p class="fallback">Image unavailable</p>
+        }
+        <div>
+          <p class="eyebrow">
+            {{result().state === 'finished' ? 'Race winner' : 'Phase
+            spotlight'}}
+          </p>
+          <h2>{{result().context.name}}</h2>
+          <p>{{result().context.description}}</p>
+        </div>
+      </section>
+      <section class="events" aria-labelledby="events-title">
+        <h2 id="events-title">Public phase events</h2>
+        @if(result().state === 'resolving'){
+        <p>Waiting for published phase events.</p>
+        }@else if(result().events.length === 0){
+        <p>No overtakes or pit events reported this phase.</p>
+        }@else{
+        <p class="event-count">
+          {{result().events.length}} published events · chronological order
+        </p>
+        @if(result().events.length > 6){
+        <p class="scroll-hint">
+          Scroll for all events · focus list and use arrow keys or End
+        </p>
+        }
+        <ol tabindex="0" aria-label="Chronological public event list">
+          @for(event of result().events;track event.id){
+          <li><app-race-event [event]="event" /></li>
+          }
+        </ol>
+        }
+      </section>
+    </div>
+  </div>
+</main>
