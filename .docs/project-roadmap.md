@@ -13,12 +13,15 @@ This roadmap groups work into playable milestones. It does not define implementa
 
 ## Where we are
 
-The two existing specs form the first milestone:
+The race foundation and first browser milestone are complete:
 
 - [Dry-race strategy laboratory](../.scratch/dry-race-strategy-laboratory/spec.md): marked resolved. Establishes the standalone C# simulation, Race Phases, pace/tyre/pit/battle decisions, exact Classification, reproducible races and paired strategy evidence.
-- [Segment race model and controlled variability](../.scratch/segment-race-model/spec.md): marked ready-for-agent; implementation is underway according to current project context. Adds spatial track demands, passing opportunities, explicit random scopes, and further evidence and performance measurements.
+- [Segment race model and controlled variability](../.scratch/segment-race-model/spec.md): resolved. Adds spatial track demands, passing opportunities, explicit random scopes, and reviewed modelling/performance evidence.
 
-The laboratory demonstrates model behaviour. It does not yet demonstrate that people understand the choices, enjoy making them, or complete a race within the intended time. That is the next major uncertainty to resolve.
+- [Visual foundation](../.scratch/visual-design-foundation/spec.md): resolved. Supplies the Broadcast design system, reusable cards, timing tower, controls and phase feedback.
+- [Browser dry race](../.scratch/browser-dry-race/spec.md): resolved. Supports a complete authoritative 22-car race, recovery, exact designer replay and automatic next decision windows. Actual player feedback corrected navigation, timing names, dropdown carets and the separate Continue step.
+
+The current frontier is shared-session ticket 01: authenticated lobby creation, joining and atomic team claims. Browser checks and initial player feedback establish working mechanics and concrete interaction fixes; sustained human workload, pleasant pacing and physical-device readability remain playtest questions. The fixed race-duration target has been retired.
 
 ## Written spec index
 
@@ -51,7 +54,7 @@ Supporting design reference: [Driver card sample design specification](driver-ca
 
 | Stage | Player outcome | Main work | Evidence to move forward |
 | --- | --- | --- | --- |
-| 1. Prove the race foundation — current | Strategic choices produce coherent, explainable races. | Complete the two existing specs and interpret their evidence, including spatial racing, tyre/pit trade-offs and controlled variability. | Reproducible outcomes; useful competing strategies across contrasting tracks; remaining modelling limits are understood. |
+| 1. Prove the race foundation | Strategic choices produce coherent, explainable races. | Complete the two existing specs and interpret their evidence, including spatial racing, tyre/pit trade-offs and controlled variability. | Reproducible outcomes; useful competing strategies across contrasting tracks; remaining modelling limits are understood. |
 | 2. Play a dry race in the browser | A player can manage both cars from start to finish and understand what happened. | Thin authoritative server, browser timing tower and controller, simultaneous decision locking, phase results, short event presentation, fixed-grid dry races and scripted opponents. Start with one complete phase, then extend to a full race. | People understand pace, pits and battles; feedback explains consequences; decision and presentation timing supports a pleasant experience. |
 | 3. Play together reliably | Several people can finish a race using a TV, phones or a shared device. | Session joining, team ownership, public/private information, pass-and-play and open-family control; deadlines, reconnect/resume and durable state boundaries. Introduce rules-based AI for empty teams and missed decisions, plus initial Assisted/Guided recommendations. Establish a hosted family playtest. | A household can join and finish without developer intervention; disconnects and missed decisions do not stall play or expose private choices. |
 | 4. Complete a Grand Prix weekend | Preparation and qualifying influence the race, and unexpected events create decisions. | Effective car/driver attributes and circuit fit; weekend setup and practice feedback; Q1/Q2/Q3; automatic standing start; incidents, reliability and Safety Cars; simplified weather and suitable tyres. Extend advice and presentation as each system arrives. | A full weekend has a pleasant decision and feedback rhythm; interrupted phases are clear; qualifying, setup and event responses add worthwhile strategy. |
