@@ -1,0 +1,15 @@
+# 01: Join a household lobby and claim a team
+
+**What to build:** A host creates a family lobby and players join as accounts or guests, claim teams and prepare a complete grid.
+
+**Blocked by:** Browser dry-race vertical slice, including its verified session contracts.
+
+**Status:** ready-for-agent
+
+- [ ] Extend the existing session coordinator and frontend; keep host/player identities, teams, device sessions and assignments separate.
+- [ ] Firebase Authentication supports permanent hosts and anonymous/guest players with a documented local emulator path and server-side identity validation.
+- [ ] Join links, codes and QR codes locate the lobby and request membership without granting host/team authority or exposing private credentials.
+- [ ] Up to eleven teams can be claimed atomically; concurrent claims have one winner and clear feedback. Claims preserve preset personnel/performance and constructor identity.
+- [ ] Hosts can approve/correct assignments and assign shared-device participants before start; unclaimed teams use scripted opponents and the human/scripted set freezes at race start.
+- [ ] Lobby settings identify Competitive, Family and Mixed modes and intended control/privacy assignments.
+- [ ] Verify capacity, concurrent claims, wrong-session requests and unauthorised host commands through public API/SignalR behaviour and rendered lobby flows.
