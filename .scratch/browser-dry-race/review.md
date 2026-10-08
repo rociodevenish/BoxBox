@@ -38,4 +38,4 @@ Inspected captures use a 360 × 800 phone viewport with full-page heights, and a
 | [Ongoing stop](evidence/review-ongoing-controller-360.png) | 360 × 2060 | Current Hard compound, ongoing restriction and preserved rejected Push draft. |
 | [Final display](evidence/review-finish-1920x1080.png) | 1920 × 1080 | All 22 rows, distances and eligibility fit; First across the line remains distinct from eligibility. |
 
-Original assets, concurrent design work and both existing previews were preserved. Parent final review and preview publication follow this fix commit.
+Original assets, concurrent design work and both existing previews were preserved. Final independent re-reviews of 5b096c7...2cdd9a2 report Standards: 0 actionable findings and Spec: 0 actionable findings; the original P2 is resolved. The full browser baseline is 38f214f. The frozen automatic-flow preview at http://127.0.0.1:4450/race/new was separately verified through a real controller/display race, including editable next choices during feedback and terminal finish. Older preview sessions remain available independently of implementation worktrees.

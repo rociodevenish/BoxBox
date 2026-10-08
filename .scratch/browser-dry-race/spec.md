@@ -1,6 +1,6 @@
 # Browser dry-race vertical slice
 
-Status: ready-for-agent
+Status: resolved
 Blocked by: segment-model evidence review and integration readiness; visual foundation components for final UI integration.
 
 ## Problem Statement
@@ -122,3 +122,10 @@ Implement and verify the one-phase path before extending it to a full race. Comp
 ## Comments
 
 The user confirmed the proposed API/SignalR and browser end-to-end testing boundaries. The remaining blockers are implementation dependencies.
+
+
+## Completion evidence
+
+All five implementation tickets are resolved on codex/browser-dry-race. Actual player feedback corrected dropdown carets, Gap/Interval names and controller return navigation, then removed the separate Continue step: accepting both cars runs the phase and automatically opens the next decision window while feedback remains independent. Final Standards and Spec re-reviews each report zero actionable findings; the pending-stop coverage finding is resolved by real-engine API/SignalR and browser fixtures.
+
+Validation: 132 backend tests, 34 gallery tests, 19 ordinary browser tests plus two stop-boundary browser tests, Angular typecheck/build, and exact ten-phase laboratory replay. Five 50-lap runs include equal/mixed contrasting presets and lapped eligible/ineligible finishes. Actual physical-device readability and sustained human workload remain explicitly unmeasured; no fixed race-duration target remains. See [review and evidence](review.md), [playtest protocol](../../docs/browser-playtest.md), and [automatic-flow measurements](evidence/review-automatic-windows.json).
