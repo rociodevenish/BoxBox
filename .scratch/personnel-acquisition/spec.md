@@ -68,6 +68,19 @@ Add a competitive preseason carousel of unique fixed-price personnel, small offe
 - Purchased development effects before the economy spec, separate Pit Crew drafting and full roster photography creation.
 - Unlimited refresh, adversarial trading and public-market matchmaking.
 
+## Data and asset references
+
+Review these repository inputs before implementing this spec:
+- [f1_strategy_driver_cards_2026.json](../../.docs/data/f1_strategy_driver_cards_2026.json) - driver identities, headline/detailed ratings and compatibility preferences.
+- [f1_strategy_car_attribute_spec_2026.json](../../.docs/data/f1_strategy_car_attribute_spec_2026.json) - car attribute vocabulary, scales, headline derivation, setup and development/package domains.
+- [f1_strategy_preseason_car_construction_2026.json](../../.docs/data/f1_strategy_preseason_car_construction_2026.json) - shared preseason construction menu, baseline, option modifiers, costs and example builds.
+
+Use [driver portraits](../../assets/driver%20images/) and [track imagery](../../assets/track%20images/) wherever this feature presents those identities. Inspect the current [assets collection](../../assets/) at implementation time, including later additions; map files through stable content identities, record provenance, preserve originals and package suitable runtime variants. Keep readable text and missing-image fallbacks. Simulation-only work uses imagery only for associated reports or galleries.
+
+The JSON files are provisional design inputs. Preserve schema/data versions, validate references, units and bounds, and document mappings to supported runtime attributes; do not silently convert headline stars into simulation values. Data availability does not expand the mechanics in this spec. Keep active campaign/race inputs stable when files or assets change.
+
+Use supplied driver cards and portraits without restricting drafting to reference teams. Reconcile construction reserves with the sample menu; staff entries, acquisition prices and a complete affordable pool still need authoring.
+
 ## Further Notes
 
 The acquisition ledger is foundational and does not wait for in-season economy. Reserve rules prevent dead ends without silently granting credits or changing fixed prices. The user approved the public session/domain and browser testing boundaries.

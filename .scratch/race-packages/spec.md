@@ -64,6 +64,19 @@ Extend development with Race Package creation and refinement, richer project out
 - Unlimited development, independently stacked component packages, trading/resale, research trees and real engineering simulation.
 - New race mechanics, final prices/ratings and complete art production.
 
+## Data and asset references
+
+Review these repository inputs before implementing this spec:
+- [f1_strategy_car_attribute_spec_2026.json](../../.docs/data/f1_strategy_car_attribute_spec_2026.json) - car attribute vocabulary, scales, headline derivation, setup and development/package domains.
+- [f1_strategy_track_cards_2026.json](../../.docs/data/f1_strategy_track_cards_2026.json) - circuit identities, event-to-track calendar mapping, demands and race characteristics.
+- [f1_strategy_driver_cards_2026.json](../../.docs/data/f1_strategy_driver_cards_2026.json) - driver identities, headline/detailed ratings and compatibility preferences.
+
+Use [driver portraits](../../assets/driver%20images/) and [track imagery](../../assets/track%20images/) wherever this feature presents those identities. Inspect the current [assets collection](../../assets/) at implementation time, including later additions; map files through stable content identities, record provenance, preserve originals and package suitable runtime variants. Keep readable text and missing-image fallbacks. Simulation-only work uses imagery only for associated reports or galleries.
+
+The JSON files are provisional design inputs. Preserve schema/data versions, validate references, units and bounds, and document mappings to supported runtime attributes; do not silently convert headline stars into simulation values. Data availability does not expand the mechanics in this spec. Keep active campaign/race inputs stable when files or assets change.
+
+Use package domains and circuit demands for bounded trade-offs and supported driver fit. The attribute file is not a complete priced package catalogue; baseline, costs and outcome tuning still need authoring.
+
 ## Further Notes
 
 This completes the planned development alternatives. The next content and release specs finalise coverage and measured tuning rather than introducing a second economy. Testing boundaries remain those approved for campaign/economy work.
