@@ -1,4 +1,4 @@
-@if(publicView){
+@if(controllerView){<app-controller-gallery />}@else{ @if(publicView){
 <main class="public-screen">
   <header class="public-heading">
     <div>
@@ -56,7 +56,8 @@
       <a href="#compact">Compact cards</a
       ><a href="#expanded">Expanded details</a><a href="#tv">TV treatment</a
       ><a href="#classification">Classification</a
-      ><a href="/?view=public">Public display</a>
+      ><a href="/?view=public">Public display</a
+      ><a href="/?view=controller">Private controller</a>
     </nav>
   </header>
   <section id="compact" aria-labelledby="compact-title">
@@ -102,4 +103,4 @@
   </footer>
 </main>
 
-}
+} }
