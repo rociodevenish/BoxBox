@@ -28,4 +28,4 @@ No new imagery was mapped to synthetic identities. Existing readable foundation 
 - Foundation: 34 rendered gallery tests pass, including keyboard/focus, touch targets, stop availability, crowd scrolling, reduced motion and image failure.
 - Angular typecheck and production build pass. Final bundle: 281.26 kB raw / estimated 72.42 kB transfer; portrait assets remain separate.
 
-These are automated correctness and desktop layout checks. Human comprehension, workload, physical-device readability and the 20–25 minute pacing target remain unproven; ticket 05 records designer replay, metrics and playtest evidence.
+These are automated correctness and desktop layout checks. Human comprehension, workload and physical-device readability remained unproven at this point; ticket 05 records designer replay, metrics and playtest evidence. On 2026-10-09 the user retired the former fixed duration target; timing now informs pleasant pacing without a required duration.

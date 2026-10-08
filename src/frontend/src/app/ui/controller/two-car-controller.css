@@ -72,7 +72,7 @@ legend {
 }
 button,
 select {
-  background: var(--color-raised);
+  background-color: var(--color-raised);
   color: var(--color-ink);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-control);

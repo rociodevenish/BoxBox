@@ -5,7 +5,7 @@ Blocked by: segment-model evidence review and integration readiness; visual foun
 
 ## Problem Statement
 
-The laboratory demonstrates dry-race strategy, but players cannot yet make decisions in a browser or see a shared display explain their consequences. We therefore do not know whether managing two cars is understandable, whether phase feedback is useful, or whether the race can meet its intended 20–25 minute duration.
+The laboratory demonstrates dry-race strategy, but players cannot yet make decisions in a browser or see a shared display explain their consequences. We therefore do not know whether managing two cars is understandable, whether phase feedback is useful, or whether its timing feels pleasant for players.
 
 The first playable integration needs to expose the proven race model through the intended authoritative architecture without introducing the season, multiplayer lobby or new race mechanics.
 
@@ -76,7 +76,7 @@ Prove one complete Race Phase first, then the same loop through a full 22-car ra
 - Browser refresh/reconnect can recover the active session while the server process remains running, including current lock/result state. Server restart loses the session and shows a clear expired/unavailable state. Durable persistence, host migration and unattended race continuation belong to later work.
 - Final results preserve eligibility and completed distance; explain compound requirements before decisions and mark ineligible results without silently altering strategies. Disable further phase submissions after finish and allow an explicit new playtest session.
 - Record designer-only replay inputs with seed, configuration, model/randomness versions and accepted human/opponent decisions. Keep diagnostics separately accessible in local development and out of player payloads. Record decision time, server resolution time, presentation time and total race time separately.
-- Supply a documented run procedure and playtest protocol. Include full-distance tests on contrasting tracks, both-car workload, a short race smoke test and a reproducible report with actual findings. Treat 20–25 minutes as a validation target, not a result proved by fast server benchmarks or automated clicks.
+- Supply a documented run procedure and playtest protocol. Include full-distance tests on contrasting tracks, both-car workload, a short race smoke test and a reproducible report with actual findings. Timing is informative: the user retired the fixed duration target on 2026-10-09. Automated clicks and fast server benchmarks do not establish pleasant pacing.
 
 ## Testing Decisions
 
@@ -89,7 +89,7 @@ Prove one complete Race Phase first, then the same loop through a full 22-car ra
 - Use a browser test with real server/SignalR to submit different instructions for the two cars, observe an event sequence and reconcile the display to the next snapshot. Include a short full-race finish and eligibility result. Use deterministic presets; avoid luck-dependent overtake expectations.
 - Reuse visual-foundation gallery checks for component states. Add integration checks for server-driven battle availability, pit state, disabled resolving controls, errors and finished results. Inspect representative phone and shared-display layouts with real session data.
 - Existing engine events and replay tests provide backend prior art; the recovered card prototype provides presentation prior art. There is no established application API/SignalR or production browser test harness, so create these at the session boundary rather than exposing new physics seams.
-- Record manual player feedback and measured pacing separately from automated correctness. Passing tests does not establish enjoyment, comprehension or the 20–25 minute duration target.
+- Record manual player feedback and measured pacing separately from automated correctness. Passing tests does not establish enjoyment, comprehension or actual player workload.
 
 ## Out of Scope
 
@@ -104,7 +104,7 @@ Prove one complete Race Phase first, then the same loop through a full 22-car ra
 
 This is Stage 2 of the master roadmap. The visual foundation can proceed using fixtures, and API orchestration can be developed against stable engine contracts, while the segment milestone finishes. The completed browser slice must use reviewed simulation evidence and the selected visual foundation.
 
-Implement and verify the one-phase path before extending it to a full race. Completion requires a locally playable complete race, reproducible checks and a playtest findings report. Where target pacing or clarity is not achieved, record the measured limitation and the next corrective work rather than claiming the target was met.
+Implement and verify the one-phase path before extending it to a full race. Completion requires a locally playable complete race, reproducible checks and a playtest findings report. Where timing or clarity needs improvement, record the measured limitation and the next corrective work.
 
 ## Comments
 

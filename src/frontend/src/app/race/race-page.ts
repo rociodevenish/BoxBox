@@ -1,4 +1,5 @@
 import { Component, effect, signal } from '@angular/core';
+import { commandId } from './command-id';
 import { RaceSession, PublicState } from './race-session';
 import { PublicClassification } from '../ui/timing/public-classification.model';
 import { TwoCarController } from '../ui/controller/two-car-controller';
@@ -17,6 +18,9 @@ export class RacePage extends RaceSession {
     private lastSettled?: PublicState;
     private beforeResult?: PublicState;
     private currentResult?: PublicState;
+    private readonly pageStarted = performance.now();
+    private readonly presentationDevice = commandId();
+    private presentationSample?: {sampleId:string;cursor:string;started:number;playbackKind:string};
     constructor() {
         super(new URL(location.href));
         effect(() => {
@@ -27,9 +31,10 @@ export class RacePage extends RaceSession {
                 if (this.cursor !== state.presentation.cursor) {
                     this.cursor = state.presentation.cursor;
                     this.beforeResult = this.lastSettled ?? state;
-                    if (this.lastSettled) this.playFeedback(); else this.skipPlayback();
+                    if (this.lastSettled) this.playFeedback('initial'); else {this.beginSample('recovered');this.skipPlayback('recovered');}
                 }
             } else {
+                this.finishSample('new-window');
                 this.clearPlayback(); this.cursor = undefined;
                 this.playing.set(false); this.shownEvents.set(0);
                 this.presentedState.set(state); this.lastSettled = state;
@@ -39,26 +44,39 @@ export class RacePage extends RaceSession {
     ngOnDestroy() { this.clearPlayback(); this.dispose(); }
     lifecycleLabel(value: string | undefined) { return value === 'awaiting-decisions' ? 'Awaiting team plan' : value === 'resolving' ? 'Resolving race phase' : value === 'phase-result' ? 'Presenting phase result' : value === 'ready-next' ? 'Phase complete' : value === 'finished' ? 'Race finished' : 'Loading race'; }
     setPlaybackSeconds(value: string) { const seconds = Number(value); this.playbackSeconds.set(Number.isFinite(seconds) ? Math.min(10, Math.max(0, seconds)) : 3); }
-    playFeedback() {
+    playFeedback(kind = 'replay') {
+        this.finishSample('new-window');
         this.clearPlayback();
         const state = this.currentResult;
         if (!state) return;
+        this.beginSample(kind);
         this.presentedState.set(this.beforeResult ?? state); this.shownEvents.set(0);
-        const seconds = matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : this.playbackSeconds();
-        if (seconds === 0) { this.skipPlayback(); return; }
+        const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+        const seconds = reduced ? 0 : this.playbackSeconds();
+        if (seconds === 0) { this.skipPlayback(reduced ? 'reduced-motion' : 'completed'); return; }
         this.playing.set(true);
         this.playbackTimer = setInterval(() => {
             const count = this.shownEvents() + 1;
             this.shownEvents.set(Math.min(count, state.events.length));
-            if (count >= state.events.length) this.skipPlayback();
+            if (count >= state.events.length) this.skipPlayback('completed');
         }, seconds * 1000 / Math.max(1, state.events.length));
     }
-    skipPlayback() {
+    skipPlayback(completion = 'skipped') {
+        this.finishSample(completion);
         this.clearPlayback(); this.playing.set(false);
         if (this.currentResult) {
             this.shownEvents.set(this.currentResult.events.length);
             this.presentedState.set(this.currentResult); this.lastSettled = this.currentResult;
         }
+    }
+    private beginSample(playbackKind:string) {
+        if(this.mode==='display' && this.currentResult?.presentation) this.presentationSample={sampleId:commandId(),cursor:this.currentResult.presentation.cursor,started:performance.now(),playbackKind};
+    }
+    private finishSample(completion:string) {
+        const sample=this.presentationSample;this.presentationSample=undefined;
+        if(!sample)return;
+        // Advisory client diagnostics never gate playback, submission or authoritative state.
+        void fetch('/api/sessions/'+this.id+'/presentation-timing',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sampleId:sample.sampleId,deviceId:this.presentationDevice,cursor:sample.cursor,durationMilliseconds:performance.now()-sample.started,clientElapsedMilliseconds:performance.now()-this.pageStarted,playbackKind:sample.playbackKind,completion:completion==='recovered'?'completed':completion})}).catch(()=>undefined);
     }
     private clearPlayback() { if (this.playbackTimer) clearInterval(this.playbackTimer); this.playbackTimer = undefined; }
     phaseResult(): PublicPhaseResult {

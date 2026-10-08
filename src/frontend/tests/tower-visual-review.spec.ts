@@ -11,7 +11,7 @@ for (const [width, height] of [
     await page.emulateMedia({ reducedMotion: "reduce" });
     await page.goto("/?view=public");
     const tower = page.getByRole("table", {
-      name: "Classification — gap to leader",
+      name: "Classification — Gap to leader",
     });
     await expect(tower.getByRole("row")).toHaveCount(23);
     expect(

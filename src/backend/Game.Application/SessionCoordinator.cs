@@ -1,12 +1,20 @@
 using Game.Domain;
 using Game.Simulation;
 using System.Security.Cryptography;
+using System.Diagnostics;
 namespace Game.Application;
 public sealed class SessionCoordinator(ISessionNotifications notifications)
 {
     private sealed class Session(string id, string player, string device, byte[] grantHash,
         RaceConfiguration configuration, Driver[] drivers, int seed, CreateSessionInput input)
     {
+        public long StartedTimestamp { get; } = Stopwatch.GetTimestamp();
+        public long WindowTimestamp { get; set; }
+        public long ReadyTimestamp { get; set; }
+        public double? TotalToFinishMilliseconds { get; set; }
+        public List<BrowserPhaseTiming> PhaseTimings { get; } = [];
+        public Dictionary<string, int> PresentationPhases { get; } = [];
+        public Dictionary<Guid, (PresentationTimingInput Input, RecordedPresentationTiming Sample)> PresentationSamples { get; } = [];
         public string Id { get; } = id;
         public string Player { get; } = player;
         public string Device { get; } = device;
@@ -17,6 +25,7 @@ public sealed class SessionCoordinator(ISessionNotifications notifications)
         public RaceEngine Engine { get; } = new(configuration, drivers, seed);
         public IReadOnlyDictionary<string, DriverDecision> FrozenOpponents { get; set; } = new Dictionary<string, DriverDecision>();
         public List<IReadOnlyDictionary<string, DriverDecision>> AcceptedPlans { get; } = [];
+        public List<RecordedReplayPhase> RecordedPhases { get; } = [];
         public string ScriptVersion { get; } = OpponentScript.Version;
         public Dictionary<Guid, (string Fingerprint, SubmissionAck Ack)> AcceptedCommands { get; } = [];
         public Dictionary<Guid, (ContinueCommand Command, SubmissionAck Ack)> ContinuedCommands { get; } = [];
@@ -48,6 +57,7 @@ public sealed class SessionCoordinator(ISessionNotifications notifications)
         var session = new Session(id, player, device, SHA256.HashData(System.Text.Encoding.UTF8.GetBytes(capability)),
             configuration, LaboratoryFixtures.SegmentedField(variant.Mixed), input.Seed.Value, input);
         session.FrozenOpponents = OpponentScript.Freeze(session.Engine, session.Drivers.Select(driver => driver.Team).Distinct(), configuration.Laps);
+        session.WindowTimestamp = Stopwatch.GetTimestamp();
         mutations.Wait();
         try { lock (gate) active = session; }
         finally { mutations.Release(); }
@@ -62,8 +72,44 @@ public sealed class SessionCoordinator(ISessionNotifications notifications)
         lock (gate) input = Authorise(id, capability).Input;
         return Create(input);
     }
+    public BrowserReplayRecord DesignerRecord(string id)
+    {
+        lock (gate)
+        {
+            var session = Require(id);
+            var scheduled = session.AcceptedPlans.SelectMany((plan, phase) => plan.OrderBy(pair => pair.Key, StringComparer.Ordinal)
+                .Select(pair => new ScheduledDecision(phase, pair.Key, pair.Value))).ToArray();
+            return new(BrowserReplay.FormatVersion, id, session.Input.Preset, "team-01", session.ScriptVersion,
+                SimulationReplay.Capture(session.Configuration, session.Drivers, new StrategyPlan(scheduled, []), session.Input.Seed!.Value),
+                Array.AsReadOnly(session.RecordedPhases.ToArray()), session.RecordedPhases.LastOrDefault()?.Finished ?? false,
+                new(session.TotalToFinishMilliseconds ?? Stopwatch.GetElapsedTime(session.StartedTimestamp).TotalMilliseconds,
+                    session.TotalToFinishMilliseconds, Array.AsReadOnly(session.PhaseTimings.ToArray()),
+                    Array.AsReadOnly(session.PresentationSamples.Values.Select(value => value.Sample).ToArray())));
+        }
+    }
     private Session Require(string id) => active is { } session && session.Id == id ? session
         : throw new SessionFault(SessionFailure.Unavailable, "Session unavailable. Create a new local playtest.");
+    public bool RecordPresentationTiming(string id, PresentationTimingInput? input)
+    {
+        lock (gate)
+        {
+            var session = Require(id);
+            if (input is null || !Guid.TryParse(input.SampleId, out var sampleId) || !Guid.TryParse(input.DeviceId, out var deviceId)
+                || input.Cursor is null || !session.PresentationPhases.TryGetValue(input.Cursor, out var phase)
+                || input.DurationMilliseconds is not { } duration || !double.IsFinite(duration) || duration is < 0 or > 3_600_000
+                || input.ClientElapsedMilliseconds is not { } elapsed || !double.IsFinite(elapsed) || elapsed is < 0 or > 3_600_000
+                || input.PlaybackKind is not ("initial" or "replay" or "recovered")
+                || input.Completion is not ("completed" or "skipped" or "reduced-motion" or "new-window"))
+                throw new SessionFault(SessionFailure.InvalidInput, "Presentation timing needs a known cursor, identity and finite measured durations.");
+            input = input with { SampleId = sampleId.ToString(), DeviceId = deviceId.ToString() };
+            if (session.PresentationSamples.TryGetValue(sampleId, out var previous))
+                return previous.Input == input ? true
+                    : throw new SessionFault(SessionFailure.Conflict, "This timing identity already has a different sample.");
+            session.PresentationSamples.Add(sampleId, (input, new(input.SampleId, input.DeviceId, input.Cursor, phase,
+                duration, elapsed, input.PlaybackKind, input.Completion)));
+            return true;
+        }
+    }
     private static PublicSnapshot Project(Session session)
     {
         var state = session.Engine.GetState();
@@ -134,9 +180,12 @@ public sealed class SessionCoordinator(ISessionNotifications notifications)
                 if (session.Lifecycle != "ready-next" || command.Phase != session.Phase || command.Revision != session.Revision)
                     throw new SessionFault(SessionFailure.Conflict, "Only the current completed phase can continue.");
                 session.Phase++; session.Revision++; session.Lifecycle = "awaiting-decisions";
+                var previousTiming = session.PhaseTimings[^1];
+                session.PhaseTimings[^1] = previousTiming with { ReadyWaitMilliseconds = Stopwatch.GetElapsedTime(session.ReadyTimestamp).TotalMilliseconds };
                 session.ConfirmedPlan = null; session.Events = []; session.Presentation = null;
                 session.FrozenOpponents = OpponentScript.Freeze(session.Engine,
                     session.Drivers.Select(driver => driver.Team).Distinct(), session.Configuration.Laps);
+                session.WindowTimestamp = Stopwatch.GetTimestamp();
                 display = Project(session); own = ProjectTeam(session);
                 acknowledgement = new(command.CommandId, session.Id, session.Phase, session.Revision, session.Lifecycle);
                 session.ContinuedCommands.Add(commandId, (command, acknowledgement));
@@ -150,6 +199,7 @@ public sealed class SessionCoordinator(ISessionNotifications notifications)
     {
         Session session; Dictionary<string, DriverDecision> complete; PublicSnapshot resolving; TeamSnapshot teamResolving;
         Guid commandId; string fingerprint;
+        double decisionMilliseconds;
         lock (gate)
         {
             session = Authorise(id, capability);
@@ -178,6 +228,7 @@ public sealed class SessionCoordinator(ISessionNotifications notifications)
                 complete.Add(car.DriverId, new(pace, car.Pit == "Pit" ? Enum.Parse<TyreCompound>(car.Compound!) : null, battle));
             }
             session.ConfirmedPlan = command;
+            decisionMilliseconds = Stopwatch.GetElapsedTime(session.WindowTimestamp).TotalMilliseconds;
             session.Lifecycle = "resolving"; session.Revision++;
             resolving = Project(session); teamResolving = ProjectTeam(session);
         }
@@ -186,7 +237,12 @@ public sealed class SessionCoordinator(ISessionNotifications notifications)
         lock (gate)
         {
             _ = Require(id);
+            var resolutionStarted = Stopwatch.GetTimestamp();
             var result = session.Engine.ResolvePhase(complete);
+            var resolutionMilliseconds = Stopwatch.GetElapsedTime(resolutionStarted).TotalMilliseconds;
+            if (result.Finished) session.TotalToFinishMilliseconds = Stopwatch.GetElapsedTime(session.StartedTimestamp).TotalMilliseconds;
+            session.PhaseTimings.Add(new(session.Phase, decisionMilliseconds, resolutionMilliseconds, null));
+            session.RecordedPhases.Add(new(session.Phase, result.LeaderLap, result.Time, result.Finished, BrowserReplay.OutcomeHash(result)));
             session.AcceptedPlans.Add(new System.Collections.ObjectModel.ReadOnlyDictionary<string, DriverDecision>(complete));
             var fresh = result.Events.Skip(session.EngineEventCursor).Select((item, index) => (item, index))
                 .Where(pair => pair.item.Kind is RaceEventKind.Overtake or RaceEventKind.PitEntry or RaceEventKind.PitExit or RaceEventKind.TyreChanged).ToArray();
@@ -205,6 +261,7 @@ public sealed class SessionCoordinator(ISessionNotifications notifications)
                 : $"{overtakes} overtakes · {entries} pit entries · {exits} pit exits · {changes} tyre changes."
                     + (fresh.Length > selected.Length ? $" Showing {selected.Length} highlights of {fresh.Length} recorded events." : ""));
             session.Lifecycle = result.Finished ? "finished" : "phase-result"; session.Revision++;
+            session.PresentationPhases.Add(session.Presentation.Cursor, session.Phase);
             resolved = Project(session); teamResolved = ProjectTeam(session);
         }
         await PublishSafely(resolved, teamResolved);
@@ -213,6 +270,7 @@ public sealed class SessionCoordinator(ISessionNotifications notifications)
             lock (gate)
             {
                 session.Lifecycle = "ready-next"; session.Revision++;
+                session.ReadyTimestamp = Stopwatch.GetTimestamp();
                 resolved = Project(session); teamResolved = ProjectTeam(session);
             }
         }

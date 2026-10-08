@@ -13,7 +13,7 @@ import { TimingRow } from "./timing-row";
     </div>
     <table>
       <caption>
-        Classification — gap to {{ classification().gapReference === 'ahead' ? 'car ahead' : 'leader' }}
+        Classification — {{ classification().gapReference === 'ahead' ? 'Interval to car ahead' : 'Gap to leader' }}
       </caption>
       <colgroup>
         <col class="position-column" />
@@ -26,7 +26,7 @@ import { TimingRow } from "./timing-row";
         <tr>
           <th scope="col">Pos</th>
           <th scope="col">Driver</th>
-          <th scope="col">Gap</th>
+          <th scope="col">{{classification().gapReference === 'ahead' ? 'Interval' : 'Gap'}}</th>
           <th scope="col">Tyre</th>
           <th scope="col" class="status-heading">{{classification().rows[0]?.eligibleAtFinish != null ? 'Distance / eligibility' : 'Stop status'}}</th>
         </tr>

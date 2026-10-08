@@ -2,6 +2,9 @@
 @if(error() && (mode!=='controller'||!team()||connectionState()!=='connected')){<p role="alert">{{error()}}</p>}
 @if(mode!=='new'){
  <div class="connection"><p role="status">Connection: {{connectionState()}}</p>
+ <a href="/race/new">Race setup</a>
+ @if(mode==='display' && controllerLink){<a [href]="controllerLink">Team controller</a>}
+ @if(mode==='controller'){<a [href]="'/race/display/'+id">Public display</a>}
  @if(connectionState()==='disconnected'){<button (click)="connect()">Reconnect</button>}
  @if(connectionState()==='unavailable'){<a href="/race/new">Create a fresh session</a>}
  @if(pending()){<p>Confirmation pending. Both choices are retained until the server confirms or rejects this plan.</p><button [disabled]="!canRetry()" (click)="submit()">Retry pending submission</button>}
@@ -22,11 +25,11 @@
  @if(created();as session){<nav><a [href]="session.displayUrl">Open public display</a><a [href]="session.controllerUrl">Open controller</a></nav>}
  }@else{<h1>Private team controller</h1><p>Connecting to authorized team…</p>}
 } @else {
- @if(publicState();as state){<div class="display-controls"><div class="gap-options" aria-label="Timing reference"><button [attr.aria-pressed]="gapReference()==='leader'" (click)="gapReference.set('leader')">Gap to leader</button><button [attr.aria-pressed]="gapReference()==='ahead'" (click)="gapReference.set('ahead')">Gap to car ahead</button></div><label class="playback-setting">Playback seconds<input #playbackInput type="number" min="0" max="10" [value]="playbackSeconds()" (input)="setPlaybackSeconds(playbackInput.value)" /></label>
+ @if(publicState();as state){<div class="display-controls"><div class="gap-options" aria-label="Timing reference"><button aria-label="Gap — to leader" [attr.aria-pressed]="gapReference()==='leader'" (click)="gapReference.set('leader')">Gap</button><button aria-label="Interval — to car ahead" [attr.aria-pressed]="gapReference()==='ahead'" (click)="gapReference.set('ahead')">Interval</button></div><label class="playback-setting">Playback seconds<input #playbackInput type="number" min="0" max="10" [value]="playbackSeconds()" (input)="setPlaybackSeconds(playbackInput.value)" /></label>
  @if(state.lifecycle==='finished'){<span class="server-finish">Finish confirmed</span>}@else{<span class="server-state">{{lifecycleLabel(state.lifecycle)}}</span>}
  @if(state.presentation){<p role="status">{{playing() ? 'Presenting phase feedback' : state.lifecycle==='finished' ? 'Final results ready' : 'Ready for next phase'}}</p>@if(playing()){<button (click)="skipPlayback()">Skip playback</button>}@else{<button (click)="playFeedback()">Replay feedback</button>}}
  </div><app-phase-result [result]="phaseResult()" [compact]="true" />
- @if(state.lifecycle==='finished'){<p class="final-rule">Eligibility requires at least two different dry tyre compounds. Ineligible finishes remain shown in their recorded Classification.</p><a href="/race/new">Choose another preset</a>}
+ @if(state.lifecycle==='finished'){<div class="finish-actions"><p class="final-rule">Eligibility requires at least two different dry tyre compounds. Ineligible finishes remain shown in their recorded Classification.</p><a href="/race/new">Choose another preset</a></div>}
  }@else{<p>Connecting to race…</p>}
 }
 </main>

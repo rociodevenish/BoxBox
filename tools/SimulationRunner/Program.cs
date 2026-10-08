@@ -2,6 +2,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using Game.Domain;
 using Game.Simulation;
+using Game.Application;
 using SimulationRunner;
 
 try
@@ -15,7 +16,16 @@ try
         using var replayDocument = JsonDocument.Parse(File.ReadAllText(options.Replay));
         if (replayDocument.RootElement.ValueKind != JsonValueKind.Object)
             throw new ArgumentException("Replay must be an object.");
-        if (replayDocument.RootElement.EnumerateObject().Any(p => p.Name.Equals("seeds", StringComparison.OrdinalIgnoreCase)))
+        if (replayDocument.RootElement.EnumerateObject().Any(p => p.Name.Equals("formatVersion", StringComparison.OrdinalIgnoreCase)))
+        {
+            var record = BrowserReplay.Read(replayDocument.RootElement);
+            var verification = BrowserReplay.Verify(record);
+            Directory.CreateDirectory(options.Output);
+            File.WriteAllText(Path.Combine(options.Output, "browser-replay-verification.json"), JsonSerializer.Serialize(verification, json));
+            Console.WriteLine($"Browser replay: {verification.Phases.Count} recorded phases; matches={verification.Matches}; finished={verification.Finished}");
+            return verification.Matches ? 0 : 1;
+        }
+        else if (replayDocument.RootElement.EnumerateObject().Any(p => p.Name.Equals("seeds", StringComparison.OrdinalIgnoreCase)))
         {
             var request = JsonInput.Read<ComparisonRequest>(options.Replay, json);
             var report = StrategyComparison.Compare(request);

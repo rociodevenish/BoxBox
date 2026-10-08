@@ -1,4 +1,5 @@
 import { signal } from '@angular/core';
+import { commandId } from './command-id';
 import { HubConnection, HubConnectionBuilder } from '@microsoft/signalr';
 import { PublicGap, TyreCompound } from '../ui/timing/public-classification.model';
 import { Pace, Battle } from '../ui/controller/controller.model';
@@ -78,6 +79,7 @@ interface Choice {
     battle: Battle;
 }
 interface Created {
+    sessionId: string;
     displayUrl: string;
     controllerUrl: string;
 }
@@ -85,6 +87,7 @@ export class RaceSession {
     readonly mode: string;
     readonly id: string;
     readonly capability: string;
+    readonly controllerLink: string | null;
     readonly created = signal<Created | null>(null);
     readonly publicState = signal<PublicState | null>(null);
     readonly team = signal<TeamState | null>(null);
@@ -100,13 +103,17 @@ export class RaceSession {
         this.mode = url.pathname.split('/')[2];
         this.id = url.pathname.split('/')[3];
         this.capability = new URLSearchParams(url.hash.slice(1)).get('capability') ?? '';
+        const saved = localStorage.getItem('race-controller:' + this.id);
+        this.controllerLink = saved && saved.startsWith('/race/controller/' + this.id + '#capability=') ? saved : null;
+        if (this.mode === 'controller' && this.capability)
+            localStorage.setItem('race-controller:' + this.id, url.pathname + url.hash);
         if (this.mode !== 'new')
             void this.connect();
     }
     async create(preset: string, laps: string, seed: string) {
         this.error.set('');
         try {
-            this.created.set(await this.request<Created>('/api/sessions', { preset, laps: Number(laps), seed: Number(seed) }));
+            this.rememberCreated(await this.request<Created>('/api/sessions', { preset, laps: Number(laps), seed: Number(seed) }));
         }
         catch (error) {
             this.fail(error);
@@ -192,7 +199,7 @@ export class RaceSession {
     async continuePhase() {
         if (!this.canContinue()) return;
         const own = this.team()!;
-        this.pendingContinue ??= { commandId: crypto.randomUUID(), phase: own.phase, revision: own.revision };
+        this.pendingContinue ??= { commandId: commandId(), phase: own.phase, revision: own.revision };
         this.busy.set(true); this.error.set('');
         try {
             await this.request('/api/sessions/' + this.id + '/continue', this.pendingContinue, this.capability);
@@ -208,14 +215,14 @@ export class RaceSession {
     }
     async restart() {
         this.error.set('');
-        try { this.created.set(await this.request<Created>('/api/sessions/' + this.id + '/restart', {}, this.capability)); }
+        try { this.rememberCreated(await this.request<Created>('/api/sessions/' + this.id + '/restart', {}, this.capability)); }
         catch (error) { this.fail(error); }
     }
     async submit() {
         const team = this.team();
         if (!team || !this.canSubmit())
             return;
-        const command = this.pending() ?? { commandId: crypto.randomUUID(), phase: team.phase, revision: team.revision, cars: this.choices().map(car => ({ ...car, pit: car.pit === 'Pit' ? 'Pit' : 'Stay Out', compound: car.pit === 'Pit' ? car.compound : null })) };
+        const command = this.pending() ?? { commandId: commandId(), phase: team.phase, revision: team.revision, cars: this.choices().map(car => ({ ...car, pit: car.pit === 'Pit' ? 'Pit' : 'Stay Out', compound: car.pit === 'Pit' ? car.compound : null })) };
         this.pending.set(command);
         this.busy.set(true);
         this.error.set('');
@@ -261,6 +268,11 @@ export class RaceSession {
         finally {
             this.busy.set(false);
         }
+    }
+    private rememberCreated(value: Created) {
+        const id = value.displayUrl.split('/').at(-1)!;
+        localStorage.setItem('race-controller:' + id, value.controllerUrl);
+        this.created.set(value);
     }
     private async request<T>(url: string, body: unknown, capability?: string): Promise<T> {
         const response = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json', ...(capability ? { Authorization: 'Bearer ' + capability } : {}) }, body: JSON.stringify(body) });

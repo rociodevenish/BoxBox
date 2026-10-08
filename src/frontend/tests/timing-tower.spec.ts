@@ -4,7 +4,7 @@ test("public Classification keeps time gaps, lap deficits and stop states separa
 }) => {
   await page.goto("/");
   const tower = page.getByRole("table", {
-    name: "Classification — gap to leader",
+    name: "Classification — Gap to leader",
   });
   await expect(tower.getByRole("row")).toHaveCount(23);
   const lewis = tower.getByRole("row").filter({ hasText: "Lewis Hamilton" });
@@ -46,7 +46,7 @@ test("shared display keeps all 22 cars below the phase header within 1080px", as
     page.getByRole("heading", { name: "Race Phase 4", exact: true }),
   ).toBeVisible();
   const tower = page.getByRole("table", {
-    name: "Classification — gap to leader",
+    name: "Classification — Gap to leader",
   });
   await expect(tower.getByRole("row")).toHaveCount(23);
   const last = tower.getByRole("row").filter({ hasText: "Sergio Pérez" });
@@ -76,7 +76,7 @@ test("public leader portrait failure preserves race identity and Classification"
   ).toBeVisible();
   await expect(
     page
-      .getByRole("table", { name: "Classification — gap to leader" })
+      .getByRole("table", { name: "Classification — Gap to leader" })
       .getByRole("row"),
   ).toHaveCount(23);
 });
@@ -86,7 +86,7 @@ test("full compound labels are not clipped at phone width", async ({
   await page.setViewportSize({ width: 360, height: 800 });
   await page.goto("/?view=public");
   const tower = page.getByRole("table", {
-    name: "Classification — gap to leader",
+    name: "Classification — Gap to leader",
   });
   const bounds = await tower.boundingBox();
   for (const label of await tower

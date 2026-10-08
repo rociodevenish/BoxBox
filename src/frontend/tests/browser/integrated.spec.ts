@@ -7,8 +7,8 @@ test('public live tower shows tyre age and selectable timing references, with al
     await page.goto(url!);
     await expect(page.getByRole('row')).toHaveCount(23);
     await expect(page.getByRole('table').getByText('0 laps', { exact: true })).toHaveCount(22);
-    await page.getByRole('button', { name: 'Gap to car ahead' }).click();
-    await expect(page.getByRole('table', { name: 'Classification — gap to car ahead' })).toBeVisible();
+    await page.getByRole('button', { name: 'Interval — to car ahead' }).click();
+    await expect(page.getByRole('table', { name: 'Classification — Interval to car ahead' })).toBeVisible();
     await expect(page.getByRole('row').nth(2)).toContainText('+0.500 s');
     await expect(page.getByText(/estimate|seed|condition|opponent.*choice/i)).toHaveCount(0);
     const last = await page.getByRole('row').last().boundingBox();
