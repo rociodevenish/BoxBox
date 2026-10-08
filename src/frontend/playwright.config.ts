@@ -1,6 +1,7 @@
 import { defineConfig } from "@playwright/test";
 export default defineConfig({
   testDir: "tests",
+  testIgnore: "**/browser/**",
   timeout: 20000,
   expect: { timeout: 5000 },
   use: {
@@ -18,3 +19,4 @@ export default defineConfig({
   },
   reporter: "list",
 });
+

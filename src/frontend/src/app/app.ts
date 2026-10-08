@@ -1,4 +1,5 @@
 import { ResultsGallery } from "./gallery/results-gallery";
+import { RacePage } from './race/race-page';
 import { ControllerGallery } from "./gallery/controller-gallery";
 import { Component, signal } from "@angular/core";
 import { TimingTower } from "./ui/timing/timing-tower";
@@ -7,11 +8,12 @@ import { DriverCard } from "./ui/driver-card";
 import { max, lewis, unknown } from "./gallery/driver-fixtures";
 @Component({
   selector: "app-root",
-  imports: [DriverCard, TimingTower, ControllerGallery, ResultsGallery],
+  imports: [DriverCard, TimingTower, ControllerGallery, ResultsGallery, RacePage],
   templateUrl: "./app.html",
   styleUrl: "./app.css",
 })
 export class App {
+  readonly raceView = location.pathname.startsWith('/race/');
   readonly controllerView =
     new URLSearchParams(location.search).get("view") === "controller";
   readonly resultsView =

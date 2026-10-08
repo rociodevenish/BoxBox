@@ -1,10 +1,13 @@
 <Solution>
   <Folder Name="/src/" />
   <Folder Name="/src/backend/">
+    <Project Path="src/backend/Game.Api/Game.Api.csproj" />
+    <Project Path="src/backend/Game.Application/Game.Application.csproj" />
     <Project Path="src/backend/Game.Domain/Game.Domain.csproj" />
     <Project Path="src/backend/Game.Simulation/Game.Simulation.csproj" />
   </Folder>
   <Folder Name="/tests/">
+    <Project Path="tests/Game.Api.Tests/Game.Api.Tests.csproj" />
     <Project Path="tests/Game.Simulation.Tests/Game.Simulation.Tests.csproj" />
   </Folder>
   <Folder Name="/tools/">
