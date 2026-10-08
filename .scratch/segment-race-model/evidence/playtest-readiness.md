@@ -1,5 +1,7 @@
 # Recommended browser playtest
 
+Pacing decision update, 9 October 2026: the user retired the fixed 20–25 minute race target. The historical recommendation below informed the design; future playtests measure timing to identify friction and assess a pleasant experience, without a fixed race-duration acceptance target.
+
 Proceed with a small strategy playtest using the existing four-segment layout and 40-lap, eight-phase laboratory. The evidence supports testing decision clarity and causal feedback; it does not establish final balance, multiplayer capacity or the intended 20–25 minute session duration. This recommendation introduces no browser implementation or new tyre tuning.
 
 ## Supported conclusions
