@@ -36,4 +36,3 @@ export class RacePage implements OnDestroy {
  private fail(error:unknown){this.error.set(error instanceof Error?error.message:'Unable to connect. Create a fresh session if the server restarted.');}
  ngOnDestroy(){void this.connection?.stop();}
 }
-

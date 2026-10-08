@@ -9,4 +9,3 @@ Actual browser creates separate pages, sees +0.500 s rolling gap, rejects capabi
 Inspected phase-1920x1080.png is a 1920 × 1080 viewport capture. Controller-360.png is 360 × 1060 full page from 360 × 800 viewport. Names, compounds, legitimate estimates and choices remain readable. Public row 22 is partly below viewport; responsive polished integration is ticket 03. Native controls are disabled but will adopt stronger foundation styling there. These are live results rather than gallery fixtures.
 
 Run/contract details: docs/browser-dry-race.md. Further phases/retry/reconnect remain subsequent scope.
-

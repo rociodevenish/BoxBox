@@ -21,4 +21,3 @@ public record SubmissionAck(string CommandId, string SessionId, int Phase, long 
 public enum SessionFailure { InvalidInput, Forbidden, Unavailable, Conflict }
 public sealed class SessionFault(SessionFailure failure, string message) : Exception(message)
 { public SessionFailure Failure { get; } = failure; }
-

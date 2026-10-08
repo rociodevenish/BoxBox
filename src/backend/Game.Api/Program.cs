@@ -24,6 +24,3 @@ app.MapGet("/health", () => Results.Ok(new { status = "ready" }));
 app.Run();
 static string? Capability(HttpRequest request) => request.Headers.Authorization.FirstOrDefault() is { } value && value.StartsWith("Bearer ", StringComparison.Ordinal) ? value[7..] : null;
 public partial class Program;
-
-
-

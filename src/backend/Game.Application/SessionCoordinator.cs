@@ -137,5 +137,3 @@ public sealed class SessionCoordinator(ISessionNotifications notifications)
     }
     private static bool TryChoice<T>(string? text, out T value) where T : struct, Enum => Enum.TryParse(text, out value)
         && Enum.IsDefined(value) && value.ToString() == text;}
-
-

@@ -25,4 +25,3 @@ internal static class OpponentScript
 }
 public interface ISessionNotifications
 { Task Publish(PublicSnapshot display, TeamSnapshot team); }
-

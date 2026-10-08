@@ -85,7 +85,3 @@ public sealed class SessionTests
   Assert.Equal(System.Net.HttpStatusCode.BadRequest,(await client.PostAsJsonAsync($"/api/sessions/{id}/plans",command)).StatusCode);
   var snapshot=await client.GetFromJsonAsync<JsonElement>($"/api/sessions/{id}");Assert.Equal(1,snapshot.GetProperty("revision").GetInt64());Assert.Equal(0,snapshot.GetProperty("raceTime").GetDouble());Assert.Equal("awaiting-decisions",snapshot.GetProperty("lifecycle").GetString());
  }}
-
-
-
-

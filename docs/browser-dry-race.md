@@ -40,4 +40,3 @@ npm run test:browser
 Browser smoke starts API 4510 and Angular 4410 itself; stop manual processes on those ports first. Playwright needs installed Chromium or PLAYWRIGHT_BROWSERS_PATH. API tests negotiate SignalR LongPolling through TestServer and verify exact engine outcome, ordered lifecycle updates, permission boundaries and atomic rejection. Browser test uses real server and separate pages, verifies capability denial and both-car submission, then observes the five-lap result.
 
 The minimal live controller/display establish one phase. Ticket 03 integrates polished foundation components; ticket 04 adds full-race presentation. Current 1920 × 1080 capture partly clips row 22, so is not evidence that all rows fit. Complete table remains in the page. No living-room TV playtest is claimed.
-
