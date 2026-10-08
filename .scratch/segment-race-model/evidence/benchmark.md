@@ -14,6 +14,8 @@ Actual previous executable is compiled against pinned commit `d22ceedc9548d3cfce
 
 ## Measurement boundary
 
+These are frozen measurements of the source revisions recorded in `benchmark.json`. They precede final review's additional complete-layout constructor validation. Initialization measurements therefore describe the earlier validation cost; they are not measurements of the final constructor. The correction preserves ordinary race formulas and outcomes, but these recorded timings should not be presented as a fresh benchmark of the final revision.
+
 Phase timings surround only ResolvePhase(plan), including its state/history snapshots; initialization is separately sampled. Phase allocation uses current-thread allocated bytes. Scalar sample recording and all serialization/file I/O lie outside that interval. Calls execute serially. Results include per-phase observations, mean/sample SD/p95/max and initialization costs.
 
 Retained heap is the incremental managed live-heap estimate after full GC for isolated roots holding the engine, RaceRun, all eight cumulative phase snapshots and designer diagnostics where supported. NoInlining boundaries and GC.KeepAlive prevent a previous sample's locals or premature collection from defining that lifetime. It remains a process-level GC estimate, not exact graph-size accounting. Final history JSON bytes and on-disk report bytes are separate sizes. Warm report timing/allocation uses each revision's actual ReportWriter after one untimed writer warm-up per sample, includes JSON/text/replay where supported, and includes file I/O. Reports contain cumulative phase histories, so output cost grows with richer contracts and retained events. No forced GC or report work enters phase timings.

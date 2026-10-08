@@ -8,7 +8,7 @@ Every channel uses a pure stable keyed hash of race seed, driver identity, seman
 | --- | --- | --- | --- |
 | Race form | RaceFormVariation, full range in seconds/lap; uniform bounded zero-centred offset +/- half range; default 0 | Driver/race (scope 0) | Persistent whole-lap pace, distributed by segment baseline time |
 | Lap variation | LapVariation, full range in seconds/lap; uniform offset +/- half range; default 0 | Driver/lap | One cached lap offset distributed by segment baseline time |
-| Passing | PassingVariation, full threshold range in [0,1]; default 1 | Attacker/defender/eligible-zone visit | Compare cached threshold to resolved passing chance |
+| Passing | PassingVariation, full threshold range in [0,1]; default 1 | Segmented: attacker/defender/eligible-zone visit; aggregate: attacker/opponent/lap | Compare cached threshold to resolved passing chance |
 | Pit service | StopVariation, full range in seconds; uniform offset +/- half range | Driver/ordinal stop in segmented runs; driver/completed stop lap in compatibility aggregate runs | Stationary service duration |
 | Estimate error | EstimateError, +/- condition fraction; uniform bounded error then clamp condition into [0,1] | Driver/Race Phase | Team tyre estimate |
 

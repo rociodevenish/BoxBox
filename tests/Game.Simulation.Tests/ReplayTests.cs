@@ -4,6 +4,15 @@ using Xunit;
 namespace Game.Simulation.Tests;
 public class ReplayTests
 {
+    [Theory]
+    [InlineData(false, "attacker/opponent/lap")]
+    [InlineData(true, "attacker/defender/zone visit")]
+    public void Passing_metadata_describes_the_selected_models_actual_random_scope(bool segmented, string expected)
+    {
+        var configuration = new RaceConfiguration(2, new("Track", Segments: segmented ? [new("a", 1000, 90)] : null));
+        var channel = Assert.Single(SimulationReplay.Metadata(configuration).Channels, c => c.Name == "passing");
+        Assert.Equal(expected, channel.Scope);
+    }
     [Fact]
     public void Segmented_run_publishes_self_contained_replay_with_exact_outcomes()
     {

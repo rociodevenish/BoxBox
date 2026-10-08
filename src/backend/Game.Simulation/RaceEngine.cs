@@ -121,6 +121,7 @@ public sealed class RaceEngine
         }
         this.configuration = configuration;
         this.seed = seed;
+        ValidateDerivedConfiguration(drivers);
         cars = drivers.Select(d => new Car(d)).ToList();
         var ordered = cars.OrderBy(c => c.Driver.Gap).ThenBy(c => c.Driver.Id, StringComparer.Ordinal).ToArray();
         for (var i = 0; i < ordered.Length; i++) ordered[i].ContactOrder = i;
@@ -571,23 +572,73 @@ public sealed class RaceEngine
                 car.LapVariationSeconds, car.RaceFormSeconds));
             return car.FreeProjection.TravelSeconds;
         }
-        var performance = d.Pace + d.Speed * configuration.Track.SpeedWeight
-            + d.Cornering * (1 - configuration.Track.SpeedWeight);
+        return AggregateLapTime(d, TyrePenalty(car), car.LapVariationSeconds, car.RaceFormSeconds);
+    }
+
+    private double AggregateLapTime(Driver driver, double tyrePenalty, double lapVariation, double raceForm)
+    {
+        var performance = driver.Pace + driver.Speed * configuration.Track.SpeedWeight
+            + driver.Cornering * (1 - configuration.Track.SpeedWeight);
         var duration = configuration.Track.BaseLapTime - performance * configuration.AttributeSeconds
-            + car.LapVariationSeconds + car.RaceFormSeconds
-            + TyrePenalty(car);
+            + lapVariation + raceForm + tyrePenalty;
         if (!double.IsFinite(duration)) throw new ArgumentException("Lap duration must be finite.");
         return Math.Max(1, duration);
     }
 
-    private double Wear(Car car)
+    private void ValidateDerivedConfiguration(IReadOnlyList<Driver> drivers)
     {
-        var compound = car.Compound switch { TyreCompound.Soft => Tyres.SoftWear,
+        var minimumPenalty = double.PositiveInfinity;
+        var maximumPenalty = double.NegativeInfinity;
+        var compounds = Enum.GetValues<TyreCompound>();
+        var paces = Enum.GetValues<PaceInstruction>();
+        // Penalties are monotone in warm-up/wear; two endpoints bound all supported tyre states.
+        foreach (var compound in compounds)
+        foreach (var pace in paces)
+        {
+            var minimum = TyrePenalty(compound, pace, 1, 1);
+            var maximum = TyrePenalty(compound, pace, 0, 0);
+            if (!double.IsFinite(minimum) || !double.IsFinite(maximum))
+                throw new ArgumentException("Derived tyre penalty must be finite for supported controls.");
+            minimumPenalty = Math.Min(minimumPenalty, minimum);
+            maximumPenalty = Math.Max(maximumPenalty, maximum);
+        }
+        if (!double.IsFinite(Tyres.DegradationPerLap * Traffic.BattleWear))
+            throw new ArgumentException("Derived battle wear must be finite.");
+        var maximumDemand = Segments?.Max(s => s.TyreDemand) ?? 1;
+        var baselineLap = Segments?.Sum(s => s.BaselineTime) ?? configuration.Track.BaseLapTime;
+        foreach (var driver in drivers)
+        {
+            foreach (var compound in compounds)
+            foreach (var pace in paces)
+                if (!double.IsFinite(Wear(driver, compound, pace) * maximumDemand))
+                    throw new ArgumentException("Derived segment tyre wear must be finite for supported controls.");
+            if (Segments is { } layout)
+                foreach (var segment in layout)
+                {
+                    _ = SegmentSimulation.Project(segment, new(baselineLap, driver.Speed, driver.Cornering, driver.Pace,
+                        configuration.AttributeSeconds, minimumPenalty, -configuration.LapVariation / 2, -configuration.RaceFormVariation / 2));
+                    _ = SegmentSimulation.Project(segment, new(baselineLap, driver.Speed, driver.Cornering, driver.Pace,
+                        configuration.AttributeSeconds, maximumPenalty, configuration.LapVariation / 2, configuration.RaceFormVariation / 2));
+                }
+            else
+            {
+                _ = AggregateLapTime(driver, minimumPenalty, -configuration.LapVariation / 2, -configuration.RaceFormVariation / 2);
+                _ = AggregateLapTime(driver, maximumPenalty, configuration.LapVariation / 2, configuration.RaceFormVariation / 2);
+            }
+        }
+    }
+
+    private double Wear(Car car) => Wear(car.Driver, car.Compound, car.Pace);
+    private double Wear(Driver driver, TyreCompound tyreCompound, PaceInstruction pace)
+    {
+        var compound = tyreCompound switch { TyreCompound.Soft => Tyres.SoftWear,
             TyreCompound.Hard => Tyres.HardWear, _ => 1 };
-        var instruction = car.Pace switch { PaceInstruction.Push => Tyres.PushWear,
+        var instruction = pace switch { PaceInstruction.Push => Tyres.PushWear,
             PaceInstruction.Conserve => Tyres.ConserveWear, _ => 1 };
+        var preservation = 1 + (driver.TyrePreservation + driver.TyreManagement) * .05;
+        if (!double.IsFinite(preservation)) throw new ArgumentException("Derived tyre preservation must be finite.");
         var wear = Tyres.DegradationPerLap * compound * instruction
-            / Math.Max(.1, 1 + (car.Driver.TyrePreservation + car.Driver.TyreManagement) * .05);
+            / Math.Max(.1, preservation);
         if (!double.IsFinite(wear)) throw new ArgumentException("Derived tyre wear must be finite.");
         return wear;
     }
@@ -644,17 +695,18 @@ public sealed class RaceEngine
             SegmentId: Segments?[car.SegmentIndex].Id, DistanceMetres: Segments is null ? null : Distance(car), EncounterId: encounter));
     }
 
-    private double TyrePenalty(Car car)
+    private double TyrePenalty(Car car) => TyrePenalty(car.Compound, car.Pace, car.TyreAge, car.Condition);
+    private double TyrePenalty(TyreCompound tyreCompound, PaceInstruction pace, int tyreAge, double condition)
     {
-        var compound = car.Compound switch { TyreCompound.Soft => -Tyres.SoftGain,
+        var compound = tyreCompound switch { TyreCompound.Soft => -Tyres.SoftGain,
             TyreCompound.Hard => Tyres.HardLoss, _ => 0 };
-        var instruction = car.Pace switch { PaceInstruction.Push => -Tyres.PushGain,
+        var instruction = pace switch { PaceInstruction.Push => -Tyres.PushGain,
             PaceInstruction.Conserve => Tyres.ConserveLoss, _ => 0 };
-        var warmup = car.Compound switch { TyreCompound.Soft => Tyres.SoftWarmup,
+        var warmup = tyreCompound switch { TyreCompound.Soft => Tyres.SoftWarmup,
             TyreCompound.Hard => Tyres.HardWarmup, _ => 1 };
-        return compound + instruction + (car.TyreAge == 0 ? Tyres.WarmupPenalty * warmup : 0)
-            + Math.Pow(1 - car.Condition, 2) * Tyres.DegradationPenalty
-            + (car.Condition <= 0 ? Tyres.ExhaustionPenalty : 0);
+        return compound + instruction + (tyreAge == 0 ? Tyres.WarmupPenalty * warmup : 0)
+            + Math.Pow(1 - condition, 2) * Tyres.DegradationPenalty
+            + (condition <= 0 ? Tyres.ExhaustionPenalty : 0);
     }
 
     private double Progress(Car car) => car.FinishTime is not null || car.PitExit is not null ? 0

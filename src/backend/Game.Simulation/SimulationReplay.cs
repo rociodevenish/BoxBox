@@ -24,7 +24,8 @@ public static class SimulationReplay
     [
         new("race-form", config.RaceFormVariation, "seconds/lap full range", "uniform centred", "driver/race"),
         new("lap-variation", config.LapVariation, "seconds/lap full range", "uniform centred", "driver/lap; cached once"),
-        new("passing", config.PassingVariation, "threshold full range", "uniform around 0.5; zero fixes threshold 0.5", "attacker/defender/zone visit"),
+        new("passing", config.PassingVariation, "threshold full range", "uniform around 0.5; zero fixes threshold 0.5",
+            config.Track.Segments is null ? "attacker/opponent/lap" : "attacker/defender/zone visit"),
         new("pit-service", config.StopVariation, "seconds full range", "uniform centred", config.Track.Segments is null ? "driver/completed stop lap" : "driver/ordinal stop"),
         new("estimate-error", config.EstimateError, "condition plus/minus", "uniform centred; result clamped", "driver/Race Phase")
     ], DistanceUnit: config.Track.Segments is null ? "normalized laps; physical length unspecified" : "metres");
