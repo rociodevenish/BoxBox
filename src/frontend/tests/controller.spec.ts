@@ -30,7 +30,7 @@ test("rejection preserves both drafts and permits correction while acknowledgeme
     car.getByRole("button", { name: "Push", exact: true }),
   ).toBeDisabled();
   await page.getByRole("button", { name: "Reject submission" }).click();
-  await expect(page.getByRole("status")).toContainText("Submission rejected");
+  await expect(page.getByRole("alert")).toContainText("Submission rejected");
   await expect(
     car.getByRole("button", { name: "Push", exact: true }),
   ).toHaveAttribute("aria-pressed", "true");

@@ -4,7 +4,12 @@
     <h1 id="controller-title">Phase {{model().phase}} instructions</h1>
     <p>Review both cars before submitting your team plan.</p>
   </header>
-  <div role="status" aria-live="polite" class="state">
+  <div
+    [attr.role]="model().state === 'rejected' ? 'alert' : 'status'"
+    [attr.aria-live]="model().state === 'rejected' ? 'assertive' : 'polite'"
+    class="state"
+    [class.rejected]="model().state === 'rejected'"
+  >
     <strong
       >{{model().state.charAt(0).toUpperCase() +
       model().state.slice(1)}}</strong
@@ -116,7 +121,9 @@
     @for(car of model().cars; track car.id; let i = $index){
     <div class="confirmed">
       <h3>Car {{i + 1}} · {{car.name}}</h3>
-      @if(choices()[i]; as choice){<p>{{summary(choice)}}</p>}
+      @if(choices()[i]; as choice){
+      <p>{{summary(choice)}}</p>
+      }
     </div>
     }
     <div class="dialog-actions">
@@ -127,4 +134,3 @@
     </div>
   </dialog>
 </section>
-

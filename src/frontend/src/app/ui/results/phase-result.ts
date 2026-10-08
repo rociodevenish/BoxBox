@@ -13,6 +13,7 @@ export class PhaseResult {
   readonly result = input.required<PublicPhaseResult>();
   readonly failedContextUrl = signal<string | null>(null);
   title() {
+    if (this.result().state === "initial") return "Race ready";
     return this.result().state === "finished"
       ? "Race finished"
       : this.result().state === "resolving"

@@ -1,0 +1,22 @@
+{
+  "viewport": {
+    "width": 1920,
+    "height": 1080
+  },
+  "png": {
+    "width": 1920,
+    "height": 1080
+  },
+  "initialLastRow": {
+    "x": 25,
+    "y": 1019.296875,
+    "width": 758,
+    "height": 36.5
+  },
+  "controllerReview": {
+    "x": 410,
+    "y": 1025.484375,
+    "width": 240,
+    "height": 44
+  }
+}

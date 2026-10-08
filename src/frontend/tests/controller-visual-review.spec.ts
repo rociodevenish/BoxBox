@@ -46,7 +46,7 @@ for (const [width, height] of [
     });
     await page.getByRole("button", { name: "Submit both cars" }).click();
     await page.getByRole("button", { name: "Reject submission" }).click();
-    await page.getByRole("status").scrollIntoViewIfNeeded();
+    await page.getByRole("alert").scrollIntoViewIfNeeded();
     await page.screenshot({
       path: resolve(evidence, `controller-rejected-${width}x${height}.png`),
       fullPage: true,

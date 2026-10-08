@@ -1,6 +1,10 @@
-# Frontend fixture gallery
+# Angular visual foundation
 
-Angular 22.2.1 / Tailwind 4.3.3. Use Node 24.15+ (verified24.19.0); the repository machine's default Node 20 is too old. Dependency versions and `package-lock.json` are committed. From this directory:
+The production Angular workspace contains reusable UI and an independently runnable fixture gallery. It demonstrates presentation and interaction; it has no authoritative race session, network API, simulation dependency or 3D renderer.
+
+## Run and verify
+
+Use Node 24.15 or later within the pinned Angular 22 toolchain's supported Node range. On this host, prepend `C:/Users/sbdev/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin` to PATH. Versions are pinned in package.json and package-lock.json.
 
 ```powershell
 npm ci
@@ -10,34 +14,35 @@ npm run typecheck
 npm test
 ```
 
-The gallery runs at `http://127.0.0.1:4400/`; port 4400 is also the browser-test server. `npm start -- --port 4401` can run a separate review instance. Playwright automatically starts the test server when needed. Install the pinned browser with `npx playwright install chromium`, or reuse the approved local cache using `PLAYWRIGHT_BROWSERS_PATH=C:/Projects/F1Game/.tools/playwright`. Optional `PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH` selects an existing Chromium executable. The local implementation used the shared browser cache without another download.
+The gallery and Playwright test server use `http://127.0.0.1:4400/`. Run `npm start -- --port 4401` for an independent review instance. Browser tests start their own server when needed. Reuse the installed Chromium cache with `$env:PLAYWRIGHT_BROWSERS_PATH='C:/Projects/F1Game/.tools/playwright'`, or install the pinned browser with `npx playwright install chromium`. `PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH` optionally selects an existing compatible browser. Generated node_modules, .angular, dist, test-results and playwright-report directories are ignored.
 
-On this host, prepend `C:/Users/sbdev/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin` to PATH for Node 24. The npm command remains available from the installed npm distribution. Generated node_modules, dist, .angular, test-results and playwright-report directories are ignored.
+| Entry | Observable fixtures |
+| --- | --- |
+| `/` | Compact, expanded and TV cards; long names, unknown attributes and missing portrait; public Classification |
+| `/?view=public` | Dedicated 22-car shared display with time/lap gaps, announced pending stop and ongoing stop |
+| `/?view=controller` | Private two-car decisions, confirmation, submitted waiting, acknowledgement/lock, rejection recovery, loading/resolving and pending stop |
+| `/?view=results` | Initial race, resolving, quiet/crowded phase results, public overtake/pit feedback and finish |
 
-## Public UI boundary
+Gallery controls switch explicit local fixtures. They do not model server validation or infer legality. Ratings, prices, teams and narratives are illustrative. Fixture labels remain outside future live data contracts or are supplied through an optional gallery label.
 
-`DriverCard` accepts a `DriverCardViewModel` and compact/expanded/tv variant. Names, simple rating groups, detailed attributes, preferences, optional display price, portrait/crop and optional ownership are presentation inputs. Unknown ratings are explicit nulls. The model defines no conversion into simulation attributes. Fixtures are separate under `src/app/gallery`; changing an asset manifest or view model does not require redesigning a component.
+## Adopt the components
 
-Cards expose a labelled details button and a native modal details dialog. Clicking Close or pressing Escape returns focus to the initiating card. The read-only details dialog has one focusable control; its Tab handler keeps both directions on Close. If later features add interactive dialog content, extend this keyboard flow rather than blocking those controls. Failed/missing portraits use neutral initials and a written message while preserving full identity and details access.
+| Component | Input/output boundary |
+| --- | --- |
+| `DriverCard` | `DriverCardViewModel`, compact/expanded/tv variant. Null means unknown; ratings are presentation data with no engine conversion. |
+| `TimingTower` | `PublicClassification`, preserving supplied order and distinguishing time/lap/unavailable gaps from public stop status. |
+| `CompoundBadge` | Written Soft/Medium/Hard or unknown, with colour as a supplementary cue. |
+| `TwoCarController` | `PrivateControllerViewModel`; emits a `TeamPlan` snapshot only after both-car confirmation. Stable car order/identity within a phase; new phase initializes supplied choices, while acknowledgement/rejection retains the current draft. |
+| `PhaseResult` / `RaceEvent` | `PublicPhaseResult` and ordered `PublicRaceEvent` summaries. Filtering, chronology and authoritative lifecycle are supplied by the caller. |
 
-`design/tokens.css` remains the semantic source. `src/styles.css` maps semantic aliases into Tailwind's inline theme; responsive grids, padding and typography use utilities. Component CSS owns portrait layering, stripes, card anatomy and dialog treatments. Ownership and Driver role have separate tokens and labels.
+Native dialogs retain keyboard focus and return it to the initiating control on Escape/close. Driver details currently has one interactive control; extend its focus cycling if more controls are added. Controller rejection is an assertive recovery alert; normal waiting states are polite status messages. Pending stop and battle availability are supplied, not calculated in the component. The current battle boolean enables the full group or retains Neutral; an adapter needing separate Attack/Defend legality must extend this input to explicit allowed options before live integration. Public contracts have no tyre condition, private estimates, random draws or opponent decisions. Server filtering remains the browser milestone's responsibility.
 
-This gallery has no authoritative session, network API, simulation dependency or race renderer. Public/private screen fixtures are added by later tickets. No recovery-prototype acquisition/state model was copied.
+`design/tokens.css` is canonical. `src/styles.css` maps semantic aliases into Tailwind's inline theme and supplies shared focus treatment; component CSS owns stripes, portraits and complex graphics. Ownership, role, ratings and preferences remain distinct. See [the visual system](../../docs/visual-design-system.md) for rules and extension guidance.
 
-## Validation and visual review
+## Assets and verification
 
-`npm test` runs the agreed rendered gallery boundary through Playwright roles and labels. Behaviors cover details/focus return, real image 404 fallback, unknown ratings/long identity, keyboard Tab/Shift+Tab/Escape, phone touch, three viewport layouts and 44 px targets. `npm run capture` runs the three visual cases, saving representative screenshots and actual crop dimensions under `.scratch/visual-design-foundation/evidence`; capture generation alone is not acceptance.
+The portrait manifest under `public/portraits/` maps stable driver identity, source provenance, URL and crop. Only two supplied original PNGs are packaged (about 4.5 MB), separately from the JavaScript bundle. Missing/failed imagery preserves live identity, details and race information. Follow [asset adoption instructions](../../docs/visual-design-system.md#adding-supplied-assets) for driver, track or other imagery. Full roster assets and responsive image delivery are deferred; Angular's oversized-image warning remains visible. Bundle measurements exclude portraits and are not a claim about controller bandwidth.
 
-See [ticket02 review](../../.scratch/visual-design-foundation/evidence/driver-gallery-review.md) and [visual system](../../docs/visual-design-system.md). The built initial bundle is 148.18 KB raw / 43.78 KB estimated transfer in this revision. This excludes portraits: the two supplied original PNGs total about 4.5 MB and are intentionally preserved. Angular's development oversized-image warning remains visible; responsive asset delivery is a future optimization, not proof of controller bandwidth readiness. Full-roster images are not shipped.
+`npm test` exercises the user-approved rendered Angular boundary through visible roles, labels and interactions. Current integrated checks cover cards/details/focus, two-car choices and recovery, stop/battle availability, public result states, missing images, reduced motion, touch targets and representative layouts. `npm run capture` regenerates card captures; run individual `*-visual-review.spec.ts` files for tower/controller/results/integrated compositions. Captures are evidence only after inspection. Keep a small reviewed set; compare dimensions and review layout, rather than treating generation or pixel equality as acceptance.
 
-Integration follows Angular's [standalone bootstrap documentation](https://angular.dev/api/platform-browser/bootstrapApplication) and Tailwind's [Angular PostCSS guide](https://tailwindcss.com/docs/installation/framework-guides/angular). No SSR or 3D bundle is installed.
-
-## Public timing tower
-
-Open `http://127.0.0.1:4400/?view=public` for the dedicated public-display fixture, or the Classification section in the normal gallery. `TimingTower` accepts the explicit `PublicClassification` view model, preserving supplied row order and distinguishing Leader/time/laps/unavailable gaps. `CompoundBadge` is reusable by later decision controls. Stop pending means an already-announced public stop; it is a status, not an exposed private instruction, and it never replaces the time gap. Full names are visible, with no essential ellipsis. Phone layout folds public stop status below identity; tablet/display retain a separate column.
-
-Run `npx playwright test tests/tower-visual-review.spec.ts` to regenerate tower crops and the genuine 1920×1080 public viewport capture. [Ticket 03 review](../../.scratch/visual-design-foundation/evidence/timing-tower-review.md) records actual dimensions, inspected broadcast similarity and accessibility adaptations. The current built initial bundle is 165.04 KB raw / 47.44 KB estimated transfer, excluding portraits.
-
-The private controller is at `http://127.0.0.1:4400/?view=controller`. Review both cars, submit, then use the separate gallery fixture controls to acknowledge/lock or reject. Loading, resolving and pending-stop examples are also supplied by the gallery. The reusable component consumes `PrivateControllerViewModel` and emits a `TeamPlan` snapshot; it does not call an authoritative session API. A new phase initializes supplied choices; acknowledgement/rejection within a phase retains the draft. Portrait/landscape review and capture dimensions are in [the controller evidence](../../.scratch/visual-design-foundation/evidence/two-car-controller-review.md).
-
-Public outcomes are at `http://127.0.0.1:4400/?view=results`. Separate gallery controls select resolving, quiet/crowded phases and finish. `PhaseResult` consumes `PublicPhaseResult`; `RaceEvent` renders supplied ordered public summaries without simulation rules. Context image URLs are data-driven, with live information retained on failure. [Result review](../../.scratch/visual-design-foundation/evidence/phase-results-review.md) records genuine 1920×1080 composition and mobile/tablet captures.
+[Integrated review](../../.scratch/visual-design-foundation/evidence/integrated-review.md) is the current verification record and links prior inspected captures with actual dimensions. Earlier per-ticket bundle sizes and static `design-baseline/` compositions are historical evidence, not the adopted app or its current bundle. The static baseline established the charcoal/coral direction; it supplies neither production state nor race orchestration. Desktop Chromium review does not establish living-room TV readability, physical-device usability or a full accessibility audit.

@@ -93,7 +93,7 @@ button[aria-pressed="true"],
 button:disabled,
 fieldset:disabled button,
 select:disabled {
-  opacity: 0.55;
+  opacity: 1;
   cursor: not-allowed;
 }
 .explanation {
@@ -171,5 +171,23 @@ dialog::backdrop {
   }
   dialog .dialog-actions {
     margin-top: 12px;
+  }
+}
+.state.rejected strong {
+  color: var(--color-error);
+}
+
+@media (min-width: 1200px) {
+  header {
+    margin-bottom: 16px;
+  }
+  header h1 {
+    line-height: 1.2;
+  }
+  fieldset {
+    margin: 16px 0;
+  }
+  .car h2 {
+    line-height: 1.2;
   }
 }

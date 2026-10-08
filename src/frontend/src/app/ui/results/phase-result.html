@@ -7,17 +7,19 @@
       <h1>{{title()}}</h1>
     </div>
     <p role="status">
-      @switch(result().state){@case('resolving'){Resolution in progress. Showing
-      the last published Classification.}@case('finished'){Chequered flag · No
+      @switch(result().state){@case('initial'){Grid order · Waiting for first
+      decision phase.}@case('resolving'){Resolution in progress. Showing the
+      last published Classification.}@case('finished'){Chequered flag · No
       further decision phases.}@default{Phase complete · Race continues.}}
     </p>
   </header>
   <div class="result-layout">
     <section class="classification" aria-labelledby="result-classification">
       <h2 id="result-classification">
-        {{result().state === 'finished' ? 'Final Classification' :
-        result().state === 'resolving' ? 'Last published Classification' :
-        'Phase Classification'}}
+        {{result().state === 'initial' ? 'Initial Classification' :
+        result().state === 'finished' ? 'Final Classification' : result().state
+        === 'resolving' ? 'Last published Classification' : 'Phase
+        Classification'}}
       </h2>
       <app-timing-tower [classification]="result().classification" />
     </section>
@@ -33,8 +35,8 @@
         }
         <div>
           <p class="eyebrow">
-            {{result().state === 'finished' ? 'Race winner' : 'Phase
-            spotlight'}}
+            {{result().state === 'initial' ? 'Race briefing' : result().state
+            === 'finished' ? 'Race winner' : 'Phase spotlight'}}
           </p>
           <h2>{{result().context.name}}</h2>
           <p>{{result().context.description}}</p>
@@ -42,7 +44,9 @@
       </section>
       <section class="events" aria-labelledby="events-title">
         <h2 id="events-title">Public phase events</h2>
-        @if(result().state === 'resolving'){
+        @if(result().state === 'initial'){
+        <p>No phase events published yet.</p>
+        }@else if(result().state === 'resolving'){
         <p>Waiting for published phase events.</p>
         }@else if(result().events.length === 0){
         <p>No overtakes or pit events reported this phase.</p>

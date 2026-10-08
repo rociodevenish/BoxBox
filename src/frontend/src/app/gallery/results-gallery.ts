@@ -82,6 +82,7 @@ const phase: PublicPhaseResult = {
     />
     <nav aria-label="Result fixture controls">
       <a href="/">Back to gallery</a
+      ><button (click)="show('initial')">Show initial race</button
       ><button (click)="show('resolving')">Show resolving</button
       ><button (click)="show('quiet')">Show quiet phase</button
       ><button (click)="show('crowded')">Show crowded phase</button
@@ -108,8 +109,30 @@ const phase: PublicPhaseResult = {
 })
 export class ResultsGallery {
   readonly result = signal(phase);
-  show(state: "resolving" | "quiet" | "crowded" | "phase" | "finished") {
-    if (state === "finished") {
+  show(
+    state: "initial" | "resolving" | "quiet" | "crowded" | "phase" | "finished",
+  ) {
+    if (state === "initial") {
+      this.result.set({
+        state: "initial",
+        classification: {
+          ...classification,
+          phase: 0,
+          leaderLap: 0,
+          rows: classification.rows.map((row) => ({
+            ...row,
+            gap: { kind: "unavailable" },
+          })),
+        },
+        events: [],
+        context: {
+          name: "Dry race laboratory",
+          description:
+            "22 cars on the grid. Initial order is a public fixture; the race has not started.",
+          imageUrl: null,
+        },
+      });
+    } else if (state === "finished") {
       this.result.set({
         state: "finished",
         classification: { ...classification, phase: 8, leaderLap: 40 },
