@@ -1,5 +1,12 @@
 <main>
 @if(error()){<p role="alert">{{error()}}</p>}
+@if(mode!=='new'){
+ <p role="status">Connection: {{connectionState()}}</p>
+ @if(acknowledged()&&team()?.lifecycle==='awaiting-decisions'){<p>Server confirmed your plan. Current observations are unavailable until reconnect.</p>}
+ @if(connectionState()==='disconnected'){<button (click)="connect()">Reconnect</button>}
+ @if(connectionState()==='unavailable'){<a href="/race/new">Create a fresh session</a>}
+ @if(pending()){<p>Confirmation pending. Both choices are retained until the server confirms or rejects this plan.</p><button [disabled]="!canRetry()" (click)="submit()">Retry pending submission</button>}
+}
 @if(mode==='new'){
  <h1>Local dry race</h1><p>Designer setup · one authoritative phase</p>
  <form (submit)="$event.preventDefault();create(preset.value,laps.value,seed.value)">

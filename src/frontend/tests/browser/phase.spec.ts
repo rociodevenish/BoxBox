@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { mkdirSync } from 'node:fs';
-const evidence='../../.scratch/browser-dry-race/evidence';
+const evidence='../../.tools/reports/browser-race';
 test('real display and capability controller resolve exactly one phase', async ({page,context})=>{
  await page.goto('/race/new');
  await page.getByRole('button',{name:'Create race'}).click();

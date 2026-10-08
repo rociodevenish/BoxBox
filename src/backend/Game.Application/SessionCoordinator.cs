@@ -17,12 +17,15 @@ public sealed class SessionCoordinator(ISessionNotifications notifications)
         public IReadOnlyDictionary<string, DriverDecision> FrozenOpponents { get; set; } = new Dictionary<string, DriverDecision>();
         public List<IReadOnlyDictionary<string, DriverDecision>> AcceptedPlans { get; } = [];
         public string ScriptVersion { get; } = OpponentScript.Version;
+        public Dictionary<Guid, (string Fingerprint, SubmissionAck Ack)> AcceptedCommands { get; } = [];
+        public TeamCommand? ConfirmedPlan { get; set; }
         public int Phase { get; set; }
         public long Revision { get; set; } = 1;
         public string Lifecycle { get; set; } = "awaiting-decisions";
         public IReadOnlyList<PublicEvent> Events { get; set; } = [];
     }
     private readonly object gate = new();
+    private readonly SemaphoreSlim mutations = new(1, 1);
     private Session? active;
     public SessionCreated Create(CreateSessionInput input)
     {
@@ -41,7 +44,9 @@ public sealed class SessionCoordinator(ISessionNotifications notifications)
         var session = new Session(id, player, device, SHA256.HashData(System.Text.Encoding.UTF8.GetBytes(capability)),
             configuration, LaboratoryFixtures.SegmentedField(variant.Mixed), input.Seed.Value);
         session.FrozenOpponents = OpponentScript.Freeze(session.Engine, session.Drivers.Select(driver => driver.Team).Distinct(), configuration.Laps);
-        lock (gate) active = session;
+        mutations.Wait();
+        try { lock (gate) active = session; }
+        finally { mutations.Release(); }
         return new(id, $"/race/display/{id}", $"/race/controller/{id}#capability={capability}",
             player, "team-01", device, capability);
     }
@@ -89,18 +94,31 @@ public sealed class SessionCoordinator(ISessionNotifications notifications)
             tyre.Age, tyre.EstimatedCondition, tyre.InPits, tyre.StopQueued,
             Array.AsReadOnly(observation.BattleOptions[tyre.DriverId].Select(option => option.ToString()).ToArray()))).ToArray();
         return new(session.Id, session.Phase, session.Revision, session.Lifecycle, session.Player, "team-01",
-            session.Device, Array.AsReadOnly(own));
-    }    public async Task<SubmissionAck> Submit(string id, string? capability, TeamCommand command)
+            session.Device, Array.AsReadOnly(own), session.ConfirmedPlan);
+    }
+    public async Task<SubmissionAck> Submit(string id, string? capability, TeamCommand? command)
+    {
+        await mutations.WaitAsync();
+        try { return await SubmitSerially(id, capability, command); }
+        finally { mutations.Release(); }
+    }
+    private async Task<SubmissionAck> SubmitSerially(string id, string? capability, TeamCommand? command)
     {
         Session session; Dictionary<string, DriverDecision> complete; PublicSnapshot resolving; TeamSnapshot teamResolving;
+        Guid commandId; string fingerprint;
         lock (gate)
         {
             session = Authorise(id, capability);
-            if (session.Lifecycle != "awaiting-decisions" || command.Phase != session.Phase || command.Revision != session.Revision)
-                throw new SessionFault(SessionFailure.Conflict, "This decision window is not editable. Refresh the current phase.");
-            if (!Guid.TryParse(command.CommandId, out _) || command.Cars is null || command.Cars.Count != 2
+            if (command is null || !Guid.TryParse(command.CommandId, out commandId) || command.Cars is null || command.Cars.Count != 2
                 || !command.Cars.Select(car => car?.DriverId).Order().SequenceEqual(new[] { "driver-01", "driver-02" }))
                 throw new SessionFault(SessionFailure.InvalidInput, "Submit exactly both owned cars with a command identity.");
+            command = command with { Cars = Array.AsReadOnly(command.Cars.OrderBy(car => car.DriverId).ToArray()) };
+            fingerprint = System.Text.Json.JsonSerializer.Serialize(command with { CommandId = commandId.ToString() });
+            if (session.AcceptedCommands.TryGetValue(commandId, out var accepted))
+                return accepted.Fingerprint == fingerprint ? accepted.Ack
+                    : throw new SessionFault(SessionFailure.Conflict, "This command identity was already accepted with different choices.");
+            if (session.Lifecycle != "awaiting-decisions" || command.Phase != session.Phase || command.Revision != session.Revision)
+                throw new SessionFault(SessionFailure.Conflict, "This decision window is not editable. Refresh the current phase.");
             var observation = session.Engine.GetTeamObservation("team-01");
             complete = session.FrozenOpponents.ToDictionary();
             foreach (var car in command.Cars)
@@ -115,10 +133,11 @@ public sealed class SessionCoordinator(ISessionNotifications notifications)
                     throw new SessionFault(SessionFailure.InvalidInput, "A battle or pit instruction is unavailable. Review both cars.");
                 complete.Add(car.DriverId, new(pace, car.Pit == "Pit" ? Enum.Parse<TyreCompound>(car.Compound!) : null, battle));
             }
+            session.ConfirmedPlan = command;
             session.Lifecycle = "resolving"; session.Revision++;
             resolving = Project(session); teamResolving = ProjectTeam(session);
         }
-        await notifications.Publish(resolving, teamResolving);
+        await PublishSafely(resolving, teamResolving);
         PublicSnapshot resolved; TeamSnapshot teamResolved;
         lock (gate)
         {
@@ -132,8 +151,16 @@ public sealed class SessionCoordinator(ISessionNotifications notifications)
             session.Lifecycle = result.Finished ? "finished" : "phase-result"; session.Revision++;
             resolved = Project(session); teamResolved = ProjectTeam(session);
         }
-        await notifications.Publish(resolved, teamResolved);
-        return new(command.CommandId, session.Id, session.Phase, resolved.Revision, resolved.Lifecycle);
+        var acknowledgement = new SubmissionAck(command.CommandId, session.Id, session.Phase, resolved.Revision, resolved.Lifecycle);
+        lock (gate) session.AcceptedCommands.Add(commandId, (fingerprint, acknowledgement));
+        await PublishSafely(resolved, teamResolved);
+        return acknowledgement;
+    }
+    private async Task PublishSafely(PublicSnapshot display, TeamSnapshot team)
+    {
+        // Delivery is advisory: current snapshots and recorded acknowledgements are authoritative.
+        try { await notifications.Publish(display, team); }
+        catch (Exception) { }
     }
     private static bool TryChoice<T>(string? text, out T value) where T : struct, Enum => Enum.TryParse(text, out value)
         && Enum.IsDefined(value) && value.ToString() == text;}
