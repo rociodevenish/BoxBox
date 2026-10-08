@@ -1,0 +1,41 @@
+:root {
+  color-scheme: dark;
+  --color-canvas: #101214;
+  --color-surface: #17191b;
+  --color-raised: #24282c;
+  --color-ink: #f5f6f7;
+  --color-muted: #b5bdc4;
+  --color-border: #69747d;
+  --color-driver: #ff5954;
+  --color-stripe-secondary: #596065;
+  --color-team: #73ddd2;
+  --color-focus: #a4d8ff;
+  --color-success: #a4e6b4;
+  --color-warning: #f5d978;
+  --color-error: #ffb7b4;
+  --font-body: Arial, Helvetica, sans-serif;
+  --font-display: Impact, 'Arial Narrow', sans-serif;
+  --text-supporting: 13px;
+  --text-body: 16px;
+  --text-heading: 22px;
+  --text-display: 38px;
+  --text-display-tv: 48px;
+  --weight-body: 400;
+  --weight-emphasis: 700;
+  --line-body: 1.5;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --radius-control: 6px;
+  --radius-panel: 12px;
+  --shadow-panel: 0 12px 32px #0004;
+  --motion-feedback: 120ms;
+}
+/* Ticket02 maps these names into Tailwind; distinctive graphics remain CSS. */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+}
+

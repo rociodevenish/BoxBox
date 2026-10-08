@@ -1,0 +1,67 @@
+[
+  {
+    "file": "baseline-1920.png",
+    "width": 1920,
+    "height": 2084
+  },
+  {
+    "file": "baseline-360.png",
+    "width": 360,
+    "height": 5196
+  },
+  {
+    "file": "baseline-768.png",
+    "width": 768,
+    "height": 3870
+  },
+  {
+    "file": "cards-1920.png",
+    "width": 1696,
+    "height": 634
+  },
+  {
+    "file": "cards-360.png",
+    "width": 328,
+    "height": 1855
+  },
+  {
+    "file": "cards-768.png",
+    "width": 720,
+    "height": 1214
+  },
+  {
+    "file": "controller-1920.png",
+    "width": 1262,
+    "height": 1061
+  },
+  {
+    "file": "controller-360.png",
+    "width": 328,
+    "height": 1716
+  },
+  {
+    "file": "controller-768.png",
+    "width": 720,
+    "height": 1034
+  },
+  {
+    "file": "shared-display-1920x1080.png",
+    "width": 1920,
+    "height": 1080
+  },
+  {
+    "file": "tower-1920.png",
+    "width": 410,
+    "height": 1061
+  },
+  {
+    "file": "tower-360.png",
+    "width": 328,
+    "height": 1053
+  },
+  {
+    "file": "tower-768.png",
+    "width": 720,
+    "height": 1153
+  }
+]

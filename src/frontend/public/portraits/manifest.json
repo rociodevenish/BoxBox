@@ -1,0 +1,8 @@
+{
+  "provenance": "User-supplied shared repository assets, inspected 2026-10-08. Original creator and redistribution licence not supplied. Local design fixtures only.",
+  "portraits": [
+    { "driverId": "max-verstappen", "name": "Max Verstappen", "source": "assets/driver images/max-verstappen.png", "url": "portraits/max-verstappen.png", "objectPosition": "center 22%" },
+    { "driverId": "lewis-hamilton", "name": "Lewis Hamilton", "source": "assets/driver images/lewis-hamilton.png", "url": "portraits/lewis-hamilton.png", "objectPosition": "center 22%" }
+  ],
+  "fallback": "Identity initials on charcoal with the same role stripes; always preserve the live full name."
+}
