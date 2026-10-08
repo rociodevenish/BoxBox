@@ -45,7 +45,7 @@ Keep dry-race mechanics and scripted opponents unchanged. Deadlines, durable rec
 28. As a host, I want to revoke an unwanted controller assignment, so that private access can be removed.
 29. As a player, I want controller refresh to retrieve the active session, so that ordinary browser reloads do not lose my team.
 30. As a viewer, I want a phase presentation followed by exact race state, so that shared play uses the same race truth as single-team play.
-31. As a host, I want a controlled continue action after presentation, so that a disconnected TV cannot stall the race.
+31. As a host, I want the next decision window to open automatically after resolution unless paused, so that there is no extra continuation step and a disconnected TV cannot stall the race.
 32. As a playtester, I want private, shared-tablet and open-family scenarios documented, so that the first multiplayer playtest covers the intended audience.
 
 ## Implementation Decisions
@@ -64,7 +64,7 @@ Keep dry-race mechanics and scripted opponents unchanged. Deadlines, durable rec
 - Preserve atomic two-driver lock commands with command identity and expected Race Phase/revision. Serialize session transitions. The first valid lock for a team is final for that phase; another authorised device can see the accepted state but cannot replace it. Rejected commands do not change any driver or team lock.
 - Freeze scripted choices from their phase-start observations before any human lock. Resolve only when every required human team has locked and all scripted decisions are present. Publish per-team readiness without exposing private selections; membership or revocation must not silently change an active phase's required set.
 - This spec introduces no decision timer or unattended progress. If a player is absent, the phase waits. The host can pause or resume a decision window but cannot force arbitrary hidden choices for an absent private team. The following spec supplies explicit fallback and takeover rules.
-- Replace the single-team continue action with an authorised host continue after the bounded phase presentation. The display can replay or skip locally without advancing race state. Host action opens the next window exactly once; host pause prevents the next opening and cannot cancel a committed resolution.
+- Following the user decision on 9 October 2026, the final required team lock resolves the Race Phase and automatically opens the next decision window exactly once unless the host has paused progression. No separate per-phase Continue action is required. The display can finish, replay or skip its bounded feedback independently while controllers prepare the next choices. Host pause prevents the next opening and cannot cancel committed resolution; an authorised resume opens a paused window once.
 - Provide current snapshots for refresh and resubscription within the server lifetime. Include membership, assignment, readiness and lifecycle revisions. Full server-restart recovery remains outside this spec; do not advertise durability yet.
 - Preserve the Broadcast design system and F1-style timing tower. Extend it with lobby, joining, team ownership, readiness, handoff, privacy-mode and host-control states. Maintain phone/tablet/TV readability and accessible labels.
 - Deliver local multi-device setup using authentication emulators, a representative household playtest and findings about handoff time, two-car management, privacy understanding and joining friction. The cloud deployment comes with continuity.
@@ -77,7 +77,7 @@ Keep dry-race mechanics and scripted opponents unchanged. Deadlines, durable rec
 - Lock teams in different orders and concurrently; assert no resolution before the complete required set and exactly one phase outcome afterwards. Repeated locks, stale revisions and conflicting submissions do not replace accepted decisions.
 - Exercise public, private and open-family wire payloads. Readiness must not reveal private choices, and open access must not expose hidden engine condition or another team's private data. Revoked devices receive no further private updates and cannot submit.
 - Use browser tests for two private controllers, several participants sharing a tablet, open TV control and Mixed mode. Check that handoff hides previous private state and requires Ready before revealing the next team, including refresh and late messages.
-- Verify host pause/continue, spectator restrictions, missing-player waiting and refresh within server lifetime. Do not claim durable restart support from these tests.
+- Verify automatic progression, host pause/resume, spectator restrictions, missing-player waiting and refresh within server lifetime. Do not claim durable restart support from these tests.
 - Build/type-check the frontend, run relevant server/simulation regression tests and document actual multi-device visual/privacy playtest results. Avoid testing internal group-name strings or reproducing authorisation implementation in tests.
 
 ## Out of Scope
