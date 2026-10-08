@@ -1,0 +1,44 @@
+@import "tailwindcss";
+@import "../design/tokens.css";
+@theme inline {
+  --color-page: var(--color-canvas);
+  --color-panel: var(--color-surface);
+  --color-lifted: var(--color-raised);
+  --color-primarytext: var(--color-ink);
+  --color-secondarytext: var(--color-muted);
+  --color-role: var(--color-driver);
+  --color-outline: var(--color-border);
+  --font-sans: var(--font-body);
+  --font-broadcast: var(--font-display);
+  --radius-card: var(--radius-panel);
+}
+body {
+  margin: 0;
+  background: var(--color-canvas);
+  color: var(--color-ink);
+  font: var(--text-body) / var(--line-body) var(--font-body);
+}
+button {
+  min-width: 44px;
+  min-height: 44px;
+  cursor: pointer;
+}
+button:focus-visible,
+a:focus-visible {
+  outline: 3px solid var(--color-focus);
+  outline-offset: 4px;
+}
+
+a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 8px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-control);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+section {
+  scroll-margin-top: 24px;
+}

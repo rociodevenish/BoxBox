@@ -1,0 +1,112 @@
+<article
+  class="driver-card"
+  [class.tv]="variant()==='tv'"
+  [attr.aria-label]="fullName(driver())+' — '+variant()+' driver card'"
+  [style.--team-accent]="driver().ownership?.accent"
+>
+  <div class="portrait">
+    @if(driver().portrait; as
+    portrait){@if(failedPortrait()!==portrait.url){<img
+      [src]="portrait.url"
+      [alt]="fullName(driver())+' portrait'"
+      [style.object-position]="portrait.position ?? 'center 22%'"
+      (error)="failedPortrait.set(portrait.url)"
+    />}@else{
+    <div class="portrait-fallback">
+      <span aria-hidden="true"
+        >{{driver().firstName.charAt(0)}}{{driver().surname.charAt(0)}}</span
+      >
+    </div>
+    }}@else{
+    <div class="portrait-fallback">
+      <span aria-hidden="true"
+        >{{driver().firstName.charAt(0)}}{{driver().surname.charAt(0)}}</span
+      >
+    </div>
+    } @if(driver().ownership; as owner){<span class="ownership"
+      >Owned by {{owner.name}}</span
+    >} @if(driver().priceLabel){<span class="price"
+      >{{driver().priceLabel}}</span
+    >}
+    <div class="identity">
+      <span class="first-name">{{driver().firstName}}</span>
+      <h2>{{driver().surname}}</h2>
+      <span class="role">Driver</span>
+    </div>
+  </div>
+  <div class="card-body">
+    @if(!driver().portrait || failedPortrait()===driver().portrait?.url){
+    <p class="fallback-message">Portrait unavailable</p>
+    }
+    <dl class="attributes">
+      @for(group of groups;track group){
+      <div class="attribute">
+        <dt>{{group}}</dt>
+        <dd>
+          {{driver().attributes[group]===null?'Unknown':driver().attributes[group]+'
+          / 5'}}
+        </dd>
+      </div>
+      }
+    </dl>
+    <div class="preferences" aria-label="Preferences">
+      @for(preference of driver().preferences;track preference){<span
+        class="tag"
+        >Prefers: {{preference}}</span
+      >}
+    </div>
+    @if(variant()==='expanded'){
+    <div class="expanded">
+      <h3>Detailed attributes</h3>
+      <dl class="attributes">
+        @for(detail of driver().details;track detail.label){
+        <div class="attribute">
+          <dt>{{detail.label}}</dt>
+          <dd>{{detail.rating===null?'Unknown':detail.rating+' / 5'}}</dd>
+        </div>
+        }
+      </dl>
+    </div>
+    }
+    <button
+      class="details-button"
+      (click)="openDetails()"
+      [attr.aria-label]="'View details for '+fullName(driver())"
+    >
+      View driver details <span aria-hidden="true">↗</span>
+    </button>
+  </div>
+</article>
+<!-- This read-only details dialog has one focusable control. Keep Tab on Close instead of browser chrome. -->
+<dialog
+  #details
+  (keydown)="keepDetailsFocus($event)"
+  [attr.aria-label]="fullName(driver())+' — driver details'"
+>
+  <div class="dialog-heading">
+    <div>
+      <p class="role">Driver details</p>
+      <h2>{{fullName(driver())}}</h2>
+    </div>
+    <button
+      class="close-button"
+      aria-label="Close driver details"
+      (click)="closeDetails()"
+    >
+      Close <span aria-hidden="true">×</span>
+    </button>
+  </div>
+  <dl class="attributes">
+    @for(detail of driver().details;track detail.label){
+    <div class="attribute">
+      <dt>{{detail.label}}</dt>
+      <dd>{{detail.rating===null?'Unknown':detail.rating+' / 5'}}</dd>
+    </div>
+    }
+  </dl>
+  <div class="preferences" aria-label="Preferences">
+    @for(preference of driver().preferences;track preference){<span class="tag"
+      >Prefers: {{preference}}</span
+    >}
+  </div>
+</dialog>

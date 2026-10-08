@@ -1,0 +1,46 @@
+<main class="mx-auto max-w-7xl p-4 md:p-8">
+  <header class="mb-8 border-b border-outline pb-6">
+    <p class="text-role font-bold uppercase tracking-widest text-sm">
+      Grid / Broadcast
+    </p>
+    <h1 class="font-broadcast italic text-4xl md:text-5xl uppercase">
+      Driver gallery
+    </h1>
+    <p class="text-secondarytext mt-3">
+      Illustrative cards, ratings, prices and ownership. No simulation
+      conversion.
+    </p>
+    <nav aria-label="Gallery sections" class="flex flex-wrap gap-3 mt-4">
+      <a href="#compact">Compact cards</a
+      ><a href="#expanded">Expanded details</a><a href="#tv">TV treatment</a>
+    </nav>
+  </header>
+  <section id="compact" aria-labelledby="compact-title">
+    <h2 id="compact-title" class="text-2xl font-bold mb-4">Compact cards</h2>
+    <div class="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+      <app-driver-card [driver]="max" />
+      <app-driver-card [driver]="lewis" />
+      <app-driver-card [driver]="unknown" />
+    </div>
+  </section>
+  <section id="expanded" aria-labelledby="expanded-title" class="mt-8">
+    <h2 id="expanded-title" class="text-2xl font-bold mb-2">
+      Expanded details
+    </h2>
+    <p class="text-secondarytext mb-4">
+      Detailed ratings demonstrate the card vocabulary. They do not imply
+      current engine support.
+    </p>
+    <div class="max-w-sm">
+      <app-driver-card [driver]="lewis" variant="expanded" />
+    </div>
+  </section>
+  <section id="tv" aria-labelledby="tv-title" class="mt-8">
+    <h2 id="tv-title" class="text-2xl font-bold mb-4">TV treatment</h2>
+    <app-driver-card [driver]="max" variant="tv" />
+  </section>
+  <footer class="text-secondarytext text-sm border-t border-outline mt-8 py-6">
+    Local fixture gallery. Public/private race screens follow in later tickets.
+    No authoritative race state, hidden randomness or 3D renderer is loaded.
+  </footer>
+</main>
