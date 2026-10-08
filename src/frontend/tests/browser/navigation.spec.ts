@@ -4,8 +4,8 @@ test('controller submits when UUID secure-context convenience API is unavailable
   await page.addInitScript(()=>Object.defineProperty(crypto,'randomUUID',{value:undefined}));
   await page.goto('/race/new');await page.getByRole('button',{name:'Create race'}).click();
   const link=await page.getByRole('link',{name:'Open controller'}).getAttribute('href');await page.goto(link!);
-  await page.getByRole('button',{name:'Review team plan'}).click();await page.getByRole('button',{name:'Submit both cars'}).click();
-  await expect(page.getByText('Phase complete',{exact:true})).toBeVisible();
+  await page.getByRole('button',{name:'Review team plan'}).click();await page.getByRole('button',{name:'Run phase with both cars'}).click();
+  await expect(page.getByRole('heading',{name:'Phase 2 instructions'})).toBeVisible();
 });
 test('retained controller access allows return from public display without granting fresh viewers private access', async ({ page, browser }) => {
   mkdirSync('../../.tools/reports/browser-race/review-05',{recursive:true});

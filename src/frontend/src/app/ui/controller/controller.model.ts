@@ -32,6 +32,7 @@ export interface PrivateControllerViewModel {
   readonly state: ControllerState;
   readonly message: string;
   readonly confirmedRevision?: number;
+  readonly submitLabel?: string;
 }
 export interface TeamPlan {
   readonly phase: number;

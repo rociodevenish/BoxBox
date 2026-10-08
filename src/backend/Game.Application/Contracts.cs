@@ -11,7 +11,7 @@ public record PublicEvent(string Id, string Kind, double Time, int Lap, string D
 public record PublicSnapshot(string SessionId, int Phase, long Revision, string Lifecycle,
     int LeaderLap, int TotalLaps, double RaceTime, IReadOnlyList<PublicCar> Classification,
     IReadOnlyList<PublicEvent> Events, PublicPresentation? Presentation = null);
-public record PublicPresentation(string Cursor, int TotalEvents, int Overtakes, int PitEntries,
+public record PublicPresentation(string Cursor, int ResolvedPhase, int TotalEvents, int Overtakes, int PitEntries,
     int PitExits, int TyreChanges, int OmittedEvents, string Summary);
 public record PrivateCar(string DriverId, string Compound, int TyreAge, double EstimatedTyreCondition,
     bool InPits, bool StopQueued, IReadOnlyList<string> BattleOptions);
@@ -20,7 +20,6 @@ public record TeamSnapshot(string SessionId, int Phase, long Revision, string Li
 public record CarCommand(string DriverId, string Pace, string Pit, string? Compound, string Battle);
 public record TeamCommand(string CommandId, int? Phase, long? Revision, IReadOnlyList<CarCommand> Cars);
 public record SubmissionAck(string CommandId, string SessionId, int Phase, long Revision, string Lifecycle);
-public record ContinueCommand(string CommandId, int? Phase, long? Revision);
 public enum SessionFailure { InvalidInput, Forbidden, Unavailable, Conflict }
 public sealed class SessionFault(SessionFailure failure, string message) : Exception(message)
 { public SessionFailure Failure { get; } = failure; }

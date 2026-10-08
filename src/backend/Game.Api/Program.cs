@@ -6,6 +6,7 @@ using System.Security.Cryptography;
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddSignalR();
 builder.Services.AddSingleton<ISessionNotifications, SessionNotifications>();
+builder.Services.AddSingleton<IRacePresets,DryRacePresets>();
 builder.Services.AddSingleton<SessionCoordinator>();
 builder.Services.ConfigureHttpJsonOptions(options => options.SerializerOptions.Converters.Add(new JsonStringEnumConverter()));
 var app = builder.Build();
@@ -23,7 +24,6 @@ app.MapPost("/api/sessions", (CreateSessionInput input, SessionCoordinator sessi
 app.MapGet("/api/sessions/{id}", (string id, SessionCoordinator sessions) => sessions.Public(id));
 app.MapGet("/api/sessions/{id}/team", (string id, HttpRequest request, SessionCoordinator sessions) => sessions.Team(id, Capability(request)));
 app.MapPost("/api/sessions/{id}/plans", (string id, TeamCommand command, HttpRequest request, SessionCoordinator sessions) => sessions.Submit(id, Capability(request), command));
-app.MapPost("/api/sessions/{id}/continue", (string id, ContinueCommand command, HttpRequest request, SessionCoordinator sessions) => sessions.Continue(id, Capability(request), command));
 app.MapPost("/api/sessions/{id}/restart", (string id, HttpRequest request, SessionCoordinator sessions) => sessions.Restart(id, Capability(request)));
 app.MapPost("/api/sessions/{id}/presentation-timing", (string id, PresentationTimingInput input, SessionCoordinator sessions) =>
     Results.Ok(new { recorded = sessions.RecordPresentationTiming(id, input) }));

@@ -7,7 +7,7 @@ namespace Game.Api.Tests;
 public sealed class CompleteRaceTests
 {
     [Fact]
-    public async Task Authorised_continue_opens_one_new_window_without_advancing_time_and_a_short_race_finishes()
+    public async Task Accepted_plan_opens_one_new_window_and_a_short_race_finishes()
     {
         await using var server = new WebApplicationFactory<Program>();
         using var client = server.CreateClient();
@@ -19,12 +19,6 @@ public sealed class CompleteRaceTests
         (await client.PostAsJsonAsync(route + "/plans", first)).EnsureSuccessStatusCode();
         var result = await client.GetFromJsonAsync<JsonElement>(route);
         var time = result.GetProperty("raceTime").GetDouble();
-        var next = new { commandId = Guid.NewGuid().ToString(), phase = 0, revision = result.GetProperty("revision").GetInt64() };
-        var continued = await client.PostAsJsonAsync(route + "/continue", next);
-        continued.EnsureSuccessStatusCode();
-        var ack = await continued.Content.ReadFromJsonAsync<JsonElement>();
-        var duplicate = await (await client.PostAsJsonAsync(route + "/continue", next)).Content.ReadFromJsonAsync<JsonElement>();
-        Assert.Equal(ack.GetRawText(), duplicate.GetRawText());
         var open = await client.GetFromJsonAsync<JsonElement>(route);
         Assert.Equal(1, open.GetProperty("phase").GetInt32());
         Assert.Equal("awaiting-decisions", open.GetProperty("lifecycle").GetString());
@@ -39,7 +33,7 @@ public sealed class CompleteRaceTests
         Assert.False(rows.Single(row => row.GetProperty("driverId").GetString() == "driver-01").GetProperty("eligibleAtFinish").GetBoolean());
         Assert.True(rows.Single(row => row.GetProperty("driverId").GetString() == "driver-02").GetProperty("eligibleAtFinish").GetBoolean());
         Assert.All(rows, row => Assert.InRange(row.GetProperty("completedLaps").GetInt32(), 1, 6));
-        Assert.Equal(HttpStatusCode.Conflict, (await client.PostAsJsonAsync(route + "/continue", new { commandId = Guid.NewGuid().ToString(), phase = 1, revision = finish.GetProperty("revision").GetInt64() })).StatusCode);
+        Assert.Equal(HttpStatusCode.Conflict, (await client.PostAsJsonAsync(route + "/plans", new { commandId = Guid.NewGuid().ToString(), phase = 1, revision = finish.GetProperty("revision").GetInt64(), cars = Cars(false) })).StatusCode);
     }
     private static object[] Cars(bool stop) => [
         new { driverId = "driver-01", pace = "Standard", pit = "Stay Out", compound = (string?)null, battle = "Neutral" },
@@ -54,7 +48,7 @@ public sealed class CompleteRaceTests
         client.DefaultRequestHeaders.Authorization = new("Bearer", created.GetProperty("controllerCapability").GetString());
         (await client.PostAsJsonAsync(route + "/plans", new { commandId = Guid.NewGuid().ToString(), phase = 0, revision = 1, cars = Cars(true) })).EnsureSuccessStatusCode();
         var first = await client.GetFromJsonAsync<JsonElement>(route);
-        Assert.Equal("ready-next", first.GetProperty("lifecycle").GetString());
+        Assert.Equal("awaiting-decisions", first.GetProperty("lifecycle").GetString());
         var presentation = first.GetProperty("presentation");
         Assert.True(Guid.TryParse(presentation.GetProperty("cursor").GetString(), out _));
         Assert.Equal(1, presentation.GetProperty("pitEntries").GetInt32());
@@ -65,8 +59,7 @@ public sealed class CompleteRaceTests
         var again = await client.GetFromJsonAsync<JsonElement>(route);
         Assert.Equal(first.GetProperty("events").GetRawText(), again.GetProperty("events").GetRawText());
         using var stranger = server.CreateClient();
-        Assert.Equal(HttpStatusCode.Forbidden, (await stranger.PostAsJsonAsync(route + "/continue", new { commandId = Guid.NewGuid().ToString(), phase = 0, revision = first.GetProperty("revision").GetInt64() })).StatusCode);
-        (await client.PostAsJsonAsync(route + "/continue", new { commandId = Guid.NewGuid().ToString(), phase = 0, revision = first.GetProperty("revision").GetInt64() })).EnsureSuccessStatusCode();
+        Assert.Equal(HttpStatusCode.Forbidden, (await stranger.PostAsJsonAsync(route + "/plans", new { commandId = Guid.NewGuid().ToString(), phase = 1, revision = first.GetProperty("revision").GetInt64(), cars = Cars(false) })).StatusCode);
         var next = await client.GetFromJsonAsync<JsonElement>(route);
         (await client.PostAsJsonAsync(route + "/plans", new { commandId = Guid.NewGuid().ToString(), phase = 1, revision = next.GetProperty("revision").GetInt64(), cars = Cars(false) })).EnsureSuccessStatusCode();
         var finish = await client.GetFromJsonAsync<JsonElement>(route);
@@ -77,7 +70,7 @@ public sealed class CompleteRaceTests
             Assert.True(item.GetProperty("time").GetDouble() >= first.GetProperty("raceTime").GetDouble());
             Assert.Equal(new[] { "id", "kind", "time", "lap", "driverId", "otherDriverId", "compound" }, item.EnumerateObject().Select(field => field.Name));
         });
-        Assert.Equal(new[] { "cursor", "totalEvents", "overtakes", "pitEntries", "pitExits", "tyreChanges", "omittedEvents", "summary" }, finish.GetProperty("presentation").EnumerateObject().Select(field => field.Name));
+        Assert.Equal(new[] { "cursor", "resolvedPhase", "totalEvents", "overtakes", "pitEntries", "pitExits", "tyreChanges", "omittedEvents", "summary" }, finish.GetProperty("presentation").EnumerateObject().Select(field => field.Name));
         Assert.NotEqual(presentation.GetProperty("cursor").GetString(), finish.GetProperty("presentation").GetProperty("cursor").GetString());
         Assert.True(finish.GetProperty("presentation").GetProperty("omittedEvents").GetInt32() > 0);
     }

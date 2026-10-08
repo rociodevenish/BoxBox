@@ -26,9 +26,8 @@ for(const {preset,repeatedStop} of [...['open-equal','restricted-equal','open-mi
         }
         if(own.cars[car].battleOptions.includes('Attack'))await region.getByRole('button',{name:'Attack',exact:true}).click();
       }
-      await page.getByRole('button',{name:'Review team plan'}).click();await page.getByRole('button',{name:'Submit both cars'}).click();
-      await expect(page.getByText(phase===9?'Race finished':'Phase complete',{exact:true})).toBeVisible();
-      if(phase<9){await page.getByRole('button',{name:'Continue to next phase'}).click();}
+      await page.getByRole('button',{name:'Review team plan'}).click();await page.getByRole('button',{name:'Run phase with both cars'}).click();
+      if(phase===9) await expect(page.getByText('Race finished',{exact:true})).toBeVisible(); else await expect(page.getByRole('heading',{name:'Phase '+(phase+2)+' instructions',exact:true})).toBeVisible();
     }
     await expect(display.getByRole('heading',{name:'Final Classification',exact:true})).toBeVisible();
     await expect(page.getByRole('button',{name:'Review team plan'})).toBeDisabled();

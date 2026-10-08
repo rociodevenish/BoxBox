@@ -29,8 +29,8 @@ public sealed class RecoveryTests
         Assert.Equal(4, snapshot.Revision);
         Assert.Equal(5, snapshot.LeaderLap);
         var recovered = (await client.GetFromJsonAsync<TeamSnapshot>($"/api/sessions/{session.SessionId}/team"))!;
-        Assert.Equal("ready-next", recovered.Lifecycle);
-        Assert.Equal(command.CommandId, recovered.ConfirmedPlan!.CommandId);
+        Assert.Equal("awaiting-decisions", recovered.Lifecycle);
+        Assert.Null(recovered.ConfirmedPlan); Assert.Equal(1,recovered.Phase);
     }
     // External realtime delivery is deliberately unavailable; physics and HTTP authority remain real.
     private sealed class UnavailableNotifications : ISessionNotifications
@@ -56,7 +56,7 @@ public sealed class RecoveryTests
         Assert.Equal("awaiting-decisions", own.Lifecycle);
     }
     [Fact]
-    public async Task Fresh_private_subscription_recovers_the_accepted_own_plan_and_concurrent_commands_resolve_once()
+    public async Task Fresh_private_subscription_recovers_the_next_window_and_concurrent_commands_resolve_once()
     {
         await using var server = new WebApplicationFactory<Program>();
         using var client = server.CreateClient();
@@ -76,10 +76,8 @@ public sealed class RecoveryTests
             { options.Transports = Microsoft.AspNetCore.Http.Connections.HttpTransportType.LongPolling; options.HttpMessageHandlerFactory = _ => server.Server.CreateHandler(); }).Build();
         await connection.StartAsync();
         var recovered = await connection.InvokeAsync<System.Text.Json.JsonElement>("SubscribeTeam", session.SessionId, session.ControllerCapability);
-        Assert.Equal("ready-next", recovered.GetProperty("lifecycle").GetString());
-        Assert.Equal("Push", recovered.GetProperty("confirmedPlan").GetProperty("cars")[0].GetProperty("pace").GetString());
-        Assert.Equal("Hard", recovered.GetProperty("confirmedPlan").GetProperty("cars")[1].GetProperty("compound").GetString());
-        Assert.Equal(2, recovered.GetProperty("confirmedPlan").GetProperty("cars").GetArrayLength());
+        Assert.Equal("awaiting-decisions", recovered.GetProperty("lifecycle").GetString());
+        Assert.Equal(System.Text.Json.JsonValueKind.Null,recovered.GetProperty("confirmedPlan").ValueKind); Assert.Equal(1,recovered.GetProperty("phase").GetInt32());
     }
     [Fact]
     public async Task Accepted_command_retries_return_original_acknowledgement_without_reopening_or_advancing()

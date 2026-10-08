@@ -31,7 +31,7 @@ export interface PublicState {
         otherDriverId: string | null;
         compound: TyreCompound | null;
     }[];
-    presentation: { cursor: string; totalEvents: number; overtakes: number; pitEntries: number; pitExits: number; tyreChanges: number; omittedEvents: number; summary: string } | null;
+    presentation: { cursor: string; resolvedPhase:number; totalEvents: number; overtakes: number; pitEntries: number; pitExits: number; tyreChanges: number; omittedEvents: number; summary: string } | null;
 }
 interface Command {
     commandId: string;
@@ -98,7 +98,6 @@ export class RaceSession {
     readonly pending = signal<Command | null>(null);
     readonly acknowledged = signal<Acknowledgement | null>(null);
     private connection?: HubConnection;
-    private pendingContinue?: { commandId: string; phase: number; revision: number };
     constructor(url: URL) {
         this.mode = url.pathname.split('/')[2];
         this.id = url.pathname.split('/')[3];
@@ -180,7 +179,6 @@ export class RaceSession {
             return;
         if (state.phase !== this.team()?.phase) {
             this.acknowledged.set(null);
-            this.pendingContinue = undefined;
             this.pending.set(null);
             this.choices.set(state.cars.map(car => ({ driverId: car.driverId, pace: 'Standard', pit: 'StayOut', compound: 'Hard', battle: 'Neutral' })));
         }
@@ -195,24 +193,6 @@ export class RaceSession {
     private canSubmit() { return !this.busy() && !this.acknowledged() && this.connectionState() === 'connected' && this.team()?.lifecycle === 'awaiting-decisions'; }
     editable() { return this.canSubmit() && !this.pending(); }
     canRetry() { return this.canSubmit() && !!this.pending(); }
-    canContinue() { return !this.busy() && this.connectionState() === 'connected' && this.team()?.lifecycle === 'ready-next'; }
-    async continuePhase() {
-        if (!this.canContinue()) return;
-        const own = this.team()!;
-        this.pendingContinue ??= { commandId: commandId(), phase: own.phase, revision: own.revision };
-        this.busy.set(true); this.error.set('');
-        try {
-            await this.request('/api/sessions/' + this.id + '/continue', this.pendingContinue, this.capability);
-            if (this.connection) await this.rejoin(this.connection);
-        } catch (error) {
-            if (this.team()?.phase !== own.phase) return;
-            this.fail(error);
-            if (error instanceof RequestFailure) {
-                this.pendingContinue = undefined;
-                if (this.connection) await this.rejoin(this.connection);
-            } else this.connectionState.set('disconnected');
-        } finally { this.busy.set(false); }
-    }
     async restart() {
         this.error.set('');
         try { this.rememberCreated(await this.request<Created>('/api/sessions/' + this.id + '/restart', {}, this.capability)); }

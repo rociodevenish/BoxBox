@@ -41,10 +41,7 @@ public sealed class DesignerReplayTests
                 new {driverId="driver-01",pace="Push",pit="Stay Out",compound=(string?)null,battle="Neutral"},
                 new {driverId="driver-02",pace="Standard",pit=phase==0?"Pit":"Stay Out",compound=phase==0?"Hard":null,battle="Neutral"}
             }})).EnsureSuccessStatusCode();
-            if (phase == 0) {
-                state = await client.GetFromJsonAsync<JsonElement>(route);
-                (await client.PostAsJsonAsync(route + "/continue", new { commandId=Guid.NewGuid().ToString(),phase,revision=state.GetProperty("revision").GetInt64() })).EnsureSuccessStatusCode();
-            }
+
         }
         foreach (var playerRoute in new[] {route,route+"/team"}) {
             var payload=await client.GetStringAsync(playerRoute);

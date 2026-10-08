@@ -1,18 +1,19 @@
 import { test, expect } from '@playwright/test';
 import { mkdirSync } from 'node:fs';
-test('full race feedback can skip and replay, continue resets both drafts and finish preserves eligibility', async ({ page, context }) => {
+test('full race feedback can skip and replay, automatic next window resets both drafts and finish preserves eligibility', async ({ page, context }) => {
+    await page.setViewportSize({width:360,height:800});
     await page.goto('/race/new');
     await expect(page.getByText('Dry race rule: use at least two different tyre compounds.')).toBeVisible();
     await page.getByRole('button', { name: 'Create race' }).click();
     const controller = await page.getByRole('link', { name: 'Open controller' }).getAttribute('href');
     const publicUrl = await page.getByRole('link', { name: 'Open public display' }).getAttribute('href');
     const display = await context.newPage(); await display.setViewportSize({ width: 1920, height: 1080 }); await display.goto(publicUrl!);
-    await display.getByLabel('Playback seconds').fill('5');
+    await display.getByLabel('Playback seconds').fill('10');
     await page.goto(controller!);
     await page.getByRole('region', { name: 'Car 1 — Driver 01' }).getByRole('button', { name: 'Push', exact: true }).click();
     await page.getByRole('region', { name: 'Car 2 — Driver 02' }).getByRole('button', { name: 'Pit', exact: true }).click();
     await page.getByRole('button', { name: 'Review team plan' }).click();
-    await page.getByRole('button', { name: 'Submit both cars' }).click();
+    await page.getByRole('button', { name: 'Run phase with both cars' }).click();
     await expect(display.getByText('Presenting phase feedback', { exact: true })).toBeVisible();
     await expect(display.getByRole('heading', {name:'Last published Classification'})).toBeVisible();
     await expect(display.getByText('No overtakes or pit events reported this phase.')).toHaveCount(0);
@@ -23,24 +24,32 @@ test('full race feedback can skip and replay, continue resets both drafts and fi
     await display.getByRole('button', { name: 'Replay feedback' }).click();
     await expect(display.getByText('Presenting phase feedback', { exact: true })).toBeVisible();
     // Display playback does not hold the authoritative decision gate closed.
-    await page.getByRole('button', { name: 'Continue to next phase' }).click();
     await expect(page.getByRole('heading', { name: 'Phase 2 instructions' })).toBeVisible();
-    await expect(display.getByRole('heading', {name:'Phase 2 ready'})).toBeVisible();
+    await expect(display.getByRole('heading', {name:'Recorded phase feedback'})).toBeVisible();
     await expect(display.getByRole('heading', {name:'Last published Classification'})).toBeVisible();
     await expect(display.getByText(/Grid order.*Waiting for first/)).toHaveCount(0);
-    await expect(display.getByText('LAP 5 / 6',{exact:true})).toBeVisible();
     for (const name of ['Car 1 — Driver 01', 'Car 2 — Driver 02']) {
         const car = page.getByRole('region', { name });
         await expect(car.getByRole('button', { name: 'Standard', exact: true })).toHaveAttribute('aria-pressed', 'true');
         await expect(car.getByRole('button', { name: 'Stay Out', exact: true })).toHaveAttribute('aria-pressed', 'true');
         await expect(car).toContainText('Standard · Stay Out · Neutral');
     }
-    await page.getByRole('button', { name: 'Review team plan' }).click(); await page.getByRole('button', { name: 'Submit both cars' }).click();
+    await expect(page.getByRole('button',{name:'Review team plan'})).toBeEnabled();
+    mkdirSync('../../.tools/reports/browser-race/review-fixes', {recursive:true});
+    await page.screenshot({path:'../../.tools/reports/browser-race/review-fixes/automatic-window-controller-360.png',fullPage:true});
+    await expect(page.getByRole('button',{name:'Continue to next phase'})).toHaveCount(0);
+    // Fresh public subscription retains the resolved phase's timeline while phase 2 is editable.
+    const route='/api/sessions/'+new URL(page.url()).pathname.split('/').at(-1);
+    const beforeRefresh=await(await page.request.get(route)).json();
+    await display.reload();await expect(display.getByRole('heading',{name:'Phase 1 results'})).toBeVisible();
+    await expect(display.getByRole('list',{name:'Chronological public event list'})).toContainText('Driver 02 entered the pit lane');
+    const afterRefresh=await(await page.request.get(route)).json();expect(afterRefresh.presentation.cursor).toBe(beforeRefresh.presentation.cursor);expect(afterRefresh.events).toEqual(beforeRefresh.events);
+    await display.getByRole('button',{name:'Replay feedback'}).click();
+    await page.getByRole('button', { name: 'Review team plan' }).click(); await page.getByRole('button', { name: 'Run phase with both cars' }).click();
     await expect(display.getByText('Finish confirmed',{exact:true})).toBeVisible();
     await expect(display.getByRole('heading', {name:'Last published Classification'})).toBeVisible();
     await expect(display.getByRole('heading', {name:'Final Classification'})).toHaveCount(0);
     await expect(display.getByRole('table')).not.toContainText('Eligible');
-    await expect(display.getByText('LAP 5 / 6',{exact:true})).toBeVisible();
     await display.getByRole('button', { name: 'Skip playback' }).click();
     await expect(display.getByRole('heading', { name: 'Race finished', exact: true })).toBeVisible();
     const final = await (await page.request.get('/api/sessions/' + new URL(page.url()).pathname.split('/').at(-1))).json();
@@ -66,11 +75,10 @@ test('reduced motion reconciles a quiet phase immediately without replaying old 
     const url=await page.getByRole('link',{name:'Open public display'}).getAttribute('href');
     const display=await context.newPage();await display.emulateMedia({reducedMotion:'reduce'});await display.goto(url!);
     await display.getByLabel('Playback seconds').fill('5');await page.goto(controller!);
-    await page.getByRole('button',{name:'Review team plan'}).click();await page.getByRole('button',{name:'Submit both cars'}).click();
-    await expect(display.getByText('Ready for next phase',{exact:true})).toBeVisible();
+    await page.getByRole('button',{name:'Review team plan'}).click();await page.getByRole('button',{name:'Run phase with both cars'}).click();
+    await expect(display.getByText('Phase feedback complete · next choices are open',{exact:true})).toBeVisible();
     await expect(display.getByRole('button',{name:'Skip playback'})).toHaveCount(0);
     await expect(display.getByText('Quiet phase: no overtakes or pit events recorded.')).toBeVisible();
-    await expect(display.getByText('LAP 5 / 6',{exact:true})).toBeVisible();
     await display.getByRole('button',{name:'Replay feedback'}).click();
     await expect(display.getByRole('button',{name:'Skip playback'})).toHaveCount(0);
     await expect(display.getByText('Quiet phase: no overtakes or pit events recorded.')).toBeVisible();
@@ -81,12 +89,7 @@ test('a delayed accepted-plan acknowledgement cannot relock a newer decision win
     let release=()=>{};
     const delayed=new Promise<void>(resolve=>release=resolve);
     await page.route('**/api/sessions/*/plans',async route=>{const response=await route.fetch();await delayed;await route.fulfill({response});});
-    await page.getByRole('button',{name:'Review team plan'}).click();await page.getByRole('button',{name:'Submit both cars'}).click();
-    await expect(page.getByText('Phase complete',{exact:true})).toBeVisible();
-    const current=new URL(page.url()),id=current.pathname.split('/').at(-1),capability=new URLSearchParams(current.hash.slice(1)).get('capability')!;
-    const snapshot=await (await page.request.get('/api/sessions/'+id)).json();
-    const continued=await page.request.post('/api/sessions/'+id+'/continue',{headers:{Authorization:'Bearer '+capability},data:{commandId:crypto.randomUUID(),phase:snapshot.phase,revision:snapshot.revision}});
-    expect(continued.ok()).toBe(true);
+    await page.getByRole('button',{name:'Review team plan'}).click();await page.getByRole('button',{name:'Run phase with both cars'}).click();
     await expect(page.getByRole('heading',{name:'Phase 2 instructions'})).toBeVisible();
     release();await expect(page.getByRole('button',{name:'Review team plan'})).toBeEnabled();
 });

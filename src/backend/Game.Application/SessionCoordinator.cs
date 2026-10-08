@@ -3,14 +3,13 @@ using Game.Simulation;
 using System.Security.Cryptography;
 using System.Diagnostics;
 namespace Game.Application;
-public sealed class SessionCoordinator(ISessionNotifications notifications)
+public sealed class SessionCoordinator(ISessionNotifications notifications,IRacePresets presets)
 {
     private sealed class Session(string id, string player, string device, byte[] grantHash,
         RaceConfiguration configuration, Driver[] drivers, int seed, CreateSessionInput input)
     {
         public long StartedTimestamp { get; } = Stopwatch.GetTimestamp();
         public long WindowTimestamp { get; set; }
-        public long ReadyTimestamp { get; set; }
         public double? TotalToFinishMilliseconds { get; set; }
         public List<BrowserPhaseTiming> PhaseTimings { get; } = [];
         public Dictionary<string, int> PresentationPhases { get; } = [];
@@ -28,7 +27,6 @@ public sealed class SessionCoordinator(ISessionNotifications notifications)
         public List<RecordedReplayPhase> RecordedPhases { get; } = [];
         public string ScriptVersion { get; } = OpponentScript.Version;
         public Dictionary<Guid, (string Fingerprint, SubmissionAck Ack)> AcceptedCommands { get; } = [];
-        public Dictionary<Guid, (ContinueCommand Command, SubmissionAck Ack)> ContinuedCommands { get; } = [];
         public TeamCommand? ConfirmedPlan { get; set; }
         public int Phase { get; set; }
         public long Revision { get; set; } = 1;
@@ -42,20 +40,17 @@ public sealed class SessionCoordinator(ISessionNotifications notifications)
     private Session? active;
     public SessionCreated Create(CreateSessionInput input)
     {
-        var variants = new Dictionary<string, (bool Restricted, bool Mixed)>
-        { ["open-equal"] = (false, false), ["restricted-equal"] = (true, false),
-          ["open-mixed"] = (false, true), ["restricted-mixed"] = (true, true) };
-        if (input is null || input.Preset is null || !variants.TryGetValue(input.Preset, out var variant)
+        if (input is null || input.Preset is not ("open-equal" or "restricted-equal" or "open-mixed" or "restricted-mixed")
             || input.Laps is not (6 or 10 or 20 or 40 or 50) || input.Seed is null)
             throw new SessionFault(SessionFailure.InvalidInput, "Choose an allowlisted preset, distance (6/10/20/40/50) and designer seed.");
         var capability = Convert.ToHexString(RandomNumberGenerator.GetBytes(32));
         var id = Guid.NewGuid().ToString("N");
         var player = Guid.NewGuid().ToString("N");
         var device = Guid.NewGuid().ToString("N");
-        var configuration = new RaceConfiguration(input.Laps.Value, LaboratoryFixtures.SegmentedTrack(variant.Restricted),
-            LapVariation: .2).WithExplicitTuning();
+        var preset=presets.Get(input.Preset,input.Laps.Value);
+        var configuration = preset.Configuration.WithExplicitTuning();
         var session = new Session(id, player, device, SHA256.HashData(System.Text.Encoding.UTF8.GetBytes(capability)),
-            configuration, LaboratoryFixtures.SegmentedField(variant.Mixed), input.Seed.Value, input);
+            configuration, preset.Drivers.ToArray(), input.Seed.Value, input);
         session.FrozenOpponents = OpponentScript.Freeze(session.Engine, session.Drivers.Select(driver => driver.Team).Distinct(), configuration.Laps);
         session.WindowTimestamp = Stopwatch.GetTimestamp();
         mutations.Wait();
@@ -162,39 +157,6 @@ public sealed class SessionCoordinator(ISessionNotifications notifications)
         try { return await SubmitSerially(id, capability, command); }
         finally { mutations.Release(); }
     }
-    public async Task<SubmissionAck> Continue(string id, string? capability, ContinueCommand? command)
-    {
-        await mutations.WaitAsync();
-        try
-        {
-            PublicSnapshot display; TeamSnapshot own; SubmissionAck acknowledgement;
-            lock (gate)
-            {
-                var session = Authorise(id, capability);
-                if (command is null || !Guid.TryParse(command.CommandId, out var commandId))
-                    throw new SessionFault(SessionFailure.InvalidInput, "Continue needs a command identity and current phase revision.");
-                command = command with { CommandId = commandId.ToString() };
-                if (session.ContinuedCommands.TryGetValue(commandId, out var previous))
-                    return previous.Command == command ? previous.Ack
-                        : throw new SessionFault(SessionFailure.Conflict, "This continuation identity already has a different request.");
-                if (session.Lifecycle != "ready-next" || command.Phase != session.Phase || command.Revision != session.Revision)
-                    throw new SessionFault(SessionFailure.Conflict, "Only the current completed phase can continue.");
-                session.Phase++; session.Revision++; session.Lifecycle = "awaiting-decisions";
-                var previousTiming = session.PhaseTimings[^1];
-                session.PhaseTimings[^1] = previousTiming with { ReadyWaitMilliseconds = Stopwatch.GetElapsedTime(session.ReadyTimestamp).TotalMilliseconds };
-                session.ConfirmedPlan = null; session.Events = []; session.Presentation = null;
-                session.FrozenOpponents = OpponentScript.Freeze(session.Engine,
-                    session.Drivers.Select(driver => driver.Team).Distinct(), session.Configuration.Laps);
-                session.WindowTimestamp = Stopwatch.GetTimestamp();
-                display = Project(session); own = ProjectTeam(session);
-                acknowledgement = new(command.CommandId, session.Id, session.Phase, session.Revision, session.Lifecycle);
-                session.ContinuedCommands.Add(commandId, (command, acknowledgement));
-            }
-            await PublishSafely(display, own);
-            return acknowledgement;
-        }
-        finally { mutations.Release(); }
-    }
     private async Task<SubmissionAck> SubmitSerially(string id, string? capability, TeamCommand? command)
     {
         Session session; Dictionary<string, DriverDecision> complete; PublicSnapshot resolving; TeamSnapshot teamResolving;
@@ -256,7 +218,7 @@ public sealed class SessionCoordinator(ISessionNotifications notifications)
             var entries = fresh.Count(pair => pair.item.Kind == RaceEventKind.PitEntry);
             var exits = fresh.Count(pair => pair.item.Kind == RaceEventKind.PitExit);
             var changes = fresh.Count(pair => pair.item.Kind == RaceEventKind.TyreChanged);
-            session.Presentation = new(Guid.NewGuid().ToString(), fresh.Length, overtakes, entries, exits, changes,
+            session.Presentation = new(Guid.NewGuid().ToString(), session.Phase, fresh.Length, overtakes, entries, exits, changes,
                 fresh.Length - selected.Length, fresh.Length == 0 ? "Quiet phase: no overtakes or pit events recorded."
                 : $"{overtakes} overtakes · {entries} pit entries · {exits} pit exits · {changes} tyre changes."
                     + (fresh.Length > selected.Length ? $" Showing {selected.Length} highlights of {fresh.Length} recorded events." : ""));
@@ -265,18 +227,22 @@ public sealed class SessionCoordinator(ISessionNotifications notifications)
             resolved = Project(session); teamResolved = ProjectTeam(session);
         }
         await PublishSafely(resolved, teamResolved);
+        // This acknowledgement belongs to the phase accepted, even after its next window opens.
+        var acknowledgement = new SubmissionAck(command.CommandId, session.Id, session.Phase, resolved.Revision, resolved.Lifecycle);
+        lock (gate) session.AcceptedCommands.Add(commandId, (fingerprint, acknowledgement));
         if (resolved.Lifecycle != "finished")
         {
             lock (gate)
             {
-                session.Lifecycle = "ready-next"; session.Revision++;
-                session.ReadyTimestamp = Stopwatch.GetTimestamp();
+                session.Phase++; session.Revision++; session.Lifecycle = "awaiting-decisions";
+                session.ConfirmedPlan = null;
+                session.FrozenOpponents = OpponentScript.Freeze(session.Engine,
+                    session.Drivers.Select(driver => driver.Team).Distinct(), session.Configuration.Laps);
+                session.WindowTimestamp = Stopwatch.GetTimestamp();
                 resolved = Project(session); teamResolved = ProjectTeam(session);
             }
         }
-        var acknowledgement = new SubmissionAck(command.CommandId, session.Id, session.Phase, resolved.Revision, resolved.Lifecycle);
-        lock (gate) session.AcceptedCommands.Add(commandId, (fingerprint, acknowledgement));
-        if (resolved.Lifecycle == "ready-next") await PublishSafely(resolved, teamResolved);
+        if (resolved.Lifecycle == "awaiting-decisions") await PublishSafely(resolved, teamResolved);
         return acknowledgement;
     }
     private async Task PublishSafely(PublicSnapshot display, TeamSnapshot team)

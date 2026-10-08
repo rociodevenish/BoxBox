@@ -21,12 +21,12 @@ test('real display and capability controller resolve exactly one phase', async (
     await page.getByRole('button', { name: 'Review team plan' }).click();
     await expect(page.getByRole('dialog')).toContainText('Push');
     await expect(page.getByRole('dialog')).toContainText('Hard');
-    await page.getByRole('button', { name: 'Submit both cars' }).click();
-    await expect(display.getByText('Phase complete', { exact: true })).toBeVisible();
+    await page.getByRole('button', { name: 'Run phase with both cars' }).click();
+    await expect(display.getByText('Phase feedback complete · next choices are open', { exact: true })).toBeVisible();
     await expect(display.getByText('LAP 5 / 6', { exact: true })).toBeVisible();
     await expect(display.getByRole('row')).toHaveCount(23);
-    await expect(page.getByRole('region', { name: 'Car 2 — Driver 02' }).getByLabel('New compound')).toHaveValue('Hard');
-    await expect(page.getByRole('button', { name: 'Review team plan' })).toBeDisabled();
+    await expect(page.getByRole('region', { name: 'Car 2 — Driver 02' }).getByLabel('Tyre compound Hard',{exact:true})).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Review team plan' })).toBeEnabled();
     await expect(display.getByText(/estimated/i)).toHaveCount(0);
     mkdirSync(evidence, { recursive: true });
     await display.setViewportSize({ width: 1920, height: 1080 });

@@ -130,7 +130,7 @@
     <div class="dialog-actions">
       <button type="button" (click)="close()">Keep editing</button
       ><button class="primary" type="button" (click)="submit()">
-        Submit both cars
+        {{model().submitLabel ?? 'Submit both cars'}}
       </button>
     </div>
   </dialog>

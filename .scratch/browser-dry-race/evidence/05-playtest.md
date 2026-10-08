@@ -1,5 +1,7 @@
 # Browser playtest, replay and findings — 2026-10-09
 
+The measurements and original flow below describe the ticket 05 explicit-Continue implementation. Later actual feedback requested merging phase submission and continuation. [Final review fixes](../review.md) document automatic windows; [new machine measurements](review-automatic-windows.json) preserve separate timing sources without a ready-wait interval. Historical numbers remain unchanged.
+
 ## Actual player findings
 
 The user tested the frozen ticket 04 preview (source `474110d`, Angular 4430/API 4530) and reported three issues: dropdown carets were too far right and unattractive; leader/ahead timing should be named Gap/Interval; and the public board had no route back to the controller. Ticket 05 moves select chevrons inward, labels Gap (leader) and Interval (immediate ahead), and adds Race setup plus a controller return link only in a browser already given that private grant. A fresh public viewer receives no controller link or capability. Actual retest feedback is separate from the agent's verification below.
