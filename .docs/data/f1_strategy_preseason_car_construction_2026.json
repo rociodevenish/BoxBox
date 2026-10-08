@@ -1,0 +1,803 @@
+{
+  "schemaVersion": "1.0.0",
+  "dataVersion": "2026.10.09-preseason-car-build-v1",
+  "entityType": "preseason-car-construction-menu",
+  "seasonReference": 2026,
+  "generatedOn": "2026-10-09",
+  "status": "provisional",
+  "baseCarReference": {
+    "sourceSpecId": "f1_strategy_car_attribute_spec_2026",
+    "detailedRatings": {
+      "topSpeed": 82,
+      "accelerationDeployment": 82,
+      "highSpeedAero": 82,
+      "lowSpeedAero": 82,
+      "mechanicalGrip": 82,
+      "braking": 82,
+      "traction": 82,
+      "tyreWear": 82,
+      "tyreTemperature": 82,
+      "reliability": 84
+    }
+  },
+  "buildRules": {
+    "selection": "Choose exactly one option from each of the four categories.",
+    "categoryCount": 4,
+    "selectedOptionCount": 4,
+    "sameMenuForAllTeams": true,
+    "uniqueOptions": false,
+    "teamIdentityAffectsPerformance": false,
+    "racePackageSeparate": true,
+    "weekendSetupSeparate": true,
+    "permanentDevelopmentSeparate": true,
+    "modifierStacking": "additive",
+    "recommendedEffectiveRatingClamp": {
+      "min": 60,
+      "max": 100
+    }
+  },
+  "budgetModel": {
+    "currency": "budgetUnits",
+    "status": "provisional",
+    "recommendedCarConstructionEnvelope": 20,
+    "possibleBuildCostRange": {
+      "min": 18,
+      "max": 24
+    },
+    "rule": "The player may not exceed the car-construction envelope.",
+    "designNote": "These units should ultimately map into the game's shared preseason/season budget if a single global currency is used."
+  },
+  "designPrinciples": [
+    "No option should be universally best.",
+    "Balanced options are broad but expensive.",
+    "Low-cost options create budget flexibility by accepting real compromises.",
+    "Specialised builds should gain a small but noticeable edge at suitable circuits without becoming unusable elsewhere.",
+    "The same architecture choice can be amplified or mitigated later by permanent development, one race package and weekend setup.",
+    "Car/driver compatibility is influenced by handling-profile deltas, but driver Adaptability should reduce mismatch penalties."
+  ],
+  "categories": [
+    {
+      "id": "car-build-category-aero",
+      "key": "aeroConcept",
+      "label": "Aero Concept",
+      "shortLabel": "Aero",
+      "description": "Defines the car's broad aerodynamic philosophy before circuit-specific race packages and setup.",
+      "selectionRule": "exactly-one",
+      "options": [
+        {
+          "id": "car-aero-low-drag-efficiency",
+          "slug": "low-drag-efficiency",
+          "name": "Low-Drag Efficiency",
+          "shortName": "Low Drag",
+          "cost": 5,
+          "summary": "Prioritises straight-line efficiency and deployment at the expense of some fast-corner load.",
+          "modifiers": {
+            "topSpeed": 2,
+            "accelerationDeployment": 1,
+            "highSpeedAero": -1
+          },
+          "handlingProfile": {
+            "highSpeedStability": -1
+          },
+          "strengthTags": [
+            "top-speed",
+            "efficiency",
+            "power-circuits"
+          ],
+          "tradeoffTags": [
+            "high-speed-cornering"
+          ]
+        },
+        {
+          "id": "car-aero-high-downforce",
+          "slug": "high-downforce",
+          "name": "High-Downforce Platform",
+          "shortName": "High Downforce",
+          "cost": 5,
+          "summary": "Builds a strong aero platform for sustained cornering, sacrificing some terminal speed.",
+          "modifiers": {
+            "highSpeedAero": 2,
+            "lowSpeedAero": 1,
+            "topSpeed": -1
+          },
+          "handlingProfile": {
+            "highSpeedStability": 1
+          },
+          "strengthTags": [
+            "high-speed-aero",
+            "cornering",
+            "technical-circuits"
+          ],
+          "tradeoffTags": [
+            "top-speed"
+          ]
+        },
+        {
+          "id": "car-aero-front-loaded-rotation",
+          "slug": "front-loaded-rotation",
+          "name": "Front-Loaded Rotation",
+          "shortName": "Front Loaded",
+          "cost": 5,
+          "summary": "Creates a decisive front end and strong low-speed rotation, with less emphasis on straight-line efficiency.",
+          "modifiers": {
+            "lowSpeedAero": 2,
+            "highSpeedAero": 1,
+            "topSpeed": -1
+          },
+          "handlingProfile": {
+            "frontResponse": 2,
+            "rotation": 2,
+            "rearStability": -1
+          },
+          "strengthTags": [
+            "front-response",
+            "rotation",
+            "street-circuits"
+          ],
+          "tradeoffTags": [
+            "top-speed",
+            "rear-confidence"
+          ]
+        },
+        {
+          "id": "car-aero-high-speed-stability",
+          "slug": "high-speed-stability",
+          "name": "High-Speed Stability",
+          "shortName": "Stable Aero",
+          "cost": 5,
+          "summary": "Favors a planted aero platform and tyre confidence through long, fast corners.",
+          "modifiers": {
+            "highSpeedAero": 2,
+            "tyreWear": 1,
+            "lowSpeedAero": -1
+          },
+          "handlingProfile": {
+            "highSpeedStability": 2,
+            "rearStability": 1
+          },
+          "strengthTags": [
+            "high-speed-stability",
+            "tyre-confidence"
+          ],
+          "tradeoffTags": [
+            "low-speed-aero"
+          ]
+        },
+        {
+          "id": "car-aero-balanced-efficiency",
+          "slug": "balanced-aero-efficiency",
+          "name": "Balanced Aero Efficiency",
+          "shortName": "Balanced Aero",
+          "cost": 6,
+          "summary": "A broad, efficient platform with modest gains everywhere and no major aerodynamic weakness.",
+          "modifiers": {
+            "topSpeed": 1,
+            "highSpeedAero": 1,
+            "lowSpeedAero": 1
+          },
+          "handlingProfile": {},
+          "strengthTags": [
+            "versatility",
+            "efficiency"
+          ],
+          "tradeoffTags": [
+            "premium-cost"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "car-build-category-chassis",
+      "key": "chassisPlatform",
+      "label": "Chassis Platform",
+      "shortLabel": "Chassis",
+      "description": "Defines the car's mechanical behavior under braking, rotation and traction.",
+      "selectionRule": "exactly-one",
+      "options": [
+        {
+          "id": "car-chassis-responsive",
+          "slug": "responsive-chassis",
+          "name": "Responsive Chassis",
+          "shortName": "Responsive",
+          "cost": 5,
+          "summary": "A lively car that changes direction quickly but works the tyres harder.",
+          "modifiers": {
+            "mechanicalGrip": 2,
+            "braking": 1,
+            "tyreWear": -1
+          },
+          "handlingProfile": {
+            "frontResponse": 1,
+            "rotation": 2,
+            "rearStability": -1
+          },
+          "strengthTags": [
+            "rotation",
+            "mechanical-grip",
+            "qualifying"
+          ],
+          "tradeoffTags": [
+            "tyre-wear",
+            "rear-stability"
+          ]
+        },
+        {
+          "id": "car-chassis-traction",
+          "slug": "traction-platform",
+          "name": "Traction Platform",
+          "shortName": "Traction",
+          "cost": 5,
+          "summary": "Prioritises rear grip and power delivery on corner exit.",
+          "modifiers": {
+            "traction": 2,
+            "mechanicalGrip": 1,
+            "braking": -1
+          },
+          "handlingProfile": {
+            "rearStability": 1,
+            "tractionConfidence": 2
+          },
+          "strengthTags": [
+            "traction",
+            "rear-grip",
+            "slow-corners"
+          ],
+          "tradeoffTags": [
+            "braking"
+          ]
+        },
+        {
+          "id": "car-chassis-braking",
+          "slug": "braking-platform",
+          "name": "Braking Platform",
+          "shortName": "Braking",
+          "cost": 5,
+          "summary": "Gives the driver confidence to attack heavy braking zones and corner entry.",
+          "modifiers": {
+            "braking": 2,
+            "mechanicalGrip": 1,
+            "traction": -1
+          },
+          "handlingProfile": {
+            "brakingEntryStability": 2,
+            "frontResponse": 1
+          },
+          "strengthTags": [
+            "braking",
+            "entry-stability",
+            "stop-start-circuits"
+          ],
+          "tradeoffTags": [
+            "traction"
+          ]
+        },
+        {
+          "id": "car-chassis-tyre-friendly",
+          "slug": "tyre-friendly-suspension",
+          "name": "Tyre-Friendly Suspension",
+          "shortName": "Tyre Friendly",
+          "cost": 5,
+          "summary": "Protects the tyres and broadens the operating window, at the cost of some ultimate mechanical response.",
+          "modifiers": {
+            "tyreWear": 2,
+            "tyreTemperature": 1,
+            "mechanicalGrip": -1
+          },
+          "handlingProfile": {
+            "rearStability": 1,
+            "tractionConfidence": 1
+          },
+          "strengthTags": [
+            "tyre-life",
+            "stint-length",
+            "consistency"
+          ],
+          "tradeoffTags": [
+            "mechanical-response"
+          ]
+        },
+        {
+          "id": "car-chassis-balanced",
+          "slug": "balanced-chassis",
+          "name": "Balanced Chassis",
+          "shortName": "Balanced Chassis",
+          "cost": 6,
+          "summary": "A well-rounded mechanical platform with no obvious weakness.",
+          "modifiers": {
+            "mechanicalGrip": 1,
+            "braking": 1,
+            "traction": 1
+          },
+          "handlingProfile": {},
+          "strengthTags": [
+            "versatility",
+            "predictability"
+          ],
+          "tradeoffTags": [
+            "premium-cost"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "car-build-category-power",
+      "key": "powerEnergyConcept",
+      "label": "Power / Energy Concept",
+      "shortLabel": "Power",
+      "description": "Defines how the car trades peak speed, electrical deployment, drivability and robustness.",
+      "selectionRule": "exactly-one",
+      "options": [
+        {
+          "id": "car-power-top-end",
+          "slug": "top-end-efficiency",
+          "name": "Top-End Efficiency",
+          "shortName": "Top End",
+          "cost": 5,
+          "summary": "Chases terminal speed and strong deployment, with a tighter reliability margin.",
+          "modifiers": {
+            "topSpeed": 2,
+            "accelerationDeployment": 1,
+            "reliability": -1
+          },
+          "handlingProfile": {},
+          "strengthTags": [
+            "top-speed",
+            "straight-line"
+          ],
+          "tradeoffTags": [
+            "reliability"
+          ]
+        },
+        {
+          "id": "car-power-deployment",
+          "slug": "deployment-focused",
+          "name": "Deployment-Focused Hybrid",
+          "shortName": "Deployment",
+          "cost": 5,
+          "summary": "Prioritises acceleration and electrical deployment over a race stint.",
+          "modifiers": {
+            "accelerationDeployment": 2,
+            "topSpeed": 1,
+            "reliability": -1
+          },
+          "handlingProfile": {},
+          "strengthTags": [
+            "acceleration",
+            "deployment",
+            "overtaking"
+          ],
+          "tradeoffTags": [
+            "reliability"
+          ]
+        },
+        {
+          "id": "car-power-smooth-delivery",
+          "slug": "smooth-power-delivery",
+          "name": "Smooth Power Delivery",
+          "shortName": "Smooth Delivery",
+          "cost": 5,
+          "summary": "Trades some peak speed for traction, tyre life and controllable power application.",
+          "modifiers": {
+            "accelerationDeployment": 1,
+            "traction": 1,
+            "tyreWear": 1,
+            "topSpeed": -1
+          },
+          "handlingProfile": {
+            "tractionConfidence": 1,
+            "rearStability": 1
+          },
+          "strengthTags": [
+            "traction",
+            "tyre-life",
+            "driveability"
+          ],
+          "tradeoffTags": [
+            "top-speed"
+          ]
+        },
+        {
+          "id": "car-power-robust",
+          "slug": "robust-power-unit",
+          "name": "Robust Power Unit",
+          "shortName": "Robust PU",
+          "cost": 4,
+          "summary": "Leaves some peak performance on the table in exchange for reliability headroom.",
+          "modifiers": {
+            "reliability": 2,
+            "accelerationDeployment": 1,
+            "topSpeed": -1
+          },
+          "handlingProfile": {},
+          "strengthTags": [
+            "reliability",
+            "race-distance"
+          ],
+          "tradeoffTags": [
+            "top-speed"
+          ]
+        },
+        {
+          "id": "car-power-balanced",
+          "slug": "balanced-power-system",
+          "name": "Balanced Power System",
+          "shortName": "Balanced Power",
+          "cost": 6,
+          "summary": "A premium all-round system with useful speed, deployment and reliability gains.",
+          "modifiers": {
+            "topSpeed": 1,
+            "accelerationDeployment": 1,
+            "reliability": 1
+          },
+          "handlingProfile": {},
+          "strengthTags": [
+            "versatility",
+            "deployment",
+            "reliability"
+          ],
+          "tradeoffTags": [
+            "premium-cost"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "car-build-category-thermal",
+      "key": "thermalTyreSystems",
+      "label": "Thermal / Tyre Systems",
+      "shortLabel": "Thermal",
+      "description": "Defines tyre preparation, cooling margin and long-run thermal behaviour.",
+      "selectionRule": "exactly-one",
+      "options": [
+        {
+          "id": "car-thermal-rapid-warmup",
+          "slug": "rapid-warmup",
+          "name": "Rapid Warm-Up",
+          "shortName": "Warm-Up",
+          "cost": 5,
+          "summary": "Gets tyres and brakes into their working window quickly, but increases degradation over a stint.",
+          "modifiers": {
+            "tyreTemperature": 2,
+            "braking": 1,
+            "tyreWear": -1
+          },
+          "handlingProfile": {},
+          "strengthTags": [
+            "qualifying",
+            "cold-conditions",
+            "restart-performance"
+          ],
+          "tradeoffTags": [
+            "tyre-wear"
+          ]
+        },
+        {
+          "id": "car-thermal-long-run",
+          "slug": "long-run-preservation",
+          "name": "Long-Run Preservation",
+          "shortName": "Preservation",
+          "cost": 5,
+          "summary": "Protects the tyres over long stints but takes longer to reach their ideal window.",
+          "modifiers": {
+            "tyreWear": 2,
+            "traction": 1,
+            "tyreTemperature": -1
+          },
+          "handlingProfile": {
+            "tractionConfidence": 1
+          },
+          "strengthTags": [
+            "tyre-life",
+            "long-stints",
+            "race-pace"
+          ],
+          "tradeoffTags": [
+            "warm-up"
+          ]
+        },
+        {
+          "id": "car-thermal-hot-climate",
+          "slug": "hot-climate-cooling",
+          "name": "Hot-Climate Cooling",
+          "shortName": "High Cooling",
+          "cost": 5,
+          "summary": "Adds cooling and thermal margin for demanding races, with a small aerodynamic cost.",
+          "modifiers": {
+            "tyreTemperature": 1,
+            "reliability": 1,
+            "braking": 1,
+            "topSpeed": -1
+          },
+          "handlingProfile": {},
+          "strengthTags": [
+            "thermal-control",
+            "reliability",
+            "braking"
+          ],
+          "tradeoffTags": [
+            "top-speed"
+          ]
+        },
+        {
+          "id": "car-thermal-low-drag",
+          "slug": "low-drag-cooling",
+          "name": "Low-Drag Cooling",
+          "shortName": "Low Cooling",
+          "cost": 4,
+          "summary": "Runs a tight cooling package for extra straight-line efficiency, increasing thermal and reliability risk.",
+          "modifiers": {
+            "topSpeed": 1,
+            "tyreTemperature": -1,
+            "reliability": -1
+          },
+          "handlingProfile": {},
+          "strengthTags": [
+            "top-speed",
+            "efficiency"
+          ],
+          "tradeoffTags": [
+            "thermal-control",
+            "reliability"
+          ]
+        },
+        {
+          "id": "car-thermal-balanced",
+          "slug": "balanced-thermal-system",
+          "name": "Balanced Thermal System",
+          "shortName": "Balanced Thermal",
+          "cost": 6,
+          "summary": "A premium thermal package that supports tyre life, temperature control and reliability.",
+          "modifiers": {
+            "tyreWear": 1,
+            "tyreTemperature": 1,
+            "reliability": 1
+          },
+          "handlingProfile": {},
+          "strengthTags": [
+            "versatility",
+            "tyre-management",
+            "reliability"
+          ],
+          "tradeoffTags": [
+            "premium-cost"
+          ]
+        }
+      ]
+    }
+  ],
+  "handlingDimensions": [
+    {
+      "key": "frontResponse",
+      "label": "Front Response"
+    },
+    {
+      "key": "rearStability",
+      "label": "Rear Stability"
+    },
+    {
+      "key": "rotation",
+      "label": "Rotation"
+    },
+    {
+      "key": "brakingEntryStability",
+      "label": "Braking Entry Stability"
+    },
+    {
+      "key": "tractionConfidence",
+      "label": "Traction Confidence"
+    },
+    {
+      "key": "highSpeedStability",
+      "label": "High-Speed Stability"
+    }
+  ],
+  "sampleBuilds": [
+    {
+      "id": "sample-build-straight-line-specialist",
+      "name": "Straight-Line Specialist",
+      "description": "A Monza/Baku-style concept with excellent terminal speed and meaningful reliability/thermal compromises.",
+      "selectedOptionIds": [
+        "car-aero-low-drag-efficiency",
+        "car-chassis-braking",
+        "car-power-top-end",
+        "car-thermal-low-drag"
+      ],
+      "result": {
+        "cost": 19,
+        "detailedRatings": {
+          "topSpeed": 87,
+          "accelerationDeployment": 84,
+          "highSpeedAero": 81,
+          "lowSpeedAero": 82,
+          "mechanicalGrip": 83,
+          "braking": 84,
+          "traction": 81,
+          "tyreWear": 82,
+          "tyreTemperature": 81,
+          "reliability": 82
+        },
+        "handlingProfile": {
+          "highSpeedStability": -1,
+          "brakingEntryStability": 2,
+          "frontResponse": 1
+        }
+      }
+    },
+    {
+      "id": "sample-build-street-fighter",
+      "name": "Street Fighter",
+      "description": "Strong rotation, traction and warm-up for stop-start street circuits.",
+      "selectedOptionIds": [
+        "car-aero-front-loaded-rotation",
+        "car-chassis-traction",
+        "car-power-smooth-delivery",
+        "car-thermal-rapid-warmup"
+      ],
+      "result": {
+        "cost": 20,
+        "detailedRatings": {
+          "topSpeed": 80,
+          "accelerationDeployment": 83,
+          "highSpeedAero": 83,
+          "lowSpeedAero": 84,
+          "mechanicalGrip": 83,
+          "braking": 82,
+          "traction": 85,
+          "tyreWear": 82,
+          "tyreTemperature": 84,
+          "reliability": 84
+        },
+        "handlingProfile": {
+          "frontResponse": 2,
+          "rotation": 2,
+          "rearStability": 1,
+          "tractionConfidence": 3
+        }
+      }
+    },
+    {
+      "id": "sample-build-tyre-whisperer",
+      "name": "Tyre Whisperer",
+      "description": "Designed around long stints and stable tyre performance rather than peak qualifying response.",
+      "selectedOptionIds": [
+        "car-aero-high-speed-stability",
+        "car-chassis-tyre-friendly",
+        "car-power-smooth-delivery",
+        "car-thermal-long-run"
+      ],
+      "result": {
+        "cost": 20,
+        "detailedRatings": {
+          "topSpeed": 81,
+          "accelerationDeployment": 83,
+          "highSpeedAero": 84,
+          "lowSpeedAero": 81,
+          "mechanicalGrip": 81,
+          "braking": 82,
+          "traction": 84,
+          "tyreWear": 88,
+          "tyreTemperature": 82,
+          "reliability": 84
+        },
+        "handlingProfile": {
+          "highSpeedStability": 2,
+          "rearStability": 3,
+          "tractionConfidence": 3
+        }
+      }
+    },
+    {
+      "id": "sample-build-high-downforce",
+      "name": "High-Downforce Specialist",
+      "description": "Cornering-focused car for aero-sensitive tracks, accepting a straight-line penalty.",
+      "selectedOptionIds": [
+        "car-aero-high-downforce",
+        "car-chassis-responsive",
+        "car-power-deployment",
+        "car-thermal-hot-climate"
+      ],
+      "result": {
+        "cost": 20,
+        "detailedRatings": {
+          "topSpeed": 81,
+          "accelerationDeployment": 84,
+          "highSpeedAero": 84,
+          "lowSpeedAero": 83,
+          "mechanicalGrip": 84,
+          "braking": 84,
+          "traction": 82,
+          "tyreWear": 81,
+          "tyreTemperature": 83,
+          "reliability": 84
+        },
+        "handlingProfile": {
+          "highSpeedStability": 1,
+          "frontResponse": 1,
+          "rotation": 2,
+          "rearStability": -1
+        }
+      }
+    },
+    {
+      "id": "sample-build-balanced-racer",
+      "name": "Balanced Racer",
+      "description": "A broad platform that spends more on versatility and offsets it with cheaper conservative systems.",
+      "selectedOptionIds": [
+        "car-aero-balanced-efficiency",
+        "car-chassis-balanced",
+        "car-power-robust",
+        "car-thermal-low-drag"
+      ],
+      "result": {
+        "cost": 20,
+        "detailedRatings": {
+          "topSpeed": 83,
+          "accelerationDeployment": 83,
+          "highSpeedAero": 83,
+          "lowSpeedAero": 83,
+          "mechanicalGrip": 83,
+          "braking": 83,
+          "traction": 83,
+          "tyreWear": 82,
+          "tyreTemperature": 81,
+          "reliability": 85
+        },
+        "handlingProfile": {}
+      }
+    }
+  ],
+  "validationSummary": {
+    "combinationCount": 625,
+    "buildCostRange": {
+      "min": 18,
+      "max": 24
+    },
+    "detailedAttributeRangesAcrossAllBuilds": {
+      "topSpeed": {
+        "min": 79,
+        "max": 87
+      },
+      "accelerationDeployment": {
+        "min": 83,
+        "max": 85
+      },
+      "highSpeedAero": {
+        "min": 81,
+        "max": 84
+      },
+      "lowSpeedAero": {
+        "min": 81,
+        "max": 84
+      },
+      "mechanicalGrip": {
+        "min": 81,
+        "max": 84
+      },
+      "braking": {
+        "min": 81,
+        "max": 85
+      },
+      "traction": {
+        "min": 81,
+        "max": 86
+      },
+      "tyreWear": {
+        "min": 80,
+        "max": 88
+      },
+      "tyreTemperature": {
+        "min": 81,
+        "max": 85
+      },
+      "reliability": {
+        "min": 82,
+        "max": 87
+      }
+    },
+    "note": "Ranges are from preseason architecture only, before permanent development, race packages or weekend setup."
+  },
+  "assetConvention": {
+    "categoryIcon": "/assets/icons/car-build/{category-key}.svg",
+    "optionArtwork": "/assets/car-build/options/{slug}.webp"
+  }
+}
