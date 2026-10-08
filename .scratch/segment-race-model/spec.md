@@ -1,6 +1,6 @@
 # Segment race model and controlled variability
 
-Status: ready-for-agent
+Status: resolved
 
 ## Problem Statement
 
@@ -97,3 +97,8 @@ Current implementation audit: base driver attributes are fixed throughout a race
 The proposed passing opportunity identity deliberately refines that existing per-opponent/per-lap scope for location-specific passing. The proposed race-form channel is new, configurable and disabled by default. Every change must retain the locked hidden seeded randomness principle: identical initial inputs, decisions, seed and model version yield identical outcomes.
 
 The previous evidence supports aggregate strategy behaviour, not corner-level realism. This milestone should explain which conclusions survive segmentation, which are sensitive to tuning or persistent form, and which remain unproven. A subsequent browser playtest should assess decision clarity, useful feedback and the intended player race duration.
+
+## Completion evidence
+
+All ten approved tickets are resolved on codex/segment-race-model. The final integration passes 108 public-boundary tests and runner replay/validation smoke checks. Published track/passing, tyre/pit, form/noise and benchmark evidence and the browser-playtest recommendation are under evidence/. The two-axis review found no actionable Standards issues and two Spec issues; both were corrected and independently verified. See review.md for findings, resolution and benchmark revision limits.
+
