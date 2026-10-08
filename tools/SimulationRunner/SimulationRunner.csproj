@@ -1,4 +1,4 @@
 <Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup><OutputType>Exe</OutputType></PropertyGroup>
+  <PropertyGroup><OutputType>Exe</OutputType><DefineConstants>$(DefineConstants);SEGMENT_MODEL</DefineConstants></PropertyGroup>
   <ItemGroup><ProjectReference Include="../../src/backend/Game.Simulation/Game.Simulation.csproj" /></ItemGroup>
 </Project>

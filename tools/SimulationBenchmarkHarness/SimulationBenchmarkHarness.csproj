@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <SimulationRoot Condition="'$(SimulationRoot)' == ''">$(MSBuildThisFileDirectory)../..</SimulationRoot>
+    <DefineConstants Condition="'$(PreviousModel)' != 'true'">$(DefineConstants);SEGMENT_MODEL</DefineConstants>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="$(SimulationRoot)/src/backend/Game.Simulation/Game.Simulation.csproj" />
+    <Compile Include="../SimulationRunner/BenchmarkMeasurement.cs" Link="BenchmarkMeasurement.cs" />
+    <Compile Include="$(SimulationRoot)/tools/SimulationRunner/ReportWriter.cs" Link="ReportWriter.cs" />
+  </ItemGroup>
+</Project>

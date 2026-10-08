@@ -96,4 +96,8 @@ if ($LASTEXITCODE -eq 0 -or (Test-Path $rejectedOutput) -or "$formSuiteError" -n
     throw 'Form suite must enforce principal sample size before writing reports'
 }
 Write-Output 'Form suite validation smoke check passed.'
+$rejectedOutput = Join-Path $smokeOutput ([Guid]::NewGuid().ToString())
+$benchmarkError = & $Dotnet run --project $runnerProject --no-build -- --suite benchmark --runs 1 --output $rejectedOutput 2>&1
+if ($LASTEXITCODE -eq 0 -or (Test-Path $rejectedOutput) -or "$benchmarkError" -notmatch 'at least 20 paired seeds') { throw 'Benchmark must enforce principal sample size before reports' }
+Write-Output 'Benchmark suite validation smoke check passed.'
 exit 0

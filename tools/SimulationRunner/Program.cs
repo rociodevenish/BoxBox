@@ -32,7 +32,8 @@ try
     }
     if (options.Suite is not null)
     {
-        if (options.Suite == "tyre-pit") SegmentExperimentSuite.RunTyrePit(options.Output, options.Seed, options.Runs, json);
+        if (options.Suite == "benchmark") BenchmarkSuite.Run(options.Output, options.Seed, options.Runs, options.BaselineBenchmark, json);
+        else if (options.Suite == "tyre-pit") SegmentExperimentSuite.RunTyrePit(options.Output, options.Seed, options.Runs, json);
         else if (options.Suite == "form-noise") SegmentExperimentSuite.RunFormNoise(options.Output, options.Seed, options.Runs, json);
         else SegmentExperimentSuite.RunTrackPassing(options.Output, options.Seed, options.Runs, json);
         Console.WriteLine($"Segment evidence: {Path.GetFullPath(options.Output)}");
