@@ -116,7 +116,7 @@ Persist reviewed content versions with recoverable inputs. AI and assistance con
 
 ## Further Notes
 
-This completes the Stage 3 capability after shared sessions. It intentionally extends the earlier slice's host-controlled presentation into a configurable live progression policy and replaces in-memory-only recovery with durable recovery. Those are explicit milestone changes, not corrections to the preceding spec.
+This completes the Stage 3 capability after shared sessions. It intentionally extends the earlier slice's automatic next-window progression into a configurable live progression policy and replaces in-memory-only recovery with durable recovery. A host pause/resume or optional early skip does not introduce a mandatory Continue step for every phase. Those are explicit milestone changes, not corrections to the preceding spec.
 
 Persistence and replay support should be proven before enabling automatic progression. Then add deadlines/fallback, observation-driven AI and assistance, and finally validate the hosted family path. The next milestone is weekend preparation, qualifying and starts.
 

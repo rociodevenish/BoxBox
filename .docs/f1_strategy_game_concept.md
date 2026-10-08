@@ -10,6 +10,8 @@
 
 This game is an online, season-long Formula 1 strategy game with a deliberate board-game feel, while using the computer to handle the complexity that would make a physical board game cumbersome.
 
+Phase-flow decision, 9 October 2026: submitting the complete required team decisions runs the Race Phase and opens the next decision window automatically, unless progression is explicitly paused. No separate Continue action is required after each result; display feedback can play independently while players prepare their next choices.
+
 The player does **not** directly drive a car. The player runs an F1 team across a full season and makes the important decisions that shape competitive performance:
 
 - preseason personnel acquisition;
