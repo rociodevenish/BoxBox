@@ -1,0 +1,15 @@
+{
+  "viewport": {
+    "width": 768,
+    "height": 1024
+  },
+  "reducedMotion": true,
+  "captures": [
+    {
+      "file": "angular-tower-768.png",
+      "width": 718,
+      "height": 880
+    }
+  ],
+  "lastRowBounds": null
+}

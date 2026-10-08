@@ -1,6 +1,6 @@
 # Ticket02 rendered driver gallery review
 
-Reviewed8 October2026 in Chromium151.0.7922.34 using Playwright1.62.1; Angular22.2.1, TypeScript6.0.3, Tailwind4.3.3, Node24.19.0. Reinspected shared assets: same28 driver images plus duplicate George, no newly supplied track assets. Production fixtures consume the existing data-driven portrait manifest and packaged unmodified Max/Lewis copies. Original user files remain untouched.
+Reviewed 8 October 2026 in Chromium 151.0.7922.34 using Playwright 1.62.1; Angular 22.2.1, TypeScript 6.0.3, Tailwind 4.3.3, Node 24.19.0. Reinspected shared assets: same 28 driver images plus duplicate George, no newly supplied track assets. Production fixtures consume the existing data-driven portrait manifest and packaged unmodified Max/Lewis copies. Original user files remain untouched.
 
 ## Evidence and judgment
 
@@ -26,6 +26,6 @@ Text/outline colours remain the contrast-checked01 pairs. Written preferences, r
 
 ## Checks and limits
 
-Eight rendered tests pass. The details/focus-return,404 fallback and unknown/long-name behaviors were observed failing before their implementations. The keyboard check exposed native Tab moving into browser chrome, including Shift+Tab; the text-only modal now retains both directions on its sole Close control while native Escape restores origin focus. Touch opening/closing passed at360px. Reflow and all primary button dimensions≥44px passed at360/768/1920. Production build and strict Angular template/type checking pass; package audit reports zero findings. Bundle148.18KB raw /43.78KB estimated transfer, excluding images.
+Eight rendered tests pass. The details/focus-return,404 fallback and unknown/long-name behaviors were observed failing before their implementations. The keyboard check exposed native Tab moving into browser chrome, including Shift+Tab; the text-only modal now retains both directions on its sole Close control while native Escape restores origin focus. Touch opening/closing passed at 360px. Reflow and all primary button dimensions≥44px passed at 360/768/1920. Production build and strict Angular template/type checking pass; package audit reports zero findings. Bundle148.18KB raw / 43.78 KB estimated transfer, excluding images.
 
-Supplied PNGs are preserved at1024×1536, about4.5MB for two. Development Angular reports oversized image delivery; this is documented rather than hidden. Smaller responsive renditions remain a later delivery optimization. No race orchestration or3D dependency appears in source or package imports. No unit tests were added for docs, CSS nesting or private methods.
+Supplied PNGs are preserved at1024×1536, about 4.5 MB for two. Development Angular reports oversized image delivery; this is documented rather than hidden. Smaller responsive renditions remain a later delivery optimization. No race orchestration or3D dependency appears in source or package imports. No unit tests were added for docs, CSS nesting or private methods.

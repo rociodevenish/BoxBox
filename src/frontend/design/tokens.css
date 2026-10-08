@@ -13,6 +13,9 @@
   --color-success: #a4e6b4;
   --color-warning: #f5d978;
   --color-error: #ffb7b4;
+  --color-tyre-soft: #ffaaa6;
+  --color-tyre-medium: #f5d978;
+  --color-tyre-hard: #f5f6f7;
   --font-body: Arial, Helvetica, sans-serif;
   --font-display: Impact, 'Arial Narrow', sans-serif;
   --text-supporting: 13px;
@@ -38,4 +41,3 @@
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
 }
-

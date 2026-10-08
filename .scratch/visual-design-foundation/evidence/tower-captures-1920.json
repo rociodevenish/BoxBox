@@ -1,0 +1,25 @@
+{
+  "viewport": {
+    "width": 1920,
+    "height": 1080
+  },
+  "reducedMotion": true,
+  "captures": [
+    {
+      "file": "angular-tower-1920.png",
+      "width": 758,
+      "height": 880
+    },
+    {
+      "file": "angular-public-1920x1080.png",
+      "width": 1920,
+      "height": 1080
+    }
+  ],
+  "lastRowBounds": {
+    "x": 25,
+    "y": 990.59375,
+    "width": 758,
+    "height": 36.5
+  }
+}

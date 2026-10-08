@@ -1,0 +1,4 @@
+:host.leader .position {
+  background: var(--color-driver);
+  color: var(--color-canvas);
+}

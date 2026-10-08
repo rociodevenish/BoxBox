@@ -1,3 +1,45 @@
+@if(publicView){
+<main class="public-screen">
+  <header class="public-heading">
+    <div>
+      <p class="text-role font-bold uppercase tracking-widest text-sm">
+        Public display · design fixtures
+      </p>
+      <h1>Race Phase {{publicRace.phase}}</h1>
+    </div>
+    <div class="race-progress">
+      <strong>Lap {{publicRace.leaderLap}} / {{publicRace.totalLaps}}</strong>
+      <p>Dry race laboratory</p>
+    </div>
+    <a href="/">Back to gallery</a>
+  </header>
+  <div class="public-layout">
+    <app-timing-tower [classification]="publicRace" />
+    <aside class="public-context" aria-label="Race leader">
+      <p class="context-label">Race leader</p>
+      @if(max.portrait && !leaderPortraitFailed()){<img
+        [src]="max.portrait.url"
+        alt="Max Verstappen portrait"
+        (error)="leaderPortraitFailed.set(true)"
+      />}@else{
+      <div class="leader-portrait-fallback">
+        <span aria-hidden="true">MV</span>
+        <p>Portrait unavailable</p>
+      </div>
+      }
+      <div class="leader-identity">
+        <p>Max</p>
+        <h2>Verstappen</h2>
+        <p class="text-secondarytext">Apex · Car 1</p>
+      </div>
+      <p class="public-note">
+        Gap to leader · seconds and lap deficits shown separately.<br />Stop
+        status describes announced or ongoing stops.
+      </p>
+    </aside>
+  </div>
+</main>
+}@else{
 <main class="mx-auto max-w-7xl p-4 md:p-8">
   <header class="mb-8 border-b border-outline pb-6">
     <p class="text-role font-bold uppercase tracking-widest text-sm">
@@ -12,7 +54,9 @@
     </p>
     <nav aria-label="Gallery sections" class="flex flex-wrap gap-3 mt-4">
       <a href="#compact">Compact cards</a
-      ><a href="#expanded">Expanded details</a><a href="#tv">TV treatment</a>
+      ><a href="#expanded">Expanded details</a><a href="#tv">TV treatment</a
+      ><a href="#classification">Classification</a
+      ><a href="/?view=public">Public display</a>
     </nav>
   </header>
   <section id="compact" aria-labelledby="compact-title">
@@ -39,8 +83,23 @@
     <h2 id="tv-title" class="text-2xl font-bold mb-4">TV treatment</h2>
     <app-driver-card [driver]="max" variant="tv" />
   </section>
+  <section
+    id="classification"
+    aria-labelledby="classification-title"
+    class="mt-8"
+  >
+    <h2 id="classification-title" class="text-2xl font-bold mb-4">
+      Public Classification
+    </h2>
+    <p class="text-secondarytext mb-4">
+      Synthetic field and teams. Stop pending means a publicly announced stop.
+    </p>
+    <app-timing-tower [classification]="publicRace" />
+  </section>
   <footer class="text-secondarytext text-sm border-t border-outline mt-8 py-6">
     Local fixture gallery. Public/private race screens follow in later tickets.
     No authoritative race state, hidden randomness or 3D renderer is loaded.
   </footer>
 </main>
+
+}
