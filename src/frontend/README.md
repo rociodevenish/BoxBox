@@ -2,6 +2,8 @@
 
 The production Angular workspace contains reusable UI, an independently runnable fixture gallery and a local race client. The gallery demonstrates presentation and interaction. The race client consumes authoritative HTTP/SignalR snapshots; neither frontend owns simulation or a 3D renderer.
 
+For full verification from repository root, run `node tools/verify.mjs`. See [verification workflow](../../docs/agents/verification-workflow.md) for setup, focused reruns and explicit evidence publication; ordinary captures stay in ignored reports.
+
 ## Run and verify
 
 Use Node 24.15 or later within the pinned Angular 22 toolchain's supported Node range. On this host, prepend `C:/Users/sbdev/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin` to PATH. Versions are pinned in package.json and package-lock.json.
@@ -14,7 +16,7 @@ npm run typecheck
 npm test
 ```
 
-The gallery and Playwright test server use `http://127.0.0.1:4400/`. Run `npm start -- --port 4401` for an independent review instance. Browser tests start their own server when needed. Reuse the installed Chromium cache with `$env:PLAYWRIGHT_BROWSERS_PATH='C:/Projects/F1Game/.tools/playwright'`, or install the pinned browser with `npx playwright install chromium`. `PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH` optionally selects an existing compatible browser. Generated node_modules, .angular, dist, test-results and playwright-report directories are ignored.
+The manually started gallery uses `http://127.0.0.1:4400/`; Playwright owns an isolated server on port 4471 by default. Run `npm start -- --port 4401` for an independent review instance. Browser tests always own their servers and refuse existing listeners. Reuse the installed Chromium cache with `$env:PLAYWRIGHT_BROWSERS_PATH='C:/Projects/F1Game/.tools/playwright'`, or install the pinned browser with `npx playwright install chromium`. `PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH` optionally selects an existing compatible browser. Generated node_modules, .angular, dist, test-results and playwright-report directories are ignored.
 
 | Entry | Observable fixtures |
 | --- | --- |
