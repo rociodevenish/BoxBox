@@ -1,6 +1,7 @@
 <article
   class="driver-card"
   [class.tv]="variant()==='tv'"
+  [class.identity-only]="variant()==='identity'"
   [attr.aria-label]="fullName(driver())+' — '+variant()+' driver card'"
   [style.--team-accent]="driver().ownership?.accent"
 >
@@ -23,9 +24,9 @@
         >{{driver().firstName.charAt(0)}}{{driver().surname.charAt(0)}}</span
       >
     </div>
-    } @if(driver().ownership; as owner){<span class="ownership"
+    } @if(variant()!=='identity' && driver().ownership; as owner){<span class="ownership"
       >Owned by {{owner.name}}</span
-    >} @if(driver().priceLabel){<span class="price"
+    >} @if(variant()!=='identity' && driver().priceLabel){<span class="price"
       >{{driver().priceLabel}}</span
     >}
     <div class="identity">
@@ -38,6 +39,7 @@
     @if(!driver().portrait || failedPortrait()===driver().portrait?.url){
     <p class="fallback-message">Portrait unavailable</p>
     }
+    @if(variant()!=='identity'){
     <dl class="attributes">
       @for(group of groups;track group){
       <div class="attribute">
@@ -67,6 +69,7 @@
         }
       </dl>
     </div>
+    }
     }
     <button
       class="details-button"

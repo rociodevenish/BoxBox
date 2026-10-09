@@ -31,7 +31,7 @@ import { PublicDriverIdentity } from "./public-classification.model";
       overflow-wrap: anywhere;
       min-width: 0;
     }
-    @media (max-width: 600px) {
+    @container timing (max-width: 600px) {
       .identity {
         display: block;
         padding-left: 6px;

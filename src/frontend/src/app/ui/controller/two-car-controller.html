@@ -23,8 +23,8 @@
       class="car"
     >
       <p class="eyebrow">Car {{i + 1}}</p>
-      @if(car.card){<app-driver-card [driver]="car.card" />}@else{<h2>{{car.name}}</h2>}
-@if(car.vicinity){<section [attr.aria-label]="car.name+' race information'"><h3>Nearby Classification</h3><table><caption>Two positions above and below where available · Interval</caption><thead><tr><th>Pos</th><th>Driver</th><th>Interval</th></tr></thead><tbody>@for(row of car.vicinity;track row.card.id){<tr [class.own-driver]="row.card.id===car.id"><td>{{row.position}}</td><td><button (click)="analyzedDriver.set(row.card);analysis.showModal()">{{row.card.firstName}} {{row.card.surname}}</button>@if(row.isFastestLap){<span aria-label="Fastest lap"> ◆</span>}</td><td><app-race-gap [gap]="row.gap" /></td></tr>}</tbody></table><h3>Recent recorded laps</h3>@if(car.recentLaps?.length){<ol aria-label="Recent recorded lap times">@for(lap of car.recentLaps;track lap.lap){<li>Lap {{lap.lap}} · {{lapTime(lap.seconds)}}</li>}</ol>}@else{<p>No full lap times recorded yet.</p>}</section>}
+      @if(car.card){<app-driver-card [driver]="car.card" variant="identity" />}@else{<h2>{{car.name}}</h2>}
+@if(car.nearbyClassification){<section [attr.aria-label]="car.name+' race information'"><h3>Nearby Classification</h3><app-timing-tower [classification]="car.nearbyClassification" [interactive]="true" (driverSelected)="analyzeDriver($event)" /><h3>Recent recorded laps</h3>@if(car.recentLaps?.length){<ol aria-label="Recent recorded lap times">@for(lap of car.recentLaps;track lap.lap){<li>Lap {{lap.lap}} · {{lapTime(lap.seconds)}}</li>}</ol>}@else{<p>No full lap times recorded yet.</p>}</section>}
       <div class="tyres">
         <app-compound-badge [compound]="car.currentCompound" />
         <p>Tyre condition estimate: <strong>{{car.tyreEstimate}}</strong></p>

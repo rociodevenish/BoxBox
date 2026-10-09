@@ -1,6 +1,6 @@
 import {DriverCard} from '../driver-card';
 import {DriverCardViewModel} from '../driver-card.model';
-import {RaceGap} from '../timing/race-gap';
+import {TimingTower} from '../timing/timing-tower';
 import {
   Component,
   ElementRef,
@@ -21,7 +21,7 @@ import {
 } from "./controller.model";
 @Component({
   selector: "app-two-car-controller",
-  imports: [CompoundBadge,DriverCard,RaceGap],
+  imports: [CompoundBadge,DriverCard,TimingTower],
   templateUrl: "./two-car-controller.html",
   styleUrl: "./two-car-controller.css",
 })
@@ -36,6 +36,7 @@ export class TwoCarController {
     const index=controls.findIndex(control=>control===document.activeElement);
     controls[(index+(event.shiftKey?-1:1)+controls.length)%controls.length].focus();
   }
+  analyzeDriver(id:string){const driver=this.model().cars.flatMap(car=>car.nearbyDrivers??[]).find(card=>card.id===id);if(driver){this.analyzedDriver.set(driver);this.analysis().nativeElement.showModal();}}
   lapTime(seconds:number){const ms=Math.round(seconds*1000);return Math.floor(ms/60000)+':'+((ms%60000)/1000).toFixed(3).padStart(6,'0');}
   readonly model = input.required<PrivateControllerViewModel>();
   readonly submitPlan = output<TeamPlan>();

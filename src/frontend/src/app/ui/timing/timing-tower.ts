@@ -1,4 +1,4 @@
-import { Component, input } from "@angular/core";
+import { Component, input, output } from "@angular/core";
 import { PublicClassification } from "./public-classification.model";
 import { TimingRow } from "./timing-row";
 @Component({
@@ -33,7 +33,7 @@ import { TimingRow } from "./timing-row";
       </thead>
       <tbody>
         @for (row of classification().rows; track row.driver.id) {
-          <tr app-timing-row [row]="row" [compact]="classification().compact ?? false"></tr>
+          <tr app-timing-row [row]="row" [compact]="classification().compact ?? false" [interactive]="interactive()" (driverSelected)="driverSelected.emit($event)"></tr>
         }
       </tbody>
     </table>
@@ -42,6 +42,7 @@ import { TimingRow } from "./timing-row";
     :host {
       display: block;
       min-width: 0;
+      container: timing / inline-size;
     }
     .tower-panel {
       border: 1px solid var(--color-border);
@@ -100,7 +101,7 @@ import { TimingRow } from "./timing-row";
     }
     .finished .status-column { width:190px; }
     @media(min-width:1200px){.compact .tower-heading {padding:10px 16px;} .compact caption {padding:8px 16px;} }
-    @media (max-width: 600px) { .stops-column{width:40px;}
+    @container timing (max-width: 600px) { .stops-column{width:44px;}
       .tower-heading {
         padding: 12px;
         font-size: 14px;
@@ -109,7 +110,7 @@ import { TimingRow } from "./timing-row";
         width: 28px;
       }
       .gap-column {
-        width: 82px;
+        width: 78px;
       }
       .compound-column, .compound-column.with-age {
         width: 94px;
@@ -128,6 +129,8 @@ import { TimingRow } from "./timing-row";
   `,
 })
 export class TimingTower {
+  readonly interactive = input(false);
+  readonly driverSelected = output<string>();
   readonly classification = input.required<PublicClassification>();
   hasStopCounts(){return this.classification().rows.some(row=>row.completedPitStops!==undefined);}
   hasAge(){return this.classification().rows.some(row=>row.tyreAge!==undefined);}

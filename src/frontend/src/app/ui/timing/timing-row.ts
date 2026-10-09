@@ -1,4 +1,4 @@
-import { Component, input } from "@angular/core";
+import { Component, input, output } from "@angular/core";
 import { PublicTimingRow } from "./public-classification.model";
 import { DriverIdentity } from "./driver-identity";
 import { RaceGap } from "./race-gap";
@@ -11,7 +11,7 @@ import { CompoundBadge } from "../compound-badge";
   styleUrl: "./timing-row.css",
   template: `<td class="position">{{ row().position }}</td>
     <th scope="row">
-      <div class="driver-heading"><app-driver-identity [driver]="row().driver" />@if(row().isFastestLap){<span aria-label="Fastest lap"> ◆</span>}</div>
+      <div class="driver-heading">@if(interactive()){<button class="driver-details" [attr.aria-label]="row().driver.name" (click)="driverSelected.emit(row().driver.id)"><app-driver-identity [driver]="row().driver" /></button>}@else{<app-driver-identity [driver]="row().driver" />}@if(row().isFastestLap){<span aria-label="Fastest lap"> ◆</span>}</div>
       @if(row().eligibleAtFinish !== undefined && row().eligibleAtFinish !== null){<p class="mobile-finish">{{row().completedLaps}} laps · {{row().eligibleAtFinish ? 'Eligible' : 'Ineligible'}}</p>}
       @if (row().stopStatus !== "on-track") {
         <div class="mobile-status">
@@ -43,6 +43,7 @@ import { CompoundBadge } from "../compound-badge";
     th {
       font-weight: 400;
     }
+    .driver-details {min-height:0;padding:0; border:0; background:transparent; color:inherit; width:100%; text-align:left; border-radius:0; font:inherit;}
     .position {
       font-weight: 800;
       text-align: center;
@@ -55,7 +56,7 @@ import { CompoundBadge } from "../compound-badge";
     @media(min-width:1200px){:host.compact td,:host.compact th {padding:2px 8px;}}
     .tyre-content { display:flex; align-items:center; gap:8px; }
     .tyre-age { font-size:12px; color:var(--color-muted); white-space:nowrap; }
-    @media (max-width: 600px) {
+    @container timing (max-width: 600px) {
       td,
       th {
         padding: 6px 4px;
@@ -74,6 +75,8 @@ import { CompoundBadge } from "../compound-badge";
   `,
 })
 export class TimingRow {
+  readonly interactive = input(false);
+  readonly driverSelected = output<string>();
   readonly compact = input(false);
   readonly row = input.required<PublicTimingRow>();
 }

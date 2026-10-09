@@ -1,5 +1,5 @@
 import {DriverCardViewModel} from '../driver-card.model';
-import {PublicGap} from '../timing/public-classification.model';
+import {PublicClassification} from '../timing/public-classification.model';
 export type ControllerState =
   | "selected"
   | "submitted"
@@ -19,7 +19,8 @@ export interface CarInstruction {
 export interface PrivateCarViewModel {
   readonly id: string;
   readonly card?: DriverCardViewModel;
-  readonly vicinity?: readonly {position:number;card:DriverCardViewModel;gap:PublicGap;isFastestLap:boolean}[];
+  readonly nearbyClassification?: PublicClassification;
+  readonly nearbyDrivers?: readonly DriverCardViewModel[];
   readonly recentLaps?: readonly {lap:number;seconds:number}[];
   readonly name: string;
   readonly tyreEstimate: string;

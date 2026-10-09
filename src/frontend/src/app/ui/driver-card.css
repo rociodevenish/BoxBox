@@ -288,3 +288,6 @@ dialog::backdrop {
     height: 330px;
   }
 }
+
+.identity-only .portrait { height: 220px; }
+.identity-only .card-body { padding: 12px 16px; }
