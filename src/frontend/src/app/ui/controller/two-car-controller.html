@@ -104,7 +104,7 @@
   >
     Approve Plan
   </button>
-  <dialog #analysis aria-label="Driver analysis"><button (click)="analysis.close()">Close driver analysis</button>@if(analyzedDriver();as driver){<app-driver-card [driver]="driver" [variant]="'expanded'" />}</dialog>
+  <dialog #analysis aria-label="Driver analysis" (keydown)="keepAnalysisFocus($event)"><button (click)="analysis.close()">Close driver analysis</button>@if(analyzedDriver();as driver){<app-driver-card [driver]="driver" [variant]="'expanded'" />}</dialog>
   <dialog
     (keydown)="keepFocus($event)"
     #confirmation

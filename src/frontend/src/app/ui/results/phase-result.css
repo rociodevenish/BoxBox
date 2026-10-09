@@ -177,3 +177,5 @@
     display: block;
   }
 }
+@media(max-width:600px){.feedback-first .result-layout{display:flex;flex-direction:column;}.feedback-first .feedback{order:-1;}}
+.result-screen.compact{padding:0;}

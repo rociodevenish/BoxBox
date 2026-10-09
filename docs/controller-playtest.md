@@ -15,3 +15,5 @@ The fastest-lap marker uses the smallest unrounded recorded full-lap duration ac
 This is a presentation mapping for playtesting. The provisional source ratings do not describe or replace the equal/mixed synthetic engine attributes. No stars or detailed values are converted into physics. Missing portraits retain the existing readable fallback. Original assets and source provenance remain intact.
 
 Tyre selection uses keyboard-operable compound badge buttons, with explicit **New compound Hard/Medium/Soft** accessible labels and pressed state. The confirmation modal still summarizes both complete instructions and preserves focus behavior.
+
+Live portrait variants total 715,346 bytes for 22 supplied race drivers; the initial two controlled portraits total 60,776 bytes. Existing legacy gallery PNGs remain separate from live variants and bundle measurements.

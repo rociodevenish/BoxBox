@@ -12,6 +12,7 @@ export class PhaseResult {
   readonly fixtureLabel = input<string | null>(null);
   readonly compact = input(false);
   readonly liveRace = input(false);
+  readonly feedbackFirst = input(false);
   readonly result = input.required<PublicPhaseResult>();
   readonly failedContextUrl = signal<string | null>(null);
   title() {

@@ -27,6 +27,15 @@ import {
 })
 export class TwoCarController {
   readonly analyzedDriver=signal<DriverCardViewModel|null>(null);
+  private readonly analysis = viewChild.required<ElementRef<HTMLDialogElement>>('analysis');
+  keepAnalysisFocus(event:KeyboardEvent){
+    if(event.key!=='Tab' || event.defaultPrevented)return;
+    const controls=Array.from(this.analysis().nativeElement.querySelectorAll<HTMLButtonElement>('button')).filter(control=>!control.disabled && control.getClientRects().length>0);
+    if(!controls.length)return;
+    event.preventDefault();
+    const index=controls.findIndex(control=>control===document.activeElement);
+    controls[(index+(event.shiftKey?-1:1)+controls.length)%controls.length].focus();
+  }
   lapTime(seconds:number){const ms=Math.round(seconds*1000);return Math.floor(ms/60000)+':'+((ms%60000)/1000).toFixed(3).padStart(6,'0');}
   readonly model = input.required<PrivateControllerViewModel>();
   readonly submitPlan = output<TeamPlan>();

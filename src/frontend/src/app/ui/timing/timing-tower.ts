@@ -100,7 +100,7 @@ import { TimingRow } from "./timing-row";
     }
     .finished .status-column { width:190px; }
     @media(min-width:1200px){.compact .tower-heading {padding:10px 16px;} .compact caption {padding:8px 16px;} }
-    @media (max-width: 600px) {
+    @media (max-width: 600px) { .stops-column{width:40px;}
       .tower-heading {
         padding: 12px;
         font-size: 14px;

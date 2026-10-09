@@ -1,4 +1,4 @@
-<main class="result-screen" [class.finished]="result().state === 'finished'" [class.compact]="compact()">
+<main class="result-screen" [class.finished]="result().state === 'finished'" [class.compact]="compact()" [class.feedback-first]="feedbackFirst()">
   <header class="result-header">
     <div>
       <p class="eyebrow">
@@ -9,7 +9,7 @@
     <p role="status">
       @switch(result().state){@case('initial'){Grid order · Waiting for first
       decisions.}@case('awaiting'){New decision window open · Waiting for the team plan.}@case('resolving'){Resolution in progress. Showing the
-      last published Classification.}@case('presenting'){Playing recorded feedback · Showing the last published Classification until playback completes.}@case('finished'){Chequered flag · No
+      last published Classification.}@case('presenting'){{{feedbackFirst() ? 'Playing recorded feedback · Showing the resolved Classification.' : 'Playing recorded feedback · Showing the last published Classification until playback completes.'}}}@case('finished'){Chequered flag · No
       further decisions.}@default{Race continues.}}
     </p>
   </header>
@@ -18,7 +18,7 @@
       <h2 id="result-classification">
         {{result().state === 'initial' ? 'Initial Classification' :
         result().state === 'finished' ? 'Final Classification' : result().state
-        === 'resolving' || result().state === 'presenting' || result().state === 'awaiting' ? 'Last published Classification' : 'Recorded Classification'}}
+        === 'presenting' && feedbackFirst() ? 'Resolved Classification' : result().state === 'resolving' || result().state === 'presenting' || result().state === 'awaiting' ? 'Last published Classification' : 'Recorded Classification'}}
       </h2>
       <app-timing-tower [classification]="result().classification" />
     </section>
