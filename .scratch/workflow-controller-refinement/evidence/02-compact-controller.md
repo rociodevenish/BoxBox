@@ -15,3 +15,5 @@ Validation:
 - Ordinary tests changed no historical tracked evidence. Captures were written to ignored output and explicitly published with tools/publish-evidence.mjs.
 
 Evidence: compact-phone.png (360px full scrollable phone), nearby-phone.png (actual phone classification crop), public-tv.png (1920×1080).
+
+Review correction: removed duplicate nearby-window selection. The exact selected public rows now supply both the timing facts and the driver-detail cards, using fresh authoritative state during replay. Three focused browser scenarios passed after this correction (compact card/edge window/drill-down, outcome-first/replay, recorded laps and completed stops).
