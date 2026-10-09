@@ -96,13 +96,14 @@ test("keyboard details stay modal and Escape returns focus to the initiating car
 });
 test("touch users can open and close details on a phone", async ({
   browser,
+  baseURL,
 }) => {
   const context = await browser.newContext({
     viewport: { width: 360, height: 800 },
     hasTouch: true,
   });
   const page = await context.newPage();
-  await page.goto("http://127.0.0.1:4400");
+  await page.goto(baseURL!);
   await page
     .getByRole("article", { name: "Lewis Hamilton — compact driver card" })
     .getByRole("button", { name: "View details for Lewis Hamilton" })

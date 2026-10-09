@@ -1,6 +1,6 @@
 import { test, expect } from "@playwright/test";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
-const out = "../../.scratch/visual-design-foundation/evidence";
+const out = "../../.tools/reports/gallery";
 for (const [width, height] of [
   [360, 800],
   [768, 1024],

@@ -1,7 +1,7 @@
 import { test, expect } from "@playwright/test";
 import { mkdirSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
-const evidence = resolve("../../.scratch/visual-design-foundation/evidence");
+const evidence = resolve("../../.tools/reports/gallery");
 for (const [width, height] of [
   [360, 800],
   [800, 360],
