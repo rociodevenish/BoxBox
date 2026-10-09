@@ -62,7 +62,7 @@
         @for(detail of driver().details;track detail.label){
         <div class="attribute">
           <dt>{{detail.label}}</dt>
-          <dd>{{detail.rating===null?'Unknown':detail.rating+' / 5'}}</dd>
+          <dd>{{detail.displayValue!==undefined?detail.displayValue+' / '+detail.scale:detail.rating===null?'Unknown':detail.rating+' / 5'}}</dd>
         </div>
         }
       </dl>
@@ -100,7 +100,7 @@
     @for(detail of driver().details;track detail.label){
     <div class="attribute">
       <dt>{{detail.label}}</dt>
-      <dd>{{detail.rating===null?'Unknown':detail.rating+' / 5'}}</dd>
+      <dd>{{detail.displayValue!==undefined?detail.displayValue+' / '+detail.scale:detail.rating===null?'Unknown':detail.rating+' / 5'}}</dd>
     </div>
     }
   </dl>

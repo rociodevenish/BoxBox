@@ -196,3 +196,4 @@ dialog::backdrop {
     line-height: 1.2;
   }
 }
+.car table{width:100%;text-align:left;border-collapse:collapse;} .car td,.car th{padding:8px 4px;} .car caption{font-size:13px;color:var(--color-muted);text-align:left;} .own-driver{background:var(--color-raised);} .car app-driver-card{display:block;margin-bottom:16px;}

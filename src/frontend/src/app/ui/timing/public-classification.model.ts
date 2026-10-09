@@ -23,6 +23,8 @@ export interface PublicTimingRow {
   readonly stopStatus: PublicStopStatus;
   readonly tyreAge?: number;
   readonly completedLaps?: number;
+  readonly completedPitStops?: number;
+  readonly isFastestLap?: boolean;
   readonly eligibleAtFinish?: boolean | null;
 }
 export interface PublicClassification {

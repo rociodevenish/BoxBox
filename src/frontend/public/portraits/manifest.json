@@ -1,8 +1,293 @@
 {
   "provenance": "User-supplied shared repository assets, inspected 2026-10-08. Original creator and redistribution licence not supplied. Local design fixtures only.",
   "portraits": [
-    { "driverId": "max-verstappen", "name": "Max Verstappen", "source": "assets/driver images/max-verstappen.png", "url": "portraits/max-verstappen.png", "objectPosition": "center 22%" },
-    { "driverId": "lewis-hamilton", "name": "Lewis Hamilton", "source": "assets/driver images/lewis-hamilton.png", "url": "portraits/lewis-hamilton.png", "objectPosition": "center 22%" }
+    {
+      "driverId": "max-verstappen",
+      "name": "Max Verstappen",
+      "source": "assets/driver images/max-verstappen.png",
+      "url": "portraits/max-verstappen.png",
+      "objectPosition": "center 22%",
+      "runtimeUrl": "portraits/max-verstappen-384.webp",
+      "runtimeSize": {
+        "width": 384,
+        "height": 576,
+        "bytes": 30046
+      }
+    },
+    {
+      "driverId": "lewis-hamilton",
+      "name": "Lewis Hamilton",
+      "source": "assets/driver images/lewis-hamilton.png",
+      "url": "portraits/lewis-hamilton.png",
+      "objectPosition": "center 22%",
+      "runtimeUrl": "portraits/lewis-hamilton-384.webp",
+      "runtimeSize": {
+        "width": 384,
+        "height": 576,
+        "bytes": 28204
+      }
+    },
+    {
+      "driverId": "george-russell",
+      "name": "George Russell",
+      "source": "assets/driver images/george-russell.png",
+      "url": "portraits/george-russell-384.webp",
+      "objectPosition": "center 22%",
+      "runtimeUrl": "portraits/george-russell-384.webp",
+      "runtimeSize": {
+        "width": 384,
+        "height": 576,
+        "bytes": 30730
+      }
+    },
+    {
+      "driverId": "andrea-kimi-antonelli",
+      "name": "Andrea Kimi Antonelli",
+      "source": "assets/driver images/andrea-kimi-antonelli.png",
+      "url": "portraits/andrea-kimi-antonelli-384.webp",
+      "objectPosition": "center 22%",
+      "runtimeUrl": "portraits/andrea-kimi-antonelli-384.webp",
+      "runtimeSize": {
+        "width": 384,
+        "height": 576,
+        "bytes": 36936
+      }
+    },
+    {
+      "driverId": "charles-leclerc",
+      "name": "Charles Leclerc",
+      "source": "assets/driver images/charles-leclerc.png",
+      "url": "portraits/charles-leclerc-384.webp",
+      "objectPosition": "center 22%",
+      "runtimeUrl": "portraits/charles-leclerc-384.webp",
+      "runtimeSize": {
+        "width": 384,
+        "height": 576,
+        "bytes": 31330
+      }
+    },
+    {
+      "driverId": "lando-norris",
+      "name": "Lando Norris",
+      "source": "assets/driver images/lando-norris.png",
+      "url": "portraits/lando-norris-384.webp",
+      "objectPosition": "center 22%",
+      "runtimeUrl": "portraits/lando-norris-384.webp",
+      "runtimeSize": {
+        "width": 384,
+        "height": 576,
+        "bytes": 31342
+      }
+    },
+    {
+      "driverId": "oscar-piastri",
+      "name": "Oscar Piastri",
+      "source": "assets/driver images/oscar-piastri.png",
+      "url": "portraits/oscar-piastri-384.webp",
+      "objectPosition": "center 22%",
+      "runtimeUrl": "portraits/oscar-piastri-384.webp",
+      "runtimeSize": {
+        "width": 384,
+        "height": 576,
+        "bytes": 30814
+      }
+    },
+    {
+      "driverId": "fernando-alonso",
+      "name": "Fernando Alonso",
+      "source": "assets/driver images/fernando-alonso.png",
+      "url": "portraits/fernando-alonso-384.webp",
+      "objectPosition": "center 22%",
+      "runtimeUrl": "portraits/fernando-alonso-384.webp",
+      "runtimeSize": {
+        "width": 384,
+        "height": 576,
+        "bytes": 35096
+      }
+    },
+    {
+      "driverId": "carlos-sainz",
+      "name": "Carlos Sainz",
+      "source": "assets/driver images/carlos-sainz.png",
+      "url": "portraits/carlos-sainz-384.webp",
+      "objectPosition": "center 22%",
+      "runtimeUrl": "portraits/carlos-sainz-384.webp",
+      "runtimeSize": {
+        "width": 384,
+        "height": 576,
+        "bytes": 33176
+      }
+    },
+    {
+      "driverId": "nico-hulkenberg",
+      "name": "Nico H\u00c3\u00bclkenberg",
+      "source": "assets/driver images/nico-hulkenberg.png",
+      "url": "portraits/nico-hulkenberg-384.webp",
+      "objectPosition": "center 22%",
+      "runtimeUrl": "portraits/nico-hulkenberg-384.webp",
+      "runtimeSize": {
+        "width": 384,
+        "height": 576,
+        "bytes": 32026
+      }
+    },
+    {
+      "driverId": "pierre-gasly",
+      "name": "Pierre Gasly",
+      "source": "assets/driver images/pierre-gasly.png",
+      "url": "portraits/pierre-gasly-384.webp",
+      "objectPosition": "center 22%",
+      "runtimeUrl": "portraits/pierre-gasly-384.webp",
+      "runtimeSize": {
+        "width": 384,
+        "height": 576,
+        "bytes": 35454
+      }
+    },
+    {
+      "driverId": "isack-hadjar",
+      "name": "Isack Hadjar",
+      "source": "assets/driver images/isack-hadjar.png",
+      "url": "portraits/isack-hadjar-384.webp",
+      "objectPosition": "center 22%",
+      "runtimeUrl": "portraits/isack-hadjar-384.webp",
+      "runtimeSize": {
+        "width": 384,
+        "height": 576,
+        "bytes": 30576
+      }
+    },
+    {
+      "driverId": "esteban-ocon",
+      "name": "Esteban Ocon",
+      "source": "assets/driver images/esteban-ocon.png",
+      "url": "portraits/esteban-ocon-384.webp",
+      "objectPosition": "center 22%",
+      "runtimeUrl": "portraits/esteban-ocon-384.webp",
+      "runtimeSize": {
+        "width": 384,
+        "height": 576,
+        "bytes": 31734
+      }
+    },
+    {
+      "driverId": "alexander-albon",
+      "name": "Alexander Albon",
+      "source": "assets/driver images/alexander-albon.png",
+      "url": "portraits/alexander-albon-384.webp",
+      "objectPosition": "center 22%",
+      "runtimeUrl": "portraits/alexander-albon-384.webp",
+      "runtimeSize": {
+        "width": 384,
+        "height": 576,
+        "bytes": 33938
+      }
+    },
+    {
+      "driverId": "sergio-perez",
+      "name": "Sergio P\u00c3\u00a9rez",
+      "source": "assets/driver images/sergio-perez.png",
+      "url": "portraits/sergio-perez-384.webp",
+      "objectPosition": "center 22%",
+      "runtimeUrl": "portraits/sergio-perez-384.webp",
+      "runtimeSize": {
+        "width": 384,
+        "height": 576,
+        "bytes": 31154
+      }
+    },
+    {
+      "driverId": "valtteri-bottas",
+      "name": "Valtteri Bottas",
+      "source": "assets/driver images/valtteri-bottas.png",
+      "url": "portraits/valtteri-bottas-384.webp",
+      "objectPosition": "center 22%",
+      "runtimeUrl": "portraits/valtteri-bottas-384.webp",
+      "runtimeSize": {
+        "width": 384,
+        "height": 576,
+        "bytes": 31740
+      }
+    },
+    {
+      "driverId": "oliver-bearman",
+      "name": "Oliver Bearman",
+      "source": "assets/driver images/oliver-bearman.png",
+      "url": "portraits/oliver-bearman-384.webp",
+      "objectPosition": "center 22%",
+      "runtimeUrl": "portraits/oliver-bearman-384.webp",
+      "runtimeSize": {
+        "width": 384,
+        "height": 576,
+        "bytes": 36184
+      }
+    },
+    {
+      "driverId": "gabriel-bortoleto",
+      "name": "Gabriel Bortoleto",
+      "source": "assets/driver images/gabriel-bortoleto.png",
+      "url": "portraits/gabriel-bortoleto-384.webp",
+      "objectPosition": "center 22%",
+      "runtimeUrl": "portraits/gabriel-bortoleto-384.webp",
+      "runtimeSize": {
+        "width": 384,
+        "height": 576,
+        "bytes": 34472
+      }
+    },
+    {
+      "driverId": "liam-lawson",
+      "name": "Liam Lawson",
+      "source": "assets/driver images/liam-lawson.png",
+      "url": "portraits/liam-lawson-384.webp",
+      "objectPosition": "center 22%",
+      "runtimeUrl": "portraits/liam-lawson-384.webp",
+      "runtimeSize": {
+        "width": 384,
+        "height": 576,
+        "bytes": 32262
+      }
+    },
+    {
+      "driverId": "arvid-lindblad",
+      "name": "Arvid Lindblad",
+      "source": "assets/driver images/arvid-lindblad.png",
+      "url": "portraits/arvid-lindblad-384.webp",
+      "objectPosition": "center 22%",
+      "runtimeUrl": "portraits/arvid-lindblad-384.webp",
+      "runtimeSize": {
+        "width": 384,
+        "height": 576,
+        "bytes": 34408
+      }
+    },
+    {
+      "driverId": "franco-colapinto",
+      "name": "Franco Colapinto",
+      "source": "assets/driver images/franco-colapinto.png",
+      "url": "portraits/franco-colapinto-384.webp",
+      "objectPosition": "center 22%",
+      "runtimeUrl": "portraits/franco-colapinto-384.webp",
+      "runtimeSize": {
+        "width": 384,
+        "height": 576,
+        "bytes": 31960
+      }
+    },
+    {
+      "driverId": "lance-stroll",
+      "name": "Lance Stroll",
+      "source": "assets/driver images/lance-stroll.png",
+      "url": "portraits/lance-stroll-384.webp",
+      "objectPosition": "center 22%",
+      "runtimeUrl": "portraits/lance-stroll-384.webp",
+      "runtimeSize": {
+        "width": 384,
+        "height": 576,
+        "bytes": 31764
+      }
+    }
   ],
-  "fallback": "Identity initials on charcoal with the same role stripes; always preserve the live full name."
+  "fallback": "Identity initials on charcoal with the same role stripes; always preserve the live full name.",
+  "runtimeVariants": "Local supplied PNG resized with Pillow Lanczos to 384x576, WebP quality82; originals untouched."
 }

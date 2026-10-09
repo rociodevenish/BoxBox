@@ -1,3 +1,6 @@
+import {DriverCard} from '../driver-card';
+import {DriverCardViewModel} from '../driver-card.model';
+import {RaceGap} from '../timing/race-gap';
 import {
   Component,
   ElementRef,
@@ -18,16 +21,19 @@ import {
 } from "./controller.model";
 @Component({
   selector: "app-two-car-controller",
-  imports: [CompoundBadge],
+  imports: [CompoundBadge,DriverCard,RaceGap],
   templateUrl: "./two-car-controller.html",
   styleUrl: "./two-car-controller.css",
 })
 export class TwoCarController {
+  readonly analyzedDriver=signal<DriverCardViewModel|null>(null);
+  lapTime(seconds:number){const ms=Math.round(seconds*1000);return Math.floor(ms/60000)+':'+((ms%60000)/1000).toFixed(3).padStart(6,'0');}
   readonly model = input.required<PrivateControllerViewModel>();
   readonly submitPlan = output<TeamPlan>();
   readonly choices = signal<readonly CarInstruction[]>([]);
   readonly confirmation =
     viewChild.required<ElementRef<HTMLDialogElement>>("confirmation");
+  readonly compounds: readonly Compound[] = ['Soft','Medium','Hard'];
   readonly paces: readonly Pace[] = ["Conserve", "Standard", "Push"];
   private draftPhase: number | undefined;
   private confirmedRevision: number | undefined;

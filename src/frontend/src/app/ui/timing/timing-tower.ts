@@ -20,7 +20,7 @@ import { TimingRow } from "./timing-row";
         <col />
         <col class="gap-column" />
         <col class="compound-column" [class.with-age]="hasAge()" />
-        <col class="status-column" />
+        @if(hasStopCounts()){<col class="stops-column" />}<col class="status-column" />
       </colgroup>
       <thead>
         <tr>
@@ -28,7 +28,7 @@ import { TimingRow } from "./timing-row";
           <th scope="col">Driver</th>
           <th scope="col">{{classification().gapReference === 'ahead' ? 'Interval' : 'Gap'}}</th>
           <th scope="col">Tyre</th>
-          <th scope="col" class="status-heading">{{classification().rows[0]?.eligibleAtFinish != null ? 'Distance / eligibility' : 'Stop status'}}</th>
+          @if(hasStopCounts()){<th scope="col">Stops</th>}<th scope="col" class="status-heading">{{classification().rows[0]?.eligibleAtFinish != null ? 'Distance / eligibility' : 'Stop status'}}</th>
         </tr>
       </thead>
       <tbody>
@@ -94,6 +94,7 @@ import { TimingRow } from "./timing-row";
       width: 108px;
     }
     .compound-column.with-age { width:166px; }
+    .stops-column {width:56px;}
     .status-column {
       width: 126px;
     }
@@ -128,5 +129,6 @@ import { TimingRow } from "./timing-row";
 })
 export class TimingTower {
   readonly classification = input.required<PublicClassification>();
+  hasStopCounts(){return this.classification().rows.some(row=>row.completedPitStops!==undefined);}
   hasAge(){return this.classification().rows.some(row=>row.tyreAge!==undefined);}
 }

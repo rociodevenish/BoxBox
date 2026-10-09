@@ -11,7 +11,7 @@ import { CompoundBadge } from "../compound-badge";
   styleUrl: "./timing-row.css",
   template: `<td class="position">{{ row().position }}</td>
     <th scope="row">
-      <app-driver-identity [driver]="row().driver" />
+      <div class="driver-heading"><app-driver-identity [driver]="row().driver" />@if(row().isFastestLap){<span aria-label="Fastest lap"> ◆</span>}</div>
       @if(row().eligibleAtFinish !== undefined && row().eligibleAtFinish !== null){<p class="mobile-finish">{{row().completedLaps}} laps · {{row().eligibleAtFinish ? 'Eligible' : 'Ineligible'}}</p>}
       @if (row().stopStatus !== "on-track") {
         <div class="mobile-status">
@@ -23,7 +23,7 @@ import { CompoundBadge } from "../compound-badge";
     <td><div class="tyre-content"><app-compound-badge [compound]="row().compound" />
       @if(row().tyreAge!==undefined){<span class="tyre-age" [attr.aria-label]="'Tyre age ' + row().tyreAge + ' laps'">{{row().tyreAge}} {{row().tyreAge===1?'lap':'laps'}}</span>}
     </div></td>
-    <td class="status-cell">
+    @if(row().completedPitStops!==undefined){<td [attr.aria-label]="row().completedPitStops+' completed '+(row().completedPitStops===1?'stop':'stops')">{{row().completedPitStops}}</td>}<td class="status-cell">
       @if(row().eligibleAtFinish !== undefined && row().eligibleAtFinish !== null){<span class="finish-status">{{row().completedLaps}} laps · {{row().eligibleAtFinish ? 'Eligible' : 'Ineligible'}}</span>}@else{<app-stop-status [status]="row().stopStatus" />}
     </td>`,
   styles: `
@@ -51,7 +51,7 @@ import { CompoundBadge } from "../compound-badge";
       display: none;
     }
     .mobile-finish { display:none; }
-    .finish-status { font-size:13px; white-space:nowrap; }
+    .driver-heading {display:flex;align-items:center;gap:4px;} .driver-heading app-driver-identity {flex:1;min-width:0;} .status-cell {white-space:nowrap;} .finish-status { font-size:13px; white-space:nowrap; }
     @media(min-width:1200px){:host.compact td,:host.compact th {padding:2px 8px;}}
     .tyre-content { display:flex; align-items:center; gap:8px; }
     .tyre-age { font-size:12px; color:var(--color-muted); white-space:nowrap; }

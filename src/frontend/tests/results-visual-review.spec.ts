@@ -10,7 +10,7 @@ for (const [width, height] of [
   test(`public phase/finish review ${width}x${height}`, async ({ page }) => {
     await page.setViewportSize({ width, height });
     await page.goto("/?view=results");
-    const events = page.getByRole("region", { name: "Public phase events" });
+    const events = page.getByRole("region", { name: "Public race events" });
     const original = await events.innerText();
     await page.emulateMedia({ reducedMotion: "reduce" });
     await expect(events).toHaveText(original, { useInnerText: true });

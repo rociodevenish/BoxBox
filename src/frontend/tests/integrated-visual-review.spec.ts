@@ -27,7 +27,7 @@ test("integrated initial and two-car compositions fit the actual shared-display 
   await expect(
     page.getByRole("heading", { name: "Alexandra Montgomery-Sutherland" }),
   ).toBeVisible();
-  const review = page.getByRole("button", { name: "Review team plan" });
+  const review = page.getByRole("button", { name: "Approve Plan" });
   const box = await review.boundingBox();
   expect(box!.y + box!.height).toBeLessThanOrEqual(1080);
   await review.focus();

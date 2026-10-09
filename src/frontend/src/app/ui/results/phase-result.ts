@@ -11,9 +11,11 @@ import { PublicPhaseResult } from "./public-phase-result.model";
 export class PhaseResult {
   readonly fixtureLabel = input<string | null>(null);
   readonly compact = input(false);
+  readonly liveRace = input(false);
   readonly result = input.required<PublicPhaseResult>();
   readonly failedContextUrl = signal<string | null>(null);
   title() {
+    if(this.liveRace()) return this.result().state === "finished" ? "Race finished" : this.result().state === "initial" ? "Race ready" : this.result().state === "presenting" ? "Recorded race feedback" : this.result().state === "resolving" ? "Resolving play…" : "Recorded race outcome";
     if (this.result().state === 'awaiting') return 'Phase ' + this.result().classification.phase + ' ready';
     if (this.result().state === 'presenting') return 'Recorded phase feedback';
     if (this.result().state === "initial") return "Race ready";

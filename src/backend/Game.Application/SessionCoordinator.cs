@@ -110,6 +110,16 @@ public sealed partial class SessionCoordinator(ISessionNotifications notificatio
         var state = session.Engine.GetState();
         var tyres = state.Tyres.ToDictionary(t => t.DriverId);
         var drivers = session.Drivers.ToDictionary(d => d.Id);
+        var lapTimes = session.Drivers.SelectMany(driver =>
+        {
+            double? previous = null;
+            return state.Events.Where(item => item.DriverId == driver.Id && item.Kind == RaceEventKind.LapCompleted)
+                .Select(item => { var duration = item.Time - previous; previous = item.Time;
+                    return (DriverId: driver.Id, Lap: item.Lap, Seconds: duration, CompletedAt: item.Time); })
+                .Where(lap => lap.Seconds.HasValue).Select(lap => (lap.DriverId, lap.Lap, Seconds: lap.Seconds!.Value, lap.CompletedAt));
+        }).ToArray();
+        var fastest = lapTimes.OrderBy(lap => lap.Seconds).ThenBy(lap => lap.CompletedAt)
+            .ThenBy(lap => lap.DriverId, StringComparer.Ordinal).FirstOrDefault().DriverId;
         var timing = session.Engine.GetTimingObservation().ToDictionary(row => row.DriverId);
         var ordered = (state.Time == 0 ? state.Classification.OrderBy(entry => drivers[entry.DriverId].Gap)
             .ThenBy(entry => entry.DriverId, StringComparer.Ordinal) : state.Classification.AsEnumerable()).ToArray();
@@ -125,10 +135,15 @@ public sealed partial class SessionCoordinator(ISessionNotifications notificatio
                 : ProjectGap(timing[entry.DriverId].ToAhead);
             return new PublicCar(entry.DriverId, "Driver " + entry.DriverId[^2..], driver.Team,
                 index + 1, entry.Laps, entry.Progress, gap, ahead, tyre.Compound.ToString(), tyre.Age,
-                tyre.InPits ? "in-pit-lane" : "on-track", state.Finished ? state.Eligibility[entry.DriverId] : null);
+                tyre.InPits ? "in-pit-lane" : "on-track", state.Finished ? state.Eligibility[entry.DriverId] : null,
+                Array.AsReadOnly(lapTimes.Where(lap => lap.DriverId == entry.DriverId).TakeLast(5)
+                    .Select(lap => new PublicLapTime(lap.Lap, lap.Seconds)).ToArray()),
+                state.Events.Count(item => item.DriverId == entry.DriverId && item.Kind == RaceEventKind.PitExit),
+                fastest == entry.DriverId);
         }).ToArray();
         return new(session.Id, session.Phase, session.Revision, session.Lifecycle, state.LeaderLap,
-            session.Configuration.Laps, state.Time, Array.AsReadOnly(rows), session.Events, session.Presentation);
+            session.Configuration.Laps, state.Time, Array.AsReadOnly(rows), session.Events, session.Presentation,
+            state.Finished ? 0 : Math.Min(5, session.Configuration.Laps - state.LeaderLap));
     }
     private static PublicGap ProjectGap(TimingGap gap) => gap.Laps > 0 ? new("laps", Laps: gap.Laps)
         : gap.Seconds is { } seconds ? new("time", seconds) : new("unavailable");
@@ -254,3 +269,5 @@ public sealed partial class SessionCoordinator(ISessionNotifications notificatio
     }
     private static bool TryChoice<T>(string? text, out T value) where T : struct, Enum => Enum.TryParse(text, out value)
         && Enum.IsDefined(value) && value.ToString() == text;}
+
+

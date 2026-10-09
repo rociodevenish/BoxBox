@@ -19,12 +19,12 @@ test('live controller offers only each cars legal buttons and visible new-phase 
     await page.getByRole('button', { name: 'Create race' }).click();
     const url = await page.getByRole('link', { name: 'Open controller' }).getAttribute('href');
     await page.goto(url!);
-    await expect(page.getByRole('heading', { name: 'Phase 1 instructions' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Decisions for the next 5 laps' })).toBeVisible();
     const id = new URL(page.url()).pathname.split('/').at(-1);
     const capability = new URL(page.url()).hash.slice('#capability='.length);
     const own = await (await page.request.get('/api/sessions/' + id + '/team', { headers: { Authorization: 'Bearer ' + capability } })).json();
     for (let i = 0; i < 2; i++) {
-        const car = page.getByRole('region', { name: 'Car ' + (i + 1) + ' — Driver 0' + (i + 1) });
+        const car = page.getByRole('region', { name: 'Car ' + (i + 1) + ' — Driver ' + (i + 1) });
         await expect(car.getByRole('button', { name: 'Standard', exact: true })).toHaveAttribute('aria-pressed', 'true');
         await expect(car.getByRole('button', { name: 'Stay Out', exact: true })).toHaveAttribute('aria-pressed', 'true');
         await expect(car).toContainText('Standard · Stay Out · Neutral');

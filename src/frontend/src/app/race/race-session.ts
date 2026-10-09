@@ -10,6 +10,7 @@ export interface PublicState {
     lifecycle: string;
     leaderLap: number;
     totalLaps: number;
+    nextDecisionLaps: number;
     classification: {
         driverId: string;
         name: string;
@@ -22,6 +23,9 @@ export interface PublicState {
         pitState: string;
         completedLaps: number;
         eligibleAtFinish: boolean | null;
+        recentLapTimes: {lap:number;seconds:number}[];
+        completedPitStops:number;
+        isFastestLap:boolean;
     }[];
     events: {
         id: string;

@@ -34,7 +34,7 @@ for (const [width, height] of [
       path: resolve(evidence, `controller-${width}x${height}.png`),
       fullPage: true,
     });
-    await page.getByRole("button", { name: "Review team plan" }).click();
+    await page.getByRole("button", { name: "Approve Plan" }).click();
     const dialog = page.getByRole("dialog", { name: "Confirm both cars" });
     const box = await dialog.boundingBox();
     expect(box!.x).toBeGreaterThanOrEqual(0);

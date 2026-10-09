@@ -1,7 +1,7 @@
 <section aria-labelledby="controller-title" class="controller">
   <header>
     <p class="eyebrow">{{model().teamName}} · Private team controller</p>
-    <h1 id="controller-title">Phase {{model().phase}} instructions</h1>
+    <h1 id="controller-title">{{model().decisionLaps===0 ? 'Final instructions' : model().decisionLaps === undefined ? 'Phase '+model().phase+' instructions' : 'Decisions for the next '+model().decisionLaps+' '+(model().decisionLaps===1?'lap':'laps')}}</h1>
     <p>Review both cars before submitting your team plan.</p>
   </header>
   <div
@@ -23,7 +23,8 @@
       class="car"
     >
       <p class="eyebrow">Car {{i + 1}}</p>
-      <h2>{{car.name}}</h2>
+      @if(car.card){<app-driver-card [driver]="car.card" />}@else{<h2>{{car.name}}</h2>}
+@if(car.vicinity){<section [attr.aria-label]="car.name+' race information'"><h3>Nearby Classification</h3><table><caption>Two positions above and below where available · Interval</caption><thead><tr><th>Pos</th><th>Driver</th><th>Interval</th></tr></thead><tbody>@for(row of car.vicinity;track row.card.id){<tr [class.own-driver]="row.card.id===car.id"><td>{{row.position}}</td><td><button (click)="analyzedDriver.set(row.card);analysis.showModal()">{{row.card.firstName}} {{row.card.surname}}</button>@if(row.isFastestLap){<span aria-label="Fastest lap"> ◆</span>}</td><td><app-race-gap [gap]="row.gap" /></td></tr>}</tbody></table><h3>Recent recorded laps</h3>@if(car.recentLaps?.length){<ol aria-label="Recent recorded lap times">@for(lap of car.recentLaps;track lap.lap){<li>Lap {{lap.lap}} · {{lapTime(lap.seconds)}}</li>}</ol>}@else{<p>No full lap times recorded yet.</p>}</section>}
       <div class="tyres">
         <app-compound-badge [compound]="car.currentCompound" />
         <p>Tyre condition estimate: <strong>{{car.tyreEstimate}}</strong></p>
@@ -63,16 +64,7 @@
             Pit
           </button>
         </div>
-        @if(choice.stop === 'Pit'){<label
-          >New compound<select
-            (change)="compound(i, $event)"
-            [value]="choice.compound"
-          >
-            <option>Soft</option>
-            <option>Medium</option>
-            <option>Hard</option>
-          </select></label
-        >}
+        @if(choice.stop === 'Pit'){<fieldset><legend>New compound</legend><div class="options">@for(tyre of compounds;track tyre){<button type="button" [attr.aria-label]="'New compound '+tyre" [attr.aria-pressed]="choice.compound===tyre" (click)="choose(i,{compound:tyre})"><app-compound-badge [compound]="tyre" /></button>}</div></fieldset>}
         <p class="explanation">
           Stay Out keeps track position. Pit requests a stop at the next lap
           end.
@@ -110,15 +102,16 @@
     [disabled]="!editable()"
     (click)="review()"
   >
-    Review team plan
+    Approve Plan
   </button>
+  <dialog #analysis aria-label="Driver analysis"><button (click)="analysis.close()">Close driver analysis</button>@if(analyzedDriver();as driver){<app-driver-card [driver]="driver" [variant]="'expanded'" />}</dialog>
   <dialog
     (keydown)="keepFocus($event)"
     #confirmation
     aria-labelledby="confirmation-title"
   >
     <h2 id="confirmation-title">Confirm both cars</h2>
-    <p>Phase {{model().phase}} · {{model().teamName}}</p>
+    <p>{{model().decisionLaps === undefined ? 'Phase '+model().phase : 'Next '+model().decisionLaps+' '+(model().decisionLaps===1?'lap':'laps')}} · {{model().teamName}}</p>
     @for(car of model().cars; track car.id; let i = $index){
     <div class="confirmed">
       <h3>Car {{i + 1}} · {{car.name}}</h3>

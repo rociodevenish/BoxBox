@@ -6,8 +6,8 @@ test("both cars retain selected choices in confirmation before submission", asyn
   const car = page.getByRole("region", { name: "Car 1 — Max Verstappen" });
   await car.getByRole("button", { name: "Push", exact: true }).click();
   await car.getByRole("button", { name: "Pit", exact: true }).click();
-  await car.getByLabel("New compound").selectOption("Hard");
-  await page.getByRole("button", { name: "Review team plan" }).click();
+  await car.getByRole('button',{name:'New compound Hard',exact:true}).click();
+  await page.getByRole("button", { name: "Approve Plan" }).click();
   const dialog = page.getByRole("dialog", { name: "Confirm both cars" });
   await expect(dialog).toContainText("Max Verstappen");
   await expect(dialog).toContainText("Push · Pit · Hard · Neutral");
@@ -24,7 +24,7 @@ test("rejection preserves both drafts and permits correction while acknowledgeme
   await page.goto("/?view=controller");
   const car = page.getByRole("region", { name: "Car 1 — Max Verstappen" });
   await car.getByRole("button", { name: "Push", exact: true }).click();
-  await page.getByRole("button", { name: "Review team plan" }).click();
+  await page.getByRole("button", { name: "Approve Plan" }).click();
   await page.getByRole("button", { name: "Submit both cars" }).click();
   await expect(
     car.getByRole("button", { name: "Push", exact: true }),
@@ -35,12 +35,12 @@ test("rejection preserves both drafts and permits correction while acknowledgeme
     car.getByRole("button", { name: "Push", exact: true }),
   ).toHaveAttribute("aria-pressed", "true");
   await car.getByRole("button", { name: "Conserve", exact: true }).click();
-  await page.getByRole("button", { name: "Review team plan" }).click();
+  await page.getByRole("button", { name: "Approve Plan" }).click();
   await page.getByRole("button", { name: "Submit both cars" }).click();
   await page.getByRole("button", { name: "Acknowledge and lock" }).click();
   await expect(page.getByRole("status")).toContainText("Locked");
   await expect(
-    page.getByRole("button", { name: "Review team plan" }),
+    page.getByRole("button", { name: "Approve Plan" }),
   ).toBeDisabled();
 });
 
@@ -56,12 +56,12 @@ test("fixture availability retains known pending compound and disables unavailab
   ).toHaveCount(0);
   await page.getByRole("button", { name: "Show pending stop" }).click();
   await expect(car2).toContainText("Pit stop pending · Hard");
-  await expect(car2.getByLabel("New compound")).toHaveValue("Hard");
-  await expect(car2.getByLabel("New compound")).toBeDisabled();
+  await expect(car2.getByRole('button',{name:'New compound Hard',exact:true})).toHaveAttribute('aria-pressed','true');
+  await expect(car2.getByRole("button",{name:"New compound Hard",exact:true})).toBeDisabled();
   for (const label of ["Show loading", "Show resolving"]) {
     await page.getByRole("button", { name: label }).click();
     await expect(
-      page.getByRole("button", { name: "Review team plan" }),
+      page.getByRole("button", { name: "Approve Plan" }),
     ).toBeDisabled();
     await expect(page.getByRole("status")).toContainText(
       label === "Show loading" ? "Loading" : "resolving",
@@ -73,7 +73,7 @@ test("keyboard confirmation traps focus and returns to review on Escape", async 
   page,
 }) => {
   await page.goto("/?view=controller");
-  const review = page.getByRole("button", { name: "Review team plan" });
+  const review = page.getByRole("button", { name: "Approve Plan" });
   await review.focus();
   await page.keyboard.press("Enter");
   await expect(

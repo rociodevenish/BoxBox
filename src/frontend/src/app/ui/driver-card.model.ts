@@ -9,6 +9,8 @@ export type DisplayRating = 1 | 2 | 3 | 4 | 5 | null;
 export interface CardAttribute {
   readonly label: string;
   readonly rating: DisplayRating;
+  readonly displayValue?: number;
+  readonly scale?: number;
 }
 export interface DriverCardViewModel {
   readonly id: string;

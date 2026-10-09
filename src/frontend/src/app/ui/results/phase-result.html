@@ -8,9 +8,9 @@
     </div>
     <p role="status">
       @switch(result().state){@case('initial'){Grid order · Waiting for first
-      decision phase.}@case('awaiting'){New decision window open · Waiting for the team plan.}@case('resolving'){Resolution in progress. Showing the
+      decisions.}@case('awaiting'){New decision window open · Waiting for the team plan.}@case('resolving'){Resolution in progress. Showing the
       last published Classification.}@case('presenting'){Playing recorded feedback · Showing the last published Classification until playback completes.}@case('finished'){Chequered flag · No
-      further decision phases.}@default{Phase complete · Race continues.}}
+      further decisions.}@default{Race continues.}}
     </p>
   </header>
   <div class="result-layout">
@@ -18,8 +18,7 @@
       <h2 id="result-classification">
         {{result().state === 'initial' ? 'Initial Classification' :
         result().state === 'finished' ? 'Final Classification' : result().state
-        === 'resolving' || result().state === 'presenting' || result().state === 'awaiting' ? 'Last published Classification' : 'Phase
-        Classification'}}
+        === 'resolving' || result().state === 'presenting' || result().state === 'awaiting' ? 'Last published Classification' : 'Recorded Classification'}}
       </h2>
       <app-timing-tower [classification]="result().classification" />
     </section>
@@ -36,24 +35,24 @@
         <div>
           <p class="eyebrow">
             {{result().context.label ?? (result().state === 'initial' ? 'Race briefing' : result().state
-            === 'finished' ? 'Race winner' : 'Phase spotlight')}}
+            === 'finished' ? 'Race winner' : 'Race spotlight')}}
           </p>
           <h2>{{result().context.name}}</h2>
           <p>{{result().context.description}}</p>
         </div>
       </section>
       <section class="events" aria-labelledby="events-title">
-        <h2 id="events-title">Public phase events</h2>
+        <h2 id="events-title">Public race events</h2>
         @if(result().state === 'initial'){
-        <p>No phase events published yet.</p>
+        <p>No race events published yet.</p>
         }@else if(result().state === 'awaiting'){
-        <p>New decision window open. Waiting for this phase's published events.</p>
+        <p>New decision window open. Waiting for published events.</p>
         }@else if(result().state === 'resolving'){
-        <p>Waiting for published phase events.</p>
+        <p>Waiting for published race events.</p>
         }@else if(result().state === 'presenting' && result().events.length === 0){
         <p>Recorded feedback is starting. Highlights will appear in order.</p>
         }@else if(result().events.length === 0){
-        <p>No overtakes or pit events reported this phase.</p>
+        <p>No overtakes or pit events reported in this race window.</p>
         }@else{
         <p class="event-count">
           {{result().events.length}} published events · chronological order

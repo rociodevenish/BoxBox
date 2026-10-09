@@ -6,7 +6,7 @@ test("phase results show public overtake and pit feedback separately from the fi
   await expect(
     page.getByRole("heading", { name: "Phase 4 results", exact: true }),
   ).toBeVisible();
-  const events = page.getByRole("region", { name: "Public phase events" });
+  const events = page.getByRole("region", { name: "Public race events" });
   await expect(events).toContainText("Lewis Hamilton passed Max Verstappen");
   await expect(events).toContainText("Fernando Alonso entered the pit lane");
   await expect(events).toContainText("Fernando Alonso changed Medium to Hard");
@@ -19,7 +19,7 @@ test("phase results show public overtake and pit feedback separately from the fi
     page.getByRole("heading", { name: "Final Classification", exact: true }),
   ).toBeVisible();
   await expect(page.getByRole("status")).toContainText(
-    "No further decision phases",
+    "No further decisions",
   );
   await expect(
     page.getByRole("heading", { name: "Phase 4 results", exact: true }),
@@ -31,7 +31,7 @@ test("crowded published pit entries retain matching ongoing stops in Classificat
 }) => {
   await page.goto("/?view=results");
   await page.getByRole("button", { name: "Show crowded phase" }).click();
-  const feed = page.getByRole("region", { name: "Public phase events" });
+  const feed = page.getByRole("region", { name: "Public race events" });
   await expect(feed.getByRole("article")).toHaveCount(14);
   const row = page.getByRole("row").filter({ hasText: "Pierre Gasly" });
   await expect(row).toContainText("In pit lane");
@@ -47,7 +47,7 @@ test("crowded published pit entries retain matching ongoing stops in Classificat
       exact: true,
     }),
   ).toBeVisible();
-  await expect(feed).toContainText("Waiting for published phase events");
+  await expect(feed).toContainText("Waiting for published race events");
 });
 
 test("failed supplied images preserve public identities and event information", async ({
@@ -61,7 +61,7 @@ test("failed supplied images preserve public identities and event information", 
     page.getByRole("region", { name: "Result context" }),
   ).toContainText("Image unavailable");
   await expect(
-    page.getByRole("region", { name: "Public phase events" }),
+    page.getByRole("region", { name: "Public race events" }),
   ).toContainText("Lewis Hamilton passed Max Verstappen");
   await expect(
     page.getByRole("heading", { name: "Lewis Hamilton", exact: true }),

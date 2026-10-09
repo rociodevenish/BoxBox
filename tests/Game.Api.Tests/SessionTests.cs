@@ -69,7 +69,7 @@ public sealed class SessionTests
   var ownResult=await privateUpdates.Reader.ReadAsync(timeout.Token);Assert.Equal("Hard",ownResult.GetProperty("cars")[1].GetProperty("compound").GetString());
   var expected=new RaceEngine(new RaceConfiguration(6,LaboratoryFixtures.SegmentedTrack(false),LapVariation:.2),LaboratoryFixtures.SegmentedField(false),123).ResolvePhase(new Dictionary<string,DriverDecision>{{"driver-01",new(PaceInstruction.Push)},{"driver-02",new(PaceInstruction.Conserve,TyreCompound.Hard)}});
   Assert.Equal(expected.Time,result.GetProperty("raceTime").GetDouble());Assert.Equal(expected.Classification.Select(row=>row.DriverId),result.GetProperty("classification").EnumerateArray().Select(row=>row.GetProperty("driverId").GetString()));
-  foreach(var car in result.GetProperty("classification").EnumerateArray()) Assert.Equal(new[]{"driverId","name","teamId","position","completedLaps","progress","gapToLeader","gapToAhead","compound","tyreAge","pitState","eligibleAtFinish"},car.EnumerateObject().Select(field=>field.Name));
+  foreach(var car in result.GetProperty("classification").EnumerateArray()) Assert.Equal(new[]{"driverId","name","teamId","position","completedLaps","progress","gapToLeader","gapToAhead","compound","tyreAge","pitState","eligibleAtFinish","recentLapTimes","completedPitStops","isFastestLap"},car.EnumerateObject().Select(field=>field.Name));
   Assert.NotEmpty(result.GetProperty("events").EnumerateArray());
   foreach(var item in result.GetProperty("events").EnumerateArray()) Assert.Equal(new[]{"id","kind","time","lap","driverId","otherDriverId","compound"},item.EnumerateObject().Select(field=>field.Name));
  }
@@ -85,3 +85,5 @@ public sealed class SessionTests
   Assert.Equal(System.Net.HttpStatusCode.BadRequest,(await client.PostAsJsonAsync($"/api/sessions/{id}/plans",command)).StatusCode);
   var snapshot=await client.GetFromJsonAsync<JsonElement>($"/api/sessions/{id}");Assert.Equal(1,snapshot.GetProperty("revision").GetInt64());Assert.Equal(0,snapshot.GetProperty("raceTime").GetDouble());Assert.Equal("awaiting-decisions",snapshot.GetProperty("lifecycle").GetString());
  }}
+
+
