@@ -14,3 +14,5 @@ Implemented in `711d748` plus the follow-up evidence/discovery commit. Public se
 See `docs/agents/verification-workflow.md` for concise dispatch, milestone/blocker messages, early representative phone/TV inspection, single broad pass and focused reruns. No protected skill instructions or AGENTS.md were expanded.
 
 Follow-up: fixed Playwright CommonJS config root resolution (`f4169b8`) and repeated only the affected phone case successfully. Wired the workflow reference into implement-spec step 1 and root/frontend READMEs, without expanding AGENTS.md.
+
+Startup diagnostics follow-up: API executable now passes directly to Node spawn instead of JSON encoding a shell command; both server streams are piped into verification output so compiler/startup errors are visible. Real compact-controller browser case passed on isolated 4491/4591 with native backslash DOTNET_EXE. Ordinary API logging is reduced to warnings to keep useful diagnostics concise. The earlier integrated compiler failure is not claimed reproduced by this successful local pass.
