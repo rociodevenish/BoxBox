@@ -1,7 +1,6 @@
 import { mkdirSync } from 'node:fs';
-import { dirname, resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
-const root=resolve(dirname(fileURLToPath(import.meta.url)),'../..');
+import { resolve } from 'node:path';
+const root=resolve(__dirname,'../..');
 import type { PlaywrightTestConfig } from '@playwright/test';
 export const testPort=Number(process.env['F1_TEST_PORT']??4471);
 export const apiPort=Number(process.env['F1_API_PORT']??4571);
