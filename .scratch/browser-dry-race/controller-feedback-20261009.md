@@ -1,8 +1,8 @@
 # Controller playtest follow-up — 9 October 2026
 
-Status: ready-for-agent
+Status: resolved
 
-The current frozen preview at port 4450 predates these changes. Earlier implementation agents reached the account usage limit before implementing the controller follow-up. The isolated worktree is `.worktrees/controller-flow`, branch `codex/controller-flow`; it has no pending edits at the checkpoint. Preserve existing preview processes and sessions.
+Completed on 10 October 2026 on `codex/shared-sessions`, implementation `edd0e57`. The new frozen preview is [http://127.0.0.1:4460/race/new](http://127.0.0.1:4460/race/new). Earlier previews remain available and predate these changes.
 
 ## Approved flow and wording
 
@@ -30,4 +30,10 @@ The current frozen preview at port 4450 predates these changes. Earlier implemen
 
 Use the approved public API/SignalR and real-browser boundaries. Add regression coverage for outcome-first decisions, fresh battle options, the short final lap window, recorded lap/pit/fastest-lap projection, classification subset/drill-down, and confirmation/retry behavior. Preserve public/private filtering and exact engine replay. Inspect phone and public-display layouts.
 
-Shared ticket 01 is implemented in `.worktrees/shared-01`, last reported HEAD `f9100854a71fad603dce71898ca8e6b0994a3e80`, with 138 backend tests, 34 gallery, 19 solo browser, 2 stop-boundary and 2 authenticated lobby browser tests passing. It still needs latest integration documentation merged and the required merger step. Do not mark the shared parent complete. Shared ticket 02 must use the approved waiting/resolving and automatic outcome-first controller flow.
+Shared ticket 01 was merged as `d02c93b`. The shared parent remains incomplete; ticket 02 has not started. It must use the approved waiting/resolving and automatic outcome-first controller flow. The user requested stopping after this controller follow-up.
+
+## Answer
+
+Implemented the approved controller presentation and race-information changes. Verified 140 backend tests, 21 live browser scenarios, 34 gallery scenarios and two stop-boundary browser scenarios, plus frontend typecheck/build. Final Standards and Spec re-reviews each report zero actionable findings; the keyboard-focus finding is resolved. The frozen 4460 preview independently passed a real-browser check of portraits, outcome-first decisions, recent timing, Stops, fastest-lap marker and finish.
+
+See [verification and captures](evidence/controller-followup.md) and [timing, card mapping and limitations](../../docs/controller-playtest.md). Production build retains the documented bundle/CommonJS warnings. No further ticket was started.
