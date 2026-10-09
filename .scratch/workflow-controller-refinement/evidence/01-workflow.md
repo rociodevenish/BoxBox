@@ -12,3 +12,5 @@ Implemented in `711d748` plus the follow-up evidence/discovery commit. Public se
 - GitHub CI is configured with locked npm installs, existing global.json SDK, Chromium installation, the same verifier, a 40-minute job deadline and retained ignored report artifacts. CI is configured; remote execution is not claimed by this local Windows check.
 
 See `docs/agents/verification-workflow.md` for concise dispatch, milestone/blocker messages, early representative phone/TV inspection, single broad pass and focused reruns. No protected skill instructions or AGENTS.md were expanded.
+
+Follow-up: fixed Playwright CommonJS config root resolution (`f4169b8`) and repeated only the affected phone case successfully. Wired the workflow reference into implement-spec step 1 and root/frontend READMEs, without expanding AGENTS.md.
