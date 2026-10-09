@@ -7,10 +7,11 @@ public static class EntryPoint
 {
     public static async Task Main()
     {
+        var port=int.Parse(Environment.GetEnvironmentVariable("F1_API_PORT")??"4571");
         await using var factory=new WebApplicationFactory<global::Program>().WithWebHostBuilder(builder=>
-            builder.UseContentRoot(Path.GetFullPath("../../../../../src/backend/Game.Api",AppContext.BaseDirectory)).UseUrls("http://127.0.0.1:4510")
+            builder.UseContentRoot(Path.GetFullPath("../../../../../src/backend/Game.Api",AppContext.BaseDirectory)).UseUrls($"http://127.0.0.1:{port}")
                 .ConfigureServices(services=>services.AddSingleton<IRacePresets>(new StopBoundaryPresets())));
-        factory.UseKestrel(4510);
+        factory.UseKestrel(port);
         using var client=factory.CreateClient();
         Console.WriteLine($"Real fixture API running at {client.BaseAddress}");
         await Task.Delay(Timeout.Infinite);

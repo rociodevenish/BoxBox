@@ -1,0 +1,15 @@
+import { mkdirSync } from 'node:fs';
+import { dirname, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
+const root=resolve(dirname(fileURLToPath(import.meta.url)),'../..');
+import type { PlaywrightTestConfig } from '@playwright/test';
+export const testPort=Number(process.env['F1_TEST_PORT']??4471);
+export const apiPort=Number(process.env['F1_API_PORT']??4571);
+export const baseURL=`http://127.0.0.1:${testPort}`;
+const dotnet=JSON.stringify(process.env['DOTNET_EXE']??'dotnet');
+export const outputDir=resolve(root,'.tools/reports/playwright');
+export const captures=resolve(root,'.tools/reports/gallery');
+mkdirSync(captures,{recursive:true});
+export const frontend={command:`node node_modules/@angular/cli/bin/ng.js serve --host 127.0.0.1 --port ${testPort} --proxy-config proxy.test.cjs`,url:baseURL,reuseExistingServer:false,timeout:120000};
+export const api=(fixture=false)=>({command:`${dotnet} run --project ${fixture?'../../tests/Game.BrowserFixtureHost':'../backend/Game.Api'} --urls http://127.0.0.1:${apiPort}`,env:{F1_API_PORT:String(apiPort),Designer__Key:'ephemeral-browser-test-key'},url:`http://127.0.0.1:${apiPort}/health`,reuseExistingServer:false,timeout:120000});
+export const common:PlaywrightTestConfig={outputDir,reporter:'list',use:{baseURL,browserName:'chromium',launchOptions:{executablePath:process.env['PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH']}}};

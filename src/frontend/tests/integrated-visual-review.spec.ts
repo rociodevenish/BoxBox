@@ -1,7 +1,7 @@
 import { test, expect } from "@playwright/test";
 import { mkdirSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
-const evidence = resolve("../../.scratch/visual-design-foundation/evidence");
+const evidence = resolve("../../.tools/reports/gallery");
 test("integrated initial and two-car compositions fit the actual shared-display viewport", async ({
   page,
 }) => {
