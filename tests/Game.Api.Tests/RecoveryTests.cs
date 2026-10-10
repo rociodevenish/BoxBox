@@ -36,6 +36,7 @@ public sealed class RecoveryTests
     private sealed class UnavailableNotifications : ISessionNotifications
     {
         public Task Publish(PublicSnapshot display, TeamSnapshot team) => throw new IOException("Network delivery unavailable");
+        public Task PublishHousehold(PublicSnapshot display, IReadOnlyList<TeamSnapshot> teams) => throw new IOException("Network delivery unavailable");
     }
     [Theory]
     [InlineData("{\"cars\":[null,null]}", HttpStatusCode.BadRequest)]

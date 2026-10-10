@@ -3,7 +3,7 @@ public sealed partial class SessionCoordinator
 {
  private sealed record Player(string Id,string Name,string? Uid);
  private sealed record Device(string Id,string Uid);
- private sealed record Assignment(string PlayerId,string DeviceId,string Control,bool Approved,long Revision);
+ private sealed record Assignment(string PlayerId,string DeviceId,string Control,bool Approved,long Revision,string[]? AdditionalDevices=null);
  private sealed class Lobby(string id,string code,string host,CreateLobbyInput input)
  {
   public string Id {get;}=id;public string Code {get;}=code;public string Host {get;}=host;
@@ -81,7 +81,7 @@ public sealed partial class SessionCoordinator
    var preset=presets.Get(lobby.Input.Preset,lobby.Input.Laps!.Value);var config=preset.Configuration.WithExplicitTuning();
    var session=new Session(lobby.Id,lobby.Players.Single(p=>p.Uid==lobby.Host).Id,lobby.Devices.First(d=>d.Uid==lobby.Host).Id,
     System.Security.Cryptography.RandomNumberGenerator.GetBytes(32),config,preset.Drivers.ToArray(),lobby.Input.Seed!.Value,new(lobby.Input.Preset,lobby.Input.Laps,lobby.Input.Seed));
-   lobby.RequiredTeams=lobby.Assignments.Keys.Order(StringComparer.Ordinal).ToArray();lobby.ScriptedTeams=session.Drivers.Select(d=>d.Team).Distinct().Except(lobby.RequiredTeams).Order(StringComparer.Ordinal).ToArray();
+   lobby.RequiredTeams=lobby.Assignments.Keys.Order(StringComparer.Ordinal).ToArray();session.RequiredTeams=lobby.RequiredTeams;lobby.ScriptedTeams=session.Drivers.Select(d=>d.Team).Distinct().Except(lobby.RequiredTeams).Order(StringComparer.Ordinal).ToArray();
    session.FrozenOpponents=OpponentScript.Freeze(session.Engine,lobby.ScriptedTeams,config.Laps);
    if(session.FrozenOpponents.Count!=lobby.ScriptedTeams.Length*2)throw new InvalidOperationException("The scripted phase-start decision set must cover every scripted driver.");
    session.WindowTimestamp=System.Diagnostics.Stopwatch.GetTimestamp();

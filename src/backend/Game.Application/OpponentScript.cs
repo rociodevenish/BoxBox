@@ -24,4 +24,5 @@ internal static class OpponentScript
     }
 }
 public interface ISessionNotifications
-{ Task Publish(PublicSnapshot display, TeamSnapshot team); }
+{ Task Publish(PublicSnapshot display, TeamSnapshot team);
+  Task PublishHousehold(PublicSnapshot display, IReadOnlyList<TeamSnapshot> teams); }

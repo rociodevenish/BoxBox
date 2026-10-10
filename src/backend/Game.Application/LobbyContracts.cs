@@ -11,3 +11,5 @@ public record JoinedLobby(LobbySnapshot Lobby,LobbyMember Membership);
 public record ClaimTeamInput(string TeamId,string DeviceId);
 public record SharedParticipantInput(string Name,string DeviceId);
 public record AssignTeamInput(string TeamId,string? PlayerId,string? DeviceId,string Control);
+
+public record ControllerGrantInput(string DeviceId);

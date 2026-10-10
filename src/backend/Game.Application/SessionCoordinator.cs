@@ -28,8 +28,12 @@ public sealed partial class SessionCoordinator(ISessionNotifications notificatio
         public string ScriptVersion { get; } = OpponentScript.Version;
         public Dictionary<Guid, (string Fingerprint, SubmissionAck Ack)> AcceptedCommands { get; } = [];
         public TeamCommand? ConfirmedPlan { get; set; }
+        public Dictionary<string, TeamCommand> Locks { get; } = [];
+        public Dictionary<string, DriverDecision> HumanDecisions { get; } = [];
+        public string[] RequiredTeams { get; set; } = ["team-01"];
         public int Phase { get; set; }
         public long Revision { get; set; } = 1;
+        public long WindowRevision { get; set; } = 1;
         public string Lifecycle { get; set; } = "awaiting-decisions";
         public IReadOnlyList<PublicEvent> Events { get; set; } = [];
         public int EngineEventCursor { get; set; }
@@ -143,7 +147,8 @@ public sealed partial class SessionCoordinator(ISessionNotifications notificatio
         }).ToArray();
         return new(session.Id, session.Phase, session.Revision, session.Lifecycle, state.LeaderLap,
             session.Configuration.Laps, state.Time, Array.AsReadOnly(rows), session.Events, session.Presentation,
-            state.Finished ? 0 : Math.Min(5, session.Configuration.Laps - state.LeaderLap));
+            state.Finished ? 0 : Math.Min(5, session.Configuration.Laps - state.LeaderLap),
+            Array.AsReadOnly(session.RequiredTeams.Select(team => new TeamReadiness(team, session.Locks.ContainsKey(team))).ToArray()));
     }
     private static PublicGap ProjectGap(TimingGap gap) => gap.Laps > 0 ? new("laps", Laps: gap.Laps)
         : gap.Seconds is { } seconds ? new("time", seconds) : new("unavailable");
@@ -158,14 +163,14 @@ public sealed partial class SessionCoordinator(ISessionNotifications notificatio
             throw new SessionFault(SessionFailure.Forbidden, "A separate team controller capability is required.");
         return session;
     }
-    private static TeamSnapshot ProjectTeam(Session session)
+    private static TeamSnapshot ProjectTeam(Session session, string teamId = "team-01", Assignment? assignment = null)
     {
-        var observation = session.Engine.GetTeamObservation("team-01");
+        var observation = session.Engine.GetTeamObservation(teamId);
         var own = observation.TeamTyres.Select(tyre => new PrivateCar(tyre.DriverId, tyre.Compound.ToString(),
             tyre.Age, tyre.EstimatedCondition, tyre.InPits, tyre.StopQueued,
             Array.AsReadOnly(observation.BattleOptions[tyre.DriverId].Select(option => option.ToString()).ToArray()))).ToArray();
-        return new(session.Id, session.Phase, session.Revision, session.Lifecycle, session.Player, "team-01",
-            session.Device, Array.AsReadOnly(own), session.ConfirmedPlan);
+        return new(session.Id, session.Phase, session.Revision, session.Lifecycle, assignment?.PlayerId ?? session.Player, teamId,
+            assignment?.DeviceId ?? session.Device, Array.AsReadOnly(own), assignment is null ? session.ConfirmedPlan : session.Locks.GetValueOrDefault(teamId), assignment?.Revision ?? 0, session.WindowRevision);
     }
     public async Task<SubmissionAck> Submit(string id, string? capability, TeamCommand? command)
     {
@@ -173,25 +178,27 @@ public sealed partial class SessionCoordinator(ISessionNotifications notificatio
         try { return await SubmitSerially(id, capability, command); }
         finally { mutations.Release(); }
     }
-    private async Task<SubmissionAck> SubmitSerially(string id, string? capability, TeamCommand? command)
+    private async Task<SubmissionAck> SubmitSerially(string id, string? capability, TeamCommand? command, AuthIdentity? identity = null, string? deviceId = null, string teamId = "team-01")
     {
         Session session; Dictionary<string, DriverDecision> complete; PublicSnapshot resolving; TeamSnapshot teamResolving;
         Guid commandId; string fingerprint;
         double decisionMilliseconds;
+        SubmissionAck? waitingAck = null;
         lock (gate)
         {
-            session = Authorise(id, capability);
+            session = identity is null ? Authorise(id, capability) : AuthoriseHousehold(id, identity, deviceId!, teamId).Session;
             if (command is null || !Guid.TryParse(command.CommandId, out commandId) || command.Cars is null || command.Cars.Count != 2
-                || !command.Cars.Select(car => car?.DriverId).Order().SequenceEqual(new[] { "driver-01", "driver-02" }))
+                || !command.Cars.Select(car => car?.DriverId).Order().SequenceEqual(session.Drivers.Where(driver => driver.Team == teamId).Select(driver => driver.Id).Order()))
                 throw new SessionFault(SessionFailure.InvalidInput, "Submit exactly both owned cars with a command identity.");
             command = command with { Cars = Array.AsReadOnly(command.Cars.OrderBy(car => car.DriverId).ToArray()) };
             fingerprint = System.Text.Json.JsonSerializer.Serialize(command with { CommandId = commandId.ToString() });
             if (session.AcceptedCommands.TryGetValue(commandId, out var accepted))
                 return accepted.Fingerprint == fingerprint ? accepted.Ack
                     : throw new SessionFault(SessionFailure.Conflict, "This command identity was already accepted with different choices.");
-            if (session.Lifecycle != "awaiting-decisions" || command.Phase != session.Phase || command.Revision != session.Revision)
+            if (session.Lifecycle != "awaiting-decisions" || command.Phase != session.Phase || command.Revision != (identity is null ? session.Revision : session.WindowRevision))
                 throw new SessionFault(SessionFailure.Conflict, "This decision window is not editable. Refresh the current phase.");
-            var observation = session.Engine.GetTeamObservation("team-01");
+            if (session.Locks.ContainsKey(teamId)) throw new SessionFault(SessionFailure.Conflict, "This team already locked its final plan for this phase.");
+            var observation = session.Engine.GetTeamObservation(teamId);
             complete = session.FrozenOpponents.ToDictionary();
             foreach (var car in command.Cars)
             {
@@ -205,12 +212,27 @@ public sealed partial class SessionCoordinator(ISessionNotifications notificatio
                     throw new SessionFault(SessionFailure.InvalidInput, "A battle or pit instruction is unavailable. Review both cars.");
                 complete.Add(car.DriverId, new(pace, car.Pit == "Pit" ? Enum.Parse<TyreCompound>(car.Compound!) : null, battle));
             }
+            if (identity is not null)
+            {
+                foreach (var car in complete.Where(pair => !session.FrozenOpponents.ContainsKey(pair.Key))) session.HumanDecisions.Add(car.Key, car.Value);
+                session.Locks.Add(teamId, command); session.Revision++;
+                if (!session.RequiredTeams.All(session.Locks.ContainsKey))
+                {
+                    var ack = new SubmissionAck(command.CommandId, id, session.Phase, session.Revision, "awaiting-decisions");
+                    session.AcceptedCommands.Add(commandId, (fingerprint, ack));
+                    // Publish outside the gate below through the common notification helper.
+                    waitingAck = ack;
+                }
+                complete = session.FrozenOpponents.Concat(session.HumanDecisions).ToDictionary();
+            }
+            if (identity is null) session.Locks[teamId] = command;
             session.ConfirmedPlan = command;
             decisionMilliseconds = Stopwatch.GetElapsedTime(session.WindowTimestamp).TotalMilliseconds;
-            session.Lifecycle = "resolving"; session.Revision++;
+            if (waitingAck is null) { session.Lifecycle = "resolving"; session.Revision++; }
             resolving = Project(session); teamResolving = ProjectTeam(session);
         }
-        await PublishSafely(resolving, teamResolving);
+        await PublishRace(session, resolving, teamResolving);
+        if (waitingAck is not null) return waitingAck;
         PublicSnapshot resolved; TeamSnapshot teamResolved;
         lock (gate)
         {
@@ -242,7 +264,7 @@ public sealed partial class SessionCoordinator(ISessionNotifications notificatio
             session.PresentationPhases.Add(session.Presentation.Cursor, session.Phase);
             resolved = Project(session); teamResolved = ProjectTeam(session);
         }
-        await PublishSafely(resolved, teamResolved);
+        await PublishRace(session, resolved, teamResolved);
         // This acknowledgement belongs to the phase accepted, even after its next window opens.
         var acknowledgement = new SubmissionAck(command.CommandId, session.Id, session.Phase, resolved.Revision, resolved.Lifecycle);
         lock (gate) session.AcceptedCommands.Add(commandId, (fingerprint, acknowledgement));
@@ -250,15 +272,15 @@ public sealed partial class SessionCoordinator(ISessionNotifications notificatio
         {
             lock (gate)
             {
-                session.Phase++; session.Revision++; session.Lifecycle = "awaiting-decisions";
-                session.ConfirmedPlan = null;
+                session.Phase++; session.Revision++; session.WindowRevision = session.Revision; session.Lifecycle = "awaiting-decisions";
+                session.ConfirmedPlan = null; session.Locks.Clear(); session.HumanDecisions.Clear();
                 session.FrozenOpponents = OpponentScript.Freeze(session.Engine,
-                    session.Drivers.Select(driver => driver.Team).Distinct().Where(team => team != "team-01"), session.Configuration.Laps);
+                    session.Drivers.Select(driver => driver.Team).Distinct().Where(team => !session.RequiredTeams.Contains(team)), session.Configuration.Laps);
                 session.WindowTimestamp = Stopwatch.GetTimestamp();
                 resolved = Project(session); teamResolved = ProjectTeam(session);
             }
         }
-        if (resolved.Lifecycle == "awaiting-decisions") await PublishSafely(resolved, teamResolved);
+        if (resolved.Lifecycle == "awaiting-decisions") await PublishRace(session, resolved, teamResolved);
         return acknowledgement;
     }
     private async Task PublishSafely(PublicSnapshot display, TeamSnapshot team)

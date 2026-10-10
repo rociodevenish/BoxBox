@@ -13,6 +13,13 @@ public sealed class RaceHub(SessionCoordinator sessions,FirebaseIdentity auth) :
             return new(sessions.LobbyPublic(id),membership);
         } catch(SessionFault fault){throw new HubException(fault.Message);}
     }
+    public async Task<TeamSnapshot> SubscribeHouseholdTeam(string id,string deviceId,string teamId)
+    {
+        try {var request=Context.GetHttpContext()!.Request;var identity=await auth.Verify(LobbyEndpoints.Token(request)??request.Query["access_token"].FirstOrDefault());
+            var own=sessions.HouseholdTeam(id,identity,deviceId,teamId);
+            await Groups.AddToGroupAsync(Context.ConnectionId,"household:"+id+":"+teamId+":"+own.AssignmentRevision);return sessions.HouseholdTeam(id,identity,deviceId,teamId);
+        }catch(SessionFault fault){throw new HubException(fault.Message);}
+    }
     public async Task<PublicSnapshot> SubscribePublic(string id)
     {
         try { _ = sessions.Public(id); await Groups.AddToGroupAsync(Context.ConnectionId, "public:" + id); return sessions.Public(id); }
@@ -26,6 +33,11 @@ public sealed class RaceHub(SessionCoordinator sessions,FirebaseIdentity auth) :
 }
 public sealed class SessionNotifications(IHubContext<RaceHub> hub, ILogger<SessionNotifications> logger) : ISessionNotifications
 {
+    public async Task PublishHousehold(PublicSnapshot display,IReadOnlyList<TeamSnapshot> teams)
+    {
+        await hub.Clients.Group("public:"+display.SessionId).SendAsync("publicSnapshot",display);
+        foreach(var team in teams) await hub.Clients.Group("household:"+team.SessionId+":"+team.TeamId+":"+team.AssignmentRevision).SendAsync("teamSnapshot",team);
+    }
     public async Task Publish(PublicSnapshot display, TeamSnapshot team)
     {
         try { await Task.WhenAll(hub.Clients.Group("public:" + display.SessionId).SendAsync("publicSnapshot", display),
