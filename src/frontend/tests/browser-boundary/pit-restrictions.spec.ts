@@ -8,7 +8,7 @@ for(const {preset,status,compound} of [{preset:'open-equal',status:'queued',comp
     const second=page.getByRole('region',{name:'Car 2 — Driver 2'});const first=page.getByRole('region',{name:'Car 1 — Driver 1'});
     await second.getByRole('button',{name:'Pit',exact:true}).click();await second.getByRole('button',{name:'New compound Hard',exact:true}).click();
     await page.getByRole('button',{name:'Approve Plan'}).click();await page.getByRole('button',{name:'Confirm plan'}).click();
-    await expect(page.getByRole('heading',{name:'Decisions for the next 5 laps'})).toBeVisible();
+    await expect(page.getByText('Decisions for the next 5 laps',{exact:true})).toBeVisible();
     await expect(page.getByRole('button',{name:'Continue to next phase'})).toHaveCount(0);
     await expect(second).toContainText('Pit stop '+status);await expect(second.getByRole('button',{name:'Pit',exact:true})).toBeDisabled();await expect(second.getByRole('button',{name:'Stay Out',exact:true})).toBeDisabled();
     await expect(second.locator('.tyres').getByLabel('Tyre compound '+compound,{exact:true})).toBeVisible();await expect(first.getByRole('button',{name:'Push',exact:true})).toBeEnabled();
@@ -18,7 +18,7 @@ for(const {preset,status,compound} of [{preset:'open-equal',status:'queued',comp
     await page.route('**/plans',async request=>{const body=request.request().postDataJSON();body.cars[1].pit='Pit';body.cars[1].compound='Soft';await request.continue({postData:JSON.stringify(body)});});
     await page.getByRole('button',{name:'Approve Plan'}).click();await page.getByRole('button',{name:'Confirm plan'}).click();
     await expect(page.getByRole('alert')).toContainText('pit instruction is unavailable');
-    await expect(first.getByRole('button',{name:'Push',exact:true})).toHaveAttribute('aria-pressed','true');await expect(second).toContainText('Standard · Stay Out · Neutral');
+    await expect(first.getByRole('button',{name:'Push',exact:true})).toHaveAttribute('aria-pressed','true');await expect(second.getByRole('button',{name:'Standard',exact:true})).toHaveAttribute('aria-pressed','true');await expect(second.getByRole('button',{name:'Stay Out',exact:true})).toHaveAttribute('aria-pressed','true');await expect(second.getByRole('button',{name:'Neutral',exact:true})).toHaveAttribute('aria-pressed','true');
     expect(await(await page.request.get(route)).text()).toBe(beforePublic);expect(await(await page.request.get(route+'/team',{headers})).text()).toBe(beforeTeam);
     mkdirSync('../../.tools/reports/browser-race/review-fixes',{recursive:true});
     await page.screenshot({path:'../../.tools/reports/browser-race/review-fixes/'+status+'-controller-360.png',fullPage:true});
