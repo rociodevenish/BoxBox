@@ -3,6 +3,11 @@ using Microsoft.AspNetCore.SignalR;
 namespace Game.Api;
 public sealed class RaceHub(SessionCoordinator sessions,FirebaseIdentity auth) : Hub
 {
+    public async Task<OpenTeamSnapshot> SubscribeOpenTeam(string id,string teamId)
+    {
+        try {var own=sessions.OpenTeam(id,teamId);await Groups.AddToGroupAsync(Context.ConnectionId,"open:"+id+":"+teamId+":"+own.AssignmentRevision);return sessions.OpenTeam(id,teamId);}
+        catch(SessionFault fault){throw new HubException(fault.Message);}
+    }
     public async Task<JoinedLobby> SubscribeLobby(string id,string deviceId)
     {
         try {
@@ -33,10 +38,11 @@ public sealed class RaceHub(SessionCoordinator sessions,FirebaseIdentity auth) :
 }
 public sealed class SessionNotifications(IHubContext<RaceHub> hub, ILogger<SessionNotifications> logger) : ISessionNotifications
 {
-    public async Task PublishHousehold(PublicSnapshot display,IReadOnlyList<TeamSnapshot> teams)
+    public async Task PublishHousehold(PublicSnapshot display,IReadOnlyList<TeamSnapshot> teams,IReadOnlyList<OpenTeamSnapshot> openTeams)
     {
         await hub.Clients.Group("public:"+display.SessionId).SendAsync("publicSnapshot",display);
         foreach(var team in teams) await hub.Clients.Group("household:"+team.SessionId+":"+team.TeamId+":"+team.AssignmentRevision).SendAsync("teamSnapshot",team);
+        foreach(var team in openTeams) await hub.Clients.Group("open:"+team.SessionId+":"+team.TeamId+":"+team.AssignmentRevision).SendAsync("openTeamSnapshot",team);
     }
     public async Task Publish(PublicSnapshot display, TeamSnapshot team)
     {

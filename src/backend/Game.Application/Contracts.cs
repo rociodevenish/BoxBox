@@ -14,6 +14,8 @@ public record PublicSnapshot(string SessionId, int Phase, long Revision, string 
     int LeaderLap, int TotalLaps, double RaceTime, IReadOnlyList<PublicCar> Classification,
     IReadOnlyList<PublicEvent> Events, PublicPresentation? Presentation = null, int NextDecisionLaps = 0, IReadOnlyList<TeamReadiness>? Readiness = null);
 public record TeamReadiness(string TeamId, bool Locked);
+public record OpenTeamSnapshot(string SessionId,int Phase,long Revision,string Lifecycle,string TeamId,
+    IReadOnlyList<PrivateCar> Cars,TeamCommand? ConfirmedPlan,long AssignmentRevision);
 public record PublicPresentation(string Cursor, int ResolvedPhase, int TotalEvents, int Overtakes, int PitEntries,
     int PitExits, int TyreChanges, int OmittedEvents, string Summary);
 public record PrivateCar(string DriverId, string Compound, int TyreAge, double EstimatedTyreCondition,

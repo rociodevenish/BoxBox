@@ -21,9 +21,10 @@ public sealed partial class SessionCoordinator
   lobby.Revision++;lobby.Assignments[teamId]=assignment with {AdditionalDevices=(assignment.AdditionalDevices??[]).Append(deviceId).Distinct().ToArray(),Revision=lobby.Revision};return ProjectLobby(lobby);}}
  private async Task PublishRace(Session session,PublicSnapshot display,TeamSnapshot legacy)
  {
-  TeamSnapshot[]? teams;lock(gate)teams=lobbies.TryGetValue(session.Id,out var lobby)
+  TeamSnapshot[]? teams;OpenTeamSnapshot[] open=[];lock(gate){teams=lobbies.TryGetValue(session.Id,out var lobby)
    ? lobby.Assignments.Select(pair=>ProjectTeam(session,pair.Key,pair.Value)).ToArray() : null;
+   if(teams is not null && lobby!.Input.Mode!="Competitive")open=teams.Where(team=>lobby.Assignments[team.TeamId].Control=="Open"&&lobby.Assignments[team.TeamId].Approved).Select(ProjectOpen).ToArray();}
   if(teams is null){await PublishSafely(display,legacy);return;}
-  try{await notifications.PublishHousehold(display,teams);}catch(Exception){}
+  try{await notifications.PublishHousehold(display,teams,open);}catch(Exception){}
  }
 }

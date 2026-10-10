@@ -17,6 +17,7 @@ public static class LobbyEndpoints
   app.MapGet("/api/lobbies/{id}/teams/{teamId}",async(string id,string teamId,string deviceId,HttpRequest request,FirebaseIdentity auth,SessionCoordinator sessions)=>sessions.HouseholdTeam(id,await auth.Verify(Token(request)),deviceId,teamId));
   app.MapPost("/api/lobbies/{id}/teams/{teamId}/plans",async(string id,string teamId,string deviceId,TeamCommand input,HttpRequest request,FirebaseIdentity auth,SessionCoordinator sessions)=>await sessions.SubmitHousehold(id,await auth.Verify(Token(request)),deviceId,teamId,input));
   app.MapGet("/api/lobbies/{id}",(string id,SessionCoordinator sessions)=>sessions.LobbyPublic(id));
+  app.MapGet("/api/lobbies/{id}/open/{teamId}",(string id,string teamId,SessionCoordinator sessions)=>sessions.OpenTeam(id,teamId));
   app.MapGet("/api/lobbies/{id}/membership",async(string id,string deviceId,HttpRequest request,FirebaseIdentity auth,SessionCoordinator sessions)=>new JoinedLobby(sessions.LobbyPublic(id),sessions.LobbyMembership(id,await auth.Verify(Token(request)),deviceId)));
   app.MapPost("/api/lobbies/{id}/claims",async(string id,ClaimTeamInput input,HttpRequest request,FirebaseIdentity auth,SessionCoordinator sessions,IHubContext<RaceHub> hub)=>{
    var state=sessions.ClaimTeam(id,await auth.Verify(Token(request)),input);await Notify(hub,state,app.Logger);return state;

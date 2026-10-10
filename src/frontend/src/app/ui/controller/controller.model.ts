@@ -32,6 +32,7 @@ export interface PrivateCarViewModel {
   readonly selected: CarInstruction;
 }
 export interface PrivateControllerViewModel {
+  readonly privacyLabel?: string;
   readonly teamName: string;
   readonly phase: number;
   readonly decisionLaps?: number;

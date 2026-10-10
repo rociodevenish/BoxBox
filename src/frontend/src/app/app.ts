@@ -1,4 +1,5 @@
 import { SharedLobby } from './shared/shared-lobby';
+import {OpenDisplay} from './shared/open-display';
 import { ResultsGallery } from "./gallery/results-gallery";
 import { RacePage } from './race/race-page';
 import { ControllerGallery } from "./gallery/controller-gallery";
@@ -9,11 +10,12 @@ import { DriverCard } from "./ui/driver-card";
 import { max, lewis, unknown } from "./gallery/driver-fixtures";
 @Component({
   selector: "app-root",
-  imports: [DriverCard, TimingTower, ControllerGallery, ResultsGallery, RacePage, SharedLobby],
+  imports: [DriverCard, TimingTower, ControllerGallery, ResultsGallery, RacePage, SharedLobby,OpenDisplay],
   templateUrl: "./app.html",
   styleUrl: "./app.css",
 })
 export class App {
+  readonly openView=location.pathname.startsWith('/shared/open/');
   readonly sharedView = location.pathname.startsWith('/shared/');
   readonly raceView = location.pathname.startsWith('/race/');
   readonly controllerView =

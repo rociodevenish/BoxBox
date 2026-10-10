@@ -1,6 +1,6 @@
 <section aria-labelledby="controller-title" class="controller">
   <header>
-    <p class="eyebrow">{{model().teamName}} · Private team controller</p>
+    <p class="eyebrow">{{model().teamName}} · {{model().privacyLabel ?? 'Private team controller'}}</p>
     <p id="controller-title" class="decision-summary">{{model().decisionLaps===0 ? 'Final instructions' : model().decisionLaps === undefined ? 'Phase '+model().phase+' instructions' : 'Decisions for the next '+model().decisionLaps+' '+(model().decisionLaps===1?'lap':'laps')}}</p>
 
   </header>
