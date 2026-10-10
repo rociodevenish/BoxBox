@@ -22,6 +22,10 @@ test('account host and guest join the same lobby, claim separate constructors an
  await page.reload();await expect(page.getByText('Waiting for other teams…',{exact:true})).toBeVisible();await expect(page.getByRole('button',{name:'Approve Plan',exact:true})).toBeDisabled();
  await guest.getByRole('button',{name:'Approve Plan',exact:true}).click();await guest.getByRole('button',{name:'Confirm plan',exact:true}).click();
  await expect(page.getByText('Decisions for the next 1 lap',{exact:true})).toBeVisible();await expect(guest.getByText('Decisions for the next 1 lap',{exact:true})).toBeVisible();await expect(display.getByLabel('Team readiness')).toContainText('Team 01: Deciding');
+ await guest.getByRole('button',{name:'Approve Plan',exact:true}).click();await guest.getByRole('button',{name:'Confirm plan',exact:true}).click();
+ await expect(guest.getByText('Waiting for other teams…',{exact:true})).toBeVisible();await expect(display.getByLabel('Team readiness')).toContainText('Team 01: Deciding');await expect(display.getByLabel('Team readiness')).toContainText('Team 02: Locked');await expect(display.getByText('Finish confirmed',{exact:true})).toHaveCount(0);
+ await page.getByRole('button',{name:'Approve Plan',exact:true}).click();await page.getByRole('button',{name:'Confirm plan',exact:true}).click();
+ await expect(display.getByText('Finish confirmed',{exact:true})).toBeVisible();await expect(page.getByRole('heading',{name:'Your team final results',exact:true})).toBeVisible();await expect(guest.getByRole('heading',{name:'Your team final results',exact:true})).toBeVisible();await expect(display.locator('app-timing-tower tbody tr')).toHaveCount(22);await display.getByRole('button',{name:'Skip playback',exact:true}).click();await expect(display.getByText('Lap 6 / 6',{exact:true})).toBeVisible();await display.screenshot({path:'../../.tools/reports/gallery/household-finish-1920.png'});
  await display.close();await guestContext.close();
 });
 
@@ -34,3 +38,4 @@ test('host corrects a shared participant assignment and phone lobby keeps QR and
  expect(await page.evaluate(()=>document.documentElement.scrollWidth)).toBeLessThanOrEqual(360);const qr=await page.getByRole('img',{name:'QR code for public join link'}).boundingBox();expect(qr!.x+qr!.width).toBeLessThanOrEqual(360);
  mkdirSync('../../.tools/reports/shared-sessions',{recursive:true});await page.evaluate(()=>window.scrollTo(0,0));await page.screenshot({path:'../../.tools/reports/shared-sessions/lobby-host-360.png'});await ferrari.screenshot({path:'../../.tools/reports/shared-sessions/shared-assignment-360.png'});
 });
+
