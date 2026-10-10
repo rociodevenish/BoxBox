@@ -313,9 +313,12 @@ export class RaceSession {
         if(this.householdTeam && !this.sharedTeams().some(team=>team.teamId===this.householdTeam)){await this.clearAuthority();throw new Error('Controller permission removed. This device is no longer authorised for this team. Editing has stopped.');}
         this.selectNextTeam();
     }
+    private clearPrivateView(){
+        this.privateGeneration++;this.team.set(null);this.choices.set([]);this.pending.set(null);this.acknowledged.set(null);this.busy.set(false);this.activePrivate.set(false);
+    }
     private async clearAuthority(){
         const own=this.team();const teamId=this.householdTeam;
-        this.privateGeneration++;this.team.set(null);this.choices.set([]);this.pending.set(null);this.acknowledged.set(null);this.busy.set(false);this.activePrivate.set(false);
+        this.clearPrivateView();
         if(this.sharedTablet)this.householdTeam='';
         this.handoffMessage.set('Controller permission removed. Private information and drafts were cleared.');
         if(this.connection&&own)await this.connection.invoke('UnsubscribeHouseholdTeam',this.id,teamId,own.assignmentRevision).catch(()=>undefined);
@@ -338,8 +341,7 @@ export class RaceSession {
     }
     async passTablet(discard=true){
         const old=this.team();const oldTeam=this.householdTeam;
-        this.privateGeneration++;this.activePrivate.set(false);this.householdTeam='';
-        this.team.set(null);this.choices.set([]);this.pending.set(null);this.acknowledged.set(null);this.error.set('');this.busy.set(false);
+        this.clearPrivateView();this.householdTeam='';this.error.set('');
         this.handoffMessage.set(discard?'Unsubmitted drafts were discarded.':'Team plan locked. Pass the tablet to the next player.');this.selectNextTeam();
         if(this.connection && oldTeam && old){try{await this.connection.invoke('UnsubscribeHouseholdTeam',this.id,oldTeam,old.assignmentRevision);}catch{await this.connection.stop();this.connectionState.set('disconnected');}}
     }

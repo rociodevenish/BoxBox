@@ -21,7 +21,8 @@
 } @else if(mode==='controller'){
  @if(sharedTablet && !activePrivate()){
  <section class="tablet-handoff" aria-label="Shared tablet handoff"><p class="eyebrow">Shared household tablet</p><h1>Pass to {{teamName(nextTeam())}}</h1><p role="status">{{handoffMessage()}}</p>
- @if(sharedTeams().length){<label>Next team<select #next [value]="nextTeam()" (change)="nextTeam.set(next.value)">@for(assignment of sharedTeams();track assignment.teamId){<option [value]="assignment.teamId">{{assignment.constructorName}}</option>}</select></label><button [disabled]="connectionState()!=='connected'" (click)="readyForTeam()">Ready for {{teamName(nextTeam())}}</button>}@else{<p>No shared-tablet teams are authorised on this device.</p>}
+ @if(sharedTeams().length){<label>Next team<select #next [value]="nextTeam()" (change)="nextTeam.set(next.value)">@for(assignment of sharedTeams();track assignment.teamId){<option [value]="assignment.teamId">{{assignment.constructorName}}</option>}</select></label><button [disabled]="connectionState()!=='connected'||revealingOutcome()" (click)="readyForTeam()">Ready for {{teamName(nextTeam())}}</button>}@else{<p>No shared-tablet teams are authorised on this device.</p>}
+ @if(publicState()?.presentation){<section class="controller-live-feed" aria-label="Public race outcome"><app-phase-result [result]="phaseResult()" [compact]="true" [liveRace]="true" [feedbackFirst]="true" />@if(playing()){<button (click)="skipPlayback()">Skip playback</button>}@else{<button (click)="playFeedback()">Replay feedback</button>}</section>}
  <p>Hand the tablet to the named player before Ready. This is a trusted household device; the handoff hides the previous view but does not sign in each player separately.</p></section>
  }@else{
  @if(sharedTablet){<button class="pass-tablet" (click)="passTablet()">Pass tablet</button>}
