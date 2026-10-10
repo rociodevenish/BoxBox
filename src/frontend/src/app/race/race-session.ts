@@ -217,6 +217,7 @@ export class RaceSession {
     }
     private acceptTeam(state: TeamState) {
         const submitted = this.pending();
+        const previous = this.team();
         const assignment=this.sharedTeams().find(team=>team.teamId===this.householdTeam);
         if(this.sharedTablet && state.revision<(this.publicState()?.revision??-1))return;
         if (state.sessionId !== this.id || this.householdTeam && !assignment || this.sharedTablet && !this.activePrivate() || this.householdTeam && state.teamId !== this.householdTeam || assignment && state.assignmentRevision !== assignment.assignmentRevision || state.assignmentRevision < (this.team()?.assignmentRevision ?? -1) || state.assignmentRevision === this.team()?.assignmentRevision && state.revision <= (this.team()?.revision ?? -1))
@@ -234,7 +235,8 @@ export class RaceSession {
         else if (!this.team())
             this.choices.set(state.cars.map(car => ({ driverId: car.driverId, pace: 'Standard', pit: 'StayOut', compound: 'Hard', battle: 'Neutral' })));
         this.team.set(state);
-        if(this.sharedTablet && submitted && (state.confirmedPlan?.commandId===submitted.commandId || state.phase!==submitted.phase))void this.passTablet(false);
+        const newlyLocked = previous && !previous.confirmedPlan && (state.confirmedPlan || state.phase!==previous.phase);
+        if(this.sharedTablet && (newlyLocked || submitted && state.phase!==submitted.phase))void this.passTablet(false);
     }
     private canSubmit() { return !this.busy() && !this.acknowledged() && this.connectionState() === 'connected' && this.team()?.lifecycle === 'awaiting-decisions' && !this.team()?.confirmedPlan; }
     editable() { return this.canSubmit() && !this.pending(); }
