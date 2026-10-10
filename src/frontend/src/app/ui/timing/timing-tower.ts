@@ -11,7 +11,7 @@ import { TimingRow } from "./timing-row";
         LAP {{ classification().leaderLap }} / {{ classification().totalLaps }}
       </p>
     </div>}
-    <table>
+    <table [attr.aria-label]="'Classification — '+(classification().gapReference === 'ahead' ? 'Interval to car ahead' : 'Gap to leader')">
       @if(!inline()){<caption>
         Classification — {{ classification().gapReference === 'ahead' ? 'Interval to car ahead' : 'Gap to leader' }}
       </caption>}
