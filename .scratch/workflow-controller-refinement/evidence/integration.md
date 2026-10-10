@@ -1,0 +1,11 @@
+# Integrated verification
+
+The bounded workflow and compact controller changes are integrated on `codex/shared-sessions` through `b8f4770`. Implementation through `1374999` and final test-only corrections at `b8f4770` passed independent Standards and Spec review with zero remaining findings. One prior Standards duplication finding was corrected. Final correction checks passed three browser scenarios in 25.3 seconds and both pit-boundary scenarios in 19.8 seconds.
+
+Unique checks completed: three tooling tests, Angular typecheck and production build, 140 backend tests (including actual authentication-emulator coverage), 34 gallery tests, 22 browser scenarios, two pit-boundary scenarios and two authenticated lobby scenarios. The first broad pass stopped at API startup; startup diagnostics and direct executable arguments were improved without claiming a proven cause. Remaining stages ran separately. Three browser and two boundary assertions required focused corrections: nearby tyres made old selectors ambiguous, and a repeated five-lap heading did not prove the next decision window was ready. Tests now scope the current tyre and await the completed lap/matching decision window. Product behavior and timeouts were unchanged.
+
+Raw results remain ignored under `.tools/reports/verification`, including immutable invocation records, `combined.log`, `focused-ui.log`, `remaining.log`, `final-boundary-shared.log` and `final-shared.log`. Focused correction reports are preserved with compact-controller worktree evidence. Existing production bundle-budget and CommonJS warnings remain. GitHub CI is configured but was not run remotely.
+
+The new frozen preview is http://127.0.0.1:4470/race/new, sourced from production build at `b33c6d2`; subsequent implementation changes concern verification tooling only. Recorded web/API PIDs and source metadata live in ignored `.tools/race-preview-compact-20261010/processes.json`. Its separate bounded full-flow smoke passed: identity-only portraits, expandable details, reused filtered public classification, recorded lap pace, pit stops, fastest lap, playback/next choices and finish. Published phone and TV captures are linked from ticket 02 evidence. Existing previews were preserved.
+
+Both tickets are resolved. This bounded effort stops here; shared-session ticket 02 and further specs remain unstarted.

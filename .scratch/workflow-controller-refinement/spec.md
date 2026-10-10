@@ -1,6 +1,6 @@
 # Verification workflow and compact controller refinement
 
-Status: ready-for-agent
+Status: resolved
 
 Implement the user's approved retrospective improvements and the separately requested compact controller presentation. Stop after this bounded effort; shared-session ticket 02 remains unstarted.
 
@@ -21,3 +21,7 @@ Implement the user's approved retrospective improvements and the separately requ
 2. [Compact driver identity and reused nearby classification](issues/02-compact-controller.md)
 
 These tickets are independent. Review their integrated result, fix findings, record evidence and stop.
+
+## Completion
+
+Both tickets are resolved and integrated on `codex/shared-sessions` through `b8f4770`. Independent Standards and Spec reviews each have zero remaining findings. [Integrated verification and preview](evidence/integration.md) records completed checks and limitations. Stop here; shared-session ticket 02 remains unstarted.
