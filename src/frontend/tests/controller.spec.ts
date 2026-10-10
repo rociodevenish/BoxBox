@@ -13,7 +13,7 @@ test("both cars retain selected choices in confirmation before submission", asyn
   await expect(dialog).toContainText("Push · Pit · Hard · Neutral");
   await expect(dialog).toContainText("Alexandra Montgomery-Sutherland");
   await expect(dialog).toContainText("Standard · Stay Out · Neutral");
-  await expect(page.getByRole("status")).toContainText("Selected");
+  await expect(dialog.getByRole("button", { name: "Submit both cars" })).toBeEnabled();
   await dialog.getByRole("button", { name: "Submit both cars" }).click();
   await expect(page.getByRole("status")).toContainText("Submitted");
 });

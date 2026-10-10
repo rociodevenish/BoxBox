@@ -17,7 +17,7 @@ for (const [width, height] of [
     expect(
       await page.evaluate(() => document.documentElement.scrollWidth),
     ).toBe(width);
-    const identity = tower.getByText("Alexandra Montgomery-Sutherland", {
+    const identity = tower.getByText(width === 360 ? "MSU" : "Alexandra Montgomery-Sutherland", {
       exact: true,
     });
     await expect(identity).toBeVisible();
