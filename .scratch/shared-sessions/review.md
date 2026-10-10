@@ -4,6 +4,7 @@ Independent Standards and Spec review findings were addressed together after tic
 
 - Spec P2: the final shared-tablet team lock cleared the private screen while outcome playback ran invisibly. The neutral handoff now presents the existing public race outcome, including resolved Classification and chronological feedback. Initial Ready waits for playback completion or Skip; Replay does not relock a revealed decision window. No previous private cards, estimates or choices are retained.
 - Standards DuplicatedCode: one private-view reset clears observations, drafts, pending/accepted command state, busy/private flags and advances the late-response generation guard. Handoff and authority removal retain their separate messages and subscription handling.
+- Additional Spec P2 after the ticket 06 busy-state correction: an old HTTP lock acknowledgement could hand off after the next decision window was editable, discarding its draft. Shared-tablet accepted-lock snapshots now trigger the neutral handoff immediately while that submission is current. The generation guard isolates the following Ready view, and the fallback HTTP handoff checks its original phase first. Every accepted lock still requires neutral handoff and Ready, including the final required lock.
 
 ## Verification
 
@@ -14,3 +15,9 @@ Frontend typecheck passed in verification run `2026-10-10T21-26-58-344Z-29f8068c
 Inspected [neutral public outcome at 360×800](evidence/tablet-outcome-360.png): public summary, events and all 22 classification rows are readable through vertical scrolling; no horizontal overflow and no private previous-team panels. Inspected the focused run's public 1920×1080 readiness capture: both-team readiness and all 22 timing rows fit; no private instructions appear. Only the new reviewed outcome capture was published.
 
 Actual human household playtest feedback remains pending under ticket 06 by explicit user direction. Browser verification does not substitute for human findings.
+
+## Delayed acknowledgement verification
+
+Merged ticket 06 through `5719761` into this worker branch, preserving its new-phase busy-state correction. A new browser tracer holds the real final-lock HTTP response while SignalR opens the next window. It initially failed because releasing the old response cleared the new draft and returned to handoff (`review-delayed-ack-red.json`, PID 32548, exit 1). After the fix, the tracer requires authoritative neutral handoff before the held response returns, skips public outcome playback, presses Ready, selects Push for the next window, and verifies that delivering the obsolete response preserves that draft and enabled choices. Existing late-frame and revocation checks remain intact.
+
+The two handoff cases, phone host controls, Family and Mixed all passed (`review-delayed-ack-green.json`, PID 5580, exit 0; five cases). Their Angular browser compilation passed. Owned UI/API/auth services stopped; ports 4476/4576/19099/19400/19450 were clear and the emulator lease released.

@@ -216,6 +216,7 @@ export class RaceSession {
         if(this.sharedTablet && !this.activePrivate())this.selectNextTeam();
     }
     private acceptTeam(state: TeamState) {
+        const submitted = this.pending();
         const assignment=this.sharedTeams().find(team=>team.teamId===this.householdTeam);
         if(this.sharedTablet && state.revision<(this.publicState()?.revision??-1))return;
         if (state.sessionId !== this.id || this.householdTeam && !assignment || this.sharedTablet && !this.activePrivate() || this.householdTeam && state.teamId !== this.householdTeam || assignment && state.assignmentRevision !== assignment.assignmentRevision || state.assignmentRevision < (this.team()?.assignmentRevision ?? -1) || state.assignmentRevision === this.team()?.assignmentRevision && state.revision <= (this.team()?.revision ?? -1))
@@ -233,6 +234,7 @@ export class RaceSession {
         else if (!this.team())
             this.choices.set(state.cars.map(car => ({ driverId: car.driverId, pace: 'Standard', pit: 'StayOut', compound: 'Hard', battle: 'Neutral' })));
         this.team.set(state);
+        if(this.sharedTablet && submitted && (state.confirmedPlan?.commandId===submitted.commandId || state.phase!==submitted.phase))void this.passTablet(false);
     }
     private canSubmit() { return !this.busy() && !this.acknowledged() && this.connectionState() === 'connected' && this.team()?.lifecycle === 'awaiting-decisions' && !this.team()?.confirmedPlan; }
     editable() { return this.canSubmit() && !this.pending(); }
@@ -255,8 +257,8 @@ export class RaceSession {
         try {
             const ack = await this.request<Acknowledgement>(this.householdTeam ? '/api/lobbies/'+this.id+'/teams/'+this.householdTeam+'/plans?deviceId='+encodeURIComponent(this.householdDevice) : '/api/sessions/' + this.id + '/plans', command, this.householdTeam ? await this.householdUser!.getIdToken() : this.capability);
             if(generation!==this.privateGeneration || submittedTeam!==this.householdTeam)return;
-            if(this.sharedTablet && ack.sessionId===this.id && ack.commandId===command.commandId){await this.passTablet(false);return;}
             if (this.team()?.phase !== command.phase) return;
+            if(this.sharedTablet && ack.sessionId===this.id && ack.commandId===command.commandId){await this.passTablet(false);return;}
             if (ack.sessionId === this.id && ack.commandId === command.commandId) {
                 this.acknowledged.set(ack);
                 this.pending.set(null);
