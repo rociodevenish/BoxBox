@@ -5,7 +5,7 @@ test('controller submits when UUID secure-context convenience API is unavailable
   await page.goto('/race/new');await page.getByRole('button',{name:'Create race'}).click();
   const link=await page.getByRole('link',{name:'Open controller'}).getAttribute('href');await page.goto(link!);
   await page.getByRole('button',{name:'Approve Plan'}).click();await page.getByRole('button',{name:'Confirm plan'}).click();
-  await expect(page.getByRole('heading',{name:'Decisions for the next 1 lap'})).toBeVisible();
+  await expect(page.getByText('Decisions for the next 1 lap',{exact:true})).toBeVisible();
 });
 test('retained controller access allows return from public display without granting fresh viewers private access', async ({ page, browser }) => {
   mkdirSync('../../.tools/reports/browser-race/review-05',{recursive:true});
@@ -25,7 +25,7 @@ test('retained controller access allows return from public display without grant
   const last=await page.getByRole('row').last().boundingBox();expect(last!.y+last!.height).toBeLessThanOrEqual(1080);
   await page.screenshot({path:'../../.tools/reports/browser-race/review-05/display-1920x1080.png'});
   await page.getByRole('link', { name: 'Team controller', exact: true }).click();
-  await expect(page.getByRole('heading', { name: 'Decisions for the next 5 laps' })).toBeVisible();
+  await expect(page.getByText('Decisions for the next 5 laps',{exact:true})).toBeVisible();
   await page.setViewportSize({width:360,height:800});
   await page.getByRole('region',{name:'Car 1 — Driver 1'}).getByRole('button',{name:'Pit',exact:true}).click();
   await page.screenshot({path:'../../.tools/reports/browser-race/review-05/controller-360.png',fullPage:true});

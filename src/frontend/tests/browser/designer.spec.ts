@@ -4,7 +4,7 @@ test('browser feedback reports separate client presentation samples and designer
   const controller=await page.getByRole('link',{name:'Open controller'}).getAttribute('href');
   const publicUrl=await page.getByRole('link',{name:'Open public display'}).getAttribute('href');
   const id=publicUrl!.split('/').at(-1);
-  const display=await context.newPage();await display.goto(publicUrl!);await display.getByLabel('Playback seconds').fill('10');
+  const display=await context.newPage();await display.goto(publicUrl!);await display.getByLabel('Display settings',{exact:true}).click();await display.getByLabel('Playback seconds').fill('10');
   await page.goto(controller!);await page.getByRole('button',{name:'Approve Plan'}).click();await page.getByRole('button',{name:'Confirm plan'}).click();
   await expect(display.getByRole('button',{name:'Skip playback'})).toBeVisible();await display.getByRole('button',{name:'Skip playback'}).click();
   const headers={'X-Designer-Key':'ephemeral-browser-test-key'};

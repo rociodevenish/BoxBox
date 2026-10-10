@@ -19,7 +19,7 @@ test('live controller offers only each cars legal buttons and visible new-phase 
     await page.getByRole('button', { name: 'Create race' }).click();
     const url = await page.getByRole('link', { name: 'Open controller' }).getAttribute('href');
     await page.goto(url!);
-    await expect(page.getByRole('heading', { name: 'Decisions for the next 5 laps' })).toBeVisible();
+    await expect(page.getByText('Decisions for the next 5 laps',{exact:true})).toBeVisible();
     const id = new URL(page.url()).pathname.split('/').at(-1);
     const capability = new URL(page.url()).hash.slice('#capability='.length);
     const own = await (await page.request.get('/api/sessions/' + id + '/team', { headers: { Authorization: 'Bearer ' + capability } })).json();
