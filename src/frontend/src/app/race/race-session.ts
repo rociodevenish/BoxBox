@@ -89,12 +89,19 @@ interface Created {
     displayUrl: string;
     controllerUrl: string;
 }
+interface ControllerAssignment {teamId:string;constructorName:string;control:string;assignmentRevision:number;playerId:string}
 export class RaceSession {
     readonly mode: string;
     readonly id: string;
     readonly capability: string;
     readonly controllerLink: string | null;
-    readonly householdTeam: string;
+    householdTeam: string;
+    readonly sharedTablet: boolean;
+    readonly sharedTeams = signal<ControllerAssignment[]>([]);
+    readonly nextTeam = signal('');
+    readonly handoffMessage = signal('');
+    readonly activePrivate = signal(false);
+    private privateGeneration = 0;
     private householdDevice = "";
     private householdUser?: import("firebase/auth").User;
     readonly created = signal<Created | null>(null);
@@ -111,6 +118,7 @@ export class RaceSession {
         this.mode = url.pathname.split('/')[2];
         this.id = url.pathname.split('/')[3];
         this.householdTeam = url.searchParams.get("team") ?? "";
+        this.sharedTablet = url.searchParams.get('shared') === '1';
         this.capability = new URLSearchParams(url.hash.slice(1)).get('capability') ?? '';
         const saved = localStorage.getItem('race-controller:' + this.id);
         this.controllerLink = saved && saved.startsWith('/race/controller/' + this.id + '#capability=') ? saved : null;
@@ -129,12 +137,13 @@ export class RaceSession {
         }
     }
     async connect() {
+        if(this.sharedTablet){await this.passTablet(false);this.handoffMessage.set('Private view cleared. Hand over the tablet, then press Ready.');}
         this.connectionState.set('connecting');
         this.error.set('');
         const previous = this.connection;
         this.connection = undefined;
         await previous?.stop();
-        if (this.householdTeam) {
+        if (this.householdTeam || this.sharedTablet) {
           try {
             const config = await (await fetch('/api/auth/config')).json();
             const {initializeApp,getApps}=await import('firebase/app'); const sdk=await import('firebase/auth');
@@ -143,9 +152,11 @@ export class RaceSession {
             await auth.authStateReady(); this.householdUser=auth.currentUser ?? undefined;
             if(!this.householdUser)throw new Error('Sign in and join this household first.');
             this.householdDevice=localStorage.getItem('household-device:'+this.householdUser.uid+':'+this.id) ?? '';
+            await this.refreshAssignments();
+            if(this.sharedTablet){this.householdTeam='';this.activePrivate.set(false);}
           } catch(error) { this.connectionFailure(error); return; }
         }
-        const connection = new HubConnectionBuilder().withUrl('/hubs/race', this.householdTeam ? {accessTokenFactory:()=>this.householdUser!.getIdToken()} : {}).withAutomaticReconnect([0, 1000, 3000]).build();
+        const connection = new HubConnectionBuilder().withUrl('/hubs/race', this.householdUser ? {accessTokenFactory:()=>this.householdUser!.getIdToken()} : {}).withAutomaticReconnect([0, 1000, 3000]).build();
         this.connection = connection;
         connection.on('publicSnapshot', (state: PublicState) => this.acceptPublic(state));
         connection.on('teamSnapshot', (state: TeamState) => this.acceptTeam(state));
@@ -181,10 +192,15 @@ export class RaceSession {
         if (this.connection !== connection)
             return;
         this.acceptPublic(publicState);
-        if (this.mode === 'controller') {
+        if (this.mode === 'controller' && (!this.sharedTablet || this.activePrivate())) {
+            const generation=this.privateGeneration;
+            const teamId=this.householdTeam;
+            if(this.householdUser)await this.refreshAssignments();
             const own = this.householdTeam ? await connection.invoke<TeamState>('SubscribeHouseholdTeam',this.id,this.householdDevice,this.householdTeam) : await connection.invoke<TeamState>('SubscribeTeam', this.id, this.capability);
-            if (this.connection !== connection)
+            if (this.connection !== connection || generation!==this.privateGeneration || teamId!==this.householdTeam){
+                if(teamId)await connection.invoke('UnsubscribeHouseholdTeam',this.id,teamId,own.assignmentRevision).catch(()=>undefined);
                 return;
+            }
             this.acceptTeam(own);
         }
         this.connectionState.set('connected');
@@ -194,11 +210,14 @@ export class RaceSession {
         if (state.sessionId !== this.id || state.revision <= (this.publicState()?.revision ?? -1))
             return;
         this.publicState.set(state);
+        if(this.sharedTablet && !this.activePrivate())this.selectNextTeam();
     }
     private acceptTeam(state: TeamState) {
-        if (state.sessionId !== this.id || this.householdTeam && state.teamId !== this.householdTeam || state.revision <= (this.team()?.revision ?? -1))
+        const assignment=this.sharedTeams().find(team=>team.teamId===this.householdTeam);
+        if(this.sharedTablet && state.revision<(this.publicState()?.revision??-1))return;
+        if (state.sessionId !== this.id || this.sharedTablet && !this.activePrivate() || this.householdTeam && state.teamId !== this.householdTeam || assignment && state.assignmentRevision !== assignment.assignmentRevision || state.assignmentRevision < (this.team()?.assignmentRevision ?? -1) || state.assignmentRevision === this.team()?.assignmentRevision && state.revision <= (this.team()?.revision ?? -1))
             return;
-        if (state.phase !== this.team()?.phase) {
+        if (state.phase !== this.team()?.phase || state.assignmentRevision !== this.team()?.assignmentRevision) {
             this.acknowledged.set(null);
             this.pending.set(null);
             this.choices.set(state.cars.map(car => ({ driverId: car.driverId, pace: 'Standard', pit: 'StayOut', compound: 'Hard', battle: 'Neutral' })));
@@ -227,8 +246,12 @@ export class RaceSession {
         this.pending.set(command);
         this.busy.set(true);
         this.error.set('');
+        const generation=this.privateGeneration;
+        const submittedTeam=this.householdTeam;
         try {
             const ack = await this.request<Acknowledgement>(this.householdTeam ? '/api/lobbies/'+this.id+'/teams/'+this.householdTeam+'/plans?deviceId='+encodeURIComponent(this.householdDevice) : '/api/sessions/' + this.id + '/plans', command, this.householdTeam ? await this.householdUser!.getIdToken() : this.capability);
+            if(generation!==this.privateGeneration || submittedTeam!==this.householdTeam)return;
+            if(this.sharedTablet && ack.sessionId===this.id && ack.commandId===command.commandId){await this.passTablet(false);return;}
             if (this.team()?.phase !== command.phase) return;
             if (ack.sessionId === this.id && ack.commandId === command.commandId) {
                 this.acknowledged.set(ack);
@@ -245,6 +268,7 @@ export class RaceSession {
             }
         }
         catch (error) {
+            if(generation!==this.privateGeneration || submittedTeam!==this.householdTeam)return;
             if (this.team()?.phase !== command.phase) return;
             if (this.team()?.confirmedPlan?.commandId === command.commandId)
                 return;
@@ -267,13 +291,36 @@ export class RaceSession {
             }
         }
         finally {
-            this.busy.set(false);
+            if(generation===this.privateGeneration)this.busy.set(false);
         }
     }
     private rememberCreated(value: Created) {
         const id = value.displayUrl.split('/').at(-1)!;
         localStorage.setItem('race-controller:' + id, value.controllerUrl);
         this.created.set(value);
+    }
+    private async refreshAssignments() {
+        const response=await fetch('/api/lobbies/'+this.id+'/controllers?deviceId='+encodeURIComponent(this.householdDevice),{cache:'no-store',headers:{Authorization:'Bearer '+await this.householdUser!.getIdToken()}});
+        const value=await response.json();if(!response.ok)throw new Error(value.message??'Controller authority unavailable.');
+        const assignments=value as ControllerAssignment[];
+        this.sharedTeams.set(this.sharedTablet?assignments.filter(team=>team.control==='SharedTablet'):assignments);
+        if(this.householdTeam && !this.sharedTeams().some(team=>team.teamId===this.householdTeam))throw new Error('This device is no longer authorised for this team.');
+        this.selectNextTeam();
+    }
+    private selectNextTeam(){const teams=this.sharedTeams();const readiness=this.publicState()?.readiness;this.nextTeam.set((teams.find(team=>!readiness?.find(item=>item.teamId===team.teamId)?.locked)??teams[0])?.teamId??'');}
+    teamName(teamId=this.householdTeam){return this.sharedTeams().find(team=>team.teamId===teamId)?.constructorName??teamId.replace('team-','Team ');}
+    teamControl(){return this.sharedTeams().find(team=>team.teamId===this.householdTeam)?.control;}
+    async readyForTeam(){
+        if(!this.sharedTablet || this.activePrivate() || !this.nextTeam() || this.connectionState()!=='connected')return;
+        this.householdTeam=this.nextTeam();this.activePrivate.set(true);this.handoffMessage.set('');
+        try{if(this.connection)await this.rejoin(this.connection);}catch(error){await this.passTablet(false);this.connectionFailure(error);}
+    }
+    async passTablet(discard=true){
+        const old=this.team();const oldTeam=this.householdTeam;
+        this.privateGeneration++;this.activePrivate.set(false);this.householdTeam='';
+        this.team.set(null);this.choices.set([]);this.pending.set(null);this.acknowledged.set(null);this.error.set('');this.busy.set(false);
+        this.handoffMessage.set(discard?'Unsubmitted drafts were discarded.':'Team plan locked. Pass the tablet to the next player.');this.selectNextTeam();
+        if(this.connection && oldTeam && old){try{await this.connection.invoke('UnsubscribeHouseholdTeam',this.id,oldTeam,old.assignmentRevision);}catch{await this.connection.stop();this.connectionState.set('disconnected');}}
     }
     private async request<T>(url: string, body: unknown, capability?: string): Promise<T> {
         const response = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json', ...(capability ? { Authorization: 'Bearer ' + capability } : {}) }, body: JSON.stringify(body) });

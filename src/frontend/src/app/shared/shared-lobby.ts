@@ -8,6 +8,7 @@ interface Membership {playerId:string;deviceId:string;isHost:boolean}
 interface Joined {lobby:Lobby;membership:Membership}
 @Component({selector:'app-shared-lobby',templateUrl:'./shared-lobby.html',styleUrl:'./shared-lobby.css'})
 export class SharedLobby {
+ readonly hasSharedTeam=(team:Team)=>team.control==='SharedTablet' && !!team.playerId;
  readonly path=location.pathname;readonly joinMode=this.path.includes('/join');readonly id=this.path.startsWith('/shared/lobby/')?this.path.split('/').at(-1):undefined;
  readonly lobby=signal<Lobby|null>(null);readonly membership=signal<Membership|null>(null);readonly user=signal<User|null>(null);readonly ready=signal(false);readonly busy=signal(false);readonly error=signal('');readonly qr=signal('');readonly connection=signal('Connecting');
  readonly code=new URL(location.href).searchParams.get('code')??'';readonly accountName=signal(localStorage.getItem('household-player-name')??'');
@@ -36,7 +37,7 @@ export class SharedLobby {
  async addParticipant(name:string){await this.change('/participants',{name,deviceId:this.membership()!.deviceId});}
  async start(){await this.change('/start',{});}
  private async change(path:string,input:unknown){await this.run(async()=>this.apply(await this.request<Lobby>('/api/lobbies/'+this.lobby()!.sessionId+path,input)));}
- owner(team:Team){return this.lobby()!.players.find(p=>p.playerId===team.playerId)?.name??'Unclaimed · scripted at start';}
+ owner(team:Team){return this.lobby()!.players.find(p=>p.playerId===team.playerId)?.name??'Unclaimed Â· scripted at start';}
  canClaim(team:Team){return !this.busy()&&this.connection()==='Connected'&&this.lobby()?.lifecycle==='lobby'&&!team.playerId&&!this.lobby()!.teams.some(t=>t.playerId===this.membership()?.playerId);}
  canStart(){return !this.busy()&&this.connection()==='Connected'&&this.lobby()!.teams.some(t=>t.playerId)&&this.lobby()!.teams.every(t=>!t.playerId||t.approved);}
 }

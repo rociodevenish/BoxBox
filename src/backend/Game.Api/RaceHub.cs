@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.SignalR;
 namespace Game.Api;
 public sealed class RaceHub(SessionCoordinator sessions,FirebaseIdentity auth) : Hub
 {
+    public Task UnsubscribeHouseholdTeam(string id,string teamId,long assignmentRevision)
+        => Groups.RemoveFromGroupAsync(Context.ConnectionId,"household:"+id+":"+teamId+":"+assignmentRevision);
     public async Task<JoinedLobby> SubscribeLobby(string id,string deviceId)
     {
         try {
