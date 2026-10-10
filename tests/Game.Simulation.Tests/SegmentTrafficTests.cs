@@ -13,7 +13,7 @@ public class SegmentTrafficTests
         var result = new RaceEngine(Config(new TrackSegment("restricted", 1000, 100, 0, 0, PassingAllowed: false)),
             [new("leader", "A"), new("follower", "B", Pace: 10, Gap: 5)], 1).ResolvePhase();
         Assert.Equal("leader", result.Classification[0].DriverId);
-        Assert.Equal(200, result.Classification[1].FinishTime!.Value, 8);
+        Assert.InRange(result.Classification[1].FinishTime!.Value - result.Classification[0].FinishTime!.Value, .2, .4);
         Assert.Contains(result.Events, e => e.DriverId == "follower" && e.Kind == RaceEventKind.TrafficLoss);
     }
     [Fact]
@@ -26,7 +26,10 @@ public class SegmentTrafficTests
         Assert.Equal(new[] { "z", "y", "x" }, first.Classification.Select(c => c.DriverId));
         var final = race.ResolvePhase();
         Assert.Equal(new[] { "z", "y", "x" }, final.Classification.Select(c => c.DriverId));
-        Assert.All(final.Classification, c => Assert.Equal(600, c.FinishTime!.Value, 8));
+        Assert.Equal(600, final.Classification[0].FinishTime!.Value, 8);
+        Assert.True(final.Classification[1].FinishTime > final.Classification[0].FinishTime);
+        Assert.True(final.Classification[2].FinishTime > final.Classification[1].FinishTime);
+        Assert.All(race.GetTimingObservation().Skip(1), row => Assert.True(row.ToAhead.Seconds > 0.001));
     }
     [Fact]
     public void Colocated_start_has_stable_order_and_does_not_allow_overlap_to_become_a_pass()
@@ -34,7 +37,7 @@ public class SegmentTrafficTests
         var result = new RaceEngine(Config(new TrackSegment("a", 1000, 100, 0, 0, PassingAllowed: false)),
             [new("a", "A"), new("b", "B", Pace: 10)], 1).ResolvePhase();
         Assert.Equal("a", result.Classification[0].DriverId);
-        Assert.Equal(200, result.Classification[1].FinishTime!.Value, 8);
+        Assert.InRange(result.Classification[1].FinishTime!.Value - result.Classification[0].FinishTime!.Value, .2, .4);
     }
     [Fact]
     public void Corner_gain_is_followed_by_straight_loss_with_equal_lap_pace()
@@ -87,7 +90,9 @@ public class SegmentTrafficTests
         }
         var result = Run();
         Assert.Equal(Enumerable.Range(0, 22).Select(i => $"d{i:00}"), result.Classification.Select(c => c.DriverId));
-        Assert.All(result.Classification, c => Assert.Equal(1200, c.FinishTime!.Value, 8));
+        Assert.Equal(1200, result.Classification[0].FinishTime!.Value, 8);
+        foreach (var pair in result.Classification.Zip(result.Classification.Skip(1)))
+            Assert.InRange(pair.Second.FinishTime!.Value - pair.First.FinishTime!.Value, .1, .4);
         Assert.Equal(result.Events, Run().Events);
     }
 }

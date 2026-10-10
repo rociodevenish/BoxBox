@@ -179,6 +179,7 @@ public sealed class RaceEngine
         while (cars.Any(c => c.FinishTime is null))
         {
             var car = cars.Where(c => c.FinishTime is null).OrderBy(NextEvent)
+                .ThenBy(c => Segments is null ? 0 : c.ContactOrder)
                 .ThenBy(c => c.Driver.Id, StringComparer.Ordinal).First();
             // Complete every event at the boundary timestamp before accepting new decisions.
             if (!chequered && cars.Max(c => c.Laps) >= target && NextEvent(car) > time + 1e-8) break;
@@ -234,6 +235,23 @@ public sealed class RaceEngine
             }
             if (cars.Any(c => c.FinishTime is null && c.LapEnd == time
                 && c.Laps + 1 >= configuration.Laps && (Segments is null || c.SegmentIndex == Segments.Count - 1))) chequered = true;
+            // Contact ordering alone cannot give a queue simultaneous chequered crossings.
+            // Move trailing cars back along their live trajectory before recording lap completion.
+            if (Segments is not null && chequered && car.SegmentIndex == Segments.Count - 1)
+            {
+                var queue = cars.Where(other => other != car && other.FinishTime is null
+                    && other.PitExit is null && other.Following is not null && other.Laps == car.Laps
+                    && other.SegmentIndex == car.SegmentIndex && other.ContactOrder > car.ContactOrder
+                    && SameCoordinate(Distance(other), Distance(car)))
+                    .OrderBy(other => other.ContactOrder).ToArray();
+                for (var index = 0; index < queue.Length; index++)
+                {
+                    var separation = (index + 1) * Traffic.FollowingLoss;
+                    queue[index].LapStart += separation;
+                    queue[index].LapEnd += separation;
+                    queue[index].Following = null;
+                }
+            }
             ConsumeTyres(car, 1);
             car.Laps++;
             car.SegmentIndex = 0;

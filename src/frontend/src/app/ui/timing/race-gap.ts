@@ -28,7 +28,7 @@ export class RaceGap {
   readonly gap = input.required<PublicGap>();
   seconds(): string {
     const gap = this.gap();
-    return gap.kind === "time" ? gap.seconds.toFixed(3) : "";
+    return gap.kind === "time" ? Math.max(0, gap.seconds).toFixed(3) : "";
   }
   laps(): number {
     const gap = this.gap();
