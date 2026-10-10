@@ -4,15 +4,18 @@ import {TimingTower} from '../ui/timing/timing-tower';
 import {PublicClassification} from '../ui/timing/public-classification.model';
 import {PublicState} from '../race/race-session';
 import {CompoundBadge} from '../ui/compound-badge';
+import {DriverCard} from '../ui/driver-card';
+import {raceDriverCard} from '../race/race-driver-card';
 interface OpenTeam {
  sessionId:string;teamId:string;phase:number;revision:number;assignmentRevision:number;lifecycle:string;
  cars:{driverId:string;compound:'Soft'|'Medium'|'Hard';tyreAge:number;estimatedTyreCondition:number;inPits:boolean;stopQueued:boolean;battleOptions:string[]}[];
  confirmedPlan:{cars:{driverId:string;pace:string;pit:string;compound:string|null;battle:string}[]}|null;
 }
 interface Lobby {sessionId:string;mode:string;teams:{teamId:string;constructorName:string;control:string;playerId:string|null;approved:boolean;assignmentRevision:number}[];players:{playerId:string;name:string}[]}
-@Component({selector:'app-open-display',imports:[TimingTower,CompoundBadge],templateUrl:'./open-display.html',styleUrl:'./open-display.css'})
+@Component({selector:'app-open-display',imports:[TimingTower,CompoundBadge,DriverCard],templateUrl:'./open-display.html',styleUrl:'./open-display.css'})
 export class OpenDisplay {
  readonly id=location.pathname.split('/')[3];readonly lobby=signal<Lobby|null>(null);readonly race=signal<PublicState|null>(null);readonly teams=signal<OpenTeam[]>([]);readonly status=signal('Connecting');readonly error=signal('');
+ readonly driverCard=raceDriverCard;
  private hub?:HubConnection;
  constructor(){void this.connect();}
  ngOnDestroy(){const hub=this.hub;this.hub=undefined;void hub?.stop();}
