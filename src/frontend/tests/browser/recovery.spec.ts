@@ -13,10 +13,10 @@ test('lost HTTP acknowledgement recovers the next window rather than submitting 
     await page.getByRole('button', { name: 'Approve Plan' }).click();
     await page.getByRole('button', { name: 'Confirm plan' }).click();
     await expect(page.getByRole('button', { name: 'Reconnect' })).toBeVisible();
-    await expect(page.getByRole('button', { name: 'Approve Plan' })).toBeDisabled();
+    await expect(page.getByRole('button', { name: 'Approve Plan' })).toHaveCount(0);
     const before = await (await page.request.get('/api/sessions/' + id)).json();
     await page.getByRole('button', { name: 'Reconnect' }).click();
-    await expect(page.getByRole('heading',{name:'Decisions for the next 1 lap'})).toBeVisible();
+    await expect(page.getByText('Decisions for the next 1 lap',{exact:true})).toBeVisible();
     await expect(page.getByRole('region',{name:'Car 1 — Driver 1'}).getByRole('button',{name:'Standard',exact:true})).toHaveAttribute('aria-pressed','true');
     await expect(page.getByRole('button', { name: 'Retry pending submission' })).toHaveCount(0);
     expect(posts).toBe(1);
@@ -61,13 +61,13 @@ test('automatic reconnect rejoins authorized groups and older duplicated wire up
     await page.getByRole('region',{name:'Car 1 — Driver 1'}).getByRole('button',{name:'Push',exact:true}).click();
     await page.getByRole('button', { name: 'Approve Plan' }).click();
     await page.getByRole('button', { name: 'Confirm plan' }).click();
-    await expect(page.getByRole('heading',{name:'Decisions for the next 1 lap'})).toBeVisible();
+    await expect(page.getByText('Decisions for the next 1 lap',{exact:true})).toBeVisible();
     await expect(page.getByRole('button', { name: 'Approve Plan' })).toBeEnabled();
     await expect.poll(() => refreshed).toBeGreaterThan(0);
     replayOlder();
     // This negative assertion needs a delivery window: the old frame must not cause any state transition.
     await page.waitForTimeout(100);
-    await expect(page.getByRole('heading',{name:'Decisions for the next 1 lap'})).toBeVisible();
+    await expect(page.getByText('Decisions for the next 1 lap',{exact:true})).toBeVisible();
     disconnect();
     await expect.poll(() => connections).toBe(3);
     await expect(page.getByText('Connection: connected', { exact: true })).toBeVisible();
@@ -84,7 +84,7 @@ test('a confirmed HTTP acknowledgement retrieves actual observations when realti
     await page.getByRole('region',{name:'Car 2 — Driver 2'}).getByRole('button',{name:'Pit',exact:true}).click();
     await page.getByRole('button', { name: 'Approve Plan' }).click();
     await page.getByRole('button', { name: 'Confirm plan' }).click();
-    await expect(page.getByRole('heading',{name:'Decisions for the next 1 lap'})).toBeVisible();
+    await expect(page.getByText('Decisions for the next 1 lap',{exact:true})).toBeVisible();
     await expect(page.getByRole('region',{name:'Car 2 — Driver 2'}).locator('.tyres').getByLabel('Tyre compound Hard',{exact:true})).toBeVisible();
 });
 test('unavailable connections disable actions and a retry preserves the same in-flight command identity', async ({ page }) => {
@@ -103,22 +103,22 @@ test('unavailable connections disable actions and a retry preserves the same in-
     await page.getByRole('button', { name: 'Reconnect' }).click();
     await expect(page.getByRole('button', { name: 'Approve Plan' })).toBeEnabled();
     await page.getByRole('region',{name:'Car 1 — Driver 1'}).getByRole('button',{name:'Push',exact:true}).click();
-    const ids: string[] = [];
-    await page.route('**/api/sessions/*/plans', async (route) => { ids.push(route.request().postDataJSON().commandId); if (ids.length === 1)
+    const ids: string[] = []; const plans: unknown[] = [];
+    await page.route('**/api/sessions/*/plans', async (route) => { ids.push(route.request().postDataJSON().commandId);plans.push(route.request().postDataJSON().cars); if (ids.length === 1)
         await route.abort();
     else
         await route.continue(); });
     await page.getByRole('button', { name: 'Approve Plan' }).click();
     await page.getByRole('button', { name: 'Confirm plan' }).click();
-    await expect(page.getByRole('button', { name: 'Approve Plan' })).toBeDisabled();
+    await expect(page.getByRole('button', { name: 'Approve Plan' })).toHaveCount(0);
     await expect(page.getByRole('button', { name: 'Reconnect' })).toBeVisible();
-    await expect(page.getByRole('region',{name:'Car 1 — Driver 1'}).getByRole('button',{name:'Push',exact:true})).toHaveAttribute('aria-pressed','true');
+    await expect(page.getByText('Confirmation pending. Both choices are retained until the server confirms or rejects this plan.',{exact:true})).toBeVisible();
     await page.getByRole('button', { name: 'Reconnect' }).click();
     await expect(page.getByRole('button', { name: 'Retry pending submission' })).toBeEnabled();
     await page.getByRole('button', { name: 'Retry pending submission' }).click();
-    await expect(page.getByRole('heading',{name:'Decisions for the next 1 lap'})).toBeVisible();
+    await expect(page.getByText('Decisions for the next 1 lap',{exact:true})).toBeVisible();
     expect(ids).toHaveLength(2);
-    expect(ids[1]).toBe(ids[0]);
+    expect(ids[1]).toBe(ids[0]);expect(plans[1]).toEqual(plans[0]);expect(plans[0]).toEqual(expect.arrayContaining([expect.objectContaining({driverId:'driver-01',pace:'Push'})]));
     await page.reload();
     await expect(page.getByRole('region',{name:'Car 1 — Driver 1'}).getByRole('button',{name:'Standard',exact:true})).toHaveAttribute('aria-pressed','true');
     await expect(page.getByRole('button', { name: 'Approve Plan' })).toBeEnabled();
@@ -150,14 +150,14 @@ test('refresh recovers own confirmed choices, rejects edits atomically and expir
     await expect(page.getByRole('button', { name: 'Approve Plan' })).toBeEnabled();
     await page.getByRole('button', { name: 'Approve Plan' }).click();
     await page.getByRole('button', { name: 'Confirm plan' }).click();
-    await expect(page.getByRole('heading',{name:'Decisions for the next 1 lap'})).toBeVisible();
+    await expect(page.getByText('Decisions for the next 1 lap',{exact:true})).toBeVisible();
     await page.reload();
     await expect(page.getByRole('button', { name: 'Approve Plan' })).toBeEnabled();
     await expect(page.getByRole('region',{name:'Car 1 — Driver 1'}).getByRole('button',{name:'Standard',exact:true})).toHaveAttribute('aria-pressed','true');
     await expect(page.getByRole('region',{name:'Car 2 — Driver 2'}).getByRole('button',{name:'Stay Out',exact:true})).toHaveAttribute('aria-pressed','true');
     await page.getByRole('region',{name:'Car 1 — Driver 1'}).getByRole('button',{name:'Push',exact:true}).click();
     await page.getByRole('button',{name:'Approve Plan'}).click();await page.getByRole('button',{name:'Confirm plan'}).click();
-    await expect(page.getByText('Race finished',{exact:true})).toBeVisible();await page.reload();
+    await expect(page.getByRole('heading',{name:'Your team final results',exact:true})).toBeVisible();await page.reload();
     await expect(page.getByRole('button',{name:'Approve Plan'})).toBeDisabled();
     await expect(page.getByRole('region',{name:'Car 1 — Driver 1'}).getByRole('button',{name:'Push',exact:true})).toHaveAttribute('aria-pressed','true');
     await page.request.post('/api/sessions', { data: { preset: 'open-equal', laps: 6, seed: 123 } });

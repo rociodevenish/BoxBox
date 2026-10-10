@@ -8,13 +8,13 @@ test('real display and capability controller resolve exactly one phase', async (
     const displayUrl = await page.getByRole('link', { name: 'Open public display' }).getAttribute('href');
     const display = await context.newPage();
     await display.goto(displayUrl!);
-    await expect(display.getByText('+0.500 s', { exact: true })).toBeVisible();
+    await expect(display.getByRole('row').filter({has:display.getByText('Driver 2',{exact:true})}).getByText('+0.500 s',{exact:true})).toBeVisible();
     const unauthorized = await context.newPage();
     await unauthorized.goto(controllerUrl!.split('#')[0]);
     await expect(unauthorized.getByRole('alert')).toContainText('capability');
     await unauthorized.close();
     await page.goto(controllerUrl!);
-    await expect(page.getByRole('heading', { name: 'Decisions for the next 5 laps' })).toBeVisible();
+    await expect(page.getByText('Decisions for the next 5 laps',{exact:true})).toBeVisible();
     await page.getByRole('region', { name: 'Car 1 — Driver 1' }).getByRole('button', { name: 'Push', exact: true }).click();
     await page.getByRole('region', { name: 'Car 2 — Driver 2' }).getByRole('button', { name: 'Pit', exact: true }).click();
     await page.getByRole('region', { name: 'Car 2 — Driver 2' }).getByRole('button',{name:'New compound Hard',exact:true}).click();
@@ -23,7 +23,7 @@ test('real display and capability controller resolve exactly one phase', async (
     await expect(page.getByRole('dialog')).toContainText('Hard');
     await page.getByRole('button', { name: 'Confirm plan' }).click();
     await expect(display.getByText('Race feedback complete · next choices are open', { exact: true })).toBeVisible();
-    await expect(display.getByText('LAP 5 / 6', { exact: true })).toBeVisible();
+    await expect(display.getByText('Lap 5 / 6', { exact: true })).toBeVisible();
     await expect(display.getByRole('row')).toHaveCount(23);
     await expect(page.getByRole('region', { name: 'Car 2 — Driver 2' }).locator('.tyres').getByLabel('Tyre compound Hard',{exact:true})).toBeVisible();
     await expect(page.getByRole('button', { name: 'Approve Plan' })).toBeEnabled();

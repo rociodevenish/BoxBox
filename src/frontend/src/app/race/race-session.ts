@@ -223,6 +223,7 @@ export class RaceSession {
         if (state.phase !== this.team()?.phase || state.assignmentRevision !== this.team()?.assignmentRevision) {
             this.acknowledged.set(null);
             this.pending.set(null);
+            this.busy.set(false);
             this.choices.set(state.cars.map(car => ({ driverId: car.driverId, pace: 'Standard', pit: 'StayOut', compound: 'Hard', battle: 'Neutral' })));
         }
         if (state.confirmedPlan) {
@@ -295,7 +296,7 @@ export class RaceSession {
             }
         }
         finally {
-            if(generation===this.privateGeneration)this.busy.set(false);
+            if(generation===this.privateGeneration && this.team()?.phase===command.phase)this.busy.set(false);
         }
     }
     private rememberCreated(value: Created) {

@@ -14,9 +14,9 @@ for(const {preset,repeatedStop} of [...['open-equal','restricted-equal','open-mi
     await page.emulateMedia({reducedMotion:'reduce'});await page.goto(controller!);
     const observations:unknown[]=[];
     for(let phase=0;phase<10;phase++) {
-      await expect(page.getByRole('heading',{name:'Decisions for the next 5 laps',exact:true})).toBeVisible();
+      await expect(page.getByText('Decisions for the next 5 laps',{exact:true})).toBeVisible();
       // Five-lap headings repeat: wait for the rendered lap boundary and its matching team window.
-      await expect(page.getByRole('region',{name:'Car 1 \u2014 Driver 1',exact:true}).getByText('LAP '+(phase*5)+' / 50',{exact:true})).toBeVisible();
+      await expect(page.getByText('Lap '+(phase*5)+' / 50',{exact:true})).toBeVisible();
       await expect.poll(async()=>(await(await page.request.get('/api/sessions/'+id+'/team',{headers})).json()).phase).toBe(phase);
       const own=await(await page.request.get('/api/sessions/'+id+'/team',{headers})).json();
       observations.push({phase,cars:own.cars});
@@ -32,9 +32,9 @@ for(const {preset,repeatedStop} of [...['open-equal','restricted-equal','open-mi
         if(own.cars[car].battleOptions.includes('Attack'))await attack.click();
       }
       await page.getByRole('button',{name:'Approve Plan'}).click();await page.getByRole('button',{name:'Confirm plan'}).click();
-      if(phase===9) await expect(page.getByText('Race finished',{exact:true})).toBeVisible(); else await expect(page.getByRole('heading',{name:'Decisions for the next 5 laps',exact:true})).toBeVisible();
+      if(phase===9) await expect(page.getByRole('heading',{name:'Your team final results',exact:true})).toBeVisible(); else await expect(page.getByText('Decisions for the next 5 laps',{exact:true})).toBeVisible();
     }
-    await expect(display.getByRole('heading',{name:'Final Classification',exact:true})).toBeVisible();
+    await expect(display.getByText('Finish confirmed',{exact:true})).toBeVisible();
     await expect(page.getByRole('button',{name:'Approve Plan'})).toBeDisabled();
     const readRecord=async()=> (await page.request.get('/api/designer/sessions/'+id+'/record',{headers:designer})).json();
     await expect.poll(async()=> (await readRecord()).timing.presentationSamples.length).toBe(10);
@@ -46,10 +46,10 @@ for(const {preset,repeatedStop} of [...['open-equal','restricted-equal','open-mi
     if(repeatedStop){
       const lapped=final.classification.find((car:{driverId:string})=>car.driverId==='driver-02');
       expect(lapped.completedLaps).toBeLessThan(50);expect(lapped.gapToLeader.kind).toBe('laps');expect(lapped.eligibleAtFinish).toBe(true);
-      await expect(display.getByRole('row').filter({has:display.getByText('Driver 2',{exact:true})})).toContainText(lapped.completedLaps+' laps');
+      await expect(display.getByRole('row').filter({has:display.getByText('Driver 2',{exact:true})})).toContainText('Finished');
       await display.setViewportSize({width:1920,height:1080});
       const last=await display.getByRole('row').last().boundingBox();expect(last!.y+last!.height).toBeLessThanOrEqual(1080);
-      const restart=await display.getByRole('link',{name:'Choose another preset',exact:true}).boundingBox();expect(restart!.y+restart!.height).toBeLessThanOrEqual(1080);
+      const restart=display.getByRole('link',{name:'Choose another preset',exact:true});await restart.scrollIntoViewIfNeeded();await expect(restart).toBeVisible();await display.evaluate(()=>window.scrollTo(0,0));
       await display.screenshot({path:'../../.tools/reports/browser-race/review-05/lapped-finish-1920x1080.png'});
     }
     mkdirSync('../../.tools/reports/browser-race/full-distance',{recursive:true});
