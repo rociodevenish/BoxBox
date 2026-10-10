@@ -12,7 +12,7 @@ import { CompoundBadge } from "../compound-badge";
   template: `<td class="position">{{ row().position }}</td>
     <th scope="row">
       <div class="driver-heading">@if(interactive()){<button class="driver-details" [attr.aria-label]="row().driver.name" (click)="driverSelected.emit(row().driver.id)"><app-driver-identity [driver]="row().driver" /></button>}@else{<app-driver-identity [driver]="row().driver" />}@if(row().isFastestLap){<span aria-label="Fastest lap"> ◆</span>}</div>
-      @if(row().eligibleAtFinish !== undefined && row().eligibleAtFinish !== null){<p class="mobile-finish">Finished</p>}
+      @if(row().eligibleAtFinish !== undefined && row().eligibleAtFinish !== null){<p class="mobile-finish">{{row().eligibleAtFinish ? 'Finished' : 'Disqualified'}}</p>}
       @if (row().stopStatus !== "on-track") {
         <div class="mobile-status">
           <app-stop-status [status]="row().stopStatus" />
@@ -24,7 +24,7 @@ import { CompoundBadge } from "../compound-badge";
       @if(row().tyreAge!==undefined){<span class="tyre-age" [attr.aria-label]="'Tyre age ' + row().tyreAge + ' laps'">{{row().tyreAge}} {{row().tyreAge===1?'lap':'laps'}}</span>}
     </div></td>
     @if(row().completedPitStops!==undefined){<td [attr.aria-label]="row().completedPitStops+' completed '+(row().completedPitStops===1?'stop':'stops')">{{row().completedPitStops}}</td>}<td class="status-cell">
-      @if(row().eligibleAtFinish !== undefined && row().eligibleAtFinish !== null){<span class="finish-status">Finished</span>}@else{<app-stop-status [status]="row().stopStatus" />}
+      @if(row().eligibleAtFinish !== undefined && row().eligibleAtFinish !== null){<span class="finish-status">{{row().eligibleAtFinish ? 'Finished' : 'Disqualified'}}</span>}@else{<app-stop-status [status]="row().stopStatus" />}
     </td>`,
   styles: `
     :host {
