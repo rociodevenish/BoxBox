@@ -35,7 +35,7 @@ public sealed partial class SessionCoordinator
    var player=lobby.Players.SingleOrDefault(p=>p.Uid==identity.Uid);
    if(player is null){if(lobby.Lifecycle!="lobby")throw new SessionFault(SessionFailure.Conflict,"The participant set is frozen after start.");player=new(Guid.NewGuid().ToString("N"),name,identity.Uid);lobby.Players.Add(player);lobby.Revision++;}
    var device=lobby.Devices.SingleOrDefault(d=>d.Id==input?.DeviceId&&d.Uid==identity.Uid);
-   if(device is null){device=new(Guid.NewGuid().ToString("N"),identity.Uid);lobby.Devices.Add(device);}
+   if(device is null){device=new(Guid.NewGuid().ToString("N"),identity.Uid);lobby.Devices.Add(device);lobby.Revision++;}
    return new(ProjectLobby(lobby),new(player.Id,device.Id,lobby.Host==identity.Uid));
   }
  }
@@ -93,5 +93,5 @@ public sealed partial class SessionCoordinator
  private static string Name(string? value)=>!string.IsNullOrWhiteSpace(value)&&value.Trim().Length<=40?value.Trim():throw new SessionFault(SessionFailure.InvalidInput,"Use a player name from 1 to 40 characters.");
  private static LobbySnapshot ProjectLobby(Lobby lobby)=>new(lobby.Id,lobby.Code,"/shared/join?code="+lobby.Code,lobby.Revision,lobby.Lifecycle,lobby.Input.Mode,
   Array.AsReadOnly(lobby.Players.Select(p=>new LobbyPlayer(p.Id,p.Name,p.Uid is null)).ToArray()),
-  Array.AsReadOnly(ConstructorCatalogue.Select(t=>{var a=lobby.Assignments.GetValueOrDefault(t.TeamId);return new LobbyTeam(t.TeamId,t.Id,t.Name,a?.PlayerId,a?.Control??(lobby.Input.Mode=="Family"?"Open":"Private"),a?.Approved??false,a?.Revision??0);}).ToArray()),Array.AsReadOnly(lobby.RequiredTeams),Array.AsReadOnly(lobby.ScriptedTeams),lobby.Race is null?null:"/race/display/"+lobby.Id);
+  Array.AsReadOnly(ConstructorCatalogue.Select(t=>{var a=lobby.Assignments.GetValueOrDefault(t.TeamId);return new LobbyTeam(t.TeamId,t.Id,t.Name,a?.PlayerId,a?.Control??(lobby.Input.Mode=="Family"?"Open":"Private"),a?.Approved??false,a?.Revision??0);}).ToArray()),Array.AsReadOnly(lobby.RequiredTeams),Array.AsReadOnly(lobby.ScriptedTeams),lobby.Race is null?null:"/race/display/"+lobby.Id,lobby.Race?.Paused??false);
 }

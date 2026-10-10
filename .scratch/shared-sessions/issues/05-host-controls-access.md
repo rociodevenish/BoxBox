@@ -13,3 +13,6 @@
 - [ ] Refresh/resubscription retrieves membership, assignment, readiness and lifecycle revisions within the server lifetime without reopening accepted locks.
 - [ ] Preserve the active phase's frozen required set; mid-race takeover and durable server restart remain deferred.
 - [ ] Verify host/spectator restrictions, automatic progression, pause/resume, revocation, missing-player waiting and refresh through public API/SignalR and focused browser flows.
+
+## Comments
+Claimed by ticket05 on codex/shared-05 from integration 5565a9b. Approved seams: HTTP/SignalR and focused browser flows. Human household feedback remains pending under ticket06.

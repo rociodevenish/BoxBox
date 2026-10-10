@@ -4,6 +4,7 @@ import { HubConnection, HubConnectionBuilder } from '@microsoft/signalr';
 import { PublicGap, TyreCompound } from '../ui/timing/public-classification.model';
 import { Pace, Battle } from '../ui/controller/controller.model';
 export interface PublicState {
+    paused?:boolean;
     readiness: {teamId:string;locked:boolean}[] | null;
     sessionId: string;
     phase: number;
@@ -102,6 +103,7 @@ export class RaceSession {
     readonly handoffMessage = signal('');
     readonly activePrivate = signal(false);
     private privateGeneration = 0;
+    private assignmentRequest = 0;
     private householdDevice = "";
     private householdUser?: import("firebase/auth").User;
     readonly created = signal<Created | null>(null);
@@ -160,6 +162,7 @@ export class RaceSession {
         this.connection = connection;
         connection.on('publicSnapshot', (state: PublicState) => this.acceptPublic(state));
         connection.on('teamSnapshot', (state: TeamState) => this.acceptTeam(state));
+        connection.on('lobbyRevision', () => { if(this.householdUser)void this.updateAuthority().catch(error=>this.connectionFailure(error)); });
         connection.onreconnecting(() => {
             if (this.connection === connection)
                 this.connectionState.set('connecting');
@@ -215,7 +218,7 @@ export class RaceSession {
     private acceptTeam(state: TeamState) {
         const assignment=this.sharedTeams().find(team=>team.teamId===this.householdTeam);
         if(this.sharedTablet && state.revision<(this.publicState()?.revision??-1))return;
-        if (state.sessionId !== this.id || this.sharedTablet && !this.activePrivate() || this.householdTeam && state.teamId !== this.householdTeam || assignment && state.assignmentRevision !== assignment.assignmentRevision || state.assignmentRevision < (this.team()?.assignmentRevision ?? -1) || state.assignmentRevision === this.team()?.assignmentRevision && state.revision <= (this.team()?.revision ?? -1))
+        if (state.sessionId !== this.id || this.householdTeam && !assignment || this.sharedTablet && !this.activePrivate() || this.householdTeam && state.teamId !== this.householdTeam || assignment && state.assignmentRevision !== assignment.assignmentRevision || state.assignmentRevision < (this.team()?.assignmentRevision ?? -1) || state.assignmentRevision === this.team()?.assignmentRevision && state.revision <= (this.team()?.revision ?? -1))
             return;
         if (state.phase !== this.team()?.phase || state.assignmentRevision !== this.team()?.assignmentRevision) {
             this.acknowledged.set(null);
@@ -275,6 +278,7 @@ export class RaceSession {
             if (error instanceof RequestFailure && error.status >= 400 && error.status < 500) {
                 this.pending.set(null);
                 this.fail(error);
+                if(error.status===403)await this.clearAuthority();
                 if (error.status === 409 && this.connection) {
                     try {
                         await this.rejoin(this.connection);
@@ -300,12 +304,29 @@ export class RaceSession {
         this.created.set(value);
     }
     private async refreshAssignments() {
+        const request=++this.assignmentRequest;
         const response=await fetch('/api/lobbies/'+this.id+'/controllers?deviceId='+encodeURIComponent(this.householdDevice),{cache:'no-store',headers:{Authorization:'Bearer '+await this.householdUser!.getIdToken()}});
         const value=await response.json();if(!response.ok)throw new Error(value.message??'Controller authority unavailable.');
+        if(request!==this.assignmentRequest)return;
         const assignments=value as ControllerAssignment[];
         this.sharedTeams.set(this.sharedTablet?assignments.filter(team=>team.control==='SharedTablet'):assignments);
-        if(this.householdTeam && !this.sharedTeams().some(team=>team.teamId===this.householdTeam))throw new Error('This device is no longer authorised for this team.');
+        if(this.householdTeam && !this.sharedTeams().some(team=>team.teamId===this.householdTeam)){await this.clearAuthority();throw new Error('Controller permission removed. This device is no longer authorised for this team. Editing has stopped.');}
         this.selectNextTeam();
+    }
+    private async clearAuthority(){
+        const own=this.team();const teamId=this.householdTeam;
+        this.privateGeneration++;this.team.set(null);this.choices.set([]);this.pending.set(null);this.acknowledged.set(null);this.busy.set(false);this.activePrivate.set(false);
+        if(this.sharedTablet)this.householdTeam='';
+        this.handoffMessage.set('Controller permission removed. Private information and drafts were cleared.');
+        if(this.connection&&own)await this.connection.invoke('UnsubscribeHouseholdTeam',this.id,teamId,own.assignmentRevision).catch(()=>undefined);
+    }
+    private async updateAuthority(){
+        const before=this.team();await this.refreshAssignments();
+        const current=this.sharedTeams().find(team=>team.teamId===this.householdTeam);
+        if(before&&current&&current.assignmentRevision!==before.assignmentRevision){
+            await this.clearAuthority();
+            if(!this.sharedTablet&&this.connection)await this.rejoin(this.connection);
+        }
     }
     private selectNextTeam(){const teams=this.sharedTeams();const readiness=this.publicState()?.readiness;this.nextTeam.set((teams.find(team=>!readiness?.find(item=>item.teamId===team.teamId)?.locked)??teams[0])?.teamId??'');}
     teamName(teamId=this.householdTeam){return this.sharedTeams().find(team=>team.teamId===teamId)?.constructorName??teamId.replace('team-','Team ');}

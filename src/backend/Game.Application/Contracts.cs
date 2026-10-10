@@ -12,7 +12,7 @@ public record PublicEvent(string Id, string Kind, double Time, int Lap, string D
     string? OtherDriverId, string? Compound);
 public record PublicSnapshot(string SessionId, int Phase, long Revision, string Lifecycle,
     int LeaderLap, int TotalLaps, double RaceTime, IReadOnlyList<PublicCar> Classification,
-    IReadOnlyList<PublicEvent> Events, PublicPresentation? Presentation = null, int NextDecisionLaps = 0, IReadOnlyList<TeamReadiness>? Readiness = null);
+    IReadOnlyList<PublicEvent> Events, PublicPresentation? Presentation = null, int NextDecisionLaps = 0, IReadOnlyList<TeamReadiness>? Readiness = null,bool Paused=false);
 public record TeamReadiness(string TeamId, bool Locked);
 public record OpenTeamSnapshot(string SessionId,int Phase,long Revision,string Lifecycle,string TeamId,
     IReadOnlyList<PrivateCar> Cars,TeamCommand? ConfirmedPlan,long AssignmentRevision);
@@ -28,4 +28,3 @@ public record SubmissionAck(string CommandId, string SessionId, int Phase, long 
 public enum SessionFailure { InvalidInput, Forbidden, Unavailable, Conflict }
 public sealed class SessionFault(SessionFailure failure, string message) : Exception(message)
 { public SessionFailure Failure { get; } = failure; }
-

@@ -5,6 +5,9 @@ public static class LobbyEndpoints
 {
  public static void MapLobbyEndpoints(this WebApplication app)
  {
+  app.MapGet("/api/lobbies/{id}/controller-devices",async(string id,HttpRequest request,FirebaseIdentity auth,SessionCoordinator sessions)=>sessions.ControllerDevices(id,await auth.Verify(Token(request))));
+  app.MapPost("/api/lobbies/{id}/devices/{deviceId}/revoke",async(string id,string deviceId,HttpRequest request,FirebaseIdentity auth,SessionCoordinator sessions,IHubContext<RaceHub> hub,HouseholdSubscriptions subscriptions)=>{var state=await sessions.RevokeDevice(id,await auth.Verify(Token(request)),deviceId);await subscriptions.CloseObsolete(hub.Groups,state);await Notify(hub,state,app.Logger);return state;});
+  foreach(var action in new[]{"pause","resume"}){var paused=action=="pause";app.MapPost("/api/lobbies/{id}/"+action,async(string id,HttpRequest request,FirebaseIdentity auth,SessionCoordinator sessions,IHubContext<RaceHub> hub)=>{var state=await sessions.SetHouseholdPaused(id,await auth.Verify(Token(request)),paused);await Notify(hub,state,app.Logger);return state;});}
   app.MapGet("/api/lobbies/{id}/controllers",async(string id,string deviceId,HttpRequest request,FirebaseIdentity auth,SessionCoordinator sessions)=>sessions.HouseholdControllers(id,await auth.Verify(Token(request)),deviceId));
   app.MapGet("/api/auth/config",(IConfiguration config,IHostEnvironment environment)=>{
    var project=config["Firebase:ProjectId"];if(string.IsNullOrWhiteSpace(project))throw new SessionFault(SessionFailure.Unavailable,"Household sign-in is not configured on this server.");
@@ -34,5 +37,5 @@ public static class LobbyEndpoints
   });
  }
  internal static string? Token(HttpRequest request)=>request.Headers.Authorization.FirstOrDefault() is {} value&&value.StartsWith("Bearer ",StringComparison.Ordinal)?value[7..]:null;
- private static async Task Notify(IHubContext<RaceHub> hub,LobbySnapshot snapshot,ILogger logger){try{await hub.Clients.Group("lobby:"+snapshot.SessionId).SendAsync("lobbySnapshot",snapshot);}catch(Exception error){logger.LogWarning(error,"Lobby notification failed; recover current state by snapshot.");}}
+ private static async Task Notify(IHubContext<RaceHub> hub,LobbySnapshot snapshot,ILogger logger){try{await hub.Clients.Group("lobby:"+snapshot.SessionId).SendAsync("lobbySnapshot",snapshot);await hub.Clients.Group("public:"+snapshot.SessionId).SendAsync("lobbyRevision",snapshot.Revision);}catch(Exception error){logger.LogWarning(error,"Lobby notification failed; recover current state by snapshot.");}}
 }

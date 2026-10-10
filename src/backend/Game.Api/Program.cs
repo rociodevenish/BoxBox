@@ -7,6 +7,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Logging.AddFilter("Microsoft.AspNetCore.Hosting.Diagnostics", LogLevel.Warning);
 builder.Services.AddSignalR();
 builder.Services.AddSingleton<FirebaseIdentity>();
+builder.Services.AddSingleton<HouseholdSubscriptions>();
 builder.Services.AddSingleton<ISessionNotifications, SessionNotifications>();
 builder.Services.AddSingleton<IRacePresets,DryRacePresets>();
 builder.Services.AddSingleton<SessionCoordinator>();

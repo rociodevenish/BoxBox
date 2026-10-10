@@ -1,15 +1,16 @@
 using Game.Application;
 using Microsoft.AspNetCore.SignalR;
 namespace Game.Api;
-public sealed class RaceHub(SessionCoordinator sessions,FirebaseIdentity auth) : Hub
+public sealed class RaceHub(SessionCoordinator sessions,FirebaseIdentity auth,HouseholdSubscriptions subscriptions) : Hub
 {
+    public override Task OnDisconnectedAsync(Exception? exception){subscriptions.RemoveConnection(Context.ConnectionId);return base.OnDisconnectedAsync(exception);}
     public async Task<OpenTeamSnapshot> SubscribeOpenTeam(string id,string teamId)
     {
         try {var own=sessions.OpenTeam(id,teamId);await Groups.AddToGroupAsync(Context.ConnectionId,"open:"+id+":"+teamId+":"+own.AssignmentRevision);return sessions.OpenTeam(id,teamId);}
         catch(SessionFault fault){throw new HubException(fault.Message);}
     }
     public Task UnsubscribeHouseholdTeam(string id,string teamId,long assignmentRevision)
-        => Groups.RemoveFromGroupAsync(Context.ConnectionId,"household:"+id+":"+teamId+":"+assignmentRevision);
+        {subscriptions.Remove(Context.ConnectionId,id,teamId,assignmentRevision);return Groups.RemoveFromGroupAsync(Context.ConnectionId,"household:"+id+":"+teamId+":"+assignmentRevision);}
     public async Task<JoinedLobby> SubscribeLobby(string id,string deviceId)
     {
         try {
@@ -24,7 +25,7 @@ public sealed class RaceHub(SessionCoordinator sessions,FirebaseIdentity auth) :
     {
         try {var request=Context.GetHttpContext()!.Request;var identity=await auth.Verify(LobbyEndpoints.Token(request)??request.Query["access_token"].FirstOrDefault());
             var own=sessions.HouseholdTeam(id,identity,deviceId,teamId);
-            await Groups.AddToGroupAsync(Context.ConnectionId,"household:"+id+":"+teamId+":"+own.AssignmentRevision);return sessions.HouseholdTeam(id,identity,deviceId,teamId);
+            var group="household:"+id+":"+teamId+":"+own.AssignmentRevision;subscriptions.Add(Context.ConnectionId,id,teamId,own.AssignmentRevision);await Groups.AddToGroupAsync(Context.ConnectionId,group);try{var current=sessions.HouseholdTeam(id,identity,deviceId,teamId);if(current.AssignmentRevision!=own.AssignmentRevision)throw new SessionFault(SessionFailure.Forbidden,"Controller assignment changed. Refresh current authority.");return current;}catch{await Groups.RemoveFromGroupAsync(Context.ConnectionId,group);throw;}
         }catch(SessionFault fault){throw new HubException(fault.Message);}
     }
     public async Task<PublicSnapshot> SubscribePublic(string id)
@@ -53,4 +54,3 @@ public sealed class SessionNotifications(IHubContext<RaceHub> hub, ILogger<Sessi
         catch (Exception exception) { logger.LogWarning(exception, "Session notification failed; authoritative state remains available by snapshot."); }
     }
 }
-

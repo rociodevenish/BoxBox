@@ -60,3 +60,4 @@ ol { padding-left:20px; }
 .controller-live-feed h2 { color: var(--color-driver); }
 .controller-live-feed ol { list-style: none; padding: 0; }
 .tablet-handoff{max-width:640px;margin:28px auto;padding:24px;border:1px solid var(--color-border);border-radius:var(--radius-panel);background:var(--color-surface);}.tablet-handoff h1{overflow-wrap:anywhere}.tablet-handoff select{width:100%;margin-bottom:16px}.tablet-handoff button{width:100%}.tablet-handoff p{line-height:1.5}.pass-tablet{margin-bottom:16px}
+@media(min-width:1200px){.public-screen .display-controls .board-status{flex-basis:auto;margin:4px 0;font-size:20px;}.public-screen .display-settings{order:1;}.public-screen .team-readiness{margin:8px 0;}}
