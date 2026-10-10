@@ -17,8 +17,3 @@ test('shared tablet requires Ready, discards private drafts, refreshes neutral a
  const readyBox=await page.getByRole('button',{name:'Ready for Ferrari',exact:true}).boundingBox();await page.touchscreen.tap(readyBox!.x+readyBox!.width/2,readyBox!.y+readyBox!.height/2);await expect(page.getByRole('region',{name:'Car 1 — Driver 3',exact:true})).toBeVisible();await expect(page.getByRole('region',{name:'Car 1 — Driver 1',exact:true})).toHaveCount(0);expect(latePrivate).toBeDefined();tabletSocket!.send(latePrivate!);await expect(page.getByRole('region',{name:'Car 1 — Driver 3',exact:true})).toBeVisible();await expect(page.getByRole('region',{name:'Car 1 — Driver 1',exact:true})).toHaveCount(0);await page.screenshot({path:'../../.tools/reports/gallery/tablet-ferrari-360.png',fullPage:true});
  await page.getByRole('button',{name:'Approve Plan',exact:true}).click();await page.getByRole('button',{name:'Confirm plan',exact:true}).click();await expect(page.getByRole('heading',{name:'Pass to McLaren',exact:true})).toBeVisible();await display.close();
 });
-
-
-
-
-
