@@ -11,7 +11,7 @@ for(const {preset,status,compound} of [{preset:'open-equal',status:'queued',comp
     await expect(page.getByRole('heading',{name:'Decisions for the next 5 laps'})).toBeVisible();
     await expect(page.getByRole('button',{name:'Continue to next phase'})).toHaveCount(0);
     await expect(second).toContainText('Pit stop '+status);await expect(second.getByRole('button',{name:'Pit',exact:true})).toBeDisabled();await expect(second.getByRole('button',{name:'Stay Out',exact:true})).toBeDisabled();
-    await expect(second.getByLabel('Tyre compound '+compound,{exact:true})).toBeVisible();await expect(first.getByRole('button',{name:'Push',exact:true})).toBeEnabled();
+    await expect(second.locator('.tyres').getByLabel('Tyre compound '+compound,{exact:true})).toBeVisible();await expect(first.getByRole('button',{name:'Push',exact:true})).toBeEnabled();
     const id=new URL(page.url()).pathname.split('/').at(-1);const capability=new URL(page.url()).hash.slice('#capability='.length);const route='/api/sessions/'+id;
     const headers={Authorization:'Bearer '+capability};const beforePublic=await(await page.request.get(route)).text();const beforeTeam=await(await page.request.get(route+'/team',{headers})).text();
     await first.getByRole('button',{name:'Push',exact:true}).click();

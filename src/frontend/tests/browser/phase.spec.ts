@@ -25,7 +25,7 @@ test('real display and capability controller resolve exactly one phase', async (
     await expect(display.getByText('Race feedback complete · next choices are open', { exact: true })).toBeVisible();
     await expect(display.getByText('LAP 5 / 6', { exact: true })).toBeVisible();
     await expect(display.getByRole('row')).toHaveCount(23);
-    await expect(page.getByRole('region', { name: 'Car 2 — Driver 2' }).getByLabel('Tyre compound Hard',{exact:true})).toBeVisible();
+    await expect(page.getByRole('region', { name: 'Car 2 — Driver 2' }).locator('.tyres').getByLabel('Tyre compound Hard',{exact:true})).toBeVisible();
     await expect(page.getByRole('button', { name: 'Approve Plan' })).toBeEnabled();
     await expect(display.getByText(/estimated/i)).toHaveCount(0);
     mkdirSync(evidence, { recursive: true });

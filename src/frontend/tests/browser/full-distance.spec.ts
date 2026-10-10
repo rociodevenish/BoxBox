@@ -15,6 +15,9 @@ for(const {preset,repeatedStop} of [...['open-equal','restricted-equal','open-mi
     const observations:unknown[]=[];
     for(let phase=0;phase<10;phase++) {
       await expect(page.getByRole('heading',{name:'Decisions for the next 5 laps',exact:true})).toBeVisible();
+      // Five-lap headings repeat: wait for the rendered lap boundary and its matching team window.
+      await expect(page.getByRole('region',{name:'Car 1 \u2014 Driver 1',exact:true}).getByText('LAP '+(phase*5)+' / 50',{exact:true})).toBeVisible();
+      await expect.poll(async()=>(await(await page.request.get('/api/sessions/'+id+'/team',{headers})).json()).phase).toBe(phase);
       const own=await(await page.request.get('/api/sessions/'+id+'/team',{headers})).json();
       observations.push({phase,cars:own.cars});
       for(let car=0;car<2;car++) {
@@ -24,7 +27,9 @@ for(const {preset,repeatedStop} of [...['open-equal','restricted-equal','open-mi
           await region.getByRole('button',{name:'Pit',exact:true}).click();
           await region.getByRole('button',{name:'New compound '+(repeatedStop||phase===2?'Hard':'Soft'),exact:true}).click();
         }
-        if(own.cars[car].battleOptions.includes('Attack'))await region.getByRole('button',{name:'Attack',exact:true}).click();
+        const attack=region.getByRole('button',{name:'Attack',exact:true});
+        await expect(attack).toHaveCount(own.cars[car].battleOptions.includes('Attack')?1:0);
+        if(own.cars[car].battleOptions.includes('Attack'))await attack.click();
       }
       await page.getByRole('button',{name:'Approve Plan'}).click();await page.getByRole('button',{name:'Confirm plan'}).click();
       if(phase===9) await expect(page.getByText('Race finished',{exact:true})).toBeVisible(); else await expect(page.getByRole('heading',{name:'Decisions for the next 5 laps',exact:true})).toBeVisible();

@@ -85,7 +85,7 @@ test('a confirmed HTTP acknowledgement retrieves actual observations when realti
     await page.getByRole('button', { name: 'Approve Plan' }).click();
     await page.getByRole('button', { name: 'Confirm plan' }).click();
     await expect(page.getByRole('heading',{name:'Decisions for the next 1 lap'})).toBeVisible();
-    await expect(page.getByRole('region',{name:'Car 2 — Driver 2'}).getByLabel('Tyre compound Hard',{exact:true})).toBeVisible();
+    await expect(page.getByRole('region',{name:'Car 2 — Driver 2'}).locator('.tyres').getByLabel('Tyre compound Hard',{exact:true})).toBeVisible();
 });
 test('unavailable connections disable actions and a retry preserves the same in-flight command identity', async ({ page }) => {
     await page.goto('/race/new');
