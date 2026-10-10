@@ -16,7 +16,7 @@ for(const {preset,repeatedStop} of [...['open-equal','restricted-equal','open-mi
     for(let phase=0;phase<10;phase++) {
       await expect(page.getByText('Decisions for the next 5 laps',{exact:true})).toBeVisible();
       // Five-lap headings repeat: wait for the rendered lap boundary and its matching team window.
-      await expect(page.getByRole('region',{name:'Car 1 \u2014 Driver 1',exact:true}).getByText('LAP '+(phase*5)+' / 50',{exact:true})).toBeVisible();
+      await expect(page.getByText('Lap '+(phase*5)+' / 50',{exact:true})).toBeVisible();
       await expect.poll(async()=>(await(await page.request.get('/api/sessions/'+id+'/team',{headers})).json()).phase).toBe(phase);
       const own=await(await page.request.get('/api/sessions/'+id+'/team',{headers})).json();
       observations.push({phase,cars:own.cars});

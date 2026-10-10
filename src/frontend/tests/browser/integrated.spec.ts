@@ -27,7 +27,7 @@ test('live controller offers only each cars legal buttons and visible new-phase 
         const car = page.getByRole('region', { name: 'Car ' + (i + 1) + ' — Driver ' + (i + 1) });
         await expect(car.getByRole('button', { name: 'Standard', exact: true })).toHaveAttribute('aria-pressed', 'true');
         await expect(car.getByRole('button', { name: 'Stay Out', exact: true })).toHaveAttribute('aria-pressed', 'true');
-        await expect(car).toContainText('Standard · Stay Out · Neutral');
+        await expect(car.getByRole('button',{name:'Neutral',exact:true})).toHaveAttribute('aria-pressed','true');
         for (const option of ['Attack', 'Defend'])
             await expect(car.getByRole('button', { name: option, exact: true })).toHaveCount(own.cars[i].battleOptions.includes(option) ? 1 : 0);
         await expect(car).toContainText('Tyre condition estimate');

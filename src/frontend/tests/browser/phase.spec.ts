@@ -8,7 +8,7 @@ test('real display and capability controller resolve exactly one phase', async (
     const displayUrl = await page.getByRole('link', { name: 'Open public display' }).getAttribute('href');
     const display = await context.newPage();
     await display.goto(displayUrl!);
-    await expect(display.getByText('+0.500 s', { exact: true })).toBeVisible();
+    await expect(display.getByRole('row').filter({has:display.getByText('Driver 2',{exact:true})}).getByText('+0.500 s',{exact:true})).toBeVisible();
     const unauthorized = await context.newPage();
     await unauthorized.goto(controllerUrl!.split('#')[0]);
     await expect(unauthorized.getByRole('alert')).toContainText('capability');
