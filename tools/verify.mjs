@@ -2,6 +2,7 @@ import {dirname,resolve} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {existsSync,mkdirSync,writeFileSync} from 'node:fs';
 import {spawnSync} from 'node:child_process';
+import {randomUUID} from 'node:crypto';
 import {runBounded} from './run-bounded.mjs';
 const [nodeMajor,nodeMinor]=process.versions.node.split('.').map(Number);if(!((nodeMajor===24&&nodeMinor>=15)||nodeMajor>=26))throw new Error('Verification requires Node 24.15+ or Node 26+, matching frontend engines.');
 const root=resolve(dirname(fileURLToPath(import.meta.url)),'..');
@@ -20,5 +21,7 @@ const steps=[
  ['shared',[playwright,'test','--config','playwright.shared.config.ts'],frontend]
 ];
 const selected=process.argv.slice(2);if(selected.some(name=>!steps.some(([id])=>id===name)))throw new Error('Unknown verification step. Choose '+steps.map(s=>s[0]).join(', '));
-const out=resolve(root,'.tools/reports/verification');mkdirSync(out,{recursive:true});const manifest={revision:spawnSync('git',['rev-parse','HEAD'],{cwd:root,encoding:'utf8',timeout:5000}).stdout?.trim(),startedAt:new Date().toISOString(),node:process.version,steps:[]};
-for(const [name,args,cwd]of steps){if(selected.length&&!selected.includes(name))continue;console.log(`\nVerification: ${name}`);const result=await runBounded(process.execPath,args,{cwd,env,timeoutMs:900000,report:resolve(out,name+'-command.json')});manifest.steps.push({name,...result});writeFileSync(resolve(out,'result.json'),JSON.stringify(manifest,null,2));if(result.exitCode!==0)process.exit(result.exitCode);}
+const out=resolve(root,'.tools/reports/verification');mkdirSync(out,{recursive:true});const runId=new Date().toISOString().replace(/[:.]/g,'-')+'-'+randomUUID();const runDir=resolve(out,'runs',runId);mkdirSync(runDir,{recursive:true});const manifest={runId,revision:spawnSync('git',['rev-parse','HEAD'],{cwd:root,encoding:'utf8',timeout:5000}).stdout?.trim(),startedAt:new Date().toISOString(),node:process.version,steps:[]};
+const finish=()=>{manifest.finishedAt=new Date().toISOString();const json=JSON.stringify(manifest,null,2);writeFileSync(resolve(runDir,'result.json'),json,{flag:'wx'});writeFileSync(resolve(out,'result.json'),json);console.log('Verification record: '+resolve(runDir,'result.json'));};
+for(const [name,args,cwd]of steps){if(selected.length&&!selected.includes(name))continue;console.log(`\nVerification: ${name}`);const result=await runBounded(process.execPath,args,{cwd,env,timeoutMs:900000,report:resolve(runDir,name+'-command.json')});manifest.steps.push({name,...result});const json=JSON.stringify(manifest,null,2);writeFileSync(resolve(runDir,'progress.json'),json);writeFileSync(resolve(out,'result.json'),json);writeFileSync(resolve(out,name+'-command.json'),JSON.stringify(result,null,2));if(result.exitCode!==0){finish();process.exit(result.exitCode);}}
+finish();
