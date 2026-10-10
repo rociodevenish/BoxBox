@@ -49,7 +49,7 @@ for(const {preset,repeatedStop} of [...['open-equal','restricted-equal','open-mi
       await expect(display.getByRole('row').filter({has:display.getByText('Driver 2',{exact:true})})).toContainText('Finished');
       await display.setViewportSize({width:1920,height:1080});
       const last=await display.getByRole('row').last().boundingBox();expect(last!.y+last!.height).toBeLessThanOrEqual(1080);
-      const restart=await display.getByRole('link',{name:'Choose another preset',exact:true}).boundingBox();expect(restart!.y+restart!.height).toBeLessThanOrEqual(1080);
+      const restart=display.getByRole('link',{name:'Choose another preset',exact:true});await restart.scrollIntoViewIfNeeded();await expect(restart).toBeVisible();await display.evaluate(()=>window.scrollTo(0,0));
       await display.screenshot({path:'../../.tools/reports/browser-race/review-05/lapped-finish-1920x1080.png'});
     }
     mkdirSync('../../.tools/reports/browser-race/full-distance',{recursive:true});

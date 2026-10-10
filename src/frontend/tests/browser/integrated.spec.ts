@@ -30,7 +30,7 @@ test('live controller offers only each cars legal buttons and visible new-phase 
         await expect(car.getByRole('button',{name:'Neutral',exact:true})).toHaveAttribute('aria-pressed','true');
         for (const option of ['Attack', 'Defend'])
             await expect(car.getByRole('button', { name: option, exact: true })).toHaveCount(own.cars[i].battleOptions.includes(option) ? 1 : 0);
-        await expect(car).toContainText('Tyre condition estimate');
+        await expect(car).toContainText('Condition estimate:');
         await expect(car).toContainText('next lap end');
     }
 });

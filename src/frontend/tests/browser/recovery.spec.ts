@@ -13,7 +13,7 @@ test('lost HTTP acknowledgement recovers the next window rather than submitting 
     await page.getByRole('button', { name: 'Approve Plan' }).click();
     await page.getByRole('button', { name: 'Confirm plan' }).click();
     await expect(page.getByRole('button', { name: 'Reconnect' })).toBeVisible();
-    await expect(page.getByRole('button', { name: 'Approve Plan' })).toBeDisabled();
+    await expect(page.getByRole('button', { name: 'Approve Plan' })).toHaveCount(0);
     const before = await (await page.request.get('/api/sessions/' + id)).json();
     await page.getByRole('button', { name: 'Reconnect' }).click();
     await expect(page.getByText('Decisions for the next 1 lap',{exact:true})).toBeVisible();
@@ -103,22 +103,22 @@ test('unavailable connections disable actions and a retry preserves the same in-
     await page.getByRole('button', { name: 'Reconnect' }).click();
     await expect(page.getByRole('button', { name: 'Approve Plan' })).toBeEnabled();
     await page.getByRole('region',{name:'Car 1 — Driver 1'}).getByRole('button',{name:'Push',exact:true}).click();
-    const ids: string[] = [];
-    await page.route('**/api/sessions/*/plans', async (route) => { ids.push(route.request().postDataJSON().commandId); if (ids.length === 1)
+    const ids: string[] = []; const plans: unknown[] = [];
+    await page.route('**/api/sessions/*/plans', async (route) => { ids.push(route.request().postDataJSON().commandId);plans.push(route.request().postDataJSON().cars); if (ids.length === 1)
         await route.abort();
     else
         await route.continue(); });
     await page.getByRole('button', { name: 'Approve Plan' }).click();
     await page.getByRole('button', { name: 'Confirm plan' }).click();
-    await expect(page.getByRole('button', { name: 'Approve Plan' })).toBeDisabled();
+    await expect(page.getByRole('button', { name: 'Approve Plan' })).toHaveCount(0);
     await expect(page.getByRole('button', { name: 'Reconnect' })).toBeVisible();
-    await expect(page.getByRole('region',{name:'Car 1 — Driver 1'}).getByRole('button',{name:'Push',exact:true})).toHaveAttribute('aria-pressed','true');
+    await expect(page.getByText('Confirmation pending. Both choices are retained until the server confirms or rejects this plan.',{exact:true})).toBeVisible();
     await page.getByRole('button', { name: 'Reconnect' }).click();
     await expect(page.getByRole('button', { name: 'Retry pending submission' })).toBeEnabled();
     await page.getByRole('button', { name: 'Retry pending submission' }).click();
     await expect(page.getByText('Decisions for the next 1 lap',{exact:true})).toBeVisible();
     expect(ids).toHaveLength(2);
-    expect(ids[1]).toBe(ids[0]);
+    expect(ids[1]).toBe(ids[0]);expect(plans[1]).toEqual(plans[0]);expect(plans[0]).toEqual(expect.arrayContaining([expect.objectContaining({driverId:'driver-01',pace:'Push'})]));
     await page.reload();
     await expect(page.getByRole('region',{name:'Car 1 — Driver 1'}).getByRole('button',{name:'Standard',exact:true})).toHaveAttribute('aria-pressed','true');
     await expect(page.getByRole('button', { name: 'Approve Plan' })).toBeEnabled();
