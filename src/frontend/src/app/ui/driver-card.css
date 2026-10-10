@@ -289,7 +289,8 @@ dialog::backdrop {
   }
 }
 
-.identity-only .portrait { height: 220px; }
+.identity-only .portrait { height: var(--identity-portrait-height, 220px); }
 .identity-only .card-body { padding: 12px 16px; }
 
 .driver-card.embedded { border: 0; border-radius: 0; box-shadow: none; background: transparent; }
+
