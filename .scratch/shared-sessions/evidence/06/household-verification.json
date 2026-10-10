@@ -1,0 +1,195 @@
+{
+  "listeningOwnedPorts": [],
+  "reviewCorrection": "Shared-tablet previous-phase acknowledgement guard assigned to integration review worker",
+  "uniquePassingCases": {
+    "householdBrowser": 6,
+    "gallery": 34,
+    "boundary": 2,
+    "tooling": 3,
+    "soloBrowser": 22,
+    "api": 42,
+    "simulation": 110
+  },
+  "captures": [
+    "06/multiteam-controller-360.png",
+    "06/tablet-neutral-360.png",
+    "06/tablet-ferrari-768.png",
+    "06/host-phase-1920.png",
+    "06/household-finish-1920.png"
+  ],
+  "records": [
+    {
+      "steps": [
+        {
+          "name": "tooling",
+          "pid": 13472,
+          "status": "passed",
+          "exitCode": 0,
+          "elapsedMs": 1125
+        },
+        {
+          "name": "typecheck",
+          "pid": 35136,
+          "status": "passed",
+          "exitCode": 0,
+          "elapsedMs": 2892
+        },
+        {
+          "name": "build",
+          "pid": 3952,
+          "status": "passed",
+          "exitCode": 0,
+          "elapsedMs": 4611
+        },
+        {
+          "name": "backend",
+          "pid": 26052,
+          "status": "passed",
+          "exitCode": 0,
+          "elapsedMs": 36873
+        },
+        {
+          "name": "gallery",
+          "pid": 19548,
+          "status": "failed",
+          "exitCode": 1,
+          "elapsedMs": 36582
+        }
+      ],
+      "revision": "6b244453e3aea0abc312bfca11b58bd34b7430b4",
+      "runId": "2026-10-10T21-20-13-813Z-7a35f37e-3c3e-4e98-921d-c1491f4c4d8f"
+    },
+    {
+      "steps": [
+        {
+          "name": "gallery",
+          "pid": 3952,
+          "status": "passed",
+          "exitCode": 0,
+          "elapsedMs": 27953
+        },
+        {
+          "name": "browser",
+          "pid": 1136,
+          "status": "failed",
+          "exitCode": 1,
+          "elapsedMs": 293544
+        }
+      ],
+      "revision": "7e8cc4e2e59d815ca8479ee593fd9927083fdeba",
+      "runId": "2026-10-10T21-22-06-637Z-13a32605-b672-4152-992c-7bea4cd489ce"
+    },
+    {
+      "steps": [
+        {
+          "name": "typecheck",
+          "pid": 36184,
+          "status": "passed",
+          "exitCode": 0,
+          "elapsedMs": 2139
+        },
+        {
+          "name": "build",
+          "pid": 36876,
+          "status": "passed",
+          "exitCode": 0,
+          "elapsedMs": 4510
+        },
+        {
+          "name": "browser",
+          "pid": 26764,
+          "status": "failed",
+          "exitCode": 1,
+          "elapsedMs": 146440
+        }
+      ],
+      "revision": "b5172b00576f195848d97b5ce3d518cceb624476",
+      "runId": "2026-10-10T21-27-46-211Z-9ff6a943-0145-4499-91bb-78de6cc4d3e2"
+    },
+    {
+      "steps": [
+        {
+          "name": "shared",
+          "pid": 45616,
+          "status": "passed",
+          "exitCode": 0,
+          "elapsedMs": 56329
+        }
+      ],
+      "revision": "b5172b00576f195848d97b5ce3d518cceb624476",
+      "runId": "2026-10-10T21-28-06-199Z-f9cf52fe-67b9-4322-b0d3-071f9cd7bcf8"
+    },
+    {
+      "steps": [
+        {
+          "name": "typecheck",
+          "pid": 44164,
+          "status": "passed",
+          "exitCode": 0,
+          "elapsedMs": 2026
+        },
+        {
+          "name": "build",
+          "pid": 8372,
+          "status": "passed",
+          "exitCode": 0,
+          "elapsedMs": 3896
+        },
+        {
+          "name": "boundary",
+          "pid": 43720,
+          "status": "failed",
+          "exitCode": 1,
+          "elapsedMs": 24868
+        }
+      ],
+      "revision": "57197617c3659211e90f836185cfa124ec700df4",
+      "runId": "2026-10-10T21-31-48-895Z-f027f3ea-a789-4287-94c8-adc2df828edf"
+    },
+    {
+      "steps": [
+        {
+          "name": "boundary",
+          "pid": 44796,
+          "status": "failed",
+          "exitCode": 1,
+          "elapsedMs": 25050
+        }
+      ],
+      "revision": "57197617c3659211e90f836185cfa124ec700df4",
+      "runId": "2026-10-10T21-33-33-983Z-90a036d3-6c29-4ee8-b697-22fa74b4e3a2"
+    },
+    {
+      "steps": [
+        {
+          "name": "boundary",
+          "pid": 44080,
+          "status": "failed",
+          "exitCode": 1,
+          "elapsedMs": 33638
+        }
+      ],
+      "revision": "1dfb8a1253431b1862eda9fa889e06a52a00395c",
+      "runId": "2026-10-10T21-34-11-027Z-fdd32114-2f86-46ce-89bd-75d442a2664d"
+    },
+    {
+      "steps": [
+        {
+          "name": "boundary",
+          "pid": 45728,
+          "status": "passed",
+          "exitCode": 0,
+          "elapsedMs": 23193
+        }
+      ],
+      "revision": "d58b0fcb59a50fe109d160ac25f7c77f1ad4d3b1",
+      "runId": "2026-10-10T21-34-57-624Z-d9aee27e-13db-4a8e-be30-334afa226e35"
+    }
+  ],
+  "build": "passed",
+  "integrationBase": "53603b778345f920bb88d2a9c3f81d133ac1b2ec",
+  "humanPlaytest": "pending",
+  "previewRetained": false,
+  "workerCodeRevision": "d58b0fcb59a50fe109d160ac25f7c77f1ad4d3b1",
+  "typecheck": "passed"
+}
