@@ -10,6 +10,7 @@ import { PublicPhaseResult } from "./public-phase-result.model";
 })
 export class PhaseResult {
   readonly fixtureLabel = input<string | null>(null);
+  readonly board = input(false);
   readonly compact = input(false);
   readonly liveRace = input(false);
   readonly feedbackFirst = input(false);

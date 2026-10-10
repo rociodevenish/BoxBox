@@ -44,7 +44,7 @@ p {
 }
 .cars {
   display: grid;
-  gap: 16px;
+  gap: 32px;
 }
 .car {
   min-width: 0;
@@ -125,7 +125,7 @@ select {
   margin-top: 6px;
 }
 .review {
-  margin-top: 20px;
+  margin-top: 40px;
   width: 100%;
 }
 dialog {
@@ -199,3 +199,15 @@ dialog::backdrop {
 .car app-driver-card{display:block;margin-bottom:16px;}
 
 .car app-timing-tower { margin-inline: -8px; }
+
+.car { overflow: hidden; }
+.car > app-driver-card { margin: -16px -16px 16px; }
+
+.decision-summary { color: var(--color-muted); font-size: 16px; }
+
+.race-details { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 16px; margin: 20px 0; }
+.race-details > section { min-width: 0; margin: 0; }
+.race-details h3 { margin: 0 0 12px; padding-bottom: 8px; border-bottom: 1px solid var(--color-border); font-size: 16px; }
+.race-details p, .race-details li { font-size: 14px; }
+.recent-laps ol { padding: 0; margin: 0; list-style: none; }
+.recent-laps li { margin: 8px 0; font-variant-numeric: tabular-nums; }

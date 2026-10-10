@@ -1,10 +1,10 @@
 <section aria-labelledby="controller-title" class="controller">
   <header>
     <p class="eyebrow">{{model().teamName}} · Private team controller</p>
-    <h1 id="controller-title">{{model().decisionLaps===0 ? 'Final instructions' : model().decisionLaps === undefined ? 'Phase '+model().phase+' instructions' : 'Decisions for the next '+model().decisionLaps+' '+(model().decisionLaps===1?'lap':'laps')}}</h1>
-    <p>Review both cars before submitting your team plan.</p>
+    <p id="controller-title" class="decision-summary">{{model().decisionLaps===0 ? 'Final instructions' : model().decisionLaps === undefined ? 'Phase '+model().phase+' instructions' : 'Decisions for the next '+model().decisionLaps+' '+(model().decisionLaps===1?'lap':'laps')}}</p>
+
   </header>
-  <div
+  @if(model().state!=='selected'){<div
     [attr.role]="model().state === 'rejected' ? 'alert' : 'status'"
     [attr.aria-live]="model().state === 'rejected' ? 'assertive' : 'polite'"
     class="state"
@@ -16,19 +16,26 @@
     >
     <p>{{model().message}}</p>
   </div>
+  }
   <div class="cars">
     @for(car of model().cars; track car.id; let i = $index){
     <section
       [attr.aria-label]="'Car ' + (i + 1) + ' — ' + car.name"
       class="car"
     >
-      <p class="eyebrow">Car {{i + 1}}</p>
-      @if(car.card){<app-driver-card [driver]="car.card" variant="identity" />}@else{<h2>{{car.name}}</h2>}
-@if(car.nearbyClassification){<section [attr.aria-label]="car.name+' race information'"><h3>Nearby Classification</h3><app-timing-tower [classification]="car.nearbyClassification" [interactive]="true" (driverSelected)="analyzeDriver($event)" /><h3>Recent recorded laps</h3>@if(car.recentLaps?.length){<ol aria-label="Recent recorded lap times">@for(lap of car.recentLaps;track lap.lap){<li>Lap {{lap.lap}} · {{lapTime(lap.seconds)}}</li>}</ol>}@else{<p>No full lap times recorded yet.</p>}</section>}
-      <div class="tyres">
-        <app-compound-badge [compound]="car.currentCompound" />
-        <p>Tyre condition estimate: <strong>{{car.tyreEstimate}}</strong></p>
-        @if(car.tyreAge!==undefined){<p>Tyre age: {{car.tyreAge}} {{car.tyreAge===1?'lap':'laps'}}</p>}
+      @if(car.card){<app-driver-card [driver]="car.card" variant="identity" [embedded]="true" />}@else{<h2>{{car.name}}</h2>}
+      @if(car.nearbyClassification){<section [attr.aria-label]="car.name+' race information'"><app-timing-tower [highlightedDriverId]="car.id" [inline]="true" [classification]="car.nearbyClassification" [interactive]="true" (driverSelected)="analyzeDriver($event)" /></section>}
+      <div class="race-details">
+        <section class="recent-laps">
+          <h3>Recent recorded laps</h3>
+          @if(car.recentLaps?.length){<ol aria-label="Recent recorded lap times">@for(lap of car.recentLaps;track lap.lap){<li>Lap {{lap.lap}} · {{lapTime(lap.seconds)}}</li>}</ol>}@else{<p>No full lap times recorded yet.</p>}
+        </section>
+        <section class="tyres">
+          <h3>Tyre condition</h3>
+          <app-compound-badge [compound]="car.currentCompound" />
+          <p>Condition estimate: <strong>{{car.tyreEstimate}}</strong></p>
+          @if(car.tyreAge!==undefined){<p>Age: {{car.tyreAge}} {{car.tyreAge===1?'lap':'laps'}}</p>}
+        </section>
       </div>
       @if(choices()[i]; as choice){
       <fieldset [disabled]="!editable()">
@@ -90,8 +97,8 @@
         </p>
       </fieldset>
       }
-      <p class="explanation">{{car.battleExplanation}}</p>
-      <p class="selection"><strong>Selected:</strong> {{summary(choice)}}</p>
+      @if(car.battleExplanation){<p class="explanation">{{car.battleExplanation}}</p>}
+
       }
     </section>
     }
@@ -114,7 +121,7 @@
     <p>{{model().decisionLaps === undefined ? 'Phase '+model().phase : 'Next '+model().decisionLaps+' '+(model().decisionLaps===1?'lap':'laps')}} · {{model().teamName}}</p>
     @for(car of model().cars; track car.id; let i = $index){
     <div class="confirmed">
-      <h3>Car {{i + 1}} · {{car.name}}</h3>
+      <h3>{{car.name}}</h3>
       @if(choices()[i]; as choice){
       <p>{{summary(choice)}}</p>
       }

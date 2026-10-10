@@ -3,6 +3,7 @@ import {
   TyreCompound,
 } from "../timing/public-classification.model";
 export interface PublicRaceEvent {
+  readonly minimalist?: boolean;
   readonly id: string;
   readonly kind: "overtake" | "pit-entry" | "tyre-change" | "pit-exit";
   readonly lap: number;

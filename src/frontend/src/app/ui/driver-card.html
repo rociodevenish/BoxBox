@@ -1,5 +1,6 @@
 <article
   class="driver-card"
+  [class.embedded]="embedded()"
   [class.tv]="variant()==='tv'"
   [class.identity-only]="variant()==='identity'"
   [attr.aria-label]="fullName(driver())+' — '+variant()+' driver card'"

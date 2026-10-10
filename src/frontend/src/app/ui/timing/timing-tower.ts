@@ -4,17 +4,17 @@ import { TimingRow } from "./timing-row";
 @Component({
   selector: "app-timing-tower",
   imports: [TimingRow],
-  template: `<div class="tower-panel" [class.compact]="classification().compact" [class.finished]="classification().rows[0]?.eligibleAtFinish != null">
-    <div class="tower-heading">
-      <h3>CLASSIFICATION</h3>
+  template: `<div class="tower-panel" [class.inline]="inline()" [class.compact]="classification().compact" [class.finished]="classification().rows[0]?.eligibleAtFinish != null">
+    @if(!inline()){<div class="tower-heading">
+      @if(!inline()){<h3>CLASSIFICATION</h3>}
       <p>
         LAP {{ classification().leaderLap }} / {{ classification().totalLaps }}
       </p>
-    </div>
+    </div>}
     <table>
-      <caption>
+      @if(!inline()){<caption>
         Classification — {{ classification().gapReference === 'ahead' ? 'Interval to car ahead' : 'Gap to leader' }}
-      </caption>
+      </caption>}
       <colgroup>
         <col class="position-column" />
         <col />
@@ -28,12 +28,12 @@ import { TimingRow } from "./timing-row";
           <th scope="col">Driver</th>
           <th scope="col">{{classification().gapReference === 'ahead' ? 'Interval' : 'Gap'}}</th>
           <th scope="col">Tyre</th>
-          @if(hasStopCounts()){<th scope="col">Stops</th>}<th scope="col" class="status-heading">{{classification().rows[0]?.eligibleAtFinish != null ? 'Distance / eligibility' : 'Stop status'}}</th>
+          @if(hasStopCounts()){<th scope="col">Stops</th>}<th scope="col" class="status-heading">Status</th>
         </tr>
       </thead>
       <tbody>
         @for (row of classification().rows; track row.driver.id) {
-          <tr app-timing-row [row]="row" [compact]="classification().compact ?? false" [interactive]="interactive()" (driverSelected)="driverSelected.emit($event)"></tr>
+          <tr app-timing-row [row]="row" [highlighted]="highlightedDriverId() ? row.driver.id === highlightedDriverId() : null" [compact]="classification().compact ?? false" [interactive]="interactive()" (driverSelected)="driverSelected.emit($event)"></tr>
         }
       </tbody>
     </table>
@@ -66,6 +66,9 @@ import { TimingRow } from "./timing-row";
       white-space: nowrap;
       font-variant-numeric: tabular-nums;
     }
+    .tower-panel.inline { border: 0; border-radius: 0; background: transparent; }
+    .inline .tower-heading { padding: 0 8px 12px; background: transparent; }
+    .inline .tower-heading p { margin: 0; font-size: 24px; font-weight: 800; }
     table {
       width: 100%;
       border-collapse: collapse;
@@ -99,7 +102,12 @@ import { TimingRow } from "./timing-row";
     .status-column {
       width: 126px;
     }
-    .finished .status-column { width:190px; }
+    .finished .status-column { width:126px; }
+    .inline .position-column { width: 7%; }
+    .inline .gap-column { width: 18%; }
+    .inline .compound-column, .inline .compound-column.with-age { width: 20%; }
+    .inline .stops-column { width: 9%; }
+    .inline .status-column, .inline.finished .status-column { width: 24%; }
     @media(min-width:1200px){.compact .tower-heading {padding:10px 16px;} .compact caption {padding:8px 16px;} }
     @container timing (max-width: 600px) { .stops-column{width:44px;}
       .tower-heading {
@@ -129,6 +137,8 @@ import { TimingRow } from "./timing-row";
   `,
 })
 export class TimingTower {
+  readonly highlightedDriverId = input<string | null>(null);
+  readonly inline = input(false);
   readonly interactive = input(false);
   readonly driverSelected = output<string>();
   readonly classification = input.required<PublicClassification>();

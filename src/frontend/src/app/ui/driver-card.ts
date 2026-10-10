@@ -12,6 +12,7 @@ import {
 export class DriverCard {
   readonly driver = input.required<DriverCardViewModel>();
   readonly variant = input<"compact" | "expanded" | "tv" | "identity">("compact");
+  readonly embedded = input(false);
   readonly failedPortrait = signal<string | null>(null);
   readonly groups = driverAttributeGroups;
   readonly fullName = driverName;

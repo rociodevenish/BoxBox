@@ -3,7 +3,7 @@ import { PublicDriverIdentity } from "./public-classification.model";
 @Component({
   selector: "app-driver-identity",
   template: `<span class="identity" [style.--team-accent]="driver().team.accent"
-    ><strong>{{ driver().code }}</strong
+    ><strong class="short-name">{{ driver().code }}</strong
     ><span class="full-name">{{ driver().name }}</span
     ><span class="sr-only">{{ driver().team.name }}</span></span
   >`,
@@ -20,6 +20,7 @@ import { PublicDriverIdentity } from "./public-classification.model";
       padding-left: 10px;
       min-width: 0;
     }
+    .short-name { display: none; }
     strong {
       font-weight: 800;
       letter-spacing: 1px;
@@ -36,8 +37,9 @@ import { PublicDriverIdentity } from "./public-classification.model";
         display: block;
         padding-left: 6px;
       }
+      .short-name { display: block; }
       .full-name {
-        display: block;
+        display: none;
         font-size: 13px;
       }
     }

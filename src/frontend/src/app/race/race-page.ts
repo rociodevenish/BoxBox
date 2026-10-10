@@ -5,11 +5,12 @@ import { RaceSession, PublicState } from './race-session';
 import { PublicClassification } from '../ui/timing/public-classification.model';
 import { TwoCarController } from '../ui/controller/two-car-controller';
 import { PrivateControllerViewModel, ControllerState, TeamPlan } from '../ui/controller/controller.model';
+import { RaceEvent } from '../ui/results/race-event';
 import { PhaseResult } from '../ui/results/phase-result';
 import { PublicPhaseResult, PublicRaceEvent } from '../ui/results/public-phase-result.model';
-@Component({ selector: 'app-race-page', imports: [TwoCarController, PhaseResult], templateUrl: './race-page.html', styleUrl: './race-page.css' })
+@Component({ selector: 'app-race-page', imports: [TwoCarController, PhaseResult, RaceEvent], templateUrl: './race-page.html', styleUrl: './race-page.css' })
 export class RacePage extends RaceSession {
-    readonly gapReference = signal<'leader' | 'ahead'>('leader');
+    readonly gapReference = signal<'leader' | 'ahead'>('ahead');
     readonly playbackSeconds = signal(3);
     readonly playing = signal(false);
     readonly revealingOutcome = signal(false);
@@ -94,7 +95,8 @@ export class RacePage extends RaceSession {
         const other = event.otherDriverId ? 'Driver ' + Number(event.otherDriverId.slice(-2)) : '';
         const kind = event.kind === 'Overtake' ? 'overtake' : event.kind === 'PitEntry' ? 'pit-entry' : event.kind === 'PitExit' ? 'pit-exit' : 'tyre-change';
         const summary = kind === 'overtake' ? name + ' passed ' + other + ' on track.' : kind === 'pit-entry' ? name + ' entered the pit lane.' : kind === 'pit-exit' ? name + ' left the pit lane.' : name + ' fitted ' + event.compound + ' tyres.';
-        return { id: event.id, kind, lap: event.lap, driverName: name, portraitUrl: null, compound: event.compound, summary };
+        const involvesPlayer = [event.driverId, event.otherDriverId].some(id => this.publicState()?.classification.some(car => car.driverId === id && car.teamId === 'team-01'));
+        return { id: event.id, kind, lap: event.lap, driverName: name, portraitUrl: null, compound: event.compound, summary, minimalist: !involvesPlayer };
     }
     controller(): PrivateControllerViewModel {
         const own = this.team()!;
@@ -102,7 +104,7 @@ export class RacePage extends RaceSession {
         if (this.connectionState() !== 'connected' || own.lifecycle !== 'resolving' && (this.busy() || this.pending()))
             state = 'loading';
         const message = this.error() || (state === 'selected' ? (own.phase>0?'Next decisions are open. Choose for both cars and approve your plan.':'Choose for both cars and approve your plan.') : state === 'resolving' ? 'Both cars accepted. Resolving play…' : state === 'loading' ? 'Instructions unavailable until current state and submission confirmation are recovered.' : own.lifecycle === 'finished' ? 'Race finished. These are your confirmed final instructions.' : 'Waiting for other teams…');
-        return { teamName: 'Team 01', submitLabel: 'Confirm plan', phase: own.phase + 1, decisionLaps: this.publicState()?.nextDecisionLaps, state, message, confirmedRevision: own.confirmedPlan ? own.revision : undefined, cars: own.cars.map((car, index) => { const nearbyClassification=this.nearbyClassification(car.driverId); return ({ id: car.driverId, card:raceDriverCard(car.driverId),nearbyClassification,nearbyDrivers:nearbyClassification.rows.map(row=>raceDriverCard(row.driver.id)),recentLaps:this.publicState()?.classification.find(row=>row.driverId===car.driverId)?.recentLapTimes, name: 'Driver ' + Number(car.driverId.slice(-2)), currentCompound: car.compound, tyreAge: car.tyreAge, tyreEstimate: (car.estimatedTyreCondition * 100).toFixed(0) + '%', battleOptions: car.battleOptions, battleExplanation: car.battleOptions.length > 1 ? 'Only battle choices available for the current nearby encounter are offered.' : 'No current battle opportunity. Neutral remains selected.', pendingStop: car.inPits ? 'Pit stop ongoing. Further pit instructions are unavailable.' : car.stopQueued ? 'Pit stop queued. Further pit instructions are unavailable.' : null, selected: { pace: this.choices()[index].pace, stop: this.choices()[index].pit === 'Pit' ? 'Pit' : 'Stay Out', compound: this.compound(this.choices()[index].compound), battle: this.choices()[index].battle } }); }) };
+        return { teamName: 'Team 01', submitLabel: 'Confirm plan', phase: own.phase + 1, decisionLaps: this.publicState()?.nextDecisionLaps, state, message, confirmedRevision: own.confirmedPlan ? own.revision : undefined, cars: own.cars.map((car, index) => { const nearbyClassification=this.nearbyClassification(car.driverId); return ({ id: car.driverId, card:raceDriverCard(car.driverId),nearbyClassification,nearbyDrivers:nearbyClassification.rows.map(row=>raceDriverCard(row.driver.id)),recentLaps:this.publicState()?.classification.find(row=>row.driverId===car.driverId)?.recentLapTimes.slice().sort((a,b)=>b.lap-a.lap), name: 'Driver ' + Number(car.driverId.slice(-2)), currentCompound: car.compound, tyreAge: car.tyreAge, tyreEstimate: (car.estimatedTyreCondition * 100).toFixed(0) + '%', battleOptions: car.battleOptions, battleExplanation: car.battleOptions.length > 1 ? '' : 'No current battle opportunity. Neutral remains selected.', pendingStop: car.inPits ? 'Pit stop ongoing. Further pit instructions are unavailable.' : car.stopQueued ? 'Pit stop queued. Further pit instructions are unavailable.' : null, selected: { pace: this.choices()[index].pace, stop: this.choices()[index].pit === 'Pit' ? 'Pit' : 'Stay Out', compound: this.compound(this.choices()[index].compound), battle: this.choices()[index].battle } }); }) };
     }
     private compound(value: string) { if (value === 'Soft' || value === 'Medium' || value === 'Hard')
         return value; throw new Error('Unsupported authoritative compound'); }

@@ -12,13 +12,16 @@ import { TyreCompound } from "./timing/public-classification.model";
     "
   >
     @if (compound()) {
-      <span aria-hidden="true">{{ compound()?.charAt(0) }} · </span
-      >{{ compound() }}
+      <span class="compound-code" aria-hidden="true">{{ compound()?.charAt(0) }}</span><span class="compound-name" aria-hidden="true">{{ compound() }}</span>
     } @else {
       Unknown
     }
   </span>`,
   styles: `
+    :host { display: inline-block; }
+    .compound-code { display: none; }
+    @media (max-width: 600px) { .compound-code { display: inline; } .compound-name { display: none; } }
+    @container timing (max-width: 600px) { .compound-code { display: inline; } .compound-name { display: none; } }
     .badge {
       display: inline-block;
       border: 1px solid currentColor;

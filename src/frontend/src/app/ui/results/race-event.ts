@@ -4,7 +4,7 @@ import { PublicRaceEvent } from "./public-phase-result.model";
 @Component({
   selector: "app-race-event",
   imports: [CompoundBadge],
-  template: ` <article [attr.aria-label]="label() + ' · lap ' + event().lap">
+  template: ` <article [class.minimalist]="event().minimalist" [attr.aria-label]="label() + ' · lap ' + event().lap">
     <div class="portrait">
       @if (event().portraitUrl && failedUrl() !== event().portraitUrl) {
         <img
@@ -34,6 +34,10 @@ import { PublicRaceEvent } from "./public-phase-result.model";
       border-top: 1px solid var(--color-border);
       padding: 12px 0;
     }
+    article.minimalist { gap: 6px; padding: 6px 0; color: var(--color-muted); font-size: 12px; }
+    .minimalist .portrait, .minimalist app-compound-badge { display: none; }
+    .minimalist .copy { display: flex; gap: 8px; flex-wrap: wrap; align-items: baseline; }
+    .minimalist .copy p { margin: 0; font-size: 12px; font-weight: 400; color: var(--color-muted); }
     .portrait {
       width: 52px;
       height: 64px;

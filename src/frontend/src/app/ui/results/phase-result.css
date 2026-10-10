@@ -179,3 +179,7 @@
 }
 @media(max-width:600px){.feedback-first .result-layout{display:flex;flex-direction:column;}.feedback-first .feedback{order:-1;}}
 .result-screen.compact{padding:0;}
+
+.board-lap { font-size: clamp(30px, 4vw, 48px); font-weight: 800; margin: 0 0 20px; }
+.board .events { border: 0; border-radius: 0; background: transparent; padding: 0; }
+.board .development-facts { margin-top: 32px; }

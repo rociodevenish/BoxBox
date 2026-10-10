@@ -1,5 +1,5 @@
-<main class="result-screen" [class.finished]="result().state === 'finished'" [class.compact]="compact()" [class.feedback-first]="feedbackFirst()">
-  <header class="result-header">
+<main class="result-screen" [class.board]="board()" [class.finished]="result().state === 'finished'" [class.compact]="compact()" [class.feedback-first]="feedbackFirst()">
+  @if(board()){<p class="board-lap">Lap {{result().classification.leaderLap}} / {{result().classification.totalLaps}}</p>}@else{<header class="result-header">
     <div>
       <p class="eyebrow">
         Public race @if(fixtureLabel()){ · {{fixtureLabel()}}}
@@ -12,18 +12,18 @@
       last published Classification.}@case('presenting'){{{feedbackFirst() ? 'Playing recorded feedback · Showing the resolved Classification.' : 'Playing recorded feedback · Showing the last published Classification until playback completes.'}}}@case('finished'){Chequered flag · No
       further decisions.}@default{Race continues.}}
     </p>
-  </header>
+  </header>}
   <div class="result-layout">
-    <section class="classification" aria-labelledby="result-classification">
-      <h2 id="result-classification">
+    <section class="classification" aria-label="Race board">
+      @if(!board()){<h2 id="result-classification">
         {{result().state === 'initial' ? 'Initial Classification' :
         result().state === 'finished' ? 'Final Classification' : result().state
         === 'presenting' && feedbackFirst() ? 'Resolved Classification' : result().state === 'resolving' || result().state === 'presenting' || result().state === 'awaiting' ? 'Last published Classification' : 'Recorded Classification'}}
-      </h2>
-      <app-timing-tower [classification]="result().classification" />
+      </h2>}
+      <app-timing-tower [inline]="board()" [classification]="result().classification" />
     </section>
     <div class="feedback">
-      <section class="context" aria-label="Result context">
+      @if(!board()){<section class="context" aria-label="Result context">
         @if(result().context.imageUrl && failedContextUrl() !==
         result().context.imageUrl){<img
           [src]="result().context.imageUrl"
@@ -41,7 +41,7 @@
           <p>{{result().context.description}}</p>
         </div>
       </section>
-      <section class="events" aria-labelledby="events-title">
+      }<section class="events" aria-labelledby="events-title">
         <h2 id="events-title">Public race events</h2>
         @if(result().state === 'initial'){
         <p>No race events published yet.</p>
@@ -71,4 +71,5 @@
       </section>
     </div>
   </div>
+  @if(board()){<section class="context development-facts" aria-label="Development race facts"><div><p class="eyebrow">For development purposes only</p><h2>Race facts</h2><p>{{result().context.description}}</p></div></section>}
 </main>
