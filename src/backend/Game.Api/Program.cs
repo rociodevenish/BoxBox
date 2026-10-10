@@ -14,6 +14,9 @@ builder.Services.ConfigureHttpJsonOptions(options => options.SerializerOptions.C
 var app = builder.Build();
 app.Use(async (context, next) =>
 {
+    // Private observations and controller authority must never enter browser/offline caches.
+    if(context.Request.Path.StartsWithSegments("/api/lobbies") || context.Request.Path.StartsWithSegments("/hubs/race") || context.Request.Path.Value?.EndsWith("/team",StringComparison.Ordinal)==true)
+        context.Response.Headers.CacheControl="no-store";
     try { await next(context); }
     catch (SessionFault fault)
     {

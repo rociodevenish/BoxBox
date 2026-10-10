@@ -1,6 +1,10 @@
 namespace Game.Application;
 public sealed partial class SessionCoordinator
 {
+ public IReadOnlyList<LobbyTeam> HouseholdControllers(string id,AuthIdentity identity,string deviceId)
+ {lock(gate){var lobby=RequireLobby(id);_=LobbyMembership(id,identity,deviceId);
+  var teams=ProjectLobby(lobby).Teams;
+  return teams.Where(team=>lobby.Assignments.TryGetValue(team.TeamId,out var assignment)&&assignment.Approved&&(assignment.DeviceId==deviceId||(assignment.AdditionalDevices?.Contains(deviceId)??false))).ToArray();}}
  private (Session Session, Assignment Assignment) AuthoriseHousehold(string id,AuthIdentity identity,string deviceId,string teamId)
  {
   var lobby=RequireLobby(id);_ = LobbyMembership(id,identity,deviceId);

@@ -8,6 +8,8 @@ public sealed class RaceHub(SessionCoordinator sessions,FirebaseIdentity auth) :
         try {var own=sessions.OpenTeam(id,teamId);await Groups.AddToGroupAsync(Context.ConnectionId,"open:"+id+":"+teamId+":"+own.AssignmentRevision);return sessions.OpenTeam(id,teamId);}
         catch(SessionFault fault){throw new HubException(fault.Message);}
     }
+    public Task UnsubscribeHouseholdTeam(string id,string teamId,long assignmentRevision)
+        => Groups.RemoveFromGroupAsync(Context.ConnectionId,"household:"+id+":"+teamId+":"+assignmentRevision);
     public async Task<JoinedLobby> SubscribeLobby(string id,string deviceId)
     {
         try {
@@ -51,3 +53,4 @@ public sealed class SessionNotifications(IHubContext<RaceHub> hub, ILogger<Sessi
         catch (Exception exception) { logger.LogWarning(exception, "Session notification failed; authoritative state remains available by snapshot."); }
     }
 }
+

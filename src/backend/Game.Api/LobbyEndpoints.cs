@@ -5,6 +5,7 @@ public static class LobbyEndpoints
 {
  public static void MapLobbyEndpoints(this WebApplication app)
  {
+  app.MapGet("/api/lobbies/{id}/controllers",async(string id,string deviceId,HttpRequest request,FirebaseIdentity auth,SessionCoordinator sessions)=>sessions.HouseholdControllers(id,await auth.Verify(Token(request)),deviceId));
   app.MapGet("/api/auth/config",(IConfiguration config,IHostEnvironment environment)=>{
    var project=config["Firebase:ProjectId"];if(string.IsNullOrWhiteSpace(project))throw new SessionFault(SessionFailure.Unavailable,"Household sign-in is not configured on this server.");
    return new {projectId=project,apiKey=config["Firebase:ApiKey"]??"demo-local-key",emulatorUrl=environment.IsDevelopment()&&Environment.GetEnvironmentVariable("FIREBASE_AUTH_EMULATOR_HOST") is not null?config["Firebase:EmulatorUrl"]??"http://127.0.0.1:19099":null};

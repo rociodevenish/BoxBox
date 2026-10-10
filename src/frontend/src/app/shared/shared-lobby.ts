@@ -10,6 +10,7 @@ interface Joined {lobby:Lobby;membership:Membership}
 export class SharedLobby {
  readonly authorisedTeams=signal<string[]>([]);
  hasOpenTeams(){return this.lobby()?.teams.some(team=>team.control==='Open'&&team.playerId&&team.approved)??false;}
+ readonly hasSharedTeam=(team:Team)=>team.control==='SharedTablet' && !!team.playerId;
  readonly path=location.pathname;readonly joinMode=this.path.includes('/join');readonly id=this.path.startsWith('/shared/lobby/')?this.path.split('/').at(-1):undefined;
  readonly lobby=signal<Lobby|null>(null);readonly membership=signal<Membership|null>(null);readonly user=signal<User|null>(null);readonly ready=signal(false);readonly busy=signal(false);readonly error=signal('');readonly qr=signal('');readonly connection=signal('Connecting');
  readonly code=new URL(location.href).searchParams.get('code')??'';readonly accountName=signal(localStorage.getItem('household-player-name')??'');
@@ -42,4 +43,5 @@ export class SharedLobby {
  canClaim(team:Team){return !this.busy()&&this.connection()==='Connected'&&this.lobby()?.lifecycle==='lobby'&&!team.playerId&&!this.lobby()!.teams.some(t=>t.playerId===this.membership()?.playerId);}
  canStart(){return !this.busy()&&this.connection()==='Connected'&&this.lobby()!.teams.some(t=>t.playerId)&&this.lobby()!.teams.every(t=>!t.playerId||t.approved);}
 }
+
 
