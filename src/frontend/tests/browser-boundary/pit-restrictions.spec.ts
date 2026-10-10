@@ -18,7 +18,7 @@ for(const {preset,status,compound} of [{preset:'open-equal',status:'queued',comp
     await page.route('**/plans',async request=>{const body=request.request().postDataJSON();body.cars[1].pit='Pit';body.cars[1].compound='Soft';await request.continue({postData:JSON.stringify(body)});});
     await page.getByRole('button',{name:'Approve Plan'}).click();await page.getByRole('button',{name:'Confirm plan'}).click();
     await expect(page.getByRole('alert')).toContainText('pit instruction is unavailable');
-    await expect(first.getByRole('button',{name:'Push',exact:true})).toHaveAttribute('aria-pressed','true');await expect(second.getByRole('button',{name:'Standard',exact:true})).toHaveAttribute('aria-pressed','true');await expect(second.getByRole('button',{name:'Stay Out',exact:true})).toHaveAttribute('aria-pressed','true');await expect(second.getByRole('button',{name:'Neutral',exact:true})).toHaveAttribute('aria-pressed','true');
+    await expect(first.getByRole('button',{name:'Push',exact:true})).toHaveAttribute('aria-pressed','true');await expect(second.getByRole('button',{name:'Standard',exact:true})).toHaveAttribute('aria-pressed','true');await expect(second.getByRole('button',{name:'Stay Out',exact:true})).toHaveAttribute('aria-pressed','true');await expect(second).toContainText('Neutral remains selected.');
     expect(await(await page.request.get(route)).text()).toBe(beforePublic);expect(await(await page.request.get(route+'/team',{headers})).text()).toBe(beforeTeam);
     mkdirSync('../../.tools/reports/browser-race/review-fixes',{recursive:true});
     await page.screenshot({path:'../../.tools/reports/browser-race/review-fixes/'+status+'-controller-360.png',fullPage:true});
