@@ -28,3 +28,7 @@ Merged at `e5a49fc62d8932e944bb83786a9b2919f1789c14`. [Durable recovery evidence
 ## Ticket 02
 
 Merged at `1102b3f7c7fff1c20ab3790593d39f851bd5dc9a`. [Observation-driven AI evidence](observation-ai.md) records 480 reproducible races, legality, uncertainty and policy hypotheses. Raw focused records are preserved in ignored `.tools/reports/s06/ticket02/`. Reported orphan testhost PID 11428 was no longer running when checked after completion.
+
+## Ticket 03
+
+Merged at `0cef3b09b1babc0f6ff9b97c5b00febde1c56b19`. [Deadline and fallback evidence](deadlines-fallback.md) records controlled boundary checks, persistence failure/recovery, and the reviewed 360px phone and 1920×1080 display captures. Raw bounded command records are preserved in ignored `.tools/reports/s06/ticket03/`. The combined S06 flow will be inspected again after control, assistance and presentation progression are integrated.

@@ -1,6 +1,6 @@
 # Deadline and temporary fallback evidence
 
-Ticket 03 automated acceptance is complete. Hosted scheduler/idle wakeup, real household timing and human playtest evidence remain pending in ticket 06.
+Ticket 03 automated acceptance is complete. Scheduled progression is implemented in ticket 06; hosted scheduler/idle wakeup, real household timing and human playtest evidence remain pending in ticket 07.
 
 Household setup defaults to 90 decision seconds plus 30 seconds per additional human team sharing any assigned device. Hosts may configure 15–900 decision seconds and 0–120 handoff seconds before starting. The largest device workload determines the allowance; two teams sharing one tablet receive 120 seconds. Setup discloses the effective timing and fallback before play. Window opening freezes the server UTC deadline and all human fallback plans from the legitimate phase-start observation. Refresh never extends it.
 
