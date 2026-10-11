@@ -32,3 +32,13 @@ Merged at `1102b3f7c7fff1c20ab3790593d39f851bd5dc9a`. [Observation-driven AI evi
 ## Ticket 03
 
 Merged at `0cef3b09b1babc0f6ff9b97c5b00febde1c56b19`. [Deadline and fallback evidence](deadlines-fallback.md) records controlled boundary checks, persistence failure/recovery, and the reviewed 360px phone and 1920×1080 display captures. Raw bounded command records are preserved in ignored `.tools/reports/s06/ticket03/`. The combined S06 flow will be inspected again after control, assistance and presentation progression are integrated.
+
+## Tickets 04–06 and combined visual check
+
+Control merged at `f7940d5bfeb4a16062daf3a408827a74f529c58a`, assistance at `1782286d039e2a782edf0d8eda19a2ea5ad65436`, and progression at `d33f31defc334dbf3e541f4184bda61336e3352e`. Leaf evidence: [control](control-transfers.md), [assistance](assistance.md), [progression](recoverable-progression.md). Raw command records and named test-result directories are preserved under ignored `.tools/reports/s06/ticket04/`, `ticket05/` and `ticket06/`.
+
+The merger composed one API route-registration conflict, retained every leaf module and passed an isolated API test-project build with zero warnings/errors. Existing preview PID 22668 locked ordinary API binaries and was preserved. Optional `F1_DOTNET_ARTIFACTS_PATH` now isolates verification output; fixture content-root discovery also works under that output layout.
+
+At `d88037a`, root ran one combined Guided phone flow using ordinary `DryRacePresets`, real Auth/Firestore and owned frontend 4498/API 4598. It applied the saved suggestion, confirmed the two-car plan, reloaded with the accepted lock intact, and checked an ordinary public display without private advice. Passed in 43 seconds including startup; command record `.tools/reports/s06/integrated-visual03.json`. Earlier temporary-config attempts failed before product assertions because their server working directory was wrong; those records are retained separately.
+
+Root inspected [Guided phone](s06-integrated-guided-phone-360.png) (360×800 viewport, full page 360×4047), [locked/reloaded phone](s06-integrated-locked-phone-360.png) (360×4380) and [public display](s06-integrated-public-1920.png) (1920×1080). No horizontal clipping; plan, freshness, uncertainty, human responsibility and normal approval are readable with intentional vertical scrolling. Accepted choices remain selected and approval disabled after reload. All 22 public classification rows fit, ending around 1054px, with no private recommendations. Existing portrait/constructor assets load. These supported presets deliberately retain synthetic Driver labels and do not claim production adoption of provisional 2026 ratings.
