@@ -1,3 +1,4 @@
+import {apiUrl} from '../api-url';
 import type {TeamAssistance} from '../assistance/assistance.model';
 import {TeamControlStatus,controlName} from './team-control';
 import { signal } from '@angular/core';
@@ -168,7 +169,7 @@ export class RaceSession {
         await previous?.stop();
         if (this.householdTeam || this.sharedTablet) {
           try {
-            const config = await (await fetch('/api/auth/config')).json();
+            const config = await (await fetch(apiUrl('/api/auth/config'))).json();
             const {initializeApp,getApps}=await import('firebase/app'); const sdk=await import('firebase/auth');
             const auth=sdk.getAuth(getApps()[0] ?? initializeApp({projectId:config.projectId,apiKey:config.apiKey}));
             if(config.emulatorUrl && !auth.emulatorConfig)sdk.connectAuthEmulator(auth,config.emulatorUrl,{disableWarnings:true});
@@ -179,7 +180,7 @@ export class RaceSession {
             if(this.sharedTablet){this.householdTeam='';this.activePrivate.set(false);}
           } catch(error) { this.connectionFailure(error); return; }
         }
-        const connection = new HubConnectionBuilder().withUrl('/hubs/race', this.householdUser ? {accessTokenFactory:()=>this.householdUser!.getIdToken()} : {}).withAutomaticReconnect([0, 1000, 3000]).build();
+        const connection = new HubConnectionBuilder().withUrl(apiUrl('/hubs/race'), this.householdUser ? {accessTokenFactory:()=>this.householdUser!.getIdToken()} : {}).withAutomaticReconnect([0, 1000, 3000]).build();
         this.connection = connection;
         connection.on('publicSnapshot', (state: PublicState) => this.acceptPublic(state));
         connection.on('teamSnapshot', (state: TeamState) => this.acceptTeam(state));
@@ -332,7 +333,7 @@ export class RaceSession {
     }
     private async refreshAssignments() {
         const request=++this.assignmentRequest;
-        const response=await fetch('/api/lobbies/'+this.id+'/controllers?deviceId='+encodeURIComponent(this.householdDevice),{cache:'no-store',headers:{Authorization:'Bearer '+await this.householdUser!.getIdToken()}});
+        const response=await fetch(apiUrl('/api/lobbies/'+this.id+'/controllers?deviceId='+encodeURIComponent(this.householdDevice)),{cache:'no-store',headers:{Authorization:'Bearer '+await this.householdUser!.getIdToken()}});
         const value=await response.json();if(!response.ok)throw new Error(value.message??'Controller authority unavailable.');
         if(request!==this.assignmentRequest)return;
         const assignments=value as ControllerAssignment[];
@@ -373,7 +374,7 @@ export class RaceSession {
         if(this.connection && oldTeam && old){try{await this.connection.invoke('UnsubscribeHouseholdTeam',this.id,oldTeam,old.assignmentRevision);}catch{await this.connection.stop();this.connectionState.set('disconnected');}}
     }
     private async request<T>(url: string, body: unknown, capability?: string): Promise<T> {
-        const response = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json', ...(capability ? { Authorization: 'Bearer ' + capability } : {}) }, body: JSON.stringify(body) });
+        const response = await fetch(apiUrl(url), { method: 'POST', headers: { 'Content-Type': 'application/json', ...(capability ? { Authorization: 'Bearer ' + capability } : {}) }, body: JSON.stringify(body) });
         const value = await response.json();
         if (!response.ok)
             throw new RequestFailure(response.status, value.message ?? 'Request failed');

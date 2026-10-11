@@ -39,10 +39,14 @@ public static class WakeupEndpoints
     public static void MapWakeupEndpoints(this WebApplication app)
     {
         app.MapPost("/internal/wakeups",async(WakeupInput input,HttpRequest request,WakeupIdentity identity,SessionCoordinator sessions)=>{
-            await identity.Verify(request);return await sessions.DeliverWakeup(input);
+            await identity.Verify(request);var state=await sessions.DeliverWakeup(input);
+            if(state.Phase!=input.Phase||state.Paused)app.Logger.LogInformation("Scheduled progression session {Session} generation {Generation} phase {Phase} paused {Paused}",input.SessionId,input.Generation,state.Phase,state.Paused);
+            return state;
         });
         app.MapPost("/internal/wakeups/sweep",async(HttpRequest request,WakeupIdentity identity,SessionCoordinator sessions)=>{
-            await identity.Verify(request,true);return Results.Ok(new{advanced=await sessions.SweepWakeups()});
+            await identity.Verify(request,true);var advanced=await sessions.SweepWakeups();
+            if(advanced>0)app.Logger.LogInformation("Independent wakeup repair advanced {Count} scheduled sessions",advanced);
+            return Results.Ok(new{advanced});
         });
     }
 }

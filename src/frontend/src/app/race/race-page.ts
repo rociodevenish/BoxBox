@@ -1,3 +1,4 @@
+import {apiUrl} from '../api-url';
 import { Component, effect, signal } from '@angular/core';
 import {raceDriverCard} from './race-driver-card';
 import { commandId } from './command-id';
@@ -80,7 +81,7 @@ export class RacePage extends RaceSession {
         const sample=this.presentationSample;this.presentationSample=undefined;
         if(!sample)return;
         // Advisory client diagnostics never gate playback, submission or authoritative state.
-        void fetch('/api/sessions/'+this.id+'/presentation-timing',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sampleId:sample.sampleId,deviceId:this.presentationDevice,cursor:sample.cursor,durationMilliseconds:performance.now()-sample.started,clientElapsedMilliseconds:performance.now()-this.pageStarted,playbackKind:sample.playbackKind,completion:completion==='recovered'?'completed':completion})}).catch(()=>undefined);
+        void fetch(apiUrl('/api/sessions/'+this.id+'/presentation-timing'),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sampleId:sample.sampleId,deviceId:this.presentationDevice,cursor:sample.cursor,durationMilliseconds:performance.now()-sample.started,clientElapsedMilliseconds:performance.now()-this.pageStarted,playbackKind:sample.playbackKind,completion:completion==='recovered'?'completed':completion})}).catch(()=>undefined);
     }
     private clearPlayback() { if (this.playbackTimer) clearInterval(this.playbackTimer); this.playbackTimer = undefined; }
     phaseResult(): PublicPhaseResult {

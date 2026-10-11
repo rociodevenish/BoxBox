@@ -4,7 +4,9 @@
 
 **Blocked by:** 04 — Transfer control at safe phase boundaries; 05 — Offer Assisted and Guided decisions; 06 — Resume live progression after idle or interruption.
 
-**Status:** ready-for-agent
+**Status:** ready-for-human
+
+Local deployment preparation is implemented. Cloud work requires a chosen project, region, billing configuration and explicit deployment authorization. Hosted acceptance boxes remain unchecked. See [runbook](../../../deploy/README.md), [local evidence](../evidence/hosted-preparation.md) and [pending hosted form](../evidence/hosted-family.md).
 
 - [ ] Deploy Angular to Firebase Hosting, ASP.NET Core/SignalR to Cloud Run and use Firestore/Auth, initially with min instances zero/max one, separate environments and emulator-based local development.
 - [ ] Keep credentials server-side, enforce origins/authenticated channel membership and authenticated scheduled callbacks, and document deployment, rollback and compatible recovery procedures.
