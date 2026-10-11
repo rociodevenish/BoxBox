@@ -5,6 +5,7 @@ public static class LobbyEndpoints
 {
  public static void MapLobbyEndpoints(this WebApplication app)
  {
+  app.MapPost("/api/lobbies/{id}/advance-due",async(string id,DueTransitionInput input,HttpRequest request,FirebaseIdentity auth,SessionCoordinator sessions)=>await sessions.AdvanceHouseholdDue(id,await auth.Verify(Token(request)),input));
   app.MapGet("/api/lobbies/{id}/controller-devices",async(string id,HttpRequest request,FirebaseIdentity auth,SessionCoordinator sessions)=>sessions.ControllerDevices(id,await auth.Verify(Token(request))));
   app.MapPost("/api/lobbies/{id}/devices/{deviceId}/revoke",async(string id,string deviceId,HttpRequest request,FirebaseIdentity auth,SessionCoordinator sessions,IHubContext<RaceHub> hub,HouseholdSubscriptions subscriptions)=>{var state=await sessions.RevokeDevice(id,await auth.Verify(Token(request)),deviceId);await subscriptions.CloseObsolete(hub.Groups,state);await Notify(hub,state,app.Logger);return state;});
   foreach(var action in new[]{"pause","resume"}){var paused=action=="pause";app.MapPost("/api/lobbies/{id}/"+action,async(string id,HttpRequest request,FirebaseIdentity auth,SessionCoordinator sessions,IHubContext<RaceHub> hub)=>{var state=await sessions.SetHouseholdPaused(id,await auth.Verify(Token(request)),paused);await Notify(hub,state,app.Logger);return state;});}

@@ -4,13 +4,14 @@ public sealed partial class SessionCoordinator
  private sealed record Player(string Id,string Name,string? Uid);
  private sealed record Device(string Id,string Uid);
  private sealed record Assignment(string PlayerId,string DeviceId,string Control,bool Approved,long Revision,string[]? AdditionalDevices=null);
- private sealed class Lobby(string id,string code,string host,CreateLobbyInput input)
+ private sealed partial class Lobby(string id,string code,string host,CreateLobbyInput input)
  {
   public string Id {get;}=id;public string Code {get;}=code;public string Host {get;}=host;
   public CreateLobbyInput Input {get;}=input;public long Revision {get;set;}=1;
   public List<Player> Players {get;}=[];public List<Device> Devices {get;}=[];
   public string Lifecycle {get;set;}="lobby";
   public Session? Race {get;set;}
+  public Dictionary<string,string> ModuleState {get;set;}=[];
   public string[] RequiredTeams {get;set;}=[];
   public string[] ScriptedTeams {get;set;}=[];
   public Dictionary<string,Assignment> Assignments {get;}=[];
@@ -19,7 +20,7 @@ public sealed partial class SessionCoordinator
  public JoinedLobby CreateLobby(AuthIdentity identity,CreateLobbyInput input)
  {
   if(identity.Guest) throw new SessionFault(SessionFailure.Forbidden,"Use a permanent account to host a household.");
-  if(input is null || input.Preset is not ("open-equal" or "restricted-equal" or "open-mixed" or "restricted-mixed") || input.Laps is not (6 or 10 or 20 or 40 or 50) || input.Seed is null || input.Mode is not ("Competitive" or "Family" or "Mixed")) throw new SessionFault(SessionFailure.InvalidInput,"Choose a supported preset, distance and privacy mode.");
+  if(input is null || input.Preset is not ("open-equal" or "restricted-equal" or "open-mixed" or "restricted-mixed") || input.Laps is not (6 or 10 or 20 or 40 or 50) || input.Seed is null || input.Mode is not ("Competitive" or "Family" or "Mixed") || input.DecisionSeconds is <15 or >900 || input.HandoffSeconds is <0 or >120) throw new SessionFault(SessionFailure.InvalidInput,"Choose a supported preset, distance and privacy mode.");
   var name=Name(input.Name);lock(gate){
    string code;do{code=Convert.ToHexString(System.Security.Cryptography.RandomNumberGenerator.GetBytes(4));}while(lobbies.Values.Any(l=>l.Code==code));
    var lobby=new Lobby(Guid.NewGuid().ToString("N"),code,identity.Uid,input);
@@ -86,7 +87,7 @@ public sealed partial class SessionCoordinator
    session.FrozenOpponents=OpponentScript.Freeze(session.Engine,lobby.ScriptedTeams,config.Laps);
    if(session.FrozenOpponents.Count!=lobby.ScriptedTeams.Length*2)throw new InvalidOperationException("The scripted phase-start decision set must cover every scripted driver.");
    session.WindowTimestamp=System.Diagnostics.Stopwatch.GetTimestamp();
-   lobby.Race=session;lobby.Lifecycle="started";lobby.Revision++;Persist(lobby.Id);return ProjectLobby(lobby);
+   InitializeDecisionWindow(session,lobby);lobby.Race=session;lobby.Lifecycle="started";lobby.Revision++;Persist(lobby.Id);return ProjectLobby(lobby);
   }}finally{mutations.Release();}
  }
  private Lobby RequireLobby(string id){EnsureRecovered(id);return lobbies.GetValueOrDefault(id)??throw new SessionFault(SessionFailure.Unavailable,"Lobby unavailable.");}
@@ -94,5 +95,5 @@ public sealed partial class SessionCoordinator
  private static string Name(string? value)=>!string.IsNullOrWhiteSpace(value)&&value.Trim().Length<=40?value.Trim():throw new SessionFault(SessionFailure.InvalidInput,"Use a player name from 1 to 40 characters.");
  private static LobbySnapshot ProjectLobby(Lobby lobby)=>new(lobby.Id,lobby.Code,"/shared/join?code="+lobby.Code,lobby.Revision,lobby.Lifecycle,lobby.Input.Mode,
   Array.AsReadOnly(lobby.Players.Select(p=>new LobbyPlayer(p.Id,p.Name,p.Uid is null)).ToArray()),
-  Array.AsReadOnly(ConstructorCatalogue.Select(t=>{var a=lobby.Assignments.GetValueOrDefault(t.TeamId);return new LobbyTeam(t.TeamId,t.Id,t.Name,a?.PlayerId,a?.Control??(lobby.Input.Mode=="Family"?"Open":"Private"),a?.Approved??false,a?.Revision??0);}).ToArray()),Array.AsReadOnly(lobby.RequiredTeams),Array.AsReadOnly(lobby.ScriptedTeams),lobby.Race is null?null:"/race/display/"+lobby.Id,lobby.Race?.Paused??false);
+  Array.AsReadOnly(ConstructorCatalogue.Select(t=>{var a=lobby.Assignments.GetValueOrDefault(t.TeamId);return new LobbyTeam(t.TeamId,t.Id,t.Name,a?.PlayerId,a?.Control??(lobby.Input.Mode=="Family"?"Open":"Private"),a?.Approved??false,a?.Revision??0);}).ToArray()),Array.AsReadOnly(lobby.RequiredTeams),Array.AsReadOnly(lobby.ScriptedTeams),lobby.Race is null?null:"/race/display/"+lobby.Id,lobby.Race?.Paused??false,lobby.Race?.TimingPolicy??BuildTimingPolicy(lobby,lobby.Assignments.Keys.ToArray()));
 }

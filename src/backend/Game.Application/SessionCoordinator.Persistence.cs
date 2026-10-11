@@ -11,6 +11,8 @@ public sealed partial class SessionCoordinator
     private const string RecoverySchema="session-recovery-v1";
     private const string ContentVersion="synthetic-dry-presets-v1";
     private sealed record SavedCommand(Guid Id,string Fingerprint,SubmissionAck Ack);
+    private sealed record SavedWindow(DateTimeOffset? Deadline,double? PausedRemaining,DecisionTimingPolicy? TimingPolicy,
+        Dictionary<string,DriverDecision> FrozenTimeoutDecisions,Dictionary<string,string> TimeoutSources,TeamDecisionSource[] LastDecisionSources,bool DeferNextWindow,Dictionary<string,string> ModuleState);
     private sealed record SavedRace(string Id,string Player,string Device,byte[] GrantHash,
         CreateSessionInput Input,RaceConfiguration Configuration,Driver[] Drivers,
         int Phase,long Revision,long WindowRevision,string Lifecycle,bool Paused,
@@ -19,10 +21,10 @@ public sealed partial class SessionCoordinator
         Dictionary<string,DriverDecision>[] Plans,RecordedReplayPhase[] Outcomes,
         SavedCommand[] Commands,TeamCommand? ConfirmedPlan,PublicEvent[] Events,PublicPresentation? Presentation,
         int EngineEventCursor,Dictionary<string,int> PresentationPhases,
-        Dictionary<string,DriverDecision>? PendingPlan,TeamCommand? PendingCommand,string? PendingFingerprint,RecordedAutomaticPlan[]? AutomaticPlans=null,string AutomaticSource="unclaimed-ai");
+        Dictionary<string,DriverDecision>? PendingPlan,TeamCommand? PendingCommand,string? PendingFingerprint,RecordedAutomaticPlan[]? AutomaticPlans=null,string AutomaticSource="unclaimed-ai",SavedWindow? Window=null);
     private sealed record SavedLobby(string Id,string Code,string Host,CreateLobbyInput Input,long Revision,
         Player[] Players,Device[] Devices,Dictionary<string,Assignment> Assignments,string Lifecycle,
-        string[] RequiredTeams,string[] ScriptedTeams,SavedRace? Race);
+        string[] RequiredTeams,string[] ScriptedTeams,SavedRace? Race,Dictionary<string,string>? ModuleState=null);
     private sealed record RecoveryRecord(string Schema,string Model,string Randomness,string Content,string Policy,
         SavedLobby? Lobby,SavedRace? Race);
     private static SavedRace CaptureRace(Session session)=>new(session.Id,session.Player,session.Device,session.GrantHash,
@@ -31,13 +33,13 @@ public sealed partial class SessionCoordinator
         session.AcceptedPlans.Select(p=>p.ToDictionary()).ToArray(),session.RecordedPhases.ToArray(),
         session.AcceptedCommands.Select(p=>new SavedCommand(p.Key,p.Value.Fingerprint,p.Value.Ack)).ToArray(),
         session.ConfirmedPlan,session.Events.ToArray(),session.Presentation,session.EngineEventCursor,session.PresentationPhases,
-        session.PendingPlan,session.PendingCommand,session.PendingFingerprint,session.AutomaticPlans.ToArray());
+        session.PendingPlan,session.PendingCommand,session.PendingFingerprint,session.AutomaticPlans.ToArray(),Window:new(session.DecisionDeadlineUtc,session.PausedRemainingSeconds,session.TimingPolicy,session.FrozenTimeoutDecisions,session.TimeoutSources,session.LastDecisionSources.ToArray(),session.DeferNextWindow,session.ModuleState));
     private string Capture(string id)
     {
         var lobby=lobbies.GetValueOrDefault(id);var race=lobby?.Race ?? (active?.Id==id?active:null);
         var savedLobby=lobby is null?null:new SavedLobby(lobby.Id,lobby.Code,lobby.Host,lobby.Input,lobby.Revision,
             lobby.Players.ToArray(),lobby.Devices.ToArray(),lobby.Assignments,lobby.Lifecycle,lobby.RequiredTeams,lobby.ScriptedTeams,
-            race is null?null:CaptureRace(race));
+            race is null?null:CaptureRace(race),lobby.ModuleState);
         return JsonSerializer.Serialize(new RecoveryRecord(RecoverySchema,SimulationVersions.SegmentedModel,
             SimulationVersions.SegmentedRandomness,ContentVersion,race?.ScriptVersion??OpponentScript.Version,savedLobby,lobby is null&&race is not null?CaptureRace(race):null),BrowserReplay.JsonOptions);
     }
@@ -71,6 +73,7 @@ public sealed partial class SessionCoordinator
         Restore(id,record);
         var session=lobbies.GetValueOrDefault(id)?.Race ?? (active?.Id==id?active:null);
         if(session?.PendingPlan is not null)RecoverPending(session);
+        else if(session is not null)RecoverExpiredDecision(session);
     }
     private void RecoverPending(Session session)
     {
@@ -78,9 +81,10 @@ public sealed partial class SessionCoordinator
         {
             CompleteResolution(session,session.PendingPlan!,0);
             session.Paused=true;
-            var command=session.PendingCommand!;
-            session.AcceptedCommands[Guid.Parse(command.CommandId)]=(session.PendingFingerprint!,new(command.CommandId,id,command.Phase!.Value,session.Revision,session.Lifecycle));
+            var command=session.PendingCommand;
+            if(command is not null)session.AcceptedCommands[Guid.Parse(command.CommandId)]=(session.PendingFingerprint!,new(command.CommandId,id,command.Phase!.Value,session.Revision,session.Lifecycle));
             session.PendingPlan=null;session.PendingCommand=null;session.PendingFingerprint=null;
+            session.DecisionDeadlineUtc=null;session.PausedRemainingSeconds=null;PhaseCommitted(session);
             Persist(id);
         }
     }
@@ -117,12 +121,14 @@ public sealed partial class SessionCoordinator
             session.Events=race.Events;session.Presentation=race.Presentation;session.EngineEventCursor=race.EngineEventCursor;
             foreach(var pair in race.PresentationPhases)session.PresentationPhases.Add(pair.Key,pair.Value);
             session.PendingPlan=race.PendingPlan;session.PendingCommand=race.PendingCommand;session.PendingFingerprint=race.PendingFingerprint;
+            if(race.Window is {} window){session.DecisionDeadlineUtc=window.Deadline;session.PausedRemainingSeconds=window.PausedRemaining;session.TimingPolicy=window.TimingPolicy;session.FrozenTimeoutDecisions=window.FrozenTimeoutDecisions;session.TimeoutSources=window.TimeoutSources;session.LastDecisionSources=window.LastDecisionSources;session.DeferNextWindow=window.DeferNextWindow;session.ModuleState=window.ModuleState;}
             session.WindowTimestamp=Stopwatch.GetTimestamp();return session;
         }
         if(saved.Lobby is {} lobby)
         {
             var restored=new Lobby(lobby.Id,lobby.Code,lobby.Host,lobby.Input){Revision=lobby.Revision,Lifecycle=lobby.Lifecycle,RequiredTeams=lobby.RequiredTeams,ScriptedTeams=lobby.ScriptedTeams,Race=RestoreRace(lobby.Race)};
             restored.Players.AddRange(lobby.Players);restored.Devices.AddRange(lobby.Devices);
+            restored.ModuleState=lobby.ModuleState??[];
             foreach(var pair in lobby.Assignments)restored.Assignments.Add(pair.Key,pair.Value);
             lobbies[id]=restored;
         }

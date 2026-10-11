@@ -3,22 +3,36 @@ public sealed partial class SessionCoordinator
 {
  public async Task<LobbySnapshot> SetHouseholdPaused(string id,AuthIdentity identity,bool paused)
  {
-  Session session; PublicSnapshot display; TeamSnapshot own; LobbySnapshot lobbyState;
-  lock(gate){var lobby=RequireLobby(id);RequireHost(lobby,identity);session=lobby.Race??throw new SessionFault(SessionFailure.Conflict,"Start the race before pausing.");
-   if(session.Paused==paused)return ProjectLobby(lobby);
-   session.Paused=paused;lobby.Revision++;session.Revision++;
-   if(paused&&session.Lifecycle=="awaiting-decisions")session.Lifecycle="paused-decisions";
-   if(!paused&&session.Lifecycle=="paused-decisions")session.Lifecycle="awaiting-decisions";
-   if(!paused&&session.Lifecycle=="phase-result")OpenHouseholdWindow(session);
-   Persist(id);display=Project(session);own=ProjectTeam(session);lobbyState=ProjectLobby(lobby);}
-  await PublishRace(session,display,own);return lobbyState;
- }
- private static void OpenHouseholdWindow(Session session)
+  await mutations.WaitAsync();try
+  {
+   Session session;lock(gate){var lobby=RequireLobby(id);RequireHost(lobby,identity);session=lobby.Race??throw new SessionFault(SessionFailure.Conflict,"Start the race before pausing.");}
+   if(paused&&IsDecisionDue(session))await CloseExpiredSerially(session,true);
+   PublicSnapshot display;TeamSnapshot own;LobbySnapshot lobbyState;
+   lock(gate)
+   {
+    var lobby=RequireLobby(id);session=lobby.Race!;
+    if(session.Paused==paused)return ProjectLobby(lobby);
+    if(paused&&session.DecisionDeadlineUtc is {} deadline){session.PausedRemainingSeconds=Math.Max(0,(deadline-clock.GetUtcNow()).TotalSeconds);session.DecisionDeadlineUtc=null;}
+    session.Paused=paused;lobby.Revision++;session.Revision++;
+    if(paused&&session.Lifecycle=="awaiting-decisions")session.Lifecycle="paused-decisions";
+    if(!paused&&session.Lifecycle=="paused-decisions")
+    {
+     session.Lifecycle="awaiting-decisions";
+     session.DecisionDeadlineUtc=clock.GetUtcNow().AddSeconds(session.PausedRemainingSeconds??session.TimingPolicy?.EffectiveSeconds??90);
+     session.PausedRemainingSeconds=null;WindowOpened(session);
+    }
+    if(!paused&&session.Lifecycle=="phase-result")OpenHouseholdWindow(session);
+    Persist(id);display=Project(session);own=ProjectTeam(session);lobbyState=ProjectLobby(lobby);
+   }
+   await PublishRace(session,display,own);return lobbyState;
+  }finally{mutations.Release();}
+ } private void OpenHouseholdWindow(Session session)
  {
   session.Phase++;session.Revision++;session.WindowRevision=session.Revision;session.Lifecycle="awaiting-decisions";
   session.ConfirmedPlan=null;session.Locks.Clear();session.HumanDecisions.Clear();
   session.FrozenOpponents=OpponentScript.Freeze(session.Engine,session.Drivers.Select(driver=>driver.Team).Distinct().Where(team=>!session.RequiredTeams.Contains(team)),session.Configuration.Laps,session.ScriptVersion);
   session.WindowTimestamp=System.Diagnostics.Stopwatch.GetTimestamp();
+  if(lobbies.TryGetValue(session.Id,out var lobby))InitializeDecisionWindow(session,lobby);
  }
  public async Task<LobbySnapshot> RevokeDevice(string id,AuthIdentity identity,string deviceId)
  {

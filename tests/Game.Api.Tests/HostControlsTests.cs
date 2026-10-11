@@ -6,6 +6,7 @@ using Xunit;
 namespace Game.Api.Tests;
 public sealed class HostControlsTests
 {
+ private static string Stable(string json){var node=System.Text.Json.Nodes.JsonNode.Parse(json)!.AsObject();node.Remove("serverTimeUtc");return node.ToJsonString();}
  [Fact]
  public async Task Pause_preserves_locks_and_resume_opens_once_without_a_display()
  {
@@ -24,10 +25,10 @@ public sealed class HostControlsTests
   object Plan()=>new{commandId=Guid.NewGuid().ToString(),phase=0,revision=1,cars=new[]{new{driverId="driver-03",pace="Standard",pit="Stay Out",compound=(string?)null,battle="Neutral"},new{driverId="driver-04",pace="Standard",pit="Stay Out",compound=(string?)null,battle="Neutral"}}};
   Assert.Equal(HttpStatusCode.Conflict,(await host.PostAsJsonAsync($"/api/lobbies/{id}/teams/team-02/plans?deviceId={device}",Plan())).StatusCode);
   (await host.PostAsJsonAsync($"/api/lobbies/{id}/resume",new{})).EnsureSuccessStatusCode();var before=await host.GetStringAsync($"/api/sessions/{id}");
-  (await host.PostAsJsonAsync($"/api/lobbies/{id}/resume",new{})).EnsureSuccessStatusCode();Assert.Equal(before,await host.GetStringAsync($"/api/sessions/{id}"));
+  (await host.PostAsJsonAsync($"/api/lobbies/{id}/resume",new{})).EnsureSuccessStatusCode();Assert.Equal(Stable(before),Stable(await host.GetStringAsync($"/api/sessions/{id}")));
   var command=Plan();(await host.PostAsJsonAsync($"/api/lobbies/{id}/teams/team-02/plans?deviceId={device}",command)).EnsureSuccessStatusCode();
   var next=await host.GetFromJsonAsync<JsonElement>($"/api/sessions/{id}");Assert.Equal(1,next.GetProperty("phase").GetInt32());Assert.Equal("awaiting-decisions",next.GetProperty("lifecycle").GetString());
-  (await host.PostAsJsonAsync($"/api/lobbies/{id}/teams/team-02/plans?deviceId={device}",command)).EnsureSuccessStatusCode();Assert.Equal(next.GetRawText(),(await host.GetFromJsonAsync<JsonElement>($"/api/sessions/{id}")).GetRawText());
+  (await host.PostAsJsonAsync($"/api/lobbies/{id}/teams/team-02/plans?deviceId={device}",command)).EnsureSuccessStatusCode();Assert.Equal(Stable(next.GetRawText()),Stable((await host.GetFromJsonAsync<JsonElement>($"/api/sessions/{id}")).GetRawText()));
  }
  [Fact]
  public async Task Revoked_device_loses_all_explicit_grants_and_obsolete_private_streams_but_frozen_teams_still_wait()
@@ -67,12 +68,5 @@ public sealed class HostControlsTests
   var resumes=await Task.WhenAll(Enumerable.Range(0,8).Select(_=>host.PostAsJsonAsync($"/api/lobbies/{id}/resume",new{})));foreach(var resume in resumes)resume.EnsureSuccessStatusCode();
   var next=await host.GetFromJsonAsync<JsonElement>($"/api/sessions/{id}");Assert.Equal(1,next.GetProperty("phase").GetInt32());Assert.Equal("awaiting-decisions",next.GetProperty("lifecycle").GetString());Assert.True(next.GetProperty("raceTime").GetDouble()>0);
   using var deadline=new CancellationTokenSource(TimeSpan.FromSeconds(10));var resolved=new HashSet<string>();while(true){var state=await outcomes.Reader.ReadAsync(deadline.Token);if(state.GetProperty("lifecycle").GetString()=="phase-result")resolved.Add(state.GetProperty("presentation").GetProperty("cursor").GetString()!);if(state.GetProperty("revision").GetInt64()==next.GetProperty("revision").GetInt64())break;}Assert.Single(resolved);
-  (await host.PostAsJsonAsync($"/api/lobbies/{id}/teams/team-01/plans?deviceId={device}",plan)).EnsureSuccessStatusCode();Assert.Equal(next.GetRawText(),(await host.GetFromJsonAsync<JsonElement>($"/api/sessions/{id}")).GetRawText());
+  (await host.PostAsJsonAsync($"/api/lobbies/{id}/teams/team-01/plans?deviceId={device}",plan)).EnsureSuccessStatusCode();Assert.Equal(Stable(next.GetRawText()),Stable((await host.GetFromJsonAsync<JsonElement>($"/api/sessions/{id}")).GetRawText()));
  }}
-
-
-
-
-
-
-
