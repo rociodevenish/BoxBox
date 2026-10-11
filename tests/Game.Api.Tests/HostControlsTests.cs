@@ -27,6 +27,7 @@ public sealed class HostControlsTests
   (await host.PostAsJsonAsync($"/api/lobbies/{id}/resume",new{})).EnsureSuccessStatusCode();var before=await host.GetStringAsync($"/api/sessions/{id}");
   (await host.PostAsJsonAsync($"/api/lobbies/{id}/resume",new{})).EnsureSuccessStatusCode();Assert.Equal(Stable(before),Stable(await host.GetStringAsync($"/api/sessions/{id}")));
   var command=Plan();(await host.PostAsJsonAsync($"/api/lobbies/{id}/teams/team-02/plans?deviceId={device}",command)).EnsureSuccessStatusCode();
+  (await host.PostAsJsonAsync($"/api/lobbies/{id}/continue",new{commandId=Guid.NewGuid().ToString(),phase=0,windowRevision=1})).EnsureSuccessStatusCode();
   var next=await host.GetFromJsonAsync<JsonElement>($"/api/sessions/{id}");Assert.Equal(1,next.GetProperty("phase").GetInt32());Assert.Equal("awaiting-decisions",next.GetProperty("lifecycle").GetString());
   (await host.PostAsJsonAsync($"/api/lobbies/{id}/teams/team-02/plans?deviceId={device}",command)).EnsureSuccessStatusCode();Assert.Equal(Stable(next.GetRawText()),Stable((await host.GetFromJsonAsync<JsonElement>($"/api/sessions/{id}")).GetRawText()));
  }
@@ -66,6 +67,7 @@ public sealed class HostControlsTests
   var submission=host.PostAsJsonAsync($"/api/lobbies/{id}/teams/team-01/plans?deviceId={device}",plan);await committed.Task.WaitAsync(TimeSpan.FromSeconds(10));
   (await host.PostAsJsonAsync($"/api/lobbies/{id}/pause",new{})).EnsureSuccessStatusCode();var response=await submission;response.EnsureSuccessStatusCode();var ack=await response.Content.ReadFromJsonAsync<JsonElement>();Assert.Equal(0,ack.GetProperty("phase").GetInt32());
   var resumes=await Task.WhenAll(Enumerable.Range(0,8).Select(_=>host.PostAsJsonAsync($"/api/lobbies/{id}/resume",new{})));foreach(var resume in resumes)resume.EnsureSuccessStatusCode();
+  (await host.PostAsJsonAsync($"/api/lobbies/{id}/continue",new{commandId=Guid.NewGuid().ToString(),phase=0,windowRevision=1})).EnsureSuccessStatusCode();
   var next=await host.GetFromJsonAsync<JsonElement>($"/api/sessions/{id}");Assert.Equal(1,next.GetProperty("phase").GetInt32());Assert.Equal("awaiting-decisions",next.GetProperty("lifecycle").GetString());Assert.True(next.GetProperty("raceTime").GetDouble()>0);
   using var deadline=new CancellationTokenSource(TimeSpan.FromSeconds(10));var resolved=new HashSet<string>();while(true){var state=await outcomes.Reader.ReadAsync(deadline.Token);if(state.GetProperty("lifecycle").GetString()=="phase-result")resolved.Add(state.GetProperty("presentation").GetProperty("cursor").GetString()!);if(state.GetProperty("revision").GetInt64()==next.GetProperty("revision").GetInt64())break;}Assert.Single(resolved);
   (await host.PostAsJsonAsync($"/api/lobbies/{id}/teams/team-01/plans?deviceId={device}",plan)).EnsureSuccessStatusCode();Assert.Equal(Stable(next.GetRawText()),Stable((await host.GetFromJsonAsync<JsonElement>($"/api/sessions/{id}")).GetRawText()));

@@ -14,6 +14,15 @@ builder.Services.AddSingleton<ISessionStore>(_ => builder.Configuration["Persist
     ? new FirestoreSessionStore(project, builder.Configuration["Persistence:EmulatorHost"] ?? Environment.GetEnvironmentVariable("FIRESTORE_EMULATOR_HOST"))
     : new VolatileSessionStore());
 builder.Services.AddSingleton<TimeProvider>(TimeProvider.System);
+builder.Services.AddSingleton<IGoogleWakeupTokens,GoogleWakeupTokens>();
+builder.Services.AddSingleton<WakeupIdentity>();
+if(builder.Configuration["Wakeups:Queue"] is {Length:>0})builder.Services.AddSingleton<IScheduledWakeups,CloudTasksWakeups>();
+else if(builder.Environment.IsDevelopment()&&builder.Configuration["Wakeups:Mode"]!="manual")
+{
+    builder.Services.AddSingleton<LocalWakeupQueue>();
+    builder.Services.AddSingleton<IScheduledWakeups>(services=>services.GetRequiredService<LocalWakeupQueue>());
+    builder.Services.AddHostedService<LocalWakeupDelivery>();
+}
 builder.Services.AddSingleton<SessionCoordinator>();
 builder.Services.ConfigureHttpJsonOptions(options => options.SerializerOptions.Converters.Add(new JsonStringEnumConverter()));
 var app = builder.Build();
@@ -31,6 +40,7 @@ app.Use(async (context, next) =>
     }
 });
 app.MapLobbyEndpoints();
+app.MapWakeupEndpoints();
 app.MapPost("/api/sessions", (CreateSessionInput input, SessionCoordinator sessions) => sessions.Create(input));
 app.MapGet("/api/sessions/{id}", (string id, SessionCoordinator sessions) => sessions.Public(id));
 app.MapGet("/api/sessions/{id}/team", (string id, HttpRequest request, SessionCoordinator sessions) => sessions.Team(id, Capability(request)));

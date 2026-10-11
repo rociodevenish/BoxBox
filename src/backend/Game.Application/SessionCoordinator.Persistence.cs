@@ -49,7 +49,8 @@ public sealed partial class SessionCoordinator
         try
         {
             var payload=Capture(id);
-            storageVersions[id]=persistence.Write(id,storageVersions.GetValueOrDefault(id),payload,lobbies.GetValueOrDefault(id)?.Code);
+            var session=lobbies.GetValueOrDefault(id)?.Race ?? (active?.Id==id?active:null);
+            storageVersions[id]=persistence.Write(id,storageVersions.GetValueOrDefault(id),payload,lobbies.GetValueOrDefault(id)?.Code,session is null||session.Paused?null:Progress(session).Wakeup);
             durableRecords[id]=new(storageVersions[id],payload);
             if(lobbies.GetValueOrDefault(id)?.Race is {} race)race.StorageError=false;
             if(active?.Id==id)active.StorageError=false;
@@ -64,16 +65,24 @@ public sealed partial class SessionCoordinator
             if(error is SessionFault)throw;
             throw new SessionFault(SessionFailure.StorageUnavailable,"The save failed. Progression is paused; retry the same command after storage recovers.");
         }
+        DispatchSavedWakeup(id);
     }
-    private void EnsureRecovered(string id)
+    private void EnsureRecovered(string id,bool scheduled=false)
     {
         if(recoveryLimitations.TryGetValue(id,out var limitation))throw new SessionFault(SessionFailure.Conflict,limitation);
-        if(lobbies.ContainsKey(id)||active?.Id==id){var loaded=lobbies.GetValueOrDefault(id)?.Race ?? active;if(loaded?.StorageError==true&&loaded.PendingPlan is not null)RecoverPending(loaded);return;}
+        if(lobbies.ContainsKey(id)||active?.Id==id)
+        {
+            var loaded=lobbies.GetValueOrDefault(id)?.Race ?? active;
+            if(loaded?.ScheduledRecovery==true&&!scheduled){loaded.ScheduledRecovery=false;if(loaded.PendingPlan is not null)RecoverPending(loaded);else{RecoverExpiredDecision(loaded);RecoverPresentation(loaded);}}
+            else if(loaded?.StorageError==true&&loaded.PendingPlan is not null&&!scheduled)RecoverPending(loaded);
+            return;
+        }
         StoredSession? record;try{record=persistence.Read(id);}catch(Exception error) when(error is not SessionFault){throw new SessionFault(SessionFailure.StorageUnavailable,"Saved session is temporarily unavailable. Retry recovery when storage returns.");}if(record is null)return;
         Restore(id,record);
         var session=lobbies.GetValueOrDefault(id)?.Race ?? (active?.Id==id?active:null);
+        if(scheduled){if(session is not null)session.ScheduledRecovery=true;return;}
         if(session?.PendingPlan is not null)RecoverPending(session);
-        else if(session is not null)RecoverExpiredDecision(session);
+        else if(session is not null){RecoverExpiredDecision(session);if(!scheduled)RecoverPresentation(session);}
     }
     private void RecoverPending(Session session)
     {

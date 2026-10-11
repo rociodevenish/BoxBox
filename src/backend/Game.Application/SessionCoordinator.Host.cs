@@ -14,6 +14,7 @@ public sealed partial class SessionCoordinator
     if(session.Paused==paused)return ProjectLobby(lobby);
     if(paused&&session.DecisionDeadlineUtc is {} deadline){session.PausedRemainingSeconds=Math.Max(0,(deadline-clock.GetUtcNow()).TotalSeconds);session.DecisionDeadlineUtc=null;}
     session.Paused=paused;lobby.Revision++;session.Revision++;
+    if(paused)PauseProgression(session);
     if(paused&&session.Lifecycle=="awaiting-decisions")session.Lifecycle="paused-decisions";
     if(!paused&&session.Lifecycle=="paused-decisions")
     {
@@ -21,7 +22,7 @@ public sealed partial class SessionCoordinator
      session.DecisionDeadlineUtc=clock.GetUtcNow().AddSeconds(session.PausedRemainingSeconds??session.TimingPolicy?.EffectiveSeconds??90);
      session.PausedRemainingSeconds=null;WindowOpened(session);
     }
-    if(!paused&&session.Lifecycle=="phase-result")OpenHouseholdWindow(session);
+    if(!paused&&session.Lifecycle=="phase-result"&&!ResumePresentation(session))OpenHouseholdWindow(session);
     Persist(id);display=Project(session);own=ProjectTeam(session);lobbyState=ProjectLobby(lobby);
    }
    await PublishRace(session,display,own);return lobbyState;

@@ -71,7 +71,15 @@ public sealed class FirestoreSessionStore : ISessionStore, IDisposable
         var query=Send(HttpMethod.Post,$"{documents}:runQuery",new{structuredQuery=new{from=new[]{new{collectionId="sessions"}},where=new{fieldFilter=new{field=new{fieldPath="joinCode"},op="EQUAL",value=new{stringValue=code}}}}});
         return query!.Value.EnumerateArray().Where(p=>p.TryGetProperty("document",out _)).Select(p=>p.GetProperty("document").GetProperty("name").GetString()!.Split('/').Last()).ToArray();
     }
-    public string Write(string id,string? expectedVersion,string payload,string? joinCode)
+    public IReadOnlyList<string> ListSessions()
+    {
+        var query=Send(HttpMethod.Post,$"{documents}:runQuery",new{structuredQuery=new{from=new[]{new{collectionId="sessions"}},where=new{fieldFilter=new{field=new{fieldPath="scheduled"},op="EQUAL",value=new{booleanValue=true}}},limit=1001}});
+        var ids=query!.Value.EnumerateArray().Where(p=>p.TryGetProperty("document",out _)).Select(p=>p.GetProperty("document").GetProperty("name").GetString()!.Split('/').Last()).ToArray();
+        if(ids.Length>1000)throw new IOException("Scheduled sessions exceed the supported household sweep limit. Pause and archive completed sessions before retrying.");
+        return ids;
+    }
+    public string Write(string id,string? expectedVersion,string payload,string? joinCode)=>Write(id,expectedVersion,payload,joinCode,null);
+    public string Write(string id,string? expectedVersion,string payload,string? joinCode,ScheduledWakeup? wakeup)
     {
         // UTF-16 slicing stays well below Firestore's 1MiB limit even for multi-byte Unicode.
         const int chunkCharacters=160_000;
@@ -80,7 +88,7 @@ public sealed class FirestoreSessionStore : ISessionStore, IDisposable
         var name=$"{documents}/sessions/{id}";
         var writes=new List<object>();
         for(var i=0;i<count;i++)writes.Add(new{update=new{name=$"{name}/records/{generation}-{i}",fields=new{payload=new{stringValue=payload.Substring(i*chunkCharacters,Math.Min(chunkCharacters,payload.Length-i*chunkCharacters))}}},currentDocument=new{exists=false}});
-        var fields=new{generation=new{stringValue=generation},count=new{stringValue=count.ToString()},joinCode=new{stringValue=joinCode??""}};
+        var fields=new{generation=new{stringValue=generation},count=new{stringValue=count.ToString()},joinCode=new{stringValue=joinCode??""},scheduled=new{booleanValue=wakeup is not null}};
         writes.Add(new{update=new{name,fields},currentDocument=expectedVersion is null?(object)new{exists=false}:new{updateTime=expectedVersion}});
         // Delete superseded chunks in the same commit. Retained manifests never point to incomplete writes.
         var previous=Send(HttpMethod.Get,name);

@@ -3,7 +3,7 @@ using Game.Simulation;
 using System.Security.Cryptography;
 using System.Diagnostics;
 namespace Game.Application;
-public sealed partial class SessionCoordinator(ISessionNotifications notifications,IRacePresets presets, ISessionStore? store = null, TimeProvider? timeProvider = null)
+public sealed partial class SessionCoordinator(ISessionNotifications notifications,IRacePresets presets, ISessionStore? store = null, TimeProvider? timeProvider = null,IScheduledWakeups? scheduledWakeups=null)
 {
     private sealed partial class Session(string id, string player, string device, byte[] grantHash,
         RaceConfiguration configuration, Driver[] drivers, int seed, CreateSessionInput input)
@@ -36,6 +36,7 @@ public sealed partial class SessionCoordinator(ISessionNotifications notificatio
         public bool Paused { get; set; }
         public bool StorageError { get; set; }
         public bool DeferNextWindow { get; set; }
+        public bool ScheduledRecovery { get; set; }
         public Dictionary<string,string> ModuleState { get; set; }=[];
         public DateTimeOffset? DecisionDeadlineUtc { get; set; }
         public double? PausedRemainingSeconds { get; set; }
@@ -101,7 +102,7 @@ public sealed partial class SessionCoordinator(ISessionNotifications notificatio
                     Array.AsReadOnly(session.PresentationSamples.Values.Select(value => value.Sample).ToArray()), session.RecoveryReplayMilliseconds),Array.AsReadOnly(session.AutomaticPlans.ToArray()));
         }
     }
-    private Session Require(string id) { EnsureRecovered(id); return active is { } session && session.Id == id ? session
+    private Session Require(string id,bool scheduled=false) { EnsureRecovered(id,scheduled); return active is { } session && session.Id == id ? session
         : lobbies.GetValueOrDefault(id)?.Race ?? throw new SessionFault(SessionFailure.Unavailable, "Session unavailable. Create a new local playtest."); }
     public bool RecordPresentationTiming(string id, PresentationTimingInput? input)
     {
@@ -163,7 +164,7 @@ public sealed partial class SessionCoordinator(ISessionNotifications notificatio
         return new(session.Id, session.Phase, session.Revision, session.StorageError ? "storage-error" : session.Lifecycle, state.LeaderLap,
             session.Configuration.Laps, state.Time, Array.AsReadOnly(rows), session.Events, session.Presentation,
             state.Finished ? 0 : Math.Min(5, session.Configuration.Laps - state.LeaderLap),
-            Array.AsReadOnly(session.RequiredTeams.Select(team => new TeamReadiness(team, session.Locks.ContainsKey(team))).ToArray()),session.Paused || session.StorageError, session.DecisionDeadlineUtc, session.PausedRemainingSeconds, session.TimingPolicy, clock.GetUtcNow(), session.LastDecisionSources);
+            Array.AsReadOnly(session.RequiredTeams.Select(team => new TeamReadiness(team, session.Locks.ContainsKey(team))).ToArray()),session.Paused || session.StorageError, session.DecisionDeadlineUtc, session.PausedRemainingSeconds, session.TimingPolicy, clock.GetUtcNow(), session.LastDecisionSources,Progress(session).PresentationDeadline,Progress(session).PresentationRemaining,session.WindowRevision);
     }
     private static PublicGap ProjectGap(TimingGap gap) => gap.Laps > 0 ? new("laps", Laps: gap.Laps)
         : gap.Seconds is { } seconds ? new("time", seconds) : new("unavailable");

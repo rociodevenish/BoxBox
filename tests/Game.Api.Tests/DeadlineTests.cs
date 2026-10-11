@@ -38,7 +38,7 @@ public sealed class DeadlineTests
         var due=new{commandId=Guid.NewGuid().ToString(),phase=0,windowRevision=1};
         var closed=await client.PostAsJsonAsync($"/api/lobbies/{id}/advance-due",due);closed.EnsureSuccessStatusCode();
         var state=(await closed.Content.ReadFromJsonAsync<JsonElement>());
-        Assert.Equal(5,state.GetProperty("leaderLap").GetInt32());Assert.Equal(1,state.GetProperty("phase").GetInt32());
+        Assert.Equal(5,state.GetProperty("leaderLap").GetInt32());Assert.Equal(0,state.GetProperty("phase").GetInt32());Assert.Equal("phase-result",state.GetProperty("lifecycle").GetString());
         var repeated=await client.PostAsJsonAsync($"/api/lobbies/{id}/advance-due",due);repeated.EnsureSuccessStatusCode();
         Assert.Equal(state.GetProperty("revision").GetInt64(),(await repeated.Content.ReadFromJsonAsync<JsonElement>()).GetProperty("revision").GetInt64());
         if(accepted)
@@ -94,7 +94,7 @@ public sealed class DeadlineTests
     [Fact]
     public async Task Failed_timeout_outcome_write_restarts_from_saved_complete_plan_without_human_acknowledgement()
     {
-        var clock=new ControlledClock();var store=new TimeoutFailureStore(new FirestoreSessionStore("demo-f1game","127.0.0.1:19100"));string id;
+        var clock=new ControlledClock();var store=new TimeoutFailureStore(new FirestoreSessionStore("demo-f1game",Environment.GetEnvironmentVariable("F1_RECOVERY_HOST")??"127.0.0.1:19100"));string id;
         await using(var server=Server(clock,true).WithWebHostBuilder(builder=>builder.ConfigureServices(services=>services.AddSingleton<ISessionStore>(store))))
         {
             using var host=server.CreateClient();(id,_)=await StartShared(host);clock.Advance(TimeSpan.FromSeconds(120));store.FailOnSecondWrite=true;
@@ -118,7 +118,7 @@ public sealed class DeadlineTests
         public string Write(string id,string? version,string payload,string? code){if(FailOnSecondWrite&&++writes==2)throw new IOException("Outcome save interrupted");return inner.Write(id,version,payload,code);}
     }
     internal static WebApplicationFactory<Program> Server(ControlledClock clock,bool durable=false)=>new WebApplicationFactory<Program>().WithWebHostBuilder(builder=>{
-        builder.ConfigureAppConfiguration((_,config)=>config.AddInMemoryCollection(new Dictionary<string,string?>{["Persistence:ProjectId"]=durable?"demo-f1game":null,["Persistence:EmulatorHost"]="127.0.0.1:19100",["Firebase:ProjectId"]="demo-f1game",["Designer:Key"]="deadline-test-diagnostics"}));
+        builder.ConfigureAppConfiguration((_,config)=>config.AddInMemoryCollection(new Dictionary<string,string?>{["Wakeups:Mode"]="manual",["Persistence:ProjectId"]=durable?"demo-f1game":null,["Persistence:EmulatorHost"]=Environment.GetEnvironmentVariable("F1_RECOVERY_HOST")??"127.0.0.1:19100",["Firebase:ProjectId"]="demo-f1game",["Designer:Key"]="deadline-test-diagnostics"}));
         builder.ConfigureServices(services=>services.AddSingleton<TimeProvider>(clock));
     });
     internal static async Task<(string Id,string Device)> StartShared(HttpClient client)
