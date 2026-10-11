@@ -1,3 +1,4 @@
+import type {TeamAssistance} from '../assistance/assistance.model';
 import { signal } from '@angular/core';
 import { commandId } from './command-id';
 import { HubConnection, HubConnectionBuilder } from '@microsoft/signalr';
@@ -57,6 +58,7 @@ interface Command {
     }[];
 }
 interface TeamState {
+    assistance?:TeamAssistance;
     teamId:string; assignmentRevision:number; commandRevision:number;
     sessionId: string;
     phase: number;

@@ -1,12 +1,14 @@
+import {AssistanceSettings} from '../assistance/assistance-settings';
+import type {PlayerHelp} from '../assistance/assistance.model';
 import { Component, signal } from '@angular/core';
 import { HubConnection, HubConnectionBuilder } from '@microsoft/signalr';
 import type { Auth, User } from 'firebase/auth';
-interface Player {playerId:string;name:string;sharedParticipant:boolean}
+interface Player {playerId:string;name:string;sharedParticipant:boolean;assistance?:PlayerHelp}
 interface Team {teamId:string;constructorId:string;constructorName:string;playerId:string|null;control:string;approved:boolean;assignmentRevision:number}
 interface Lobby {sessionId:string;joinCode:string;joinUrl:string;revision:number;lifecycle:string;mode:string;players:Player[];teams:Team[];requiredTeams:string[];scriptedTeams:string[];displayUrl:string|null;paused:boolean;timingPolicy?:{effectiveSeconds:number;decisionSeconds:number;handoffSeconds:number;additionalSharedTeams:number;timeoutPolicy:string}}
 interface Membership {playerId:string;deviceId:string;isHost:boolean}
 interface Joined {lobby:Lobby;membership:Membership}
-@Component({selector:'app-shared-lobby',templateUrl:'./shared-lobby.html',styleUrl:'./shared-lobby.css'})
+@Component({selector:'app-shared-lobby',imports:[AssistanceSettings],templateUrl:'./shared-lobby.html',styleUrl:'./shared-lobby.css'})
 export class SharedLobby {
  readonly controllerDevices=signal<{deviceId:string;playerName:string;teamIds:string[]}[]>([]);
  readonly authorisedTeams=signal<string[]>([]);
@@ -38,6 +40,7 @@ export class SharedLobby {
  async assign(team:Team,playerId:string,control:string){const player=this.lobby()!.players.find(p=>p.playerId===playerId);await this.change('/assignments',{teamId:team.teamId,playerId:playerId||null,deviceId:player?.sharedParticipant||control!=='Private'?this.membership()!.deviceId:null,control});}
  async approve(team:Team){await this.assign(team,team.playerId!,team.control);}
  async addParticipant(name:string){await this.change('/participants',{name,deviceId:this.membership()!.deviceId});}
+ async help(input:{playerId:string;helpLevel:string;autoAcceptRecommendation:boolean}){await this.change("/players/"+encodeURIComponent(input.playerId)+"/assistance",input);}
  async pause(){await this.change(this.lobby()?.paused?"/resume":"/pause",{});}
  async revoke(deviceId:string){await this.change("/devices/"+encodeURIComponent(deviceId)+"/revoke",{});}
  async start(){await this.change('/start',{});}

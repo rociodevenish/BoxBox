@@ -4,7 +4,7 @@
 
 **Blocked by:** 02 — Race against fair, observation-driven AI; 03 — Continue through deadlines and missed decisions, for the included timeout auto-accept flow.
 
-**Status:** ready-for-agent
+**Status:** in-progress
 
 - [ ] Build structured observation-driven recommendations with plain-language reasons, phase/freshness and uncertainty; repeated reads/reconnect/recovery do not reroll advice.
 - [ ] Standard retains all legal choices without strategic recommendations. Assisted retains all choices and highlights/explains the suggested plan.

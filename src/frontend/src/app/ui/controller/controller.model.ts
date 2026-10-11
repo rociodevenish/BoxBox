@@ -1,3 +1,4 @@
+import type {TeamAssistance} from '../../assistance/assistance.model';
 import {DriverCardViewModel} from '../driver-card.model';
 import {PublicClassification} from '../timing/public-classification.model';
 export type ControllerState =
@@ -32,6 +33,7 @@ export interface PrivateCarViewModel {
   readonly selected: CarInstruction;
 }
 export interface PrivateControllerViewModel {
+  readonly assistance?:TeamAssistance;
   readonly privacyLabel?: string;
   readonly teamName: string;
   readonly phase: number;
