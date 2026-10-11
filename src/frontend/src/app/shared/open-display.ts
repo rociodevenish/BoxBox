@@ -1,3 +1,5 @@
+import {AssistanceSummary} from '../assistance/assistance-summary';
+import type {TeamAssistance} from '../assistance/assistance.model';
 import {Component,signal} from '@angular/core';
 import {HubConnection,HubConnectionBuilder} from '@microsoft/signalr';
 import {TimingTower} from '../ui/timing/timing-tower';
@@ -7,12 +9,13 @@ import {CompoundBadge} from '../ui/compound-badge';
 import {DriverCard} from '../ui/driver-card';
 import {raceDriverCard} from '../race/race-driver-card';
 interface OpenTeam {
+ assistance?:TeamAssistance;
  sessionId:string;teamId:string;phase:number;revision:number;assignmentRevision:number;lifecycle:string;
  cars:{driverId:string;compound:'Soft'|'Medium'|'Hard';tyreAge:number;estimatedTyreCondition:number;inPits:boolean;stopQueued:boolean;battleOptions:string[]}[];
  confirmedPlan:{cars:{driverId:string;pace:string;pit:string;compound:string|null;battle:string}[]}|null;
 }
 interface Lobby {sessionId:string;mode:string;teams:{teamId:string;constructorName:string;control:string;playerId:string|null;approved:boolean;assignmentRevision:number}[];players:{playerId:string;name:string}[]}
-@Component({selector:'app-open-display',imports:[TimingTower,CompoundBadge,DriverCard],templateUrl:'./open-display.html',styleUrl:'./open-display.css'})
+@Component({selector:'app-open-display',imports:[TimingTower,CompoundBadge,DriverCard,AssistanceSummary],templateUrl:'./open-display.html',styleUrl:'./open-display.css'})
 export class OpenDisplay {
  readonly id=location.pathname.split('/')[3];readonly lobby=signal<Lobby|null>(null);readonly race=signal<PublicState|null>(null);readonly teams=signal<OpenTeam[]>([]);readonly status=signal('Connecting');readonly error=signal('');
  readonly driverCard=raceDriverCard;

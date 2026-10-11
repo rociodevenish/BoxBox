@@ -1,3 +1,4 @@
+import {AssistanceSummary} from '../../assistance/assistance-summary';
 import {DriverCard} from '../driver-card';
 import {DriverCardViewModel} from '../driver-card.model';
 import {TimingTower} from '../timing/timing-tower';
@@ -21,7 +22,7 @@ import {
 } from "./controller.model";
 @Component({
   selector: "app-two-car-controller",
-  imports: [CompoundBadge,DriverCard,TimingTower],
+  imports: [CompoundBadge,DriverCard,TimingTower,AssistanceSummary],
   templateUrl: "./two-car-controller.html",
   styleUrl: "./two-car-controller.css",
 })
@@ -69,6 +70,10 @@ export class TwoCarController {
           i === index ? { ...choice, ...change } : choice,
         ),
       );
+  }
+  useRecommendation(){
+    const advice=this.model().assistance?.recommendation;if(!this.editable()||!advice||advice.phase+1!==this.model().phase)return;
+    this.choices.update(choices=>choices.map((choice,index)=>{const suggestion=advice.cars.find(car=>car.driverId===this.model().cars[index].id)?.suggested;return suggestion?{pace:suggestion.pace,stop:suggestion.pit as "Pit"|"Stay Out",compound:suggestion.compound??choice.compound,battle:suggestion.battle}:choice;}));
   }
   compound(index: number, event: Event) {
     const value = (event.target as HTMLSelectElement).value;

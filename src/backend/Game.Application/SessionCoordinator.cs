@@ -185,7 +185,7 @@ public sealed partial class SessionCoordinator(ISessionNotifications notificatio
             tyre.Age, tyre.EstimatedCondition, tyre.InPits, tyre.StopQueued,
             Array.AsReadOnly(observation.BattleOptions[tyre.DriverId].Select(option => option.ToString()).ToArray()))).ToArray();
         return new(session.Id, session.Phase, session.Revision, session.StorageError ? "storage-error" : session.Lifecycle, assignment?.PlayerId ?? session.Player, teamId,
-            assignment?.DeviceId ?? session.Device, Array.AsReadOnly(own), assignment is null ? session.ConfirmedPlan : session.Locks.GetValueOrDefault(teamId), assignment?.Revision ?? 0, session.WindowRevision,assignment is null?null:ControlStatus(session,teamId));
+            assignment?.DeviceId ?? session.Device, Array.AsReadOnly(own), assignment is null ? session.ConfirmedPlan : session.Locks.GetValueOrDefault(teamId), assignment?.Revision ?? 0, session.WindowRevision,ProjectAssistance(session,teamId),assignment is null?null:ControlStatus(session,teamId));
     }
     public async Task<SubmissionAck> Submit(string id, string? capability, TeamCommand? command)
     {

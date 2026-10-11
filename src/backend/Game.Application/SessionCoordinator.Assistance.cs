@@ -1,0 +1,45 @@
+using System.Text.Json;
+using Game.Domain;
+namespace Game.Application;
+public sealed partial class SessionCoordinator
+{
+    private const string AssistancePrefix="assistance:";
+    public async Task<LobbySnapshot> SetPlayerAssistance(string id,AuthIdentity identity,string playerId,PlayerAssistanceInput input)
+    {
+        if(input is null||input.HelpLevel is not ("Standard" or "Assisted" or "Guided"))throw new SessionFault(SessionFailure.InvalidInput,"Choose Standard, Assisted or Guided help.");
+        await mutations.WaitAsync();try
+        {
+            lock(gate)
+            {
+                var lobby=RequireLobby(id);RequireHost(lobby,identity);
+                if(!lobby.Players.Any(player=>player.Id==playerId))throw new SessionFault(SessionFailure.InvalidInput,"Choose a household player.");
+                lobby.ModuleState[AssistancePrefix+playerId]=JsonSerializer.Serialize(new PlayerAssistanceSettings(input.HelpLevel,input.AutoAcceptRecommendation),BrowserReplay.JsonOptions);
+                lobby.Revision++;Persist(id);return ProjectLobby(lobby);
+            }
+        }finally{mutations.Release();}
+    }
+    private static PlayerAssistanceSettings AssistanceSettings(Lobby lobby,string playerId)=>
+        lobby.ModuleState.TryGetValue(AssistancePrefix+playerId,out var saved)?JsonSerializer.Deserialize<PlayerAssistanceSettings>(saved,BrowserReplay.JsonOptions)!:new();
+    partial void ConfigureTimeoutPlan(Session session,string teamId,ref Dictionary<string,DriverDecision> decisions,ref string source)
+    {
+        session.ModuleState.Remove("automatic-policy:"+teamId);
+        var lobby=RequireLobby(session.Id);var playerId=lobby.Assignments[teamId].PlayerId;var settings=AssistanceSettings(lobby,playerId);
+        var plan=ObservationDecisionPolicy.Evaluate(new(session.Phase,session.Configuration.Laps,session.Engine.GetTeamObservation(teamId),session.Engine.GetTimingObservation()));
+        var cars=plan.Cars.Select(car=>new AssistanceCar(car.DriverId,new(car.DriverId,car.Decision.Pace.ToString(),car.Decision.PitCompound is null?"Stay Out":"Pit",car.Decision.PitCompound?.ToString(),car.Decision.Battle.ToString()),
+            car.Reasons,car.Uncertainty,car.PaceOptions.Select(option=>option.ToString()).ToArray(),car.PitOptions.Select(option=>option?.ToString()).ToArray(),car.BattleOptions.Select(option=>option.ToString()).ToArray(),car.Confident)).ToArray();
+        var recommendation=new AssistanceRecommendation(session.Phase,session.WindowRevision,plan.ObservationTime,cars,
+            "All legal choices remain available because the estimates do not justify narrowing them. Forced stop or battle states are explained for each car.");
+        // Save the entire phase-start advice even for Standard. Its private projection omits it.
+        session.ModuleState[AssistancePrefix+teamId]=JsonSerializer.Serialize(new TeamAssistance(settings.HelpLevel,settings.AutoAcceptRecommendation,session.Phase,recommendation),BrowserReplay.JsonOptions);
+        if(settings.AutoAcceptRecommendation)
+        {
+            decisions=plan.Cars.ToDictionary(car=>car.DriverId,car=>car.Decision);source="recommendation-timeout";session.ModuleState["automatic-policy:"+teamId]=plan.PolicyVersion;
+        }
+    }
+    private static TeamAssistance? ProjectAssistance(Session session,string teamId)
+    {
+        if(!session.ModuleState.TryGetValue(AssistancePrefix+teamId,out var saved))return null;
+        var help=JsonSerializer.Deserialize<TeamAssistance>(saved,BrowserReplay.JsonOptions)!;
+        return help.HelpLevel=="Standard"||help.Phase!=session.Phase?help with{Phase=session.Phase,Recommendation=null}:help;
+    }
+}

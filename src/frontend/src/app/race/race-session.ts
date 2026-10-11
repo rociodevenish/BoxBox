@@ -1,3 +1,4 @@
+import type {TeamAssistance} from '../assistance/assistance.model';
 import {TeamControlStatus,controlName} from './team-control';
 import { signal } from '@angular/core';
 import { commandId } from './command-id';
@@ -59,6 +60,7 @@ interface Command {
     }[];
 }
 interface TeamState {
+    assistance?:TeamAssistance;
     controlStatus?:TeamControlStatus|null;
     teamId:string; assignmentRevision:number; commandRevision:number;
     sessionId: string;

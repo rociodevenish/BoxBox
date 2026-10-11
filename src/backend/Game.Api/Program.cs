@@ -31,6 +31,7 @@ app.Use(async (context, next) =>
     }
 });
 app.MapLobbyEndpoints();
+app.MapAssistanceEndpoints();
 app.MapControlEndpoints();
 app.MapPost("/api/sessions", (CreateSessionInput input, SessionCoordinator sessions) => sessions.Create(input));
 app.MapGet("/api/sessions/{id}", (string id, SessionCoordinator sessions) => sessions.Public(id));

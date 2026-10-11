@@ -69,7 +69,7 @@ public sealed partial class SessionCoordinator
                 var plan=session.Drivers.Where(driver=>driver.Team==team).ToDictionary(driver=>driver.Id,driver=>session.FrozenTimeoutDecisions[driver.Id]);
                 foreach(var decision in plan)complete.Add(decision.Key,decision.Value);
                 var source=session.TimeoutSources[team];sources.Add(new(team,source));
-                session.AutomaticPlans.Add(new(session.Phase,session.ScriptVersion,source,plan));
+                session.AutomaticPlans.Add(new(session.Phase,session.ModuleState.GetValueOrDefault("automatic-policy:"+team,session.ScriptVersion),source,plan));
             }
             session.LastDecisionSources=sources;session.PendingPlan=complete;session.PendingCommand=null;session.PendingFingerprint=null;
             session.Lifecycle="resolving";session.Revision++;Persist(session.Id);
