@@ -8,8 +8,12 @@ public static class EntryPoint
     public static async Task Main()
     {
         var port=int.Parse(Environment.GetEnvironmentVariable("F1_API_PORT")??"4571");
+        var repositoryRoot=Environment.GetEnvironmentVariable("F1_REPO_ROOT");
+        var contentRoot=repositoryRoot is null
+            ?Path.GetFullPath("../../../../../src/backend/Game.Api",AppContext.BaseDirectory)
+            :Path.Combine(repositoryRoot,"src","backend","Game.Api");
         await using var factory=new WebApplicationFactory<global::Program>().WithWebHostBuilder(builder=>
-            builder.UseContentRoot(Path.GetFullPath("../../../../../src/backend/Game.Api",AppContext.BaseDirectory)).UseUrls($"http://127.0.0.1:{port}")
+            builder.UseContentRoot(contentRoot).UseUrls($"http://127.0.0.1:{port}")
                 .ConfigureServices(services=>{services.AddSingleton<IRacePresets>(new StopBoundaryPresets());if(Environment.GetEnvironmentVariable("F1_CONTROLLED_CLOCK")=="1"){services.AddSingleton<BrowserClock>();services.AddSingleton<TimeProvider>(sp=>sp.GetRequiredService<BrowserClock>());services.AddSingleton<IStartupFilter,ClockControlFilter>();}}));
         factory.UseKestrel(port);
         using var client=factory.CreateClient();
