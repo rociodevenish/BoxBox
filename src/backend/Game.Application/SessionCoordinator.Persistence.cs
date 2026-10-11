@@ -1,0 +1,132 @@
+using System.Diagnostics;
+using System.Text.Json;
+using Game.Domain;
+namespace Game.Application;
+public sealed partial class SessionCoordinator
+{
+    private readonly ISessionStore persistence = store ?? new VolatileSessionStore();
+    private readonly Dictionary<string,string> storageVersions=[];
+    private readonly Dictionary<string,StoredSession> durableRecords=[];
+    private readonly Dictionary<string,string> recoveryLimitations=[];
+    private const string RecoverySchema="session-recovery-v1";
+    private const string ContentVersion="synthetic-dry-presets-v1";
+    private sealed record SavedCommand(Guid Id,string Fingerprint,SubmissionAck Ack);
+    private sealed record SavedRace(string Id,string Player,string Device,byte[] GrantHash,
+        CreateSessionInput Input,RaceConfiguration Configuration,Driver[] Drivers,
+        int Phase,long Revision,long WindowRevision,string Lifecycle,bool Paused,
+        string[] RequiredTeams,Dictionary<string,TeamCommand> Locks,
+        Dictionary<string,DriverDecision> HumanDecisions,Dictionary<string,DriverDecision> FrozenOpponents,
+        Dictionary<string,DriverDecision>[] Plans,RecordedReplayPhase[] Outcomes,
+        SavedCommand[] Commands,TeamCommand? ConfirmedPlan,PublicEvent[] Events,PublicPresentation? Presentation,
+        int EngineEventCursor,Dictionary<string,int> PresentationPhases,
+        Dictionary<string,DriverDecision>? PendingPlan,TeamCommand? PendingCommand,string? PendingFingerprint);
+    private sealed record SavedLobby(string Id,string Code,string Host,CreateLobbyInput Input,long Revision,
+        Player[] Players,Device[] Devices,Dictionary<string,Assignment> Assignments,string Lifecycle,
+        string[] RequiredTeams,string[] ScriptedTeams,SavedRace? Race);
+    private sealed record RecoveryRecord(string Schema,string Model,string Randomness,string Content,string Policy,
+        SavedLobby? Lobby,SavedRace? Race);
+    private static SavedRace CaptureRace(Session session)=>new(session.Id,session.Player,session.Device,session.GrantHash,
+        session.Input,session.Configuration,session.Drivers,session.Phase,session.Revision,session.WindowRevision,session.Lifecycle,
+        session.Paused,session.RequiredTeams,session.Locks,session.HumanDecisions,session.FrozenOpponents.ToDictionary(),
+        session.AcceptedPlans.Select(p=>p.ToDictionary()).ToArray(),session.RecordedPhases.ToArray(),
+        session.AcceptedCommands.Select(p=>new SavedCommand(p.Key,p.Value.Fingerprint,p.Value.Ack)).ToArray(),
+        session.ConfirmedPlan,session.Events.ToArray(),session.Presentation,session.EngineEventCursor,session.PresentationPhases,
+        session.PendingPlan,session.PendingCommand,session.PendingFingerprint);
+    private string Capture(string id)
+    {
+        var lobby=lobbies.GetValueOrDefault(id);var race=lobby?.Race ?? (active?.Id==id?active:null);
+        var savedLobby=lobby is null?null:new SavedLobby(lobby.Id,lobby.Code,lobby.Host,lobby.Input,lobby.Revision,
+            lobby.Players.ToArray(),lobby.Devices.ToArray(),lobby.Assignments,lobby.Lifecycle,lobby.RequiredTeams,lobby.ScriptedTeams,
+            race is null?null:CaptureRace(race));
+        return JsonSerializer.Serialize(new RecoveryRecord(RecoverySchema,SimulationVersions.SegmentedModel,
+            SimulationVersions.SegmentedRandomness,ContentVersion,OpponentScript.Version,savedLobby,lobby is null&&race is not null?CaptureRace(race):null),BrowserReplay.JsonOptions);
+    }
+    // Called while holding gate; no acknowledgement or notification precedes this conditional write.
+    private void Persist(string id)
+    {
+        try
+        {
+            var payload=Capture(id);
+            storageVersions[id]=persistence.Write(id,storageVersions.GetValueOrDefault(id),payload,lobbies.GetValueOrDefault(id)?.Code);
+            durableRecords[id]=new(storageVersions[id],payload);
+            if(lobbies.GetValueOrDefault(id)?.Race is {} race)race.StorageError=false;
+            if(active?.Id==id)active.StorageError=false;
+        }
+        catch(Exception error)
+        {
+            Trace.TraceError("Durable save failed for session {0}: {1}",id,error.GetType().Name);
+            // Discard speculative memory, including command acknowledgements and advanced engine state.
+            StoredSession? saved;try{saved=persistence.Read(id);}catch(Exception){saved=durableRecords.GetValueOrDefault(id);}
+            lobbies.Remove(id);if(active?.Id==id)active=null;
+            if(saved is not null){Restore(id,saved);var recovered=lobbies.GetValueOrDefault(id)?.Race ?? active;if(recovered is not null)recovered.StorageError=true;}
+            if(error is SessionFault)throw;
+            throw new SessionFault(SessionFailure.StorageUnavailable,"The save failed. Progression is paused; retry the same command after storage recovers.");
+        }
+    }
+    private void EnsureRecovered(string id)
+    {
+        if(recoveryLimitations.TryGetValue(id,out var limitation))throw new SessionFault(SessionFailure.Conflict,limitation);
+        if(lobbies.ContainsKey(id)||active?.Id==id){var loaded=lobbies.GetValueOrDefault(id)?.Race ?? active;if(loaded?.StorageError==true&&loaded.PendingPlan is not null)RecoverPending(loaded);return;}
+        StoredSession? record;try{record=persistence.Read(id);}catch(Exception error) when(error is not SessionFault){throw new SessionFault(SessionFailure.StorageUnavailable,"Saved session is temporarily unavailable. Retry recovery when storage returns.");}if(record is null)return;
+        Restore(id,record);
+        var session=lobbies.GetValueOrDefault(id)?.Race ?? (active?.Id==id?active:null);
+        if(session?.PendingPlan is not null)RecoverPending(session);
+    }
+    private void RecoverPending(Session session)
+    {
+        var id=session.Id;
+        {
+            CompleteResolution(session,session.PendingPlan!,0);
+            session.Paused=true;
+            var command=session.PendingCommand!;
+            session.AcceptedCommands[Guid.Parse(command.CommandId)]=(session.PendingFingerprint!,new(command.CommandId,id,command.Phase!.Value,session.Revision,session.Lifecycle));
+            session.PendingPlan=null;session.PendingCommand=null;session.PendingFingerprint=null;
+            Persist(id);
+        }
+    }
+    private void Restore(string id,StoredSession record)
+    {
+        var saved=JsonSerializer.Deserialize<RecoveryRecord>(record.Payload,BrowserReplay.JsonOptions)??throw new InvalidDataException("Missing recovery record.");
+        if(saved.Schema!=RecoverySchema||saved.Model!=SimulationVersions.SegmentedModel||saved.Randomness!=SimulationVersions.SegmentedRandomness||saved.Content!=ContentVersion||saved.Policy!=OpponentScript.Version)
+        {
+            var limitation="Saved race uses an incompatible schema, simulation, randomness or content version. Deploy its compatible version to resume; saved inputs are preserved.";
+            recoveryLimitations[id]=limitation;throw new SessionFault(SessionFailure.Conflict,limitation);
+        }
+        var watch=Stopwatch.StartNew();
+        Session? RestoreRace(SavedRace? race)
+        {
+            if(race is null)return null;
+            if(race.Plans.Length!=race.Outcomes.Length)throw new SessionFault(SessionFailure.Conflict,"Saved race is missing a committed replay outcome. Preserve its recovery record.");
+            var replayWatch=Stopwatch.StartNew();
+            var session=new Session(race.Id,race.Player,race.Device,race.GrantHash,race.Configuration,race.Drivers,race.Input.Seed!.Value,race.Input);
+            foreach(var (plan,index) in race.Plans.Select((plan,index)=>(plan,index)))
+            {
+                var outcome=session.Engine.ResolvePhase(plan);
+                if(index>=race.Outcomes.Length||BrowserReplay.OutcomeHash(outcome)!=race.Outcomes[index].OutcomeHash)
+                    throw new SessionFault(SessionFailure.Conflict,"Saved replay does not match its recorded outcome. Preserve this race for recovery diagnostics.");
+                session.AcceptedPlans.Add(plan);session.RecordedPhases.Add(race.Outcomes[index]);
+            }
+            session.RecoveryReplayMilliseconds=replayWatch.Elapsed.TotalMilliseconds;
+            session.Phase=race.Phase;session.Revision=race.Revision;session.WindowRevision=race.WindowRevision;session.Lifecycle=race.Lifecycle;
+            session.Paused=race.Paused;session.RequiredTeams=race.RequiredTeams;session.ConfirmedPlan=race.ConfirmedPlan;
+            foreach(var pair in race.Locks)session.Locks.Add(pair.Key,pair.Value);
+            foreach(var pair in race.HumanDecisions)session.HumanDecisions.Add(pair.Key,pair.Value);
+            session.FrozenOpponents=race.FrozenOpponents;
+            foreach(var command in race.Commands)session.AcceptedCommands.Add(command.Id,(command.Fingerprint,command.Ack));
+            session.Events=race.Events;session.Presentation=race.Presentation;session.EngineEventCursor=race.EngineEventCursor;
+            foreach(var pair in race.PresentationPhases)session.PresentationPhases.Add(pair.Key,pair.Value);
+            session.PendingPlan=race.PendingPlan;session.PendingCommand=race.PendingCommand;session.PendingFingerprint=race.PendingFingerprint;
+            session.WindowTimestamp=Stopwatch.GetTimestamp();return session;
+        }
+        if(saved.Lobby is {} lobby)
+        {
+            var restored=new Lobby(lobby.Id,lobby.Code,lobby.Host,lobby.Input){Revision=lobby.Revision,Lifecycle=lobby.Lifecycle,RequiredTeams=lobby.RequiredTeams,ScriptedTeams=lobby.ScriptedTeams,Race=RestoreRace(lobby.Race)};
+            restored.Players.AddRange(lobby.Players);restored.Devices.AddRange(lobby.Devices);
+            foreach(var pair in lobby.Assignments)restored.Assignments.Add(pair.Key,pair.Value);
+            lobbies[id]=restored;
+        }
+        else active=RestoreRace(saved.Race);
+        storageVersions[id]=record.Version;durableRecords[id]=record;
+        Trace.WriteLine($"Recovery {id}: replay {watch.Elapsed.TotalMilliseconds:F2}ms");
+    }
+}

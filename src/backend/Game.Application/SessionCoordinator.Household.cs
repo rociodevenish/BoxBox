@@ -22,7 +22,7 @@ public sealed partial class SessionCoordinator
   var assignment=lobby.Assignments.GetValueOrDefault(teamId)??throw new SessionFault(SessionFailure.InvalidInput,"Assign this team first.");
   var player=lobby.Players.Single(p=>p.Id==assignment.PlayerId);var device=lobby.Devices.SingleOrDefault(d=>d.Id==deviceId);
   if(device is null || device.Uid!=player.Uid && !(device.Uid==lobby.Host && assignment.Control is "SharedTablet" or "Open"))throw new SessionFault(SessionFailure.Forbidden,"This joined device does not serve the assigned player.");
-  lobby.Revision++;lobby.Assignments[teamId]=assignment with {AdditionalDevices=(assignment.AdditionalDevices??[]).Append(deviceId).Distinct().ToArray(),Revision=lobby.Revision};return ProjectLobby(lobby);}}
+  lobby.Revision++;lobby.Assignments[teamId]=assignment with {AdditionalDevices=(assignment.AdditionalDevices??[]).Append(deviceId).Distinct().ToArray(),Revision=lobby.Revision};Persist(lobby.Id);return ProjectLobby(lobby);}}
  private async Task PublishRace(Session session,PublicSnapshot display,TeamSnapshot legacy)
  {
   TeamSnapshot[]? teams;OpenTeamSnapshot[] open=[];lock(gate){teams=lobbies.TryGetValue(session.Id,out var lobby)

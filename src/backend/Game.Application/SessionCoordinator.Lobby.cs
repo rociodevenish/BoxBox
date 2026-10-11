@@ -24,19 +24,20 @@ public sealed partial class SessionCoordinator
    string code;do{code=Convert.ToHexString(System.Security.Cryptography.RandomNumberGenerator.GetBytes(4));}while(lobbies.Values.Any(l=>l.Code==code));
    var lobby=new Lobby(Guid.NewGuid().ToString("N"),code,identity.Uid,input);
    var player=new Player(Guid.NewGuid().ToString("N"),name,identity.Uid);var device=new Device(Guid.NewGuid().ToString("N"),identity.Uid);
-   lobby.Players.Add(player);lobby.Devices.Add(device);lobbies.Add(lobby.Id,lobby);
+   lobby.Players.Add(player);lobby.Devices.Add(device);lobbies.Add(lobby.Id,lobby);Persist(lobby.Id);
    return new(ProjectLobby(lobby),new(player.Id,device.Id,true));
   }
  }
  public JoinedLobby JoinLobby(AuthIdentity identity,JoinLobbyInput input)
  {
   var name=Name(input?.Name);lock(gate){
-   var lobby=lobbies.Values.SingleOrDefault(l=>l.Code==input?.Code?.Trim().ToUpperInvariant()) ?? throw new SessionFault(SessionFailure.Unavailable,"Lobby unavailable. Check the join code.");
+   var code=input?.Code?.Trim().ToUpperInvariant();if(code is not null)foreach(var savedId in persistence.FindByJoinCode(code))EnsureRecovered(savedId);
+   var lobby=lobbies.Values.SingleOrDefault(l=>l.Code==code) ?? throw new SessionFault(SessionFailure.Unavailable,"Lobby unavailable. Check the join code.");
    var player=lobby.Players.SingleOrDefault(p=>p.Uid==identity.Uid);
    if(player is null){if(lobby.Lifecycle!="lobby")throw new SessionFault(SessionFailure.Conflict,"The participant set is frozen after start.");player=new(Guid.NewGuid().ToString("N"),name,identity.Uid);lobby.Players.Add(player);lobby.Revision++;}
    var device=lobby.Devices.SingleOrDefault(d=>d.Id==input?.DeviceId&&d.Uid==identity.Uid);
    if(device is null){device=new(Guid.NewGuid().ToString("N"),identity.Uid);lobby.Devices.Add(device);lobby.Revision++;}
-   return new(ProjectLobby(lobby),new(player.Id,device.Id,lobby.Host==identity.Uid));
+   Persist(lobby.Id);return new(ProjectLobby(lobby),new(player.Id,device.Id,lobby.Host==identity.Uid));
   }
  }
  public LobbySnapshot LobbyPublic(string id){lock(gate)return ProjectLobby(RequireLobby(id));}
@@ -47,7 +48,7 @@ public sealed partial class SessionCoordinator
    if(input is null||!ConstructorCatalogue.Any(t=>t.TeamId==input.TeamId))throw new SessionFault(SessionFailure.InvalidInput,"Choose one of the eleven teams.");
    if(lobby.Assignments.TryGetValue(input.TeamId,out var previous)){if(previous.PlayerId==member.PlayerId)return ProjectLobby(lobby);throw new SessionFault(SessionFailure.Conflict,"Another player already claimed this team.");}
    if(lobby.Assignments.Values.Any(a=>a.PlayerId==member.PlayerId))throw new SessionFault(SessionFailure.Conflict,"Each participant can claim one team. Ask the host to correct an assignment.");
-   lobby.Revision++;lobby.Assignments.Add(input.TeamId,new(member.PlayerId,member.DeviceId,lobby.Input.Mode=="Family"?"Open":"Private",member.IsHost,lobby.Revision));return ProjectLobby(lobby);
+   lobby.Revision++;lobby.Assignments.Add(input.TeamId,new(member.PlayerId,member.DeviceId,lobby.Input.Mode=="Family"?"Open":"Private",member.IsHost,lobby.Revision));Persist(lobby.Id);return ProjectLobby(lobby);
   }
  }
  private static void RequireLobbyOpen(Lobby lobby){if(lobby.Lifecycle!="lobby")throw new SessionFault(SessionFailure.Conflict,"Assignments are frozen after the race starts.");}
@@ -57,21 +58,21 @@ public sealed partial class SessionCoordinator
  {
   var name=Name(input?.Name);lock(gate){var lobby=RequireLobby(id);RequireHost(lobby,identity);RequireLobbyOpen(lobby);
    _=LobbyMembership(id,identity,input?.DeviceId??"");if(lobby.Players.Count>=32)throw new SessionFault(SessionFailure.Conflict,"This household has reached its participant limit.");
-   lobby.Players.Add(new(Guid.NewGuid().ToString("N"),name,null));lobby.Revision++;return ProjectLobby(lobby);
+   lobby.Players.Add(new(Guid.NewGuid().ToString("N"),name,null));lobby.Revision++;Persist(lobby.Id);return ProjectLobby(lobby);
   }
  }
  public LobbySnapshot AssignTeam(string id,AuthIdentity identity,AssignTeamInput input)
  {
   lock(gate){var lobby=RequireLobby(id);RequireHost(lobby,identity);RequireLobbyOpen(lobby);
    if(input is null||!ConstructorCatalogue.Any(t=>t.TeamId==input.TeamId)||input.Control is not ("Private" or "SharedTablet" or "Open")||lobby.Input.Mode=="Competitive"&&input.Control=="Open")throw new SessionFault(SessionFailure.InvalidInput,"Choose a team and a control arrangement compatible with this privacy mode.");
-   if(input.PlayerId is null){lobby.Assignments.Remove(input.TeamId);lobby.Revision++;return ProjectLobby(lobby);}
+   if(input.PlayerId is null){lobby.Assignments.Remove(input.TeamId);lobby.Revision++;Persist(lobby.Id);return ProjectLobby(lobby);}
    var player=lobby.Players.SingleOrDefault(p=>p.Id==input.PlayerId)??throw new SessionFault(SessionFailure.InvalidInput,"Choose a participant from this household.");
    var device=input.DeviceId is null?lobby.Devices.FirstOrDefault(d=>d.Uid==player.Uid):lobby.Devices.SingleOrDefault(d=>d.Id==input.DeviceId);
    device=device??throw new SessionFault(SessionFailure.InvalidInput,"Choose a joined device.");
    if(device.Uid!=player.Uid && !(device.Uid==lobby.Host&&(player.Uid is null||input.Control=="SharedTablet"||input.Control=="Open")))throw new SessionFault(SessionFailure.Forbidden,"The selected device does not serve this participant.");
    if(player.Uid is null&&input.Control=="Private")throw new SessionFault(SessionFailure.InvalidInput,"A shared participant needs SharedTablet or Open control.");
    foreach(var previous in lobby.Assignments.Where(a=>a.Value.PlayerId==player.Id&&a.Key!=input.TeamId).Select(a=>a.Key).ToArray())lobby.Assignments.Remove(previous);
-   lobby.Revision++;lobby.Assignments[input.TeamId]=new(player.Id,device.Id,input.Control,true,lobby.Revision);return ProjectLobby(lobby);
+   lobby.Revision++;lobby.Assignments[input.TeamId]=new(player.Id,device.Id,input.Control,true,lobby.Revision);Persist(lobby.Id);return ProjectLobby(lobby);
   }
  }
  public LobbySnapshot StartLobby(string id,AuthIdentity identity)
@@ -85,10 +86,10 @@ public sealed partial class SessionCoordinator
    session.FrozenOpponents=OpponentScript.Freeze(session.Engine,lobby.ScriptedTeams,config.Laps);
    if(session.FrozenOpponents.Count!=lobby.ScriptedTeams.Length*2)throw new InvalidOperationException("The scripted phase-start decision set must cover every scripted driver.");
    session.WindowTimestamp=System.Diagnostics.Stopwatch.GetTimestamp();
-   lobby.Race=session;lobby.Lifecycle="started";lobby.Revision++;return ProjectLobby(lobby);
+   lobby.Race=session;lobby.Lifecycle="started";lobby.Revision++;Persist(lobby.Id);return ProjectLobby(lobby);
   }}finally{mutations.Release();}
  }
- private Lobby RequireLobby(string id)=>lobbies.GetValueOrDefault(id)??throw new SessionFault(SessionFailure.Unavailable,"Lobby unavailable.");
+ private Lobby RequireLobby(string id){EnsureRecovered(id);return lobbies.GetValueOrDefault(id)??throw new SessionFault(SessionFailure.Unavailable,"Lobby unavailable.");}
  private static void RequireHost(Lobby lobby,AuthIdentity identity){if(lobby.Host!=identity.Uid)throw new SessionFault(SessionFailure.Forbidden,"Only this lobby's host can change assignments or start.");}
  private static string Name(string? value)=>!string.IsNullOrWhiteSpace(value)&&value.Trim().Length<=40?value.Trim():throw new SessionFault(SessionFailure.InvalidInput,"Use a player name from 1 to 40 characters.");
  private static LobbySnapshot ProjectLobby(Lobby lobby)=>new(lobby.Id,lobby.Code,"/shared/join?code="+lobby.Code,lobby.Revision,lobby.Lifecycle,lobby.Input.Mode,
