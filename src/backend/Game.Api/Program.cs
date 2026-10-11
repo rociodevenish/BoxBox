@@ -4,6 +4,8 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Security.Cryptography;
 var builder = WebApplication.CreateBuilder(args);
+var allowedOrigins=HostedConfiguration.Validate(builder.Configuration,builder.Environment);
+builder.Services.AddCors(options=>options.AddPolicy("frontend",policy=>policy.WithOrigins(allowedOrigins).WithMethods("GET","POST").WithHeaders("Authorization","Content-Type").AllowCredentials()));
 builder.Logging.AddFilter("Microsoft.AspNetCore.Hosting.Diagnostics", LogLevel.Warning);
 builder.Services.AddSignalR();
 builder.Services.AddSingleton<FirebaseIdentity>();
@@ -26,6 +28,14 @@ else if(builder.Environment.IsDevelopment()&&builder.Configuration["Wakeups:Mode
 builder.Services.AddSingleton<SessionCoordinator>();
 builder.Services.ConfigureHttpJsonOptions(options => options.SerializerOptions.Converters.Add(new JsonStringEnumConverter()));
 var app = builder.Build();
+app.Use(async(context,next)=>{
+    // CORS does not protect WebSocket upgrades. Check browser Origin on API and hub requests too.
+    if(allowedOrigins.Length>0&&(context.Request.Path.StartsWithSegments("/api")||context.Request.Path.StartsWithSegments("/hubs"))
+        &&context.Request.Headers.TryGetValue("Origin",out var origin)&&!allowedOrigins.Contains(origin.ToString(),StringComparer.Ordinal))
+    {context.Response.StatusCode=403;return;}
+    await next(context);
+});
+app.UseCors("frontend");
 app.Use(async (context, next) =>
 {
     // Private observations and controller authority must never enter browser/offline caches.
