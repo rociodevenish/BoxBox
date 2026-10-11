@@ -12,7 +12,7 @@ public record PublicEvent(string Id, string Kind, double Time, int Lap, string D
     string? OtherDriverId, string? Compound);
 public record PublicSnapshot(string SessionId, int Phase, long Revision, string Lifecycle,
     int LeaderLap, int TotalLaps, double RaceTime, IReadOnlyList<PublicCar> Classification,
-    IReadOnlyList<PublicEvent> Events, PublicPresentation? Presentation = null, int NextDecisionLaps = 0, IReadOnlyList<TeamReadiness>? Readiness = null,bool Paused=false);
+    IReadOnlyList<PublicEvent> Events, PublicPresentation? Presentation = null, int NextDecisionLaps = 0, IReadOnlyList<TeamReadiness>? Readiness = null,bool Paused=false,DateTimeOffset? DecisionDeadlineUtc=null,double? PausedRemainingSeconds=null,DecisionTimingPolicy? TimingPolicy=null,DateTimeOffset? ServerTimeUtc=null,IReadOnlyList<TeamDecisionSource>? DecisionSources=null);
 public record TeamReadiness(string TeamId, bool Locked);
 public record OpenTeamSnapshot(string SessionId,int Phase,long Revision,string Lifecycle,string TeamId,
     IReadOnlyList<PrivateCar> Cars,TeamCommand? ConfirmedPlan,long AssignmentRevision);
@@ -26,5 +26,5 @@ public record CarCommand(string DriverId, string Pace, string Pit, string? Compo
 public record TeamCommand(string CommandId, int? Phase, long? Revision, IReadOnlyList<CarCommand> Cars);
 public record SubmissionAck(string CommandId, string SessionId, int Phase, long Revision, string Lifecycle);
 public enum SessionFailure { InvalidInput, Forbidden, Unavailable, Conflict, StorageUnavailable }
-public sealed class SessionFault(SessionFailure failure, string message) : Exception(message)
-{ public SessionFailure Failure { get; } = failure; }
+public sealed class SessionFault(SessionFailure failure, string message,PublicSnapshot? currentState=null) : Exception(message)
+{ public SessionFailure Failure { get; } = failure; public PublicSnapshot? CurrentState {get;}=currentState; }

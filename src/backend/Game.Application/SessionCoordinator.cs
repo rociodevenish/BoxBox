@@ -3,9 +3,9 @@ using Game.Simulation;
 using System.Security.Cryptography;
 using System.Diagnostics;
 namespace Game.Application;
-public sealed partial class SessionCoordinator(ISessionNotifications notifications,IRacePresets presets, ISessionStore? store = null)
+public sealed partial class SessionCoordinator(ISessionNotifications notifications,IRacePresets presets, ISessionStore? store = null, TimeProvider? timeProvider = null)
 {
-    private sealed class Session(string id, string player, string device, byte[] grantHash,
+    private sealed partial class Session(string id, string player, string device, byte[] grantHash,
         RaceConfiguration configuration, Driver[] drivers, int seed, CreateSessionInput input)
     {
         public long StartedTimestamp { get; } = Stopwatch.GetTimestamp();
@@ -35,6 +35,14 @@ public sealed partial class SessionCoordinator(ISessionNotifications notificatio
         public string[] RequiredTeams { get; set; } = ["team-01"];
         public bool Paused { get; set; }
         public bool StorageError { get; set; }
+        public bool DeferNextWindow { get; set; }
+        public Dictionary<string,string> ModuleState { get; set; }=[];
+        public DateTimeOffset? DecisionDeadlineUtc { get; set; }
+        public double? PausedRemainingSeconds { get; set; }
+        public DecisionTimingPolicy? TimingPolicy { get; set; }
+        public Dictionary<string,DriverDecision> FrozenTimeoutDecisions { get; set; }=[];
+        public Dictionary<string,string> TimeoutSources { get; set; }=[];
+        public IReadOnlyList<TeamDecisionSource> LastDecisionSources { get; set; }=[];
         public Dictionary<string, DriverDecision>? PendingPlan { get; set; }
         public TeamCommand? PendingCommand { get; set; }
         public string? PendingFingerprint { get; set; }
@@ -116,7 +124,7 @@ public sealed partial class SessionCoordinator(ISessionNotifications notificatio
             return true;
         }
     }
-    private static PublicSnapshot Project(Session session)
+    private PublicSnapshot Project(Session session)
     {
         var state = session.Engine.GetState();
         var tyres = state.Tyres.ToDictionary(t => t.DriverId);
@@ -155,7 +163,7 @@ public sealed partial class SessionCoordinator(ISessionNotifications notificatio
         return new(session.Id, session.Phase, session.Revision, session.StorageError ? "storage-error" : session.Lifecycle, state.LeaderLap,
             session.Configuration.Laps, state.Time, Array.AsReadOnly(rows), session.Events, session.Presentation,
             state.Finished ? 0 : Math.Min(5, session.Configuration.Laps - state.LeaderLap),
-            Array.AsReadOnly(session.RequiredTeams.Select(team => new TeamReadiness(team, session.Locks.ContainsKey(team))).ToArray()),session.Paused || session.StorageError);
+            Array.AsReadOnly(session.RequiredTeams.Select(team => new TeamReadiness(team, session.Locks.ContainsKey(team))).ToArray()),session.Paused || session.StorageError, session.DecisionDeadlineUtc, session.PausedRemainingSeconds, session.TimingPolicy, clock.GetUtcNow(), session.LastDecisionSources);
     }
     private static PublicGap ProjectGap(TimingGap gap) => gap.Laps > 0 ? new("laps", Laps: gap.Laps)
         : gap.Seconds is { } seconds ? new("time", seconds) : new("unavailable");
@@ -202,6 +210,10 @@ public sealed partial class SessionCoordinator(ISessionNotifications notificatio
             if (session.AcceptedCommands.TryGetValue(commandId, out var accepted))
                 return accepted.Fingerprint == fingerprint ? accepted.Ack
                     : throw new SessionFault(SessionFailure.Conflict, "This command identity was already accepted with different choices.");
+        }
+        if(IsDecisionDue(session)){await CloseExpiredSerially(session,false);lock(gate)throw new SessionFault(SessionFailure.Conflict,"The decision deadline passed. Refresh the current phase; accepted locks were preserved.",Project(Require(id)));}
+        lock(gate)
+        {
             if (session.Lifecycle != "awaiting-decisions" || command.Phase != session.Phase || command.Revision != (identity is null ? session.Revision : session.WindowRevision))
                 throw new SessionFault(SessionFailure.Conflict, "This decision window is not editable. Refresh the current phase.");
             if (session.Locks.ContainsKey(teamId)) throw new SessionFault(SessionFailure.Conflict, "This team already locked its final plan for this phase.");
@@ -219,6 +231,7 @@ public sealed partial class SessionCoordinator(ISessionNotifications notificatio
                     throw new SessionFault(SessionFailure.InvalidInput, "A battle or pit instruction is unavailable. Review both cars.");
                 complete.Add(car.DriverId, new(pace, car.Pit == "Pit" ? Enum.Parse<TyreCompound>(car.Compound!) : null, battle));
             }
+            if(IsDecisionDue(session))throw new SessionFault(SessionFailure.Conflict,"The decision deadline passed before this complete plan could lock.",Project(session));
             if (identity is not null)
             {
                 foreach (var car in complete.Where(pair => !session.FrozenOpponents.ContainsKey(pair.Key))) session.HumanDecisions.Add(car.Key, car.Value);
@@ -235,39 +248,44 @@ public sealed partial class SessionCoordinator(ISessionNotifications notificatio
             if (identity is null) session.Locks[teamId] = command;
             session.ConfirmedPlan = command;
             decisionMilliseconds = Stopwatch.GetElapsedTime(session.WindowTimestamp).TotalMilliseconds;
-            if (waitingAck is null) { session.Lifecycle = "resolving"; session.Revision++; session.PendingPlan=complete; session.PendingCommand=command; session.PendingFingerprint=fingerprint; }
+            if (waitingAck is null) { session.LastDecisionSources=session.RequiredTeams.Select(team=>new TeamDecisionSource(team,"human")).ToArray(); session.Lifecycle = "resolving"; session.Revision++; session.PendingPlan=complete; session.PendingCommand=command; session.PendingFingerprint=fingerprint; }
             Persist(id);
             resolving = Project(session); teamResolving = ProjectTeam(session);
         }
         await PublishRace(session, resolving, teamResolving);
         if (waitingAck is not null) return waitingAck;
-        PublicSnapshot resolved; TeamSnapshot teamResolved;
-        lock (gate)
-        {
-
-            CompleteResolution(session, complete, decisionMilliseconds);
-            var committedAck = new SubmissionAck(command.CommandId, session.Id, command.Phase!.Value, session.Revision, session.Lifecycle);
-            session.AcceptedCommands.Add(commandId, (fingerprint, committedAck));
-            session.PendingPlan=null;session.PendingCommand=null;session.PendingFingerprint=null;
-            Persist(id);
-            resolved = Project(session); teamResolved = ProjectTeam(session);
-        }
-        await PublishRace(session, resolved, teamResolved);
-        // This acknowledgement belongs to the phase accepted, even after its next window opens.
-        var acknowledgement = new SubmissionAck(command.CommandId, session.Id, command.Phase!.Value, resolved.Revision, resolved.Lifecycle);
-
-        if (resolved.Lifecycle != "finished" && !session.Paused)
-        {
-            lock (gate)
-            {
-                if(session.Lifecycle=="phase-result"&&!session.Paused){OpenHouseholdWindow(session);Persist(id);}
-                resolved = Project(session); teamResolved = ProjectTeam(session);
-            }
-        }
-        if (resolved.Lifecycle == "awaiting-decisions") await PublishRace(session, resolved, teamResolved);
-        return acknowledgement;
+        return (await ResolveCommittedPhase(session,complete,command,fingerprint,decisionMilliseconds))!;
     }
-    private void CompleteResolution(Session session, IReadOnlyDictionary<string, DriverDecision> complete, double decisionMilliseconds)
+    private async Task<SubmissionAck?> ResolveCommittedPhase(Session session,IReadOnlyDictionary<string,DriverDecision> complete,
+        TeamCommand? command,string? fingerprint,double decisionMilliseconds,bool recovered=false)
+    {
+        PublicSnapshot resolved;TeamSnapshot teamResolved;SubmissionAck? acknowledgement=null;
+        lock(gate)
+        {
+            CompleteResolution(session,complete,decisionMilliseconds);
+            if(command is not null)
+            {
+                acknowledgement=new(command.CommandId,session.Id,command.Phase!.Value,session.Revision,session.Lifecycle);
+                session.AcceptedCommands.Add(Guid.Parse(command.CommandId),(fingerprint!,acknowledgement));
+            }
+            session.PendingPlan=null;session.PendingCommand=null;session.PendingFingerprint=null;
+            session.DecisionDeadlineUtc=null;session.PausedRemainingSeconds=null;
+            if(recovered)session.Paused=true;
+            PhaseCommitted(session);Persist(session.Id);
+            resolved=Project(session);teamResolved=ProjectTeam(session);
+        }
+        await PublishRace(session,resolved,teamResolved);
+        if(resolved.Lifecycle!="finished"&&!session.Paused&&!session.DeferNextWindow)
+        {
+            lock(gate)
+            {
+                if(session.Lifecycle=="phase-result"&&!session.Paused){OpenHouseholdWindow(session);Persist(session.Id);}
+                resolved=Project(session);teamResolved=ProjectTeam(session);
+            }
+            if(resolved.Lifecycle=="awaiting-decisions")await PublishRace(session,resolved,teamResolved);
+        }
+        return acknowledgement;
+    }    private void CompleteResolution(Session session, IReadOnlyDictionary<string, DriverDecision> complete, double decisionMilliseconds)
     {
             var resolutionStarted = Stopwatch.GetTimestamp();
             var result = session.Engine.ResolvePhase(complete);

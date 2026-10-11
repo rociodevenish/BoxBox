@@ -5,6 +5,11 @@ import { PublicGap, TyreCompound } from '../ui/timing/public-classification.mode
 import { Pace, Battle } from '../ui/controller/controller.model';
 export interface PublicState {
     paused?:boolean;
+    decisionDeadlineUtc?:string|null;
+    pausedRemainingSeconds?:number|null;
+    serverTimeUtc?:string;
+    timingPolicy?:{effectiveSeconds:number;timeoutPolicy:string}|null;
+    decisionSources?:{teamId:string;source:string}[];
     readiness: {teamId:string;locked:boolean}[] | null;
     sessionId: string;
     phase: number;
@@ -107,6 +112,12 @@ export class RaceSession {
     private householdDevice = "";
     private householdUser?: import("firebase/auth").User;
     readonly created = signal<Created | null>(null);
+    readonly remainingDecisionSeconds=signal<number|null>(null);
+    private serverClockOffset=0;
+    private countdown=setInterval(()=>this.updateCountdown(),250);
+    private updateCountdown(){const state=this.publicState();this.remainingDecisionSeconds.set(state?.pausedRemainingSeconds??(state?.decisionDeadlineUtc?Math.max(0,Math.ceil((Date.parse(state.decisionDeadlineUtc)-Date.now()-this.serverClockOffset)/1000)):null));}
+    decisionCountdown(){const seconds=this.remainingDecisionSeconds();return seconds===null?'':Math.floor(seconds/60)+':'+String(seconds%60).padStart(2,'0');}
+    publicTeamName(teamId:string){return 'Team '+teamId.replace('team-','');}
     readonly publicState = signal<PublicState | null>(null);
     readonly team = signal<TeamState | null>(null);
     readonly error = signal('');
@@ -212,7 +223,8 @@ export class RaceSession {
     private acceptPublic(state: PublicState) {
         if (state.sessionId !== this.id || state.revision <= (this.publicState()?.revision ?? -1))
             return;
-        this.publicState.set(state);
+        if(state.serverTimeUtc)this.serverClockOffset=Date.parse(state.serverTimeUtc)-Date.now();
+        this.publicState.set(state);this.updateCountdown();
         if(this.sharedTablet && !this.activePrivate())this.selectNextTeam();
     }
     private acceptTeam(state: TeamState) {
@@ -238,7 +250,7 @@ export class RaceSession {
         const newlyLocked = previous && !previous.confirmedPlan && (state.confirmedPlan || state.phase!==previous.phase);
         if(this.sharedTablet && (newlyLocked || submitted && state.phase!==submitted.phase))void this.passTablet(false);
     }
-    private canSubmit() { return !this.busy() && !this.acknowledged() && this.connectionState() === 'connected' && this.team()?.lifecycle === 'awaiting-decisions' && !this.team()?.confirmedPlan; }
+    private canSubmit() { return (!!this.pending() || this.remainingDecisionSeconds()!==0) && !this.busy() && !this.acknowledged() && this.connectionState() === 'connected' && this.team()?.lifecycle === 'awaiting-decisions' && !this.team()?.confirmedPlan; }
     editable() { return this.canSubmit() && !this.pending(); }
     canRetry() { return this.canSubmit() && !!this.pending(); }
     async restart() {
@@ -359,5 +371,5 @@ export class RaceSession {
     }
     private connectionFailure(error: unknown) { this.fail(error); this.connectionState.set(this.error().includes('unavailable') || this.error().includes('capability') ? 'unavailable' : 'disconnected'); }
     private fail(error: unknown) { this.error.set(error instanceof Error ? error.message : 'Unable to connect. Create a fresh session if the server restarted.'); }
-    dispose() { const connection = this.connection; this.connection = undefined; void connection?.stop(); }
+    dispose() { clearInterval(this.countdown); const connection = this.connection; this.connection = undefined; void connection?.stop(); }
 }
