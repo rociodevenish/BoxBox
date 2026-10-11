@@ -12,7 +12,7 @@ public record PublicEvent(string Id, string Kind, double Time, int Lap, string D
     string? OtherDriverId, string? Compound);
 public record PublicSnapshot(string SessionId, int Phase, long Revision, string Lifecycle,
     int LeaderLap, int TotalLaps, double RaceTime, IReadOnlyList<PublicCar> Classification,
-    IReadOnlyList<PublicEvent> Events, PublicPresentation? Presentation = null, int NextDecisionLaps = 0, IReadOnlyList<TeamReadiness>? Readiness = null,bool Paused=false,DateTimeOffset? DecisionDeadlineUtc=null,double? PausedRemainingSeconds=null,DecisionTimingPolicy? TimingPolicy=null,DateTimeOffset? ServerTimeUtc=null,IReadOnlyList<TeamDecisionSource>? DecisionSources=null,IReadOnlyList<TeamControlStatus>? ControlStatus=null);
+    IReadOnlyList<PublicEvent> Events, PublicPresentation? Presentation = null, int NextDecisionLaps = 0, IReadOnlyList<TeamReadiness>? Readiness = null,bool Paused=false,DateTimeOffset? DecisionDeadlineUtc=null,double? PausedRemainingSeconds=null,DecisionTimingPolicy? TimingPolicy=null,DateTimeOffset? ServerTimeUtc=null,IReadOnlyList<TeamDecisionSource>? DecisionSources=null,IReadOnlyList<TeamControlStatus>? ControlStatus=null,DateTimeOffset? PresentationDeadlineUtc=null,double? PresentationRemainingSeconds=null,long WindowRevision=0);
 public record TeamReadiness(string TeamId, bool Locked);
 public record OpenTeamSnapshot(string SessionId,int Phase,long Revision,string Lifecycle,string TeamId,
     IReadOnlyList<PrivateCar> Cars,TeamCommand? ConfirmedPlan,long AssignmentRevision,TeamAssistance? Assistance=null);

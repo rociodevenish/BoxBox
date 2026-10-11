@@ -8,6 +8,8 @@ using Microsoft.AspNetCore.Mvc.Testing;
 namespace Game.Api.Tests;
 public sealed class MultiTeamTests
 {
+ private static string Stable(string json){var node=System.Text.Json.Nodes.JsonNode.Parse(json)!.AsObject();node.Remove("serverTimeUtc");return node.ToJsonString();}
+ private static async Task Continue(HttpClient host,string? id)=>(await host.PostAsJsonAsync($"/api/lobbies/{id}/continue",new{commandId=Guid.NewGuid().ToString(),phase=0,windowRevision=1})).EnsureSuccessStatusCode();
  [Theory]
  [InlineData(false,false)]
  [InlineData(true,false)]
@@ -44,14 +46,14 @@ public sealed class MultiTeamTests
   object Plan(int a,int b)=>new{commandId=Guid.NewGuid().ToString(),phase=0,revision=1,cars=new[]{new{driverId=$"driver-{a:00}",pace="Push",pit="Stay Out",compound=(string?)null,battle="Neutral"},new{driverId=$"driver-{b:00}",pace="Standard",pit="Stay Out",compound=(string?)null,battle="Neutral"}}};
   var firstClient=reverse?guest:host;var lastClient=reverse?host:guest;var ft=reverse?"team-02":"team-01";var lt=reverse?"team-01":"team-02";var fd=reverse?gd:device;var ld=reverse?device:gd;
   var first=reverse?Plan(3,4):Plan(1,2);
-  var before=await host.GetStringAsync($"/api/sessions/{id}");
+  var before=Stable(await host.GetStringAsync($"/api/sessions/{id}"));
   var malformed=System.Text.Json.Nodes.JsonNode.Parse(JsonSerializer.Serialize(first))!;malformed["cars"]![1]!["pace"]="Boost";
-  Assert.Equal(System.Net.HttpStatusCode.BadRequest,(await firstClient.PostAsJsonAsync($"/api/lobbies/{id}/teams/{ft}/plans?deviceId={fd}",malformed)).StatusCode);Assert.Equal(before,await host.GetStringAsync($"/api/sessions/{id}"));
+  Assert.Equal(System.Net.HttpStatusCode.BadRequest,(await firstClient.PostAsJsonAsync($"/api/lobbies/{id}/teams/{ft}/plans?deviceId={fd}",malformed)).StatusCode);Assert.Equal(before,Stable(await host.GetStringAsync($"/api/sessions/{id}")));
   malformed["cars"]![1]!["pace"]="Standard";malformed["phase"]=5;
-  Assert.Equal(System.Net.HttpStatusCode.Conflict,(await firstClient.PostAsJsonAsync($"/api/lobbies/{id}/teams/{ft}/plans?deviceId={fd}",malformed)).StatusCode);Assert.Equal(before,await host.GetStringAsync($"/api/sessions/{id}"));
-  malformed["phase"]=0;malformed["revision"]=999;Assert.Equal(System.Net.HttpStatusCode.Conflict,(await firstClient.PostAsJsonAsync($"/api/lobbies/{id}/teams/{ft}/plans?deviceId={fd}",malformed)).StatusCode);Assert.Equal(before,await host.GetStringAsync($"/api/sessions/{id}"));
+  Assert.Equal(System.Net.HttpStatusCode.Conflict,(await firstClient.PostAsJsonAsync($"/api/lobbies/{id}/teams/{ft}/plans?deviceId={fd}",malformed)).StatusCode);Assert.Equal(before,Stable(await host.GetStringAsync($"/api/sessions/{id}")));
+  malformed["phase"]=0;malformed["revision"]=999;Assert.Equal(System.Net.HttpStatusCode.Conflict,(await firstClient.PostAsJsonAsync($"/api/lobbies/{id}/teams/{ft}/plans?deviceId={fd}",malformed)).StatusCode);Assert.Equal(before,Stable(await host.GetStringAsync($"/api/sessions/{id}")));
   var last=reverse?Plan(1,2):Plan(3,4);
-  if(concurrent){var results=await Task.WhenAll(firstClient.PostAsJsonAsync($"/api/lobbies/{id}/teams/{ft}/plans?deviceId={fd}",first),lastClient.PostAsJsonAsync($"/api/lobbies/{id}/teams/{lt}/plans?deviceId={ld}",last));foreach(var result in results)result.EnsureSuccessStatusCode();var final=await host.GetFromJsonAsync<JsonElement>($"/api/sessions/{id}");Assert.Equal(1,final.GetProperty("phase").GetInt32());(await firstClient.PostAsJsonAsync($"/api/lobbies/{id}/teams/{ft}/plans?deviceId={fd}",first)).EnsureSuccessStatusCode();Assert.Equal(final.GetRawText(),(await host.GetFromJsonAsync<JsonElement>($"/api/sessions/{id}")).GetRawText());await AssertOneOutcome(publicUpdates);return;}
+  if(concurrent){var results=await Task.WhenAll(firstClient.PostAsJsonAsync($"/api/lobbies/{id}/teams/{ft}/plans?deviceId={fd}",first),lastClient.PostAsJsonAsync($"/api/lobbies/{id}/teams/{lt}/plans?deviceId={ld}",last));foreach(var result in results)result.EnsureSuccessStatusCode();await Continue(host,id);var final=await host.GetFromJsonAsync<JsonElement>($"/api/sessions/{id}");Assert.Equal(1,final.GetProperty("phase").GetInt32());(await firstClient.PostAsJsonAsync($"/api/lobbies/{id}/teams/{ft}/plans?deviceId={fd}",first)).EnsureSuccessStatusCode();Assert.Equal(Stable(final.GetRawText()),Stable((await host.GetFromJsonAsync<JsonElement>($"/api/sessions/{id}")).GetRawText()));await AssertOneOutcome(publicUpdates);return;}
   (await firstClient.PostAsJsonAsync($"/api/lobbies/{id}/teams/{ft}/plans?deviceId={fd}",first)).EnsureSuccessStatusCode();
   var waiting=await host.GetFromJsonAsync<JsonElement>($"/api/sessions/{id}");Assert.Equal(0,waiting.GetProperty("raceTime").GetDouble());Assert.Equal(0,waiting.GetProperty("phase").GetInt32());Assert.DoesNotContain("pace",waiting.GetRawText());
   using var timeout=new CancellationTokenSource(TimeSpan.FromSeconds(10));var publicLock=await publicUpdates.Reader.ReadAsync(timeout.Token);Assert.DoesNotContain("confirmedPlan",publicLock.GetRawText());Assert.DoesNotContain("estimatedTyreCondition",publicLock.GetRawText());
@@ -60,6 +62,7 @@ public sealed class MultiTeamTests
   var changed=System.Text.Json.Nodes.JsonNode.Parse(JsonSerializer.Serialize(first))!;changed["cars"]![0]!["pace"]="Conserve";Assert.Equal(System.Net.HttpStatusCode.Conflict,(await firstClient.PostAsJsonAsync($"/api/lobbies/{id}/teams/{ft}/plans?deviceId={fd}",changed)).StatusCode);
   (await firstClient.PostAsJsonAsync($"/api/lobbies/{id}/teams/{ft}/plans?deviceId={fd}",first)).EnsureSuccessStatusCode();
   (await lastClient.PostAsJsonAsync($"/api/lobbies/{id}/teams/{lt}/plans?deviceId={ld}",last)).EnsureSuccessStatusCode();
+  await Continue(host,id);
   var next=await host.GetFromJsonAsync<JsonElement>($"/api/sessions/{id}");Assert.Equal(1,next.GetProperty("phase").GetInt32());Assert.True(next.GetProperty("raceTime").GetDouble()>0);await AssertOneOutcome(publicUpdates);
  }
  private static async Task AssertOneOutcome(Channel<JsonElement> updates)

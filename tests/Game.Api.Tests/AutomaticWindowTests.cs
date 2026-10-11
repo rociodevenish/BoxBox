@@ -5,6 +5,7 @@ using Xunit;
 namespace Game.Api.Tests;
 public sealed class AutomaticWindowTests
 {
+ private static string Stable(string json){var node=System.Text.Json.Nodes.JsonNode.Parse(json)!.AsObject();node.Remove("serverTimeUtc");return node.ToJsonString();}
  [Fact]
  public async Task Accepted_phase_opens_the_next_window_once_and_preserves_resolved_feedback_for_retry_and_display()
  {
@@ -16,6 +17,6 @@ public sealed class AutomaticWindowTests
   var snapshot=await client.GetFromJsonAsync<JsonElement>(route);Assert.Equal("awaiting-decisions",snapshot.GetProperty("lifecycle").GetString());Assert.Equal(1,snapshot.GetProperty("phase").GetInt32());Assert.Equal(5,snapshot.GetProperty("leaderLap").GetInt32());
   Assert.Equal(0,snapshot.GetProperty("presentation").GetProperty("resolvedPhase").GetInt32());Assert.NotEmpty(snapshot.GetProperty("events").EnumerateArray());
   var own=await client.GetFromJsonAsync<JsonElement>(route+"/team");Assert.Equal(JsonValueKind.Null,own.GetProperty("confirmedPlan").ValueKind);
-  var before=await client.GetStringAsync(route);Assert.Equal(acknowledgement,await(await client.PostAsJsonAsync(route+"/plans",command)).Content.ReadAsStringAsync());Assert.Equal(before,await client.GetStringAsync(route));
+  var before=await client.GetStringAsync(route);Assert.Equal(acknowledgement,await(await client.PostAsJsonAsync(route+"/plans",command)).Content.ReadAsStringAsync());Assert.Equal(Stable(before),Stable(await client.GetStringAsync(route)));
  }
 }
