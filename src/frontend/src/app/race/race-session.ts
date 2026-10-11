@@ -1,9 +1,11 @@
+import {TeamControlStatus,controlName} from './team-control';
 import { signal } from '@angular/core';
 import { commandId } from './command-id';
 import { HubConnection, HubConnectionBuilder } from '@microsoft/signalr';
 import { PublicGap, TyreCompound } from '../ui/timing/public-classification.model';
 import { Pace, Battle } from '../ui/controller/controller.model';
 export interface PublicState {
+    controlStatus?:TeamControlStatus[];
     paused?:boolean;
     decisionDeadlineUtc?:string|null;
     pausedRemainingSeconds?:number|null;
@@ -57,6 +59,7 @@ interface Command {
     }[];
 }
 interface TeamState {
+    controlStatus?:TeamControlStatus|null;
     teamId:string; assignmentRevision:number; commandRevision:number;
     sessionId: string;
     phase: number;
@@ -97,6 +100,11 @@ interface Created {
 }
 interface ControllerAssignment {teamId:string;constructorName:string;control:string;assignmentRevision:number;playerId:string}
 export class RaceSession {
+    readonly controlName=controlName;
+    async reclaimControl(){
+        const control=this.team()?.controlStatus;if(!control||!this.householdTeam||!this.householdUser||this.busy())return;
+        this.busy.set(true);try{await this.request<TeamControlStatus>('/api/lobbies/'+this.id+'/teams/'+this.householdTeam+'/reclaim?deviceId='+encodeURIComponent(this.householdDevice),{commandId:commandId(),revision:control.revision,mode:'Human'},await this.householdUser.getIdToken());if(this.connection)await this.rejoin(this.connection);}catch(error){this.fail(error);}finally{this.busy.set(false);}
+    }
     readonly mode: string;
     readonly id: string;
     readonly capability: string;
@@ -250,7 +258,7 @@ export class RaceSession {
         const newlyLocked = previous && !previous.confirmedPlan && (state.confirmedPlan || state.phase!==previous.phase);
         if(this.sharedTablet && (newlyLocked || submitted && state.phase!==submitted.phase))void this.passTablet(false);
     }
-    private canSubmit() { return (!!this.pending() || this.remainingDecisionSeconds()!==0) && !this.busy() && !this.acknowledged() && this.connectionState() === 'connected' && this.team()?.lifecycle === 'awaiting-decisions' && !this.team()?.confirmedPlan; }
+    private canSubmit() { return (!this.team()?.controlStatus || this.team()?.controlStatus?.mode==='Human') && (!!this.pending() || this.remainingDecisionSeconds()!==0) && !this.busy() && !this.acknowledged() && this.connectionState() === 'connected' && this.team()?.lifecycle === 'awaiting-decisions' && !this.team()?.confirmedPlan; }
     editable() { return this.canSubmit() && !this.pending(); }
     canRetry() { return this.canSubmit() && !!this.pending(); }
     async restart() {
