@@ -12,7 +12,7 @@ public record PublicEvent(string Id, string Kind, double Time, int Lap, string D
     string? OtherDriverId, string? Compound);
 public record PublicSnapshot(string SessionId, int Phase, long Revision, string Lifecycle,
     int LeaderLap, int TotalLaps, double RaceTime, IReadOnlyList<PublicCar> Classification,
-    IReadOnlyList<PublicEvent> Events, PublicPresentation? Presentation = null, int NextDecisionLaps = 0, IReadOnlyList<TeamReadiness>? Readiness = null,bool Paused=false,DateTimeOffset? DecisionDeadlineUtc=null,double? PausedRemainingSeconds=null,DecisionTimingPolicy? TimingPolicy=null,DateTimeOffset? ServerTimeUtc=null,IReadOnlyList<TeamDecisionSource>? DecisionSources=null);
+    IReadOnlyList<PublicEvent> Events, PublicPresentation? Presentation = null, int NextDecisionLaps = 0, IReadOnlyList<TeamReadiness>? Readiness = null,bool Paused=false,DateTimeOffset? DecisionDeadlineUtc=null,double? PausedRemainingSeconds=null,DecisionTimingPolicy? TimingPolicy=null,DateTimeOffset? ServerTimeUtc=null,IReadOnlyList<TeamDecisionSource>? DecisionSources=null,IReadOnlyList<TeamControlStatus>? ControlStatus=null);
 public record TeamReadiness(string TeamId, bool Locked);
 public record OpenTeamSnapshot(string SessionId,int Phase,long Revision,string Lifecycle,string TeamId,
     IReadOnlyList<PrivateCar> Cars,TeamCommand? ConfirmedPlan,long AssignmentRevision,TeamAssistance? Assistance=null);
@@ -21,7 +21,7 @@ public record PublicPresentation(string Cursor, int ResolvedPhase, int TotalEven
 public record PrivateCar(string DriverId, string Compound, int TyreAge, double EstimatedTyreCondition,
     bool InPits, bool StopQueued, IReadOnlyList<string> BattleOptions);
 public record TeamSnapshot(string SessionId, int Phase, long Revision, string Lifecycle,
-    string PlayerId, string TeamId, string DeviceId, IReadOnlyList<PrivateCar> Cars, TeamCommand? ConfirmedPlan, long AssignmentRevision = 0, long CommandRevision = 0,TeamAssistance? Assistance=null);
+    string PlayerId, string TeamId, string DeviceId, IReadOnlyList<PrivateCar> Cars, TeamCommand? ConfirmedPlan, long AssignmentRevision = 0, long CommandRevision = 0,TeamAssistance? Assistance=null,TeamControlStatus? ControlStatus=null);
 public record CarCommand(string DriverId, string Pace, string Pit, string? Compound, string Battle);
 public record TeamCommand(string CommandId, int? Phase, long? Revision, IReadOnlyList<CarCommand> Cars);
 public record SubmissionAck(string CommandId, string SessionId, int Phase, long Revision, string Lifecycle);

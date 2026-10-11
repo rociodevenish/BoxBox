@@ -163,7 +163,7 @@ public sealed partial class SessionCoordinator(ISessionNotifications notificatio
         return new(session.Id, session.Phase, session.Revision, session.StorageError ? "storage-error" : session.Lifecycle, state.LeaderLap,
             session.Configuration.Laps, state.Time, Array.AsReadOnly(rows), session.Events, session.Presentation,
             state.Finished ? 0 : Math.Min(5, session.Configuration.Laps - state.LeaderLap),
-            Array.AsReadOnly(session.RequiredTeams.Select(team => new TeamReadiness(team, session.Locks.ContainsKey(team))).ToArray()),session.Paused || session.StorageError, session.DecisionDeadlineUtc, session.PausedRemainingSeconds, session.TimingPolicy, clock.GetUtcNow(), session.LastDecisionSources);
+            Array.AsReadOnly(session.RequiredTeams.Select(team => new TeamReadiness(team, session.Locks.ContainsKey(team))).ToArray()),session.Paused || session.StorageError, session.DecisionDeadlineUtc, session.PausedRemainingSeconds, session.TimingPolicy, clock.GetUtcNow(), session.LastDecisionSources,PublicControl(session));
     }
     private static PublicGap ProjectGap(TimingGap gap) => gap.Laps > 0 ? new("laps", Laps: gap.Laps)
         : gap.Seconds is { } seconds ? new("time", seconds) : new("unavailable");
@@ -185,7 +185,7 @@ public sealed partial class SessionCoordinator(ISessionNotifications notificatio
             tyre.Age, tyre.EstimatedCondition, tyre.InPits, tyre.StopQueued,
             Array.AsReadOnly(observation.BattleOptions[tyre.DriverId].Select(option => option.ToString()).ToArray()))).ToArray();
         return new(session.Id, session.Phase, session.Revision, session.StorageError ? "storage-error" : session.Lifecycle, assignment?.PlayerId ?? session.Player, teamId,
-            assignment?.DeviceId ?? session.Device, Array.AsReadOnly(own), assignment is null ? session.ConfirmedPlan : session.Locks.GetValueOrDefault(teamId), assignment?.Revision ?? 0, session.WindowRevision,ProjectAssistance(session,teamId));
+            assignment?.DeviceId ?? session.Device, Array.AsReadOnly(own), assignment is null ? session.ConfirmedPlan : session.Locks.GetValueOrDefault(teamId), assignment?.Revision ?? 0, session.WindowRevision,ProjectAssistance(session,teamId),assignment is null?null:ControlStatus(session,teamId));
     }
     public async Task<SubmissionAck> Submit(string id, string? capability, TeamCommand? command)
     {
@@ -211,6 +211,7 @@ public sealed partial class SessionCoordinator(ISessionNotifications notificatio
                 return accepted.Fingerprint == fingerprint ? accepted.Ack
                     : throw new SessionFault(SessionFailure.Conflict, "This command identity was already accepted with different choices.");
         }
+        if(identity is not null&&ControlStatus(session,teamId).Mode!="Human")throw new SessionFault(SessionFailure.Conflict,"AI is responsible for this phase. Request reclaim for the next boundary.",Project(session));
         if(IsDecisionDue(session)){await CloseExpiredSerially(session,false);lock(gate)throw new SessionFault(SessionFailure.Conflict,"The decision deadline passed. Refresh the current phase; accepted locks were preserved.",Project(Require(id)));}
         lock(gate)
         {
@@ -293,7 +294,7 @@ public sealed partial class SessionCoordinator(ISessionNotifications notificatio
             if (result.Finished) session.TotalToFinishMilliseconds = Stopwatch.GetElapsedTime(session.StartedTimestamp).TotalMilliseconds;
             session.PhaseTimings.Add(new(session.Phase, decisionMilliseconds, resolutionMilliseconds, null));
             session.RecordedPhases.Add(new(session.Phase, result.LeaderLap, result.Time, result.Finished, BrowserReplay.OutcomeHash(result)));
-            session.AutomaticPlans.Add(new(session.Phase,session.ScriptVersion,"unclaimed-ai",new System.Collections.ObjectModel.ReadOnlyDictionary<string,DriverDecision>(session.FrozenOpponents.ToDictionary())));
+            RecordAutomaticResponsibility(session);
             session.AcceptedPlans.Add(new System.Collections.ObjectModel.ReadOnlyDictionary<string, DriverDecision>(complete.ToDictionary()));
             var fresh = result.Events.Skip(session.EngineEventCursor).Select((item, index) => (item, index))
                 .Where(pair => pair.item.Kind is RaceEventKind.Overtake or RaceEventKind.PitEntry or RaceEventKind.PitExit or RaceEventKind.TyreChanged).ToArray();
