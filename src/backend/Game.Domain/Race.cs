@@ -21,7 +21,7 @@ public record ConditionalDecision(string DriverId, ConditionField Field, double 
 public record StrategyPlan(ScheduledDecision[] Scheduled, ConditionalDecision[] Conditional,
     PaceInstruction DefaultPace = PaceInstruction.Standard, IReadOnlyDictionary<string, PaceInstruction>? DriverPaces = null);
 public record EstimatedTyreState(string DriverId, TyreCompound Compound, int Age,
-    double EstimatedCondition, bool InPits, bool StopQueued);
+    double EstimatedCondition, bool InPits, bool StopQueued, IReadOnlyList<TyreCompound>? UsedCompounds = null, TyreCompound? PendingCompound = null);
 public record TeamObservation(double Time, int LeaderLap, IReadOnlyList<ClassificationEntry> Classification,
     IReadOnlyList<EstimatedTyreState> TeamTyres,
     IReadOnlyDictionary<string, IReadOnlyList<BattleInstruction>> BattleOptions);

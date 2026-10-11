@@ -17,7 +17,7 @@ public sealed partial class SessionCoordinator
  {
   session.Phase++;session.Revision++;session.WindowRevision=session.Revision;session.Lifecycle="awaiting-decisions";
   session.ConfirmedPlan=null;session.Locks.Clear();session.HumanDecisions.Clear();
-  session.FrozenOpponents=OpponentScript.Freeze(session.Engine,session.Drivers.Select(driver=>driver.Team).Distinct().Where(team=>!session.RequiredTeams.Contains(team)),session.Configuration.Laps);
+  session.FrozenOpponents=OpponentScript.Freeze(session.Engine,session.Drivers.Select(driver=>driver.Team).Distinct().Where(team=>!session.RequiredTeams.Contains(team)),session.Configuration.Laps,session.ScriptVersion);
   session.WindowTimestamp=System.Diagnostics.Stopwatch.GetTimestamp();
  }
  public async Task<LobbySnapshot> RevokeDevice(string id,AuthIdentity identity,string deviceId)

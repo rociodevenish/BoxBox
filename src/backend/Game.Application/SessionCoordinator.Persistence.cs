@@ -19,7 +19,7 @@ public sealed partial class SessionCoordinator
         Dictionary<string,DriverDecision>[] Plans,RecordedReplayPhase[] Outcomes,
         SavedCommand[] Commands,TeamCommand? ConfirmedPlan,PublicEvent[] Events,PublicPresentation? Presentation,
         int EngineEventCursor,Dictionary<string,int> PresentationPhases,
-        Dictionary<string,DriverDecision>? PendingPlan,TeamCommand? PendingCommand,string? PendingFingerprint);
+        Dictionary<string,DriverDecision>? PendingPlan,TeamCommand? PendingCommand,string? PendingFingerprint,RecordedAutomaticPlan[]? AutomaticPlans=null,string AutomaticSource="unclaimed-ai");
     private sealed record SavedLobby(string Id,string Code,string Host,CreateLobbyInput Input,long Revision,
         Player[] Players,Device[] Devices,Dictionary<string,Assignment> Assignments,string Lifecycle,
         string[] RequiredTeams,string[] ScriptedTeams,SavedRace? Race);
@@ -31,7 +31,7 @@ public sealed partial class SessionCoordinator
         session.AcceptedPlans.Select(p=>p.ToDictionary()).ToArray(),session.RecordedPhases.ToArray(),
         session.AcceptedCommands.Select(p=>new SavedCommand(p.Key,p.Value.Fingerprint,p.Value.Ack)).ToArray(),
         session.ConfirmedPlan,session.Events.ToArray(),session.Presentation,session.EngineEventCursor,session.PresentationPhases,
-        session.PendingPlan,session.PendingCommand,session.PendingFingerprint);
+        session.PendingPlan,session.PendingCommand,session.PendingFingerprint,session.AutomaticPlans.ToArray());
     private string Capture(string id)
     {
         var lobby=lobbies.GetValueOrDefault(id);var race=lobby?.Race ?? (active?.Id==id?active:null);
@@ -39,7 +39,7 @@ public sealed partial class SessionCoordinator
             lobby.Players.ToArray(),lobby.Devices.ToArray(),lobby.Assignments,lobby.Lifecycle,lobby.RequiredTeams,lobby.ScriptedTeams,
             race is null?null:CaptureRace(race));
         return JsonSerializer.Serialize(new RecoveryRecord(RecoverySchema,SimulationVersions.SegmentedModel,
-            SimulationVersions.SegmentedRandomness,ContentVersion,OpponentScript.Version,savedLobby,lobby is null&&race is not null?CaptureRace(race):null),BrowserReplay.JsonOptions);
+            SimulationVersions.SegmentedRandomness,ContentVersion,race?.ScriptVersion??OpponentScript.Version,savedLobby,lobby is null&&race is not null?CaptureRace(race):null),BrowserReplay.JsonOptions);
     }
     // Called while holding gate; no acknowledgement or notification precedes this conditional write.
     private void Persist(string id)
@@ -87,9 +87,9 @@ public sealed partial class SessionCoordinator
     private void Restore(string id,StoredSession record)
     {
         var saved=JsonSerializer.Deserialize<RecoveryRecord>(record.Payload,BrowserReplay.JsonOptions)??throw new InvalidDataException("Missing recovery record.");
-        if(saved.Schema!=RecoverySchema||saved.Model!=SimulationVersions.SegmentedModel||saved.Randomness!=SimulationVersions.SegmentedRandomness||saved.Content!=ContentVersion||saved.Policy!=OpponentScript.Version)
+        if(saved.Schema!=RecoverySchema||saved.Model!=SimulationVersions.SegmentedModel||saved.Randomness!=SimulationVersions.SegmentedRandomness||saved.Content!=ContentVersion||!OpponentScript.Supports(saved.Policy))
         {
-            var limitation="Saved race uses an incompatible schema, simulation, randomness or content version. Deploy its compatible version to resume; saved inputs are preserved.";
+            var limitation="Saved race uses an incompatible schema, simulation, randomness, content or decision policy version. Deploy its compatible version to resume; saved inputs are preserved.";
             recoveryLimitations[id]=limitation;throw new SessionFault(SessionFailure.Conflict,limitation);
         }
         var watch=Stopwatch.StartNew();
@@ -111,7 +111,8 @@ public sealed partial class SessionCoordinator
             session.Paused=race.Paused;session.RequiredTeams=race.RequiredTeams;session.ConfirmedPlan=race.ConfirmedPlan;
             foreach(var pair in race.Locks)session.Locks.Add(pair.Key,pair.Value);
             foreach(var pair in race.HumanDecisions)session.HumanDecisions.Add(pair.Key,pair.Value);
-            session.FrozenOpponents=race.FrozenOpponents;
+            session.FrozenOpponents=race.FrozenOpponents;session.ScriptVersion=saved.Policy;
+            if(race.AutomaticPlans is not null)session.AutomaticPlans.AddRange(race.AutomaticPlans);
             foreach(var command in race.Commands)session.AcceptedCommands.Add(command.Id,(command.Fingerprint,command.Ack));
             session.Events=race.Events;session.Presentation=race.Presentation;session.EngineEventCursor=race.EngineEventCursor;
             foreach(var pair in race.PresentationPhases)session.PresentationPhases.Add(pair.Key,pair.Value);

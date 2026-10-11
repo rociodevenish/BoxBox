@@ -26,7 +26,8 @@ public sealed partial class SessionCoordinator(ISessionNotifications notificatio
         public IReadOnlyDictionary<string, DriverDecision> FrozenOpponents { get; set; } = new Dictionary<string, DriverDecision>();
         public List<IReadOnlyDictionary<string, DriverDecision>> AcceptedPlans { get; } = [];
         public List<RecordedReplayPhase> RecordedPhases { get; } = [];
-        public string ScriptVersion { get; } = OpponentScript.Version;
+        public List<RecordedAutomaticPlan> AutomaticPlans { get; } = [];
+        public string ScriptVersion { get; set; } = OpponentScript.Version;
         public Dictionary<Guid, (string Fingerprint, SubmissionAck Ack)> AcceptedCommands { get; } = [];
         public TeamCommand? ConfirmedPlan { get; set; }
         public Dictionary<string, TeamCommand> Locks { get; } = [];
@@ -89,7 +90,7 @@ public sealed partial class SessionCoordinator(ISessionNotifications notificatio
                 Array.AsReadOnly(session.RecordedPhases.ToArray()), session.RecordedPhases.LastOrDefault()?.Finished ?? false,
                 new(session.TotalToFinishMilliseconds ?? Stopwatch.GetElapsedTime(session.StartedTimestamp).TotalMilliseconds,
                     session.TotalToFinishMilliseconds, Array.AsReadOnly(session.PhaseTimings.ToArray()),
-                    Array.AsReadOnly(session.PresentationSamples.Values.Select(value => value.Sample).ToArray()), session.RecoveryReplayMilliseconds));
+                    Array.AsReadOnly(session.PresentationSamples.Values.Select(value => value.Sample).ToArray()), session.RecoveryReplayMilliseconds),Array.AsReadOnly(session.AutomaticPlans.ToArray()));
         }
     }
     private Session Require(string id) { EnsureRecovered(id); return active is { } session && session.Id == id ? session
@@ -274,6 +275,7 @@ public sealed partial class SessionCoordinator(ISessionNotifications notificatio
             if (result.Finished) session.TotalToFinishMilliseconds = Stopwatch.GetElapsedTime(session.StartedTimestamp).TotalMilliseconds;
             session.PhaseTimings.Add(new(session.Phase, decisionMilliseconds, resolutionMilliseconds, null));
             session.RecordedPhases.Add(new(session.Phase, result.LeaderLap, result.Time, result.Finished, BrowserReplay.OutcomeHash(result)));
+            session.AutomaticPlans.Add(new(session.Phase,session.ScriptVersion,"unclaimed-ai",new System.Collections.ObjectModel.ReadOnlyDictionary<string,DriverDecision>(session.FrozenOpponents.ToDictionary())));
             session.AcceptedPlans.Add(new System.Collections.ObjectModel.ReadOnlyDictionary<string, DriverDecision>(complete.ToDictionary()));
             var fresh = result.Events.Skip(session.EngineEventCursor).Select((item, index) => (item, index))
                 .Where(pair => pair.item.Kind is RaceEventKind.Overtake or RaceEventKind.PitEntry or RaceEventKind.PitExit or RaceEventKind.TyreChanged).ToArray();

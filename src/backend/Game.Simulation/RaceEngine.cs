@@ -318,7 +318,7 @@ public sealed class RaceEngine
         var state = Snapshot();
         var own = cars.Where(c => c.Driver.Team == team).Select(c => new EstimatedTyreState(c.Driver.Id,
             c.Compound, c.TyreAge, Math.Clamp(c.Condition + RandomOffset(RandomChannel.EstimateError, "estimate-error", c.Driver.Id, phaseIndex,
-                $"phase:{phaseIndex}", 2 * configuration.EstimateError), 0, 1), c.PitExit is not null, c.PendingPit is not null)).ToArray();
+                $"phase:{phaseIndex}", 2 * configuration.EstimateError), 0, 1), c.PitExit is not null, c.PendingPit is not null, Array.AsReadOnly(c.UsedCompounds.Order().ToArray()), c.PendingPit)).ToArray();
         return new TeamObservation(time, state.LeaderLap, state.Classification, own,
             state.BattleOptions.Where(kv => own.Any(t => t.DriverId == kv.Key)).ToDictionary());
     }
