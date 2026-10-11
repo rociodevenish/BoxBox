@@ -25,6 +25,6 @@ public record TeamSnapshot(string SessionId, int Phase, long Revision, string Li
 public record CarCommand(string DriverId, string Pace, string Pit, string? Compound, string Battle);
 public record TeamCommand(string CommandId, int? Phase, long? Revision, IReadOnlyList<CarCommand> Cars);
 public record SubmissionAck(string CommandId, string SessionId, int Phase, long Revision, string Lifecycle);
-public enum SessionFailure { InvalidInput, Forbidden, Unavailable, Conflict }
+public enum SessionFailure { InvalidInput, Forbidden, Unavailable, Conflict, StorageUnavailable }
 public sealed class SessionFault(SessionFailure failure, string message) : Exception(message)
 { public SessionFailure Failure { get; } = failure; }

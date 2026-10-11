@@ -16,7 +16,7 @@ public record RecordedPresentationTiming(string SampleId, string DeviceId, strin
     double DurationMilliseconds, double ClientElapsedMilliseconds, string PlaybackKind, string Completion,
     string Source = "client-reported-monotonic-page-clock");
 public record BrowserSessionTiming(double ElapsedMilliseconds, double? TotalToFinishMilliseconds,
-    IReadOnlyList<BrowserPhaseTiming> PhaseTimings, IReadOnlyList<RecordedPresentationTiming> PresentationSamples);
+    IReadOnlyList<BrowserPhaseTiming> PhaseTimings, IReadOnlyList<RecordedPresentationTiming> PresentationSamples, double? RecoveryReplayMilliseconds = null);
 public record VerifiedReplayPhase(int Phase, bool Matches, int LeaderLap, double RaceTime, bool Finished, string OutcomeHash);
 public record BrowserReplayVerification(bool Matches, bool Finished, IReadOnlyList<VerifiedReplayPhase> Phases);
 

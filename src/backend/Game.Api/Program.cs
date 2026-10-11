@@ -10,6 +10,9 @@ builder.Services.AddSingleton<FirebaseIdentity>();
 builder.Services.AddSingleton<HouseholdSubscriptions>();
 builder.Services.AddSingleton<ISessionNotifications, SessionNotifications>();
 builder.Services.AddSingleton<IRacePresets,DryRacePresets>();
+builder.Services.AddSingleton<ISessionStore>(_ => builder.Configuration["Persistence:ProjectId"] is { Length: > 0 } project
+    ? new FirestoreSessionStore(project, builder.Configuration["Persistence:EmulatorHost"] ?? Environment.GetEnvironmentVariable("FIRESTORE_EMULATOR_HOST"))
+    : new VolatileSessionStore());
 builder.Services.AddSingleton<SessionCoordinator>();
 builder.Services.ConfigureHttpJsonOptions(options => options.SerializerOptions.Converters.Add(new JsonStringEnumConverter()));
 var app = builder.Build();
@@ -22,7 +25,7 @@ app.Use(async (context, next) =>
     catch (SessionFault fault)
     {
         context.Response.StatusCode = fault.Failure switch
-        { SessionFailure.Forbidden => 403, SessionFailure.Unavailable => 404, SessionFailure.Conflict => 409, _ => 400 };
+        { SessionFailure.Forbidden => 403, SessionFailure.Unavailable => 404, SessionFailure.Conflict => 409, SessionFailure.StorageUnavailable => 503, _ => 400 };
         await context.Response.WriteAsJsonAsync(new { code = fault.Failure.ToString(), message = fault.Message });
     }
 });

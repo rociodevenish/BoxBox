@@ -90,9 +90,8 @@ public sealed class LobbyTests
  internal static WebApplicationFactory<Program> Server(string project="demo-f1game")=>new WebApplicationFactory<Program>().WithWebHostBuilder(builder=>builder.ConfigureAppConfiguration((_,config)=>config.AddInMemoryCollection(new Dictionary<string,string?>{{"Firebase:ProjectId",project}})));
  internal static async Task<string> Identity(bool guest)
  {
-  Environment.SetEnvironmentVariable("FIREBASE_AUTH_EMULATOR_HOST","127.0.0.1:19099");using var auth=new HttpClient();
-  var response=await auth.PostAsJsonAsync("http://127.0.0.1:19099/identitytoolkit.googleapis.com/v1/accounts:signUp?key=demo-local-key",guest?(object)new{returnSecureToken=true}:new{email=Guid.NewGuid()+"@example.test",password="Local-test-password-123",returnSecureToken=true});response.EnsureSuccessStatusCode();
+  var emulatorHost=Environment.GetEnvironmentVariable("FIREBASE_AUTH_EMULATOR_HOST")??"127.0.0.1:19099";Environment.SetEnvironmentVariable("FIREBASE_AUTH_EMULATOR_HOST",emulatorHost);using var auth=new HttpClient();
+  var response=await auth.PostAsJsonAsync($"http://{emulatorHost}/identitytoolkit.googleapis.com/v1/accounts:signUp?key=demo-local-key",guest?(object)new{returnSecureToken=true}:new{email=Guid.NewGuid()+"@example.test",password="Local-test-password-123",returnSecureToken=true});response.EnsureSuccessStatusCode();
   return (await response.Content.ReadFromJsonAsync<JsonElement>()).GetProperty("idToken").GetString()!;
  }
 }
-

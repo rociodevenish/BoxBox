@@ -3,7 +3,7 @@ using Game.Simulation;
 using System.Security.Cryptography;
 using System.Diagnostics;
 namespace Game.Application;
-public sealed partial class SessionCoordinator(ISessionNotifications notifications,IRacePresets presets)
+public sealed partial class SessionCoordinator(ISessionNotifications notifications,IRacePresets presets, ISessionStore? store = null)
 {
     private sealed class Session(string id, string player, string device, byte[] grantHash,
         RaceConfiguration configuration, Driver[] drivers, int seed, CreateSessionInput input)
@@ -11,6 +11,7 @@ public sealed partial class SessionCoordinator(ISessionNotifications notificatio
         public long StartedTimestamp { get; } = Stopwatch.GetTimestamp();
         public long WindowTimestamp { get; set; }
         public double? TotalToFinishMilliseconds { get; set; }
+        public double? RecoveryReplayMilliseconds { get; set; }
         public List<BrowserPhaseTiming> PhaseTimings { get; } = [];
         public Dictionary<string, int> PresentationPhases { get; } = [];
         public Dictionary<Guid, (PresentationTimingInput Input, RecordedPresentationTiming Sample)> PresentationSamples { get; } = [];
@@ -32,6 +33,10 @@ public sealed partial class SessionCoordinator(ISessionNotifications notificatio
         public Dictionary<string, DriverDecision> HumanDecisions { get; } = [];
         public string[] RequiredTeams { get; set; } = ["team-01"];
         public bool Paused { get; set; }
+        public bool StorageError { get; set; }
+        public Dictionary<string, DriverDecision>? PendingPlan { get; set; }
+        public TeamCommand? PendingCommand { get; set; }
+        public string? PendingFingerprint { get; set; }
         public int Phase { get; set; }
         public long Revision { get; set; } = 1;
         public long WindowRevision { get; set; } = 1;
@@ -59,7 +64,7 @@ public sealed partial class SessionCoordinator(ISessionNotifications notificatio
         session.FrozenOpponents = OpponentScript.Freeze(session.Engine, session.Drivers.Select(driver => driver.Team).Distinct().Where(team => team != "team-01"), configuration.Laps);
         session.WindowTimestamp = Stopwatch.GetTimestamp();
         mutations.Wait();
-        try { lock (gate) active = session; }
+        try { lock (gate) { active = session; Persist(id); } }
         finally { mutations.Release(); }
         return new(id, $"/race/display/{id}", $"/race/controller/{id}#capability={capability}",
             player, "team-01", device, capability);
@@ -84,11 +89,11 @@ public sealed partial class SessionCoordinator(ISessionNotifications notificatio
                 Array.AsReadOnly(session.RecordedPhases.ToArray()), session.RecordedPhases.LastOrDefault()?.Finished ?? false,
                 new(session.TotalToFinishMilliseconds ?? Stopwatch.GetElapsedTime(session.StartedTimestamp).TotalMilliseconds,
                     session.TotalToFinishMilliseconds, Array.AsReadOnly(session.PhaseTimings.ToArray()),
-                    Array.AsReadOnly(session.PresentationSamples.Values.Select(value => value.Sample).ToArray())));
+                    Array.AsReadOnly(session.PresentationSamples.Values.Select(value => value.Sample).ToArray()), session.RecoveryReplayMilliseconds));
         }
     }
-    private Session Require(string id) => active is { } session && session.Id == id ? session
-        : lobbies.GetValueOrDefault(id)?.Race ?? throw new SessionFault(SessionFailure.Unavailable, "Session unavailable. Create a new local playtest.");
+    private Session Require(string id) { EnsureRecovered(id); return active is { } session && session.Id == id ? session
+        : lobbies.GetValueOrDefault(id)?.Race ?? throw new SessionFault(SessionFailure.Unavailable, "Session unavailable. Create a new local playtest."); }
     public bool RecordPresentationTiming(string id, PresentationTimingInput? input)
     {
         lock (gate)
@@ -146,10 +151,10 @@ public sealed partial class SessionCoordinator(ISessionNotifications notificatio
                 state.Events.Count(item => item.DriverId == entry.DriverId && item.Kind == RaceEventKind.PitExit),
                 fastest == entry.DriverId);
         }).ToArray();
-        return new(session.Id, session.Phase, session.Revision, session.Lifecycle, state.LeaderLap,
+        return new(session.Id, session.Phase, session.Revision, session.StorageError ? "storage-error" : session.Lifecycle, state.LeaderLap,
             session.Configuration.Laps, state.Time, Array.AsReadOnly(rows), session.Events, session.Presentation,
             state.Finished ? 0 : Math.Min(5, session.Configuration.Laps - state.LeaderLap),
-            Array.AsReadOnly(session.RequiredTeams.Select(team => new TeamReadiness(team, session.Locks.ContainsKey(team))).ToArray()),session.Paused);
+            Array.AsReadOnly(session.RequiredTeams.Select(team => new TeamReadiness(team, session.Locks.ContainsKey(team))).ToArray()),session.Paused || session.StorageError);
     }
     private static PublicGap ProjectGap(TimingGap gap) => gap.Laps > 0 ? new("laps", Laps: gap.Laps)
         : gap.Seconds is { } seconds ? new("time", seconds) : new("unavailable");
@@ -170,7 +175,7 @@ public sealed partial class SessionCoordinator(ISessionNotifications notificatio
         var own = observation.TeamTyres.Select(tyre => new PrivateCar(tyre.DriverId, tyre.Compound.ToString(),
             tyre.Age, tyre.EstimatedCondition, tyre.InPits, tyre.StopQueued,
             Array.AsReadOnly(observation.BattleOptions[tyre.DriverId].Select(option => option.ToString()).ToArray()))).ToArray();
-        return new(session.Id, session.Phase, session.Revision, session.Lifecycle, assignment?.PlayerId ?? session.Player, teamId,
+        return new(session.Id, session.Phase, session.Revision, session.StorageError ? "storage-error" : session.Lifecycle, assignment?.PlayerId ?? session.Player, teamId,
             assignment?.DeviceId ?? session.Device, Array.AsReadOnly(own), assignment is null ? session.ConfirmedPlan : session.Locks.GetValueOrDefault(teamId), assignment?.Revision ?? 0, session.WindowRevision);
     }
     public async Task<SubmissionAck> Submit(string id, string? capability, TeamCommand? command)
@@ -229,7 +234,8 @@ public sealed partial class SessionCoordinator(ISessionNotifications notificatio
             if (identity is null) session.Locks[teamId] = command;
             session.ConfirmedPlan = command;
             decisionMilliseconds = Stopwatch.GetElapsedTime(session.WindowTimestamp).TotalMilliseconds;
-            if (waitingAck is null) { session.Lifecycle = "resolving"; session.Revision++; }
+            if (waitingAck is null) { session.Lifecycle = "resolving"; session.Revision++; session.PendingPlan=complete; session.PendingCommand=command; session.PendingFingerprint=fingerprint; }
+            Persist(id);
             resolving = Project(session); teamResolving = ProjectTeam(session);
         }
         await PublishRace(session, resolving, teamResolving);
@@ -237,14 +243,38 @@ public sealed partial class SessionCoordinator(ISessionNotifications notificatio
         PublicSnapshot resolved; TeamSnapshot teamResolved;
         lock (gate)
         {
-            _ = Require(id);
+
+            CompleteResolution(session, complete, decisionMilliseconds);
+            var committedAck = new SubmissionAck(command.CommandId, session.Id, command.Phase!.Value, session.Revision, session.Lifecycle);
+            session.AcceptedCommands.Add(commandId, (fingerprint, committedAck));
+            session.PendingPlan=null;session.PendingCommand=null;session.PendingFingerprint=null;
+            Persist(id);
+            resolved = Project(session); teamResolved = ProjectTeam(session);
+        }
+        await PublishRace(session, resolved, teamResolved);
+        // This acknowledgement belongs to the phase accepted, even after its next window opens.
+        var acknowledgement = new SubmissionAck(command.CommandId, session.Id, command.Phase!.Value, resolved.Revision, resolved.Lifecycle);
+
+        if (resolved.Lifecycle != "finished" && !session.Paused)
+        {
+            lock (gate)
+            {
+                if(session.Lifecycle=="phase-result"&&!session.Paused){OpenHouseholdWindow(session);Persist(id);}
+                resolved = Project(session); teamResolved = ProjectTeam(session);
+            }
+        }
+        if (resolved.Lifecycle == "awaiting-decisions") await PublishRace(session, resolved, teamResolved);
+        return acknowledgement;
+    }
+    private void CompleteResolution(Session session, IReadOnlyDictionary<string, DriverDecision> complete, double decisionMilliseconds)
+    {
             var resolutionStarted = Stopwatch.GetTimestamp();
             var result = session.Engine.ResolvePhase(complete);
             var resolutionMilliseconds = Stopwatch.GetElapsedTime(resolutionStarted).TotalMilliseconds;
             if (result.Finished) session.TotalToFinishMilliseconds = Stopwatch.GetElapsedTime(session.StartedTimestamp).TotalMilliseconds;
             session.PhaseTimings.Add(new(session.Phase, decisionMilliseconds, resolutionMilliseconds, null));
             session.RecordedPhases.Add(new(session.Phase, result.LeaderLap, result.Time, result.Finished, BrowserReplay.OutcomeHash(result)));
-            session.AcceptedPlans.Add(new System.Collections.ObjectModel.ReadOnlyDictionary<string, DriverDecision>(complete));
+            session.AcceptedPlans.Add(new System.Collections.ObjectModel.ReadOnlyDictionary<string, DriverDecision>(complete.ToDictionary()));
             var fresh = result.Events.Skip(session.EngineEventCursor).Select((item, index) => (item, index))
                 .Where(pair => pair.item.Kind is RaceEventKind.Overtake or RaceEventKind.PitEntry or RaceEventKind.PitExit or RaceEventKind.TyreChanged).ToArray();
             session.EngineEventCursor = result.Events.Count;
@@ -263,22 +293,6 @@ public sealed partial class SessionCoordinator(ISessionNotifications notificatio
                     + (fresh.Length > selected.Length ? $" Showing {selected.Length} highlights of {fresh.Length} recorded events." : ""));
             session.Lifecycle = result.Finished ? "finished" : "phase-result"; session.Revision++;
             session.PresentationPhases.Add(session.Presentation.Cursor, session.Phase);
-            resolved = Project(session); teamResolved = ProjectTeam(session);
-        }
-        await PublishRace(session, resolved, teamResolved);
-        // This acknowledgement belongs to the phase accepted, even after its next window opens.
-        var acknowledgement = new SubmissionAck(command.CommandId, session.Id, command.Phase!.Value, resolved.Revision, resolved.Lifecycle);
-        lock (gate) session.AcceptedCommands.Add(commandId, (fingerprint, acknowledgement));
-        if (resolved.Lifecycle != "finished" && !session.Paused)
-        {
-            lock (gate)
-            {
-                if(session.Lifecycle=="phase-result"&&!session.Paused)OpenHouseholdWindow(session);
-                resolved = Project(session); teamResolved = ProjectTeam(session);
-            }
-        }
-        if (resolved.Lifecycle == "awaiting-decisions") await PublishRace(session, resolved, teamResolved);
-        return acknowledgement;
     }
     private async Task PublishSafely(PublicSnapshot display, TeamSnapshot team)
     {
