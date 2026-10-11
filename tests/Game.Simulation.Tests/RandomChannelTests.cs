@@ -82,7 +82,7 @@ public class RandomChannelTests
         var phase = race.ResolvePhase();
         var first = race.GetTeamObservation("A");
         var second = race.GetTeamObservation("A");
-        Assert.Equal(first.TeamTyres, second.TeamTyres);
+        Assert.Equivalent(first.TeamTyres, second.TeamTyres);
         var estimate = first.TeamTyres[0].EstimatedCondition;
         Assert.InRange(estimate, Math.Max(0, phase.Tyres[0].Condition - .04), Math.Min(1, phase.Tyres[0].Condition + .04));
         var json = System.Text.Json.JsonSerializer.Serialize(first);
@@ -146,4 +146,3 @@ public class RandomChannelTests
         Assert.Equal(first.Classification, observed.Classification);
     }
 }
-

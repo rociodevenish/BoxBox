@@ -51,7 +51,7 @@ public sealed class DesignerReplayTests
         var record = await client.GetFromJsonAsync<JsonElement>(designer);
         Assert.Equal("browser-dry-race-replay-v1",record.GetProperty("formatVersion").GetString());
         Assert.Equal(123,record.GetProperty("replay").GetProperty("seed").GetInt32());
-        Assert.Equal("dry-opponents-v1",record.GetProperty("opponentScriptVersion").GetString());
+        Assert.Equal("dry-observation-ai-v2",record.GetProperty("opponentScriptVersion").GetString());
         Assert.Equal(44,record.GetProperty("replay").GetProperty("plan").GetProperty("scheduled").GetArrayLength());
         Assert.Equal(2,record.GetProperty("phases").GetArrayLength());
         var response = await client.PostAsJsonAsync("/api/designer/replay/verify",record);
