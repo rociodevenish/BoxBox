@@ -12,4 +12,4 @@
 - [x] Persist control revisions and transitions so restart retains the same takeover/reclaim outcome and revoked devices cannot act or receive private updates.
 - [x] Verify takeover, timeout fallback, reclaim, concurrent requests and accepted-lock preservation through API/SignalR and rendered controller status.
 
-Automated evidence: [control transfers](../evidence/control-transfers.md). Hosted and real household evidence remain pending in ticket 06.
+Automated evidence: [control transfers](../evidence/control-transfers.md). Hosted and real household evidence remain pending in ticket 07.

@@ -1,6 +1,6 @@
 # Boundary control transfer evidence
 
-Ticket 04 automated acceptance is complete. Hosted wakeup, production smoke and real household playtest evidence remain pending in ticket 06.
+Ticket 04 automated acceptance is complete. Hosted wakeup, production smoke and real household playtest evidence remain pending in ticket 07.
 
 Host takeover requests during an open decision or presentation window queue for the next window opening. Temporary AI applies for one phase, then returns responsibility to Human. Permanent AI continues until an authorised controller requests reclaim. Reclaim also queues for the next boundary. Neither operation rewrites an accepted human lock, a frozen automatic set, player/team identity, or the existing Private/SharedTablet/Open arrangement. Device membership and controller grants remain the authority boundary.
 
