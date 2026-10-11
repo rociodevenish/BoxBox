@@ -1,6 +1,6 @@
 # Durable recovery evidence
 
-Ticket 01 automated implementation is complete. Hosted smoke, household playtest and real Firebase/Cloud Run cost evidence remain pending under ticket 06.
+Ticket 01 automated implementation is complete. Hosted smoke, household playtest and real Firebase/Cloud Run cost evidence remain pending under ticket 07.
 
 The replaceable `ISessionStore` boundary owns conditional persisted records. API hosts configure `Persistence:ProjectId`; `Persistence:EmulatorHost` or `FIRESTORE_EMULATOR_HOST` selects the local emulator. With no persistence project configured, existing isolated developer fixtures use a per-host volatile store. Production uses server-side application default credentials with the datastore scope; browser Firestore rules deny all direct reads/writes. SignalR remains the live transport.
 
