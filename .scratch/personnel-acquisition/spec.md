@@ -1,4 +1,4 @@
-# Personnel acquisition
+# S12 — Personnel acquisition
 
 Status: ready-for-agent
 Blocked by: campaign, calendar and championships; effective attribute and personnel-information contracts.

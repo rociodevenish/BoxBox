@@ -1,4 +1,4 @@
-# Shared sessions and controller ownership
+# S05 — Shared sessions and controller ownership
 
 Status: ready-for-agent
 Blocked by: browser dry-race vertical slice and its session contracts; visual foundation for controller and display integration.

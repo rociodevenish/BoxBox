@@ -1,4 +1,4 @@
-# Weekend preparation and effective attributes
+# S07 — Weekend preparation and effective attributes
 
 Status: ready-for-agent
 Blocked by: race continuity, AI and assistance; reviewed segment-model evidence and browser playtest findings.

@@ -1,4 +1,4 @@
-# Race-board presentation and Simple/Full views
+# S17 — Race-board presentation and Simple/Full views
 
 Status: ready-for-agent
 Blocked by: complete weekend event/projection contracts; visual foundation; representative validated circuit/assets. Full coverage depends on full-calendar content.

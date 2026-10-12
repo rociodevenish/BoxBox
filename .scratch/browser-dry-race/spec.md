@@ -1,4 +1,4 @@
-# Browser dry-race vertical slice
+# S04 — Browser dry-race vertical slice
 
 Status: resolved
 Blocked by: segment-model evidence review and integration readiness; visual foundation components for final UI integration.

@@ -1,4 +1,4 @@
-# Full-calendar content and card coverage
+# S16 — Full-calendar content and card coverage
 
 Status: ready-for-agent
 Blocked by: campaign, personnel, car construction and Race Package content contracts; implemented weekend mechanics and visual foundation.

@@ -1,4 +1,4 @@
-# Race continuity, AI and assistance
+# S06 — Race continuity, AI and assistance
 
 Status: ready-for-human
 Blocked by: shared sessions and controller ownership; browser dry-race contracts and deterministic replay; reviewed race-model evidence.

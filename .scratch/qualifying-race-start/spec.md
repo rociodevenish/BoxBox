@@ -1,4 +1,4 @@
-# Qualifying and automatic race start
+# S08 — Qualifying and automatic race start
 
 Status: ready-for-agent
 Blocked by: weekend preparation and effective attributes; durable shared-session contracts.

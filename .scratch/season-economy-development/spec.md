@@ -1,4 +1,4 @@
-# Season economy and permanent development
+# S14 — Season economy and permanent development
 
 Status: ready-for-agent
 Blocked by: campaign, calendar and championships; personnel acquisition and budget ledger; initial car construction and effective-attribute composition.

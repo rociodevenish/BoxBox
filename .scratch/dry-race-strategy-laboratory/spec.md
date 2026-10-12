@@ -1,4 +1,4 @@
-# Dry-race strategy laboratory
+# S01 — Dry-race strategy laboratory
 
 Status: resolved
 

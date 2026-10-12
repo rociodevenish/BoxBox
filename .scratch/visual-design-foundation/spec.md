@@ -1,4 +1,4 @@
-# Visual direction and design-system foundation
+# S03 — Visual direction and design-system foundation
 
 Status: resolved
 

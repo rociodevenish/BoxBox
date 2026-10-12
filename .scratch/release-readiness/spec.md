@@ -1,4 +1,4 @@
-# Season balance and release readiness
+# S18 — Season balance and release readiness
 
 Status: ready-for-agent
 Blocked by: all preceding delivery specs, including Race Packages, full-calendar content and race presentation; integrated campaign evidence.

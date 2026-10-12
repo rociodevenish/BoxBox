@@ -1,4 +1,4 @@
-# Campaign, calendar and championships
+# S11 — Campaign, calendar and championships
 
 Status: ready-for-agent
 Blocked by: weather strategy and the complete-weekend evidence; durable shared-session identity, recovery and control contracts.

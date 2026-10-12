@@ -1,4 +1,4 @@
-# Segment race model and controlled variability
+# S02 — Segment race model and controlled variability
 
 Status: resolved
 

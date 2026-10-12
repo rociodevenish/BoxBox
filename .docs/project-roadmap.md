@@ -25,28 +25,30 @@ The current frontier is shared-session ticket 01: authenticated lobby creation, 
 
 ## Written spec index
 
-All eighteen delivery specs currently written in the local tracker are linked below in milestone order. Each spec is the source of truth for its current status, blockers, scope and testing decisions. Future candidates in this roadmap are not written specs until their tracker documents exist.
+All eighteen delivery specs currently written in the local tracker are linked below in milestone order. Each has a stable S-code for discussion and tracking; codes follow the roadmap order, while each spec's status and blockers remain the source of truth for readiness. Future candidates in this roadmap are not written specs until their tracker documents exist.
 
-| Stage | Written spec | Scope |
-| --- | --- | --- |
-| 1 | [Dry-race strategy laboratory](../.scratch/dry-race-strategy-laboratory/spec.md) | Standalone race simulation, strategy scripts, replay and paired evidence. |
-| 1 | [Segment race model and controlled variability](../.scratch/segment-race-model/spec.md) | Spatial track demands, passing zones, controlled random scopes and modelling evidence. |
-| 2 | [Visual direction and design-system foundation](../.scratch/visual-design-foundation/spec.md) | Broadcast visual language, driver cards, F1-style timing tower, reusable controls and representative-screen gallery. |
-| 2 | [Browser dry-race vertical slice](../.scratch/browser-dry-race/spec.md) | One human team managing two cars through a complete authoritative browser race. |
-| 3 | [Shared sessions and controller ownership](../.scratch/shared-sessions/spec.md) | Multiple players, team assignment, simultaneous locks, private controllers, pass-and-play and open-family control. |
-| 3 | [Race continuity, AI and assistance](../.scratch/race-continuity-ai-assistance/spec.md) | Durable recovery, deadlines, fallback/takeover, fair AI and recommendations, and hosted family play. |
-| 4 | [Weekend preparation and effective attributes](../.scratch/weekend-preparation/spec.md) | Preset effective attributes, team-wide setup, practice feedback and qualifying lock. |
-| 4 | [Qualifying and automatic race start](../.scratch/qualifying-race-start/spec.md) | Simultaneous Q1/Q2/Q3 approaches, grid generation and automatic opening. |
-| 4 | [Incidents, reliability and Safety Cars](../.scratch/incidents-safety-cars/spec.md) | Contextual risk, damage/retirement, interrupted phases and neutralised pit decisions. |
-| 4 | [Weather strategy](../.scratch/weather-strategy/spec.md) | Imperfect forecasts, evolving wetness, weather tyres and reaction windows. |
-| 5 | [Campaign, calendar and championships](../.scratch/campaign-championships/spec.md) | Saved preset campaign, both standings, reports and asynchronous preparation. |
-| 6 | [Personnel acquisition](../.scratch/personnel-acquisition/spec.md) | Unique fixed-price offers, Scouts, priority and starting-budget ledger. |
-| 6 | [Initial car construction](../.scratch/initial-car-construction/spec.md) | Equal-access car compromises, budget allocation and locked Base Car. |
-| 6 | [Season economy and permanent development](../.scratch/season-economy-development/spec.md) | Modest income, one development opportunity, personnel effects and permanent gains. |
-| 6 | [Race Package library and development outcomes](../.scratch/race-packages/spec.md) | Library, selection/refinement, richer outcomes and Rush using the shared development opportunity. |
-| 7 | [Full-calendar content and card coverage](../.scratch/full-calendar-content/spec.md) | Validated calendar, unique personnel pools, content versions, cards and supplied asset coverage. |
-| 7 | [Race-board presentation and Simple/Full views](../.scratch/race-presentation/spec.md) | Babylon.js display, event playback, accessible fallback and detail views over one simulation. |
-| 7 | [Season balance and release readiness](../.scratch/release-readiness/spec.md) | Integrated balance, household campaigns, onboarding, accessibility, device and operational evidence. |
+| Code | Stage | Written spec | Scope |
+| --- | --- | --- | --- |
+| S01 | 1 | [Dry-race strategy laboratory](../.scratch/dry-race-strategy-laboratory/spec.md) | Standalone race simulation, strategy scripts, replay and paired evidence. |
+| S02 | 1 | [Segment race model and controlled variability](../.scratch/segment-race-model/spec.md) | Spatial track demands, passing zones, controlled random scopes and modelling evidence. |
+| S03 | 2 | [Visual direction and design-system foundation](../.scratch/visual-design-foundation/spec.md) | Broadcast visual language, driver cards, F1-style timing tower, reusable controls and representative-screen gallery. |
+| S04 | 2 | [Browser dry-race vertical slice](../.scratch/browser-dry-race/spec.md) | One human team managing two cars through a complete authoritative browser race. |
+| S05 | 3 | [Shared sessions and controller ownership](../.scratch/shared-sessions/spec.md) | Multiple players, team assignment, simultaneous locks, private controllers, pass-and-play and open-family control. |
+| S06 | 3 | [Race continuity, AI and assistance](../.scratch/race-continuity-ai-assistance/spec.md) | Durable recovery, deadlines, fallback/takeover, fair AI and recommendations, and hosted family play. |
+| S07 | 4 | [Weekend preparation and effective attributes](../.scratch/weekend-preparation/spec.md) | Preset effective attributes, team-wide setup, practice feedback and qualifying lock. |
+| S08 | 4 | [Qualifying and automatic race start](../.scratch/qualifying-race-start/spec.md) | Simultaneous Q1/Q2/Q3 approaches, grid generation and automatic opening. |
+| S09 | 4 | [Incidents, reliability and Safety Cars](../.scratch/incidents-safety-cars/spec.md) | Contextual risk, damage/retirement, interrupted phases and neutralised pit decisions. |
+| S10 | 4 | [Weather strategy](../.scratch/weather-strategy/spec.md) | Imperfect forecasts, evolving wetness, weather tyres and reaction windows. |
+| S11 | 5 | [Campaign, calendar and championships](../.scratch/campaign-championships/spec.md) | Saved preset campaign, both standings, reports and asynchronous preparation. |
+| S12 | 6 | [Personnel acquisition](../.scratch/personnel-acquisition/spec.md) | Unique fixed-price offers, Scouts, priority and starting-budget ledger. |
+| S13 | 6 | [Initial car construction](../.scratch/initial-car-construction/spec.md) | Equal-access car compromises, budget allocation and locked Base Car. |
+| S14 | 6 | [Season economy and permanent development](../.scratch/season-economy-development/spec.md) | Modest income, one development opportunity, personnel effects and permanent gains. |
+| S15 | 6 | [Race Package library and development outcomes](../.scratch/race-packages/spec.md) | Library, selection/refinement, richer outcomes and Rush using the shared development opportunity. |
+| S16 | 7 | [Full-calendar content and card coverage](../.scratch/full-calendar-content/spec.md) | Validated calendar, unique personnel pools, content versions, cards and supplied asset coverage. |
+| S17 | 7 | [Race-board presentation and Simple/Full views](../.scratch/race-presentation/spec.md) | Babylon.js display, event playback, accessible fallback and detail views over one simulation. |
+| S18 | 7 | [Season balance and release readiness](../.scratch/release-readiness/spec.md) | Integrated balance, household campaigns, onboarding, accessibility, device and operational evidence. |
+
+Supporting spec: [S19 — Verification workflow and compact controller refinement](../.scratch/workflow-controller-refinement/spec.md) records completed workflow and controller improvements; it is separate from the delivery-spec count.
 
 Supporting design reference: [Driver card sample design specification](driver-card-design-spec.sample.md) preserves the selected card direction and prototype handoff. It is an illustrative design reference, not an additional delivery spec, and is excluded from the delivery-spec count.
 
