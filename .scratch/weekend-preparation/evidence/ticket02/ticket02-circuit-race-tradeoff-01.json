@@ -1,0 +1,18 @@
+{
+  "command": "dotnet",
+  "args": [
+    "test",
+    "tests/Game.Simulation.Tests/Game.Simulation.Tests.csproj",
+    "--filter",
+    "Aero_setup_race_advantage",
+    "--no-restore",
+    "-m:1",
+    "-p:UseSharedCompilation=false"
+  ],
+  "cwd": "C:\\Projects\\F1Game\\.worktrees\\s07-02",
+  "pid": 46228,
+  "startedAt": "2026-10-12T11:47:50.232Z",
+  "status": "passed",
+  "exitCode": 0,
+  "elapsedMs": 4661
+}

@@ -21,12 +21,16 @@ public static class WeekendPreparation
         ArgumentNullException.ThrowIfNull(weekend);
         if (weekend.ModelVersion != ModelVersion || weekend.Source.Version != ModelVersion)
             throw new ArgumentException("Unsupported effective weekend replay model.");
+        if (weekend.SetupModelVersion is not ("neutral-setup-v1" or WeekendSetup.Version))
+            throw new ArgumentException("Unsupported saved setup model.");
+        weekend.Setup?.Validate();
         return new(weekend.Configuration, weekend.Cars.Select(c => c.RaceDriver).ToArray(), seed);
     }
 
-    public static EffectiveWeekend Prepare(WeekendPreset preset, int laps)
+    public static EffectiveWeekend Prepare(WeekendPreset preset, int laps, WeekendSetup? setup = null)
     {
         ArgumentNullException.ThrowIfNull(preset);
+        setup?.Validate();
         if (preset.Version != ModelVersion || preset.Circuit.Version != CardVersion
             || preset.Engineer.Version != "authored-engineer-v1"
             || preset.Cars.Any(c => c.Car.Version != CarVersion || c.Driver.Version != CardVersion)
@@ -45,7 +49,7 @@ public static class WeekendPreparation
             Validate(source.Driver.Ratings, DriverKeys);
             if (string.IsNullOrWhiteSpace(source.EntryId) || string.IsNullOrWhiteSpace(source.TeamId))
                 throw new ArgumentException("Stable entry and team identities are required.");
-            var car = source.Car.Ratings;
+            var car = setup is null ? source.Car.Ratings : WeekendSetupTuning.Apply(source.Car.Ratings, setup);
             var driver = source.Driver.Ratings;
             var demand = preset.Circuit.Demands;
             // Whole-lap design-point gains. SegmentSimulation already apportions by baseline time.
@@ -54,10 +58,11 @@ public static class WeekendPreparation
             var cornering = (Contribution("highSpeedAero", "highSpeedCornering") + Contribution("lowSpeedAero", "lowSpeedCornering")
                 + Contribution("mechanicalGrip", "mechanicalGrip") + Contribution("braking", "braking") + Contribution("traction", "traction")) / 5;
             var raceDriver = new Driver(source.EntryId, source.TeamId, Speed: speed, Cornering: cornering,
-                Pace: (driver["racePace"] - 82) / 10, Gap: index * .5,
+                Pace: (driver["racePace"] - 82) / 10 - (setup is null ? 0 : WeekendSetupTuning.Mismatch(source.Driver, setup) * .15), Gap: index * .5,
                 TyrePreservation: ((car["tyreWear"] - 82) * demand["tyreDegradation"] / 100 + driver["tyrePreservation"] - 82) / 20,
                 TyreManagement: (car["tyreTemperature"] - 82) * demand["tyreThermalDemand"] / 100 / 10,
-                Racecraft: (driver["overtaking"] + driver["defending"] - 164) / 20);
+                Racecraft: (driver["overtaking"] + driver["defending"] - 164) / 20,
+                TyreWarmupMultiplier: setup is null ? 1 : Math.Clamp(1 + setup.Tyres * .12 - (driver["tyreWarmup"] - 82) * .004, .65, 1.35));
             return new EffectiveWeekendCar(source, raceDriver);
         }).ToImmutableArray();
         // Validate the projected configuration at the existing public race boundary.
@@ -65,10 +70,15 @@ public static class WeekendPreparation
         return new(ModelVersion, preset with { Circuit = preset.Circuit with { Track = configuration.Track } }, configuration, cars,
             $"{preset.Circuit.Name}: speed demand {(preset.Circuit.Demands["topSpeed"] + preset.Circuit.Demands["accelerationDeployment"]) / 2:0}/100; "
             + $"high-speed aero demand {preset.Circuit.Demands["highSpeedCornering"]:0}/100; low-speed aero demand {preset.Circuit.Demands["lowSpeedCornering"]:0}/100. "
-            + "Neutral Base Car, Race Package and Weekend Setup. "
+            + (setup is null ? "Neutral Base Car, Race Package and Weekend Setup. "
+                : $"Neutral Base Car and Race Package; Weekend Setup Aero {setup.Aero}, Mechanical {setup.Mechanical}, Tyres {setup.Tyres}. ")
             + string.Join("; ", cars.Select(c => $"{c.Source.Driver.Name}: race pace {c.Source.Driver.Ratings["racePace"]:0}/100, "
                 + $"car Top Speed {c.Source.Car.Ratings["topSpeed"]:0}/100, High-Speed Aero {c.Source.Car.Ratings["highSpeedAero"]:0}/100, "
-                + $"preferences {string.Join(", ", c.Source.Driver.Preferences.Select(p => p.Label))}")) + ". Provisional tuning; preferences and engineer advice are inactive in this slice.");
+                + $"preferences {string.Join(", ", c.Source.Driver.Preferences.Select(p => p.Label))}"))
+            + (setup is null ? ". Provisional tuning; preferences and engineer advice are inactive in this slice."
+                : ". Speed trades straight pace for aero; Responsive trades grip for traction and preservation; Warm-Up trades first-lap readiness for stint life. Engineer Setup and driver Setup Feedback affect information only."),
+            setup, setup is null ? "neutral-setup-v1" : WeekendSetup.Version,
+            setup is null ? [] : preset.Cars.Select(c => WeekendSetupTuning.Fit(c.Driver, setup)).ToImmutableArray());
     }
 
     private static void Validate(ImmutableDictionary<string, double> values, ImmutableArray<string> keys)

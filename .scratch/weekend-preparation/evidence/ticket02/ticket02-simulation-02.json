@@ -1,0 +1,18 @@
+{
+  "command": "dotnet",
+  "args": [
+    "test",
+    "tests/Game.Simulation.Tests/Game.Simulation.Tests.csproj",
+    "--filter",
+    "FullyQualifiedName~WeekendPresetTests|FullyQualifiedName~ReplayTests",
+    "--no-restore",
+    "-m:1",
+    "-p:UseSharedCompilation=false"
+  ],
+  "cwd": "C:\\Projects\\F1Game\\.worktrees\\s07-02",
+  "pid": 42524,
+  "startedAt": "2026-10-12T11:37:19.625Z",
+  "status": "passed",
+  "exitCode": 0,
+  "elapsedMs": 4617
+}

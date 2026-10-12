@@ -88,7 +88,8 @@ public sealed class RaceEngine
             || drivers.Any(d => string.IsNullOrWhiteSpace(d.Id) || string.IsNullOrWhiteSpace(d.Team)
                 || !double.IsFinite(d.Pace) || !double.IsFinite(d.Speed) || !double.IsFinite(d.Cornering)
                 || !double.IsFinite(d.Gap) || d.Gap < 0 || !Enum.IsDefined(d.StartingCompound)
-                || !double.IsFinite(d.TyrePreservation) || !double.IsFinite(d.TyreManagement) || !double.IsFinite(d.Racecraft))
+                || !double.IsFinite(d.TyrePreservation) || !double.IsFinite(d.TyreManagement) || !double.IsFinite(d.Racecraft)
+                || !double.IsFinite(d.TyreWarmupMultiplier) || d.TyreWarmupMultiplier is < .65 or > 1.35)
             || tyreValues.Any(v => !double.IsFinite(v) || v < 0))
             throw new ArgumentException("Invalid race configuration or starting field.");
         if (configuration.Track.Segments is { } segments)
@@ -713,8 +714,8 @@ public sealed class RaceEngine
             SegmentId: Segments?[car.SegmentIndex].Id, DistanceMetres: Segments is null ? null : Distance(car), EncounterId: encounter));
     }
 
-    private double TyrePenalty(Car car) => TyrePenalty(car.Compound, car.Pace, car.TyreAge, car.Condition);
-    private double TyrePenalty(TyreCompound tyreCompound, PaceInstruction pace, int tyreAge, double condition)
+    private double TyrePenalty(Car car) => TyrePenalty(car.Compound, car.Pace, car.TyreAge, car.Condition, car.Driver.TyreWarmupMultiplier);
+    private double TyrePenalty(TyreCompound tyreCompound, PaceInstruction pace, int tyreAge, double condition, double readiness = 1)
     {
         var compound = tyreCompound switch { TyreCompound.Soft => -Tyres.SoftGain,
             TyreCompound.Hard => Tyres.HardLoss, _ => 0 };
@@ -722,7 +723,7 @@ public sealed class RaceEngine
             PaceInstruction.Conserve => Tyres.ConserveLoss, _ => 0 };
         var warmup = tyreCompound switch { TyreCompound.Soft => Tyres.SoftWarmup,
             TyreCompound.Hard => Tyres.HardWarmup, _ => 1 };
-        return compound + instruction + (tyreAge == 0 ? Tyres.WarmupPenalty * warmup : 0)
+        return compound + instruction + (tyreAge == 0 ? Tyres.WarmupPenalty * warmup * readiness : 0)
             + Math.Pow(1 - condition, 2) * Tyres.DegradationPenalty
             + (condition <= 0 ? Tyres.ExhaustionPenalty : 0);
     }

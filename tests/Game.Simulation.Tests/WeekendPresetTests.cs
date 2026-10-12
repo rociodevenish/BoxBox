@@ -8,6 +8,70 @@ namespace Game.Simulation.Tests;
 public class WeekendPresetTests
 {
     [Fact]
+    public void Team_setup_preserves_sources_and_exchanges_speed_for_cornering_for_both_cars()
+    {
+        var preset = WeekendPresetCatalog.Open("track-monza");
+        var speed = WeekendPreparation.Prepare(preset, 3, new(-2, 0, 0));
+        var downforce = WeekendPreparation.Prepare(preset, 3, new(2, 0, 0));
+        Assert.All(speed.Cars, car => Assert.Equal(82, car.Source.Car.Ratings["topSpeed"]));
+        for (var i = 0; i < 2; i++)
+        {
+            Assert.True(speed.Cars[i].RaceDriver.Speed > downforce.Cars[i].RaceDriver.Speed);
+            Assert.True(speed.Cars[i].RaceDriver.Cornering < downforce.Cars[i].RaceDriver.Cornering);
+        }
+        Assert.Equal(new(-2, 0, 0), speed.Setup);
+        Assert.Throws<ArgumentException>(() => WeekendPreparation.Prepare(preset, 3, new(3, 0, 0)));
+    }
+    [Fact]
+    public void Aero_setup_race_advantage_reverses_between_monza_and_monaco()
+    {
+        double Difference(string circuit)
+        {
+            double Time(int aero)
+            {
+                var weekend=WeekendPreparation.Prepare(WeekendPresetCatalog.Open(circuit),3,new(aero,0,0));
+                weekend=weekend with {Configuration=weekend.Configuration with {Traffic=new(Enabled:false),Tyres=new(DegradationPerLap:0,WarmupPenalty:0)}};
+                return Finish(weekend).Classification.Single(c=>c.DriverId=="car-1").FinishTime!.Value;
+            }
+            return Time(-2)-Time(2);
+        }
+        Assert.True(Difference("track-monza")<0);
+        Assert.True(Difference("track-monaco")>0);
+    }
+
+    [Fact]
+    public void Warm_up_choice_buys_first_lap_response_while_preservation_buys_stint_life()
+    {
+        double Time(int laps,int tyres)
+        {
+            var source=WeekendPresetCatalog.Open("track-monza");
+            var weekend=WeekendPreparation.Prepare(source,laps,new(0,0,tyres));
+            weekend=weekend with { Configuration=weekend.Configuration with { Traffic=new(Enabled:false) } };
+            return Finish(weekend).Classification.Single(c=>c.DriverId=="car-1").FinishTime!.Value;
+        }
+        Assert.True(Time(1,-2)<Time(1,2));
+        Assert.True(Time(20,2)<Time(20,-2));
+    }
+
+    [Fact]
+    public void Adaptability_moderates_different_driver_preferences_and_information_has_no_pace_effect()
+    {
+        var source=WeekendPresetCatalog.Open("track-monza");
+        var first=source.Cars[0]; var second=source.Cars[1];
+        var cars=ImmutableArray.Create(first with {Driver=first.Driver with {Preferences=[new("responsive-front","Responsive front")],Ratings=first.Driver.Ratings.SetItem("adaptability",10)}},
+            second with {Driver=first.Driver with {Id=second.Driver.Id,Preferences=[new("stable-rear","Stable rear")],Ratings=first.Driver.Ratings.SetItem("adaptability",10)}});
+        var preset=source with {Cars=cars};
+        var stable=WeekendPreparation.Prepare(preset,3,new(0,2,0));
+        Assert.True(stable.DriverFits[1].Compatibility>stable.DriverFits[0].Compatibility);
+        var adaptable=WeekendPreparation.Prepare(preset with {Cars=cars.SetItem(0,cars[0] with {Driver=cars[0].Driver with {Ratings=cars[0].Driver.Ratings.SetItem("adaptability",100)}})},3,new(0,2,0));
+        Assert.True(adaptable.DriverFits[0].Compatibility>stable.DriverFits[0].Compatibility);
+        var information=WeekendPreparation.Prepare(preset with {Engineer=preset.Engineer with {Setup=100},Cars=cars.Select(c=>c with {Driver=c.Driver with {Ratings=c.Driver.Ratings.SetItem("setupFeedback",100)}}).ToImmutableArray()},3,new(0,2,0));
+        Assert.Equal(stable.Cars.Select(c=>c.RaceDriver),information.Cars.Select(c=>c.RaceDriver));
+        var replay=System.Text.Json.JsonSerializer.Deserialize<EffectiveWeekend>(System.Text.Json.JsonSerializer.Serialize(stable))!;
+        Assert.Equal(Finish(stable).Classification,Finish(replay).Classification);
+    }
+
+    [Fact]
     public void Prepared_weekend_retains_two_car_sources_and_can_replay_without_content_files()
     {
         var weekend = WeekendPreparation.Prepare(WeekendPresetCatalog.Open("track-monza"), 3);
