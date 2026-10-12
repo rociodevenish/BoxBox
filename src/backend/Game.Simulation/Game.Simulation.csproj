@@ -1,3 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <ItemGroup><ProjectReference Include="../Game.Domain/Game.Domain.csproj" /></ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="../../../.docs/data/f1_strategy_driver_cards_2026.json" LogicalName="weekend.drivers.json" />
+    <EmbeddedResource Include="../../../.docs/data/f1_strategy_track_cards_2026.json" LogicalName="weekend.tracks.json" />
+  </ItemGroup>
 </Project>

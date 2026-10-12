@@ -1,0 +1,20 @@
+{
+  "command": "dotnet",
+  "args": [
+    "run",
+    "--project",
+    "tools/WeekendPresetEvidence",
+    "--artifacts-path",
+    ".tools/artifacts/s07-01",
+    "-p:NuGetAudit=false",
+    "-p:BuildInParallel=false",
+    "--",
+    ".tools/reports/s07-01-evidence2"
+  ],
+  "cwd": "C:\\Projects\\F1Game\\.worktrees\\s07-01",
+  "pid": 47532,
+  "startedAt": "2026-10-12T11:25:16.964Z",
+  "status": "passed",
+  "exitCode": 0,
+  "elapsedMs": 3101
+}
