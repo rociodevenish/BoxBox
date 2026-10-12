@@ -3,6 +3,43 @@ using Microsoft.AspNetCore.SignalR;
 namespace Game.Api;
 public sealed class RaceHub(SessionCoordinator sessions,FirebaseIdentity auth,HouseholdSubscriptions subscriptions) : Hub
 {
+    public async Task<PreparationPublicSnapshot> SubscribePreparation(string id)
+    {
+        try { _=sessions.PreparationPublic(id); await Groups.AddToGroupAsync(Context.ConnectionId,"preparation:"+id); return sessions.PreparationPublic(id); }
+        catch(SessionFault fault) { throw new HubException(fault.Message); }
+    }
+    public async Task<PreparationTeamSnapshot> SubscribeHouseholdPreparation(string id,string deviceId,string teamId)
+    {
+        try
+        {
+            var request=Context.GetHttpContext()!.Request;
+            var identity=await auth.Verify(LobbyEndpoints.Token(request)??request.Query["access_token"].FirstOrDefault());
+            var own=sessions.HouseholdPreparation(id,identity,deviceId,teamId);
+            var group=$"preparation-household:{id}:{teamId}:{own.AssignmentRevision}";
+            subscriptions.Add(Context.ConnectionId,id,teamId,own.AssignmentRevision);
+            await Groups.AddToGroupAsync(Context.ConnectionId,group);
+            try { var current=sessions.HouseholdPreparation(id,identity,deviceId,teamId);
+                if(current.AssignmentRevision!=own.AssignmentRevision)throw new SessionFault(SessionFailure.Forbidden,"Controller assignment changed.");
+                return current; }
+            catch { await Groups.RemoveFromGroupAsync(Context.ConnectionId,group); throw; }
+        }
+        catch(SessionFault fault) { throw new HubException(fault.Message); }
+    }
+    public async Task<PreparationTeamSnapshot> SubscribeOpenPreparation(string id,string teamId)
+    {
+        try
+        {
+            var own=sessions.OpenPreparation(id,teamId);
+            var group=$"preparation-open:{id}:{teamId}:{own.AssignmentRevision}";
+            await Groups.AddToGroupAsync(Context.ConnectionId,group);
+            try { var current=sessions.OpenPreparation(id,teamId);
+                if(current.AssignmentRevision!=own.AssignmentRevision)throw new SessionFault(SessionFailure.Forbidden,"Open assignment changed."); return current; }
+            catch { await Groups.RemoveFromGroupAsync(Context.ConnectionId,group); throw; }
+        }
+        catch(SessionFault fault) { throw new HubException(fault.Message); }
+    }
+    public async Task UnsubscribeHouseholdPreparation(string id,string teamId,long revision)
+    { subscriptions.Remove(Context.ConnectionId,id,teamId,revision); await Groups.RemoveFromGroupAsync(Context.ConnectionId,$"preparation-household:{id}:{teamId}:{revision}"); }
     public override Task OnDisconnectedAsync(Exception? exception){subscriptions.RemoveConnection(Context.ConnectionId);return base.OnDisconnectedAsync(exception);}
     public async Task<OpenTeamSnapshot> SubscribeOpenTeam(string id,string teamId)
     {

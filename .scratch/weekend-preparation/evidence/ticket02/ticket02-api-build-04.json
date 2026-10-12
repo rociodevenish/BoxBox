@@ -1,0 +1,16 @@
+{
+  "command": "dotnet",
+  "args": [
+    "build",
+    "tests/Game.Api.Tests/Game.Api.Tests.csproj",
+    "--no-restore",
+    "-m:1",
+    "-p:UseSharedCompilation=false"
+  ],
+  "cwd": "C:\\Projects\\F1Game\\.worktrees\\s07-02",
+  "pid": 48920,
+  "startedAt": "2026-10-12T11:46:24.242Z",
+  "status": "passed",
+  "exitCode": 0,
+  "elapsedMs": 6478
+}

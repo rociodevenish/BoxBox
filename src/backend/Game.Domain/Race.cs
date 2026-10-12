@@ -35,7 +35,8 @@ public record TyreTuning(double DegradationPerLap = .025, double WarmupPenalty =
 
 public record Driver(string Id, string Team, double Speed = 0, double Cornering = 0,
     double Pace = 0, double Gap = 0, TyreCompound StartingCompound = TyreCompound.Medium,
-    double TyrePreservation = 0, double TyreManagement = 0, double Racecraft = 0);
+    double TyrePreservation = 0, double TyreManagement = 0, double Racecraft = 0,
+    double TyreWarmupMultiplier = 1);
 
 // Length is metres; BaselineTime is seconds. Demands are independent fractions.
 public record TrackSegment(string Id, double Length, double BaselineTime,

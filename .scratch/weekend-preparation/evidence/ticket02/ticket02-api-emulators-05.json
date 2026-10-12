@@ -1,0 +1,21 @@
+{
+  "command": "node",
+  "args": [
+    "tools/auth-emulator/node_modules/firebase-tools/lib/bin/firebase.js",
+    "emulators:exec",
+    "--only",
+    "auth,firestore",
+    "--project",
+    "demo-f1game",
+    "--config",
+    ".tools/firebase.ticket02.json",
+    "--non-interactive",
+    "node .tools/run-preparation-api.mjs .tools/reports/ticket02-api-command-final.json"
+  ],
+  "cwd": "C:\\Projects\\F1Game\\.worktrees\\s07-02",
+  "pid": 47372,
+  "startedAt": "2026-10-12T11:49:29.842Z",
+  "status": "passed",
+  "exitCode": 0,
+  "elapsedMs": 14543
+}

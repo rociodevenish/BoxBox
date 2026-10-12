@@ -16,4 +16,5 @@ public sealed record WeekendPreset(string Version, CircuitPreset Circuit, Immuta
     string SetupId = "neutral-setup-v1");
 public sealed record EffectiveWeekendCar(WeekendCar Source, Driver RaceDriver);
 public sealed record EffectiveWeekend(string ModelVersion, WeekendPreset Source, RaceConfiguration Configuration,
-    ImmutableArray<EffectiveWeekendCar> Cars, string Summary);
+    ImmutableArray<EffectiveWeekendCar> Cars, string Summary, WeekendSetup? Setup = null,
+    string SetupModelVersion = "neutral-setup-v1", ImmutableArray<DriverSetupFit> DriverFits = default);

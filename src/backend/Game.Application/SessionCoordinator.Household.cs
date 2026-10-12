@@ -7,11 +7,16 @@ public sealed partial class SessionCoordinator
   return teams.Where(team=>lobby.Assignments.TryGetValue(team.TeamId,out var assignment)&&assignment.Approved&&(assignment.DeviceId==deviceId||(assignment.AdditionalDevices?.Contains(deviceId)??false))).ToArray();}}
  private (Session Session, Assignment Assignment) AuthoriseHousehold(string id,AuthIdentity identity,string deviceId,string teamId)
  {
+  var access=AuthorisePreparationController(id,identity,deviceId,teamId);
+  return (access.Lobby.Race ?? throw new SessionFault(SessionFailure.Conflict,"The household race has not started."),access.Assignment);
+ }
+ private (Lobby Lobby, Assignment Assignment) AuthorisePreparationController(string id,AuthIdentity identity,string deviceId,string teamId)
+ {
   var lobby=RequireLobby(id);_ = LobbyMembership(id,identity,deviceId);
   var assignment=lobby.Assignments.GetValueOrDefault(teamId);
   if(assignment is null || !assignment.Approved || assignment.DeviceId!=deviceId && !(assignment.AdditionalDevices?.Contains(deviceId) ?? false))
    throw new SessionFault(SessionFailure.Forbidden,"This device is not currently authorised for this team.");
-  return (lobby.Race ?? throw new SessionFault(SessionFailure.Conflict,"The household race has not started."),assignment);
+  return (lobby,assignment);
  }
  public TeamSnapshot HouseholdTeam(string id,AuthIdentity identity,string deviceId,string teamId)
  {lock(gate){var access=AuthoriseHousehold(id,identity,deviceId,teamId);return ProjectTeam(access.Session,teamId,access.Assignment);}}
