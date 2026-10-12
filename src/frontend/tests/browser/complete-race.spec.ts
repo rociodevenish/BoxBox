@@ -69,7 +69,7 @@ test('full race feedback can skip and replay, automatic next window resets both 
     await page.getByRole('button', { name: 'Restart same preset' }).click();
     await expect(page.getByRole('link', { name: 'Open controller' })).toBeVisible();
 });
-test('reduced motion reconciles a quiet phase immediately without replaying old events', async ({page,context})=>{
+test('reduced motion reconciles all current phase feedback immediately and replay keeps the same events', async ({page,context})=>{
     await page.goto('/race/new');await page.getByRole('button',{name:'Create race'}).click();
     const controller=await page.getByRole('link',{name:'Open controller'}).getAttribute('href');
     const url=await page.getByRole('link',{name:'Open public display'}).getAttribute('href');
@@ -78,10 +78,17 @@ test('reduced motion reconciles a quiet phase immediately without replaying old 
     await page.getByRole('button',{name:'Approve Plan'}).click();await page.getByRole('button',{name:'Confirm plan'}).click();
     await expect(display.getByText('Race feedback complete · next choices are open',{exact:true})).toBeVisible();
     await expect(display.getByRole('button',{name:'Skip playback'})).toHaveCount(0);
-    await expect(display.getByText('No overtakes or pit events reported in this race window.')).toBeVisible();
+    const id=new URL(page.url()).pathname.split('/').at(-1);
+    const published=await (await page.request.get('/api/sessions/'+id)).json();
+    expect(published.presentation.pitEntries).toBeGreaterThan(0);
+    expect(published.events.length).toBeGreaterThan(0);
+    const events=display.getByRole('list',{name:'Chronological public event list'});
+    await expect(events.getByRole('listitem')).toHaveCount(published.events.length);
+    const visible=await events.getByRole('listitem').allTextContents();
     await display.getByRole('button',{name:'Replay feedback'}).click();
     await expect(display.getByRole('button',{name:'Skip playback'})).toHaveCount(0);
-    await expect(display.getByText('No overtakes or pit events reported in this race window.')).toBeVisible();
+    await expect(display.getByText('Race feedback complete · next choices are open',{exact:true})).toBeVisible();
+    expect(await events.getByRole('listitem').allTextContents()).toEqual(visible);
 });
 test('a delayed accepted-plan acknowledgement cannot relock a newer decision window',async({page})=>{
     await page.goto('/race/new');await page.getByRole('button',{name:'Create race'}).click();

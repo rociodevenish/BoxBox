@@ -21,8 +21,10 @@ public sealed class OpenTeamTests
   (await host.PostAsJsonAsync($"/api/lobbies/{id}/start",new{})).EnsureSuccessStatusCode();
   using var spectator=server.CreateClient();var response=await spectator.GetAsync($"/api/lobbies/{id}/open/team-02");response.EnsureSuccessStatusCode();var open=await response.Content.ReadFromJsonAsync<JsonElement>();
   Assert.Equal("team-02",open.GetProperty("teamId").GetString());Assert.Equal(new[]{"driver-03","driver-04"},open.GetProperty("cars").EnumerateArray().Select(c=>c.GetProperty("driverId").GetString()));
-  Assert.Contains("estimatedTyreCondition",open.GetRawText());Assert.Equal(new[]{"assignmentRevision","cars","confirmedPlan","lifecycle","phase","revision","sessionId","teamId"},open.EnumerateObject().Select(p=>p.Name).Order());
+  Assert.Contains("estimatedTyreCondition",open.GetRawText());Assert.Equal(new[]{"assignmentRevision","assistance","cars","confirmedPlan","lifecycle","phase","revision","sessionId","teamId"},open.EnumerateObject().Select(p=>p.Name).Order());
   foreach(var car in open.GetProperty("cars").EnumerateArray())Assert.Equal(new[]{"battleOptions","compound","driverId","estimatedTyreCondition","inPits","stopQueued","tyreAge"},car.EnumerateObject().Select(p=>p.Name).Order());
+  Assert.Equal("Standard",open.GetProperty("assistance").GetProperty("helpLevel").GetString());Assert.False(open.GetProperty("assistance").TryGetProperty("recommendation",out _));
+  Assert.DoesNotContain("assistanceHistory",open.GetRawText());Assert.DoesNotContain(token,open.GetRawText());
   Assert.DoesNotContain("driver-01",open.GetRawText());
   Assert.Equal(HttpStatusCode.Forbidden,(await spectator.GetAsync($"/api/lobbies/{id}/open/team-01")).StatusCode);
   await using var hub=new HubConnectionBuilder().WithUrl("http://localhost/hubs/race",options=>{options.Transports=HttpTransportType.LongPolling;options.HttpMessageHandlerFactory=_=>server.Server.CreateHandler();}).Build();
@@ -48,4 +50,3 @@ public sealed class OpenTeamTests
   (await host.PostAsJsonAsync($"/api/lobbies/{id}/start",new{})).EnsureSuccessStatusCode();using var spectator=server.CreateClient();Assert.Equal(open?HttpStatusCode.OK:HttpStatusCode.Forbidden,(await spectator.GetAsync($"/api/lobbies/{id}/open/team-04")).StatusCode);Assert.Equal(HttpStatusCode.Forbidden,(await spectator.GetAsync($"/api/lobbies/{id}/open/team-01")).StatusCode);
  }
 }
-

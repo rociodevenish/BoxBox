@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.Configuration;
 using Xunit;
 namespace Game.Api.Tests;
+[Collection("Production environment")]
 public sealed class HostedConfigurationTests
 {
     [Theory]
@@ -42,6 +43,7 @@ public sealed class HostedConfigurationTests
     [Fact]
     public async Task Complete_production_config_starts_and_exposes_only_public_auth_settings()
     {
+        using var environment=new ProductionEnvironment();
         await using var host=Configured();using var client=host.CreateClient();
         Assert.Equal(HttpStatusCode.OK,(await client.GetAsync("/health")).StatusCode);
         var auth=await client.GetStringAsync("/api/auth/config");
@@ -56,10 +58,20 @@ public sealed class HostedConfigurationTests
     [InlineData("Wakeups:Queue","")]
     public void Unsafe_or_incomplete_production_config_fails_before_serving(string key,string value)
     {
+        using var environment=new ProductionEnvironment();
         using var host=Configured(key,value);Assert.Throws<InvalidOperationException>(()=>host.CreateClient());
+    }
+    private sealed class ProductionEnvironment:IDisposable
+    {
+        private readonly Dictionary<string,string?> inherited=new[]{"FIRESTORE_EMULATOR_HOST","FIREBASE_AUTH_EMULATOR_HOST"}.ToDictionary(key=>key,Environment.GetEnvironmentVariable);
+        public ProductionEnvironment(){foreach(var key in inherited.Keys)Environment.SetEnvironmentVariable(key,null);}
+        public void Dispose(){foreach(var setting in inherited)Environment.SetEnvironmentVariable(setting.Key,setting.Value);}
     }
     private static WebApplicationFactory<Program> Configured(string? key=null,string? value=null)=>new WebApplicationFactory<Program>().WithWebHostBuilder(builder=>{
         builder.UseEnvironment("Production");foreach(var setting in Production)builder.UseSetting(setting.Key,setting.Value);
         if(key is not null)builder.UseSetting(key,value);
     });
 }
+
+[CollectionDefinition("Production environment",DisableParallelization=true)]
+public sealed class ProductionEnvironmentCollection;

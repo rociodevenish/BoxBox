@@ -84,7 +84,7 @@ public sealed class DesignerReplayTests
         var posted=await display.PostAsJsonAsync(route+"/presentation-timing",sample);posted.EnsureSuccessStatusCode();
         Assert.Equal(new[]{"recorded"},(await posted.Content.ReadFromJsonAsync<JsonElement>()).EnumerateObject().Select(field=>field.Name));
         (await display.PostAsJsonAsync(route+"/presentation-timing",sample)).EnsureSuccessStatusCode();
-        Assert.Equal(state.GetRawText(),(await display.GetFromJsonAsync<JsonElement>(route)).GetRawText());
+        PublicSnapshotAssertions.EqualState(state.GetRawText(),(await display.GetFromJsonAsync<JsonElement>(route)).GetRawText());
         client.DefaultRequestHeaders.Add("X-Designer-Key",TestDesignerKey);
         var record=await client.GetFromJsonAsync<JsonElement>($"/api/designer/sessions/{id}/record");
         var timing=record.GetProperty("timing");
