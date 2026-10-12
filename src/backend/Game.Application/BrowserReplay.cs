@@ -8,7 +8,7 @@ namespace Game.Application;
 public record RecordedAutomaticPlan(int Phase,string PolicyVersion,string Source,IReadOnlyDictionary<string,DriverDecision> Decisions);
 public record RecordedReplayPhase(int Phase, int LeaderLap, double RaceTime, bool Finished, string OutcomeHash);
 public record BrowserReplayRecord(string FormatVersion, string SessionId, string Preset, string ControlledTeamId,
-    string OpponentScriptVersion, RaceReplay Replay, IReadOnlyList<RecordedReplayPhase> Phases, bool Finished, BrowserSessionTiming? Timing = null, IReadOnlyList<RecordedAutomaticPlan>? AutomaticPlans = null);
+    string OpponentScriptVersion, RaceReplay Replay, IReadOnlyList<RecordedReplayPhase> Phases, bool Finished, BrowserSessionTiming? Timing = null, IReadOnlyList<RecordedAutomaticPlan>? AutomaticPlans = null, IReadOnlyList<RecordedAssistance>? AssistanceHistory = null);
 public record BrowserPhaseTiming(int Phase, double DecisionMilliseconds, double ResolutionMilliseconds,
     double? ReadyWaitMilliseconds, string Source = "server-monotonic-window-clock");
 public record PresentationTimingInput(string SampleId, string DeviceId, string Cursor, double? DurationMilliseconds,

@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.AspNetCore.Http.Connections;
 using System.Threading.Channels;
+using Game.Application;
+using Microsoft.Extensions.Configuration;
 using Game.Domain;
 using Game.Simulation;
 using System.Net.Http.Json;
@@ -46,7 +48,7 @@ public sealed class SessionTests
  } [Fact]
  public async Task Complete_team_plan_resolves_one_engine_phase_with_ordered_public_and_private_notifications()
  {
-  await using var server = new WebApplicationFactory<Program>(); using var client=server.CreateClient();
+  await using var server = new WebApplicationFactory<Program>().WithWebHostBuilder(builder=>builder.ConfigureAppConfiguration((_,config)=>config.AddInMemoryCollection(new Dictionary<string,string?>{{"Designer:Key","phase-resolution-evidence"}}))); using var client=server.CreateClient();
   var created=await (await client.PostAsJsonAsync("/api/sessions",new{preset="open-equal",laps=6,seed=123})).Content.ReadFromJsonAsync<JsonElement>();
   var id=created.GetProperty("sessionId").GetString()!;var capability=created.GetProperty("controllerCapability").GetString()!;
   await using var display=Connection(server);await using var team=Connection(server);
@@ -67,7 +69,12 @@ public sealed class SessionTests
   Assert.True(result.GetProperty("revision").GetInt64()>resolving.GetProperty("revision").GetInt64());
   Assert.Equal("resolving",(await privateUpdates.Reader.ReadAsync(timeout.Token)).GetProperty("lifecycle").GetString());
   var ownResult=await privateUpdates.Reader.ReadAsync(timeout.Token);Assert.Equal("Hard",ownResult.GetProperty("cars")[1].GetProperty("compound").GetString());
-  var expected=new RaceEngine(new RaceConfiguration(6,LaboratoryFixtures.SegmentedTrack(false),LapVariation:.2),LaboratoryFixtures.SegmentedField(false),123).ResolvePhase(new Dictionary<string,DriverDecision>{{"driver-01",new(PaceInstruction.Push)},{"driver-02",new(PaceInstruction.Conserve,TyreCompound.Hard)}});
+  client.DefaultRequestHeaders.Add("X-Designer-Key","phase-resolution-evidence");
+  var recorded=BrowserReplay.Read(await client.GetFromJsonAsync<JsonElement>($"/api/designer/sessions/{id}/record"));
+  var complete=recorded.Replay.Plan.Scheduled.Where(entry=>entry.Phase==0).ToDictionary(entry=>entry.DriverId,entry=>entry.Decision);
+  Assert.Equal(22,complete.Count);Assert.Equal(new DriverDecision(PaceInstruction.Push),complete["driver-01"]);Assert.Equal(new DriverDecision(PaceInstruction.Conserve,TyreCompound.Hard),complete["driver-02"]);
+  Assert.True(BrowserReplay.Verify(recorded).Matches);
+  var expected=new RaceEngine(recorded.Replay.Configuration,recorded.Replay.Drivers,recorded.Replay.Seed).ResolvePhase(complete);
   Assert.Equal(expected.Time,result.GetProperty("raceTime").GetDouble());Assert.Equal(expected.Classification.Select(row=>row.DriverId),result.GetProperty("classification").EnumerateArray().Select(row=>row.GetProperty("driverId").GetString()));
   foreach(var car in result.GetProperty("classification").EnumerateArray()) Assert.Equal(new[]{"driverId","name","teamId","position","completedLaps","progress","gapToLeader","gapToAhead","compound","tyreAge","pitState","eligibleAtFinish","recentLapTimes","completedPitStops","isFastestLap"},car.EnumerateObject().Select(field=>field.Name));
   Assert.NotEmpty(result.GetProperty("events").EnumerateArray());
@@ -85,5 +92,3 @@ public sealed class SessionTests
   Assert.Equal(System.Net.HttpStatusCode.BadRequest,(await client.PostAsJsonAsync($"/api/sessions/{id}/plans",command)).StatusCode);
   var snapshot=await client.GetFromJsonAsync<JsonElement>($"/api/sessions/{id}");Assert.Equal(1,snapshot.GetProperty("revision").GetInt64());Assert.Equal(0,snapshot.GetProperty("raceTime").GetDouble());Assert.Equal("awaiting-decisions",snapshot.GetProperty("lifecycle").GetString());
  }}
-
-

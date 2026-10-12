@@ -9,5 +9,5 @@ export const outputDir=resolve(root,'.tools/reports/playwright');
 export const captures=resolve(root,'.tools/reports/gallery');
 mkdirSync(captures,{recursive:true});
 export const frontend={command:`node node_modules/@angular/cli/bin/ng.js serve --host 127.0.0.1 --port ${testPort} --proxy-config proxy.test.cjs`,url:baseURL,reuseExistingServer:false,stdout:'pipe' as const,stderr:'pipe' as const,timeout:120000};
-export const api=(fixture=false)=>({command:`node ../../tools/start-test-api.mjs ${fixture?'fixture':'production'}`,env:{F1_API_PORT:String(apiPort),Designer__Key:'ephemeral-browser-test-key',Logging__LogLevel__Default:'Warning'},url:`http://127.0.0.1:${apiPort}/health`,reuseExistingServer:false,stdout:'pipe' as const,stderr:'pipe' as const,timeout:120000});
+export const api=(fixture=false)=>({command:`node ../../tools/start-test-api.mjs ${fixture?'fixture':'production'}`,env:{ASPNETCORE_ENVIRONMENT:'Development',F1_API_PORT:String(apiPort),Designer__Key:'ephemeral-browser-test-key',Logging__LogLevel__Default:'Warning'},url:`http://127.0.0.1:${apiPort}/health`,reuseExistingServer:false,stdout:'pipe' as const,stderr:'pipe' as const,timeout:120000});
 export const common:PlaywrightTestConfig={outputDir,reporter:'list',use:{baseURL,browserName:'chromium',launchOptions:{executablePath:process.env['PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH']}}};

@@ -4,6 +4,7 @@ namespace Game.Application;
 public sealed partial class SessionCoordinator
 {
     private const string AssistancePrefix="assistance:";
+    private const string AssistanceHistoryKey="assistance-history";
     public async Task<LobbySnapshot> SetPlayerAssistance(string id,AuthIdentity identity,string playerId,PlayerAssistanceInput input)
     {
         if(input is null||input.HelpLevel is not ("Standard" or "Assisted" or "Guided"))throw new SessionFault(SessionFailure.InvalidInput,"Choose Standard, Assisted or Guided help.");
@@ -28,14 +29,22 @@ public sealed partial class SessionCoordinator
         var cars=plan.Cars.Select(car=>new AssistanceCar(car.DriverId,new(car.DriverId,car.Decision.Pace.ToString(),car.Decision.PitCompound is null?"Stay Out":"Pit",car.Decision.PitCompound?.ToString(),car.Decision.Battle.ToString()),
             car.Reasons,car.Uncertainty,car.PaceOptions.Select(option=>option.ToString()).ToArray(),car.PitOptions.Select(option=>option?.ToString()).ToArray(),car.BattleOptions.Select(option=>option.ToString()).ToArray(),car.Confident)).ToArray();
         var recommendation=new AssistanceRecommendation(session.Phase,session.WindowRevision,plan.ObservationTime,cars,
-            "All legal choices remain available because the estimates do not justify narrowing them. Forced stop or battle states are explained for each car.");
+            "All legal choices remain available because the estimates do not justify narrowing them. Forced stop or battle states are explained for each car.",plan.PolicyVersion);
         // Save the entire phase-start advice even for Standard. Its private projection omits it.
         session.ModuleState[AssistancePrefix+teamId]=JsonSerializer.Serialize(new TeamAssistance(settings.HelpLevel,settings.AutoAcceptRecommendation,session.Phase,recommendation),BrowserReplay.JsonOptions);
+        var history=AssistanceHistory(session)?.ToList()??[];
+        if(!history.Any(entry=>entry.Phase==session.Phase&&entry.TeamId==teamId))
+        {
+            history.Add(new(session.Phase,teamId,settings.HelpLevel,settings.AutoAcceptRecommendation,plan.PolicyVersion,recommendation));
+            session.ModuleState[AssistanceHistoryKey]=JsonSerializer.Serialize(history,BrowserReplay.JsonOptions);
+        }
         if(settings.AutoAcceptRecommendation)
         {
             decisions=plan.Cars.ToDictionary(car=>car.DriverId,car=>car.Decision);source="recommendation-timeout";session.ModuleState["automatic-policy:"+teamId]=plan.PolicyVersion;
         }
     }
+    private static IReadOnlyList<RecordedAssistance>? AssistanceHistory(Session session)=>
+        session.ModuleState.TryGetValue(AssistanceHistoryKey,out var history)?JsonSerializer.Deserialize<RecordedAssistance[]>(history,BrowserReplay.JsonOptions):null;
     private static TeamAssistance? ProjectAssistance(Session session,string teamId)
     {
         if(!session.ModuleState.TryGetValue(AssistancePrefix+teamId,out var saved))return null;

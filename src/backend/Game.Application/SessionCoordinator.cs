@@ -99,7 +99,7 @@ public sealed partial class SessionCoordinator(ISessionNotifications notificatio
                 Array.AsReadOnly(session.RecordedPhases.ToArray()), session.RecordedPhases.LastOrDefault()?.Finished ?? false,
                 new(session.TotalToFinishMilliseconds ?? Stopwatch.GetElapsedTime(session.StartedTimestamp).TotalMilliseconds,
                     session.TotalToFinishMilliseconds, Array.AsReadOnly(session.PhaseTimings.ToArray()),
-                    Array.AsReadOnly(session.PresentationSamples.Values.Select(value => value.Sample).ToArray()), session.RecoveryReplayMilliseconds),Array.AsReadOnly(session.AutomaticPlans.ToArray()));
+                    Array.AsReadOnly(session.PresentationSamples.Values.Select(value => value.Sample).ToArray()), session.RecoveryReplayMilliseconds),Array.AsReadOnly(session.AutomaticPlans.ToArray()),AssistanceHistory(session));
         }
     }
     private Session Require(string id,bool scheduled=false) { EnsureRecovered(id,scheduled); return active is { } session && session.Id == id ? session
@@ -212,7 +212,7 @@ public sealed partial class SessionCoordinator(ISessionNotifications notificatio
                 return accepted.Fingerprint == fingerprint ? accepted.Ack
                     : throw new SessionFault(SessionFailure.Conflict, "This command identity was already accepted with different choices.");
         }
-        if(identity is not null&&ControlStatus(session,teamId).Mode!="Human")throw new SessionFault(SessionFailure.Conflict,"AI is responsible for this phase. Request reclaim for the next boundary.",Project(session));
+        if(identity is not null&&CurrentControl(session,teamId)!=ControlMode.Human)throw new SessionFault(SessionFailure.Conflict,"AI is responsible for this phase. Request reclaim for the next boundary.",Project(session));
         if(IsDecisionDue(session)){await CloseExpiredSerially(session,false);lock(gate)throw new SessionFault(SessionFailure.Conflict,"The decision deadline passed. Refresh the current phase; accepted locks were preserved.",Project(Require(id)));}
         lock(gate)
         {
@@ -265,15 +265,8 @@ public sealed partial class SessionCoordinator(ISessionNotifications notificatio
         lock(gate)
         {
             CompleteResolution(session,complete,decisionMilliseconds);
-            if(command is not null)
-            {
-                acknowledgement=new(command.CommandId,session.Id,command.Phase!.Value,session.Revision,session.Lifecycle);
-                session.AcceptedCommands.Add(Guid.Parse(command.CommandId),(fingerprint!,acknowledgement));
-            }
-            session.PendingPlan=null;session.PendingCommand=null;session.PendingFingerprint=null;
-            session.DecisionDeadlineUtc=null;session.PausedRemainingSeconds=null;
             if(recovered)session.Paused=true;
-            PhaseCommitted(session);Persist(session.Id);
+            acknowledgement=CommitResolvedPhase(session,command,fingerprint);
             resolved=Project(session);teamResolved=ProjectTeam(session);
         }
         await PublishRace(session,resolved,teamResolved);

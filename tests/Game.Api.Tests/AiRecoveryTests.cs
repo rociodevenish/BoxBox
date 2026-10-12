@@ -12,7 +12,7 @@ public sealed class AiRecoveryTests
     public async Task Restart_reuses_frozen_automatic_choices_and_records_same_policy()
     {
         WebApplicationFactory<Program> Server()=>new WebApplicationFactory<Program>().WithWebHostBuilder(b=>b.ConfigureAppConfiguration((_,c)=>c.AddInMemoryCollection(new Dictionary<string,string?>
-        {{"Designer:Key","ai-evidence"},{"Persistence:ProjectId","demo-f1game"},{"Persistence:EmulatorHost",Environment.GetEnvironmentVariable("F1_AI_RECOVERY_HOST")??"127.0.0.1:19100"}})));
+        {{"Designer:Key","ai-evidence"},{"Persistence:ProjectId","demo-f1game"},{"Persistence:EmulatorHost",Environment.GetEnvironmentVariable("F1_AI_RECOVERY_HOST")??Environment.GetEnvironmentVariable("F1_RECOVERY_HOST")??"127.0.0.1:19100"}})));
         async Task<(SessionCreated,string)> Run(bool restart)
         {
             SessionCreated created;

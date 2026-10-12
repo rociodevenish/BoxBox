@@ -86,16 +86,22 @@ public sealed partial class SessionCoordinator
     }
     private void RecoverPending(Session session)
     {
-        var id=session.Id;
+        CompleteResolution(session,session.PendingPlan!,0);
+        session.Paused=true;
+        CommitResolvedPhase(session,session.PendingCommand,session.PendingFingerprint);
+    }
+    private SubmissionAck? CommitResolvedPhase(Session session,TeamCommand? command,string? fingerprint)
+    {
+        SubmissionAck? acknowledgement=null;
+        if(command is not null)
         {
-            CompleteResolution(session,session.PendingPlan!,0);
-            session.Paused=true;
-            var command=session.PendingCommand;
-            if(command is not null)session.AcceptedCommands[Guid.Parse(command.CommandId)]=(session.PendingFingerprint!,new(command.CommandId,id,command.Phase!.Value,session.Revision,session.Lifecycle));
-            session.PendingPlan=null;session.PendingCommand=null;session.PendingFingerprint=null;
-            session.DecisionDeadlineUtc=null;session.PausedRemainingSeconds=null;PhaseCommitted(session);
-            Persist(id);
+            acknowledgement=new(command.CommandId,session.Id,command.Phase!.Value,session.Revision,session.Lifecycle);
+            session.AcceptedCommands[Guid.Parse(command.CommandId)]=(fingerprint!,acknowledgement);
         }
+        session.PendingPlan=null;session.PendingCommand=null;session.PendingFingerprint=null;
+        session.DecisionDeadlineUtc=null;session.PausedRemainingSeconds=null;
+        PhaseCommitted(session);Persist(session.Id);
+        return acknowledgement;
     }
     private void Restore(string id,StoredSession record)
     {

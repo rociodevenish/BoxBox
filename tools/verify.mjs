@@ -18,7 +18,11 @@ const steps=[
  ['gallery',[playwright,'test'],frontend],
  ['browser',[playwright,'test','--config','playwright.browser.config.ts'],frontend],
  ['boundary',[playwright,'test','--config','playwright.boundary.config.ts'],frontend],
- ['shared',[playwright,'test','--config','playwright.shared.config.ts'],frontend]
+ ['shared',[playwright,'test','--config','playwright.shared.config.ts'],frontend],
+ ['assistance',[playwright,'test','--config','playwright.assistance.config.ts'],frontend],
+ ['control',[playwright,'test','--config','playwright.control.config.ts'],frontend],
+ ['deadlines',[playwright,'test','--config','playwright.deadlines.config.ts'],frontend],
+ ['hosted',[playwright,'test','--config','playwright.hosted.config.ts'],frontend]
 ];
 const selected=process.argv.slice(2);if(selected.some(name=>!steps.some(([id])=>id===name)))throw new Error('Unknown verification step. Choose '+steps.map(s=>s[0]).join(', '));
 const out=resolve(root,'.tools/reports/verification');mkdirSync(out,{recursive:true});const runId=new Date().toISOString().replace(/[:.]/g,'-')+'-'+randomUUID();const runDir=resolve(out,'runs',runId);mkdirSync(runDir,{recursive:true});const manifest={runId,revision:spawnSync('git',['rev-parse','HEAD'],{cwd:root,encoding:'utf8',timeout:5000}).stdout?.trim(),startedAt:new Date().toISOString(),node:process.version,steps:[]};

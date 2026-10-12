@@ -59,7 +59,7 @@ public sealed class DurableRecoveryTests(Xunit.Abstractions.ITestOutputHelper ou
         SessionCreated created;
         var command=new TeamCommand(Guid.NewGuid().ToString(),0,1,
             [new("driver-01","Push","Stay Out",null,"Neutral"),new("driver-02","Standard","Pit","Hard","Neutral")]);
-        var store=new InterruptingStore(new FirestoreSessionStore("demo-f1game","127.0.0.1:19100"),failedWrite,failedRead,committedBeforeFailure);
+        var store=new InterruptingStore(new FirestoreSessionStore("demo-f1game",Environment.GetEnvironmentVariable("F1_RECOVERY_HOST")??"127.0.0.1:19100"),failedWrite,failedRead,committedBeforeFailure);
         var delivery=new ObservedDelivery();
         await using(var server=Server().WithWebHostBuilder(builder=>builder.ConfigureServices(services=>{services.Replace(ServiceDescriptor.Singleton<ISessionStore>(store));services.Replace(ServiceDescriptor.Singleton<ISessionNotifications>(delivery));})))
         {
@@ -144,7 +144,7 @@ public sealed class DurableRecoveryTests(Xunit.Abstractions.ITestOutputHelper ou
     [Fact]
     public async Task Incompatible_saved_version_is_actionable_and_preserves_recoverable_inputs()
     {
-        var store=new FirestoreSessionStore("demo-f1game","127.0.0.1:19100");SessionCreated created;
+        var store=new FirestoreSessionStore("demo-f1game",Environment.GetEnvironmentVariable("F1_RECOVERY_HOST")??"127.0.0.1:19100");SessionCreated created;
         await using(var initial=Server())
         {using var client=initial.CreateClient();created=(await(await client.PostAsJsonAsync("/api/sessions",new CreateSessionInput("open-equal",6,123))).Content.ReadFromJsonAsync<SessionCreated>())!;}
         await using(var incompatible=Server().WithWebHostBuilder(builder=>builder.ConfigureServices(services=>services.Replace(ServiceDescriptor.Singleton<ISessionStore>(new IncompatibleStore(store))))))
@@ -162,5 +162,5 @@ public sealed class DurableRecoveryTests(Xunit.Abstractions.ITestOutputHelper ou
     }
     private static HubConnection Connection(WebApplicationFactory<Program> server)=>new HubConnectionBuilder().WithUrl("http://localhost/hubs/race",options=>{options.Transports=HttpTransportType.LongPolling;options.HttpMessageHandlerFactory=_=>server.Server.CreateHandler();}).Build();
     internal static WebApplicationFactory<Program> Server()=>new WebApplicationFactory<Program>().WithWebHostBuilder(builder=>builder.ConfigureAppConfiguration((_,config)=>config.AddInMemoryCollection(new Dictionary<string,string?>{
-        ["Designer:Key"]="recovery-diagnostics-only",["Firebase:ProjectId"]="demo-f1game",["Persistence:ProjectId"]="demo-f1game",["Persistence:EmulatorHost"]="127.0.0.1:19100"})));
+        ["Designer:Key"]="recovery-diagnostics-only",["Firebase:ProjectId"]="demo-f1game",["Persistence:ProjectId"]="demo-f1game",["Persistence:EmulatorHost"]=Environment.GetEnvironmentVariable("F1_RECOVERY_HOST")??"127.0.0.1:19100"})));
 }

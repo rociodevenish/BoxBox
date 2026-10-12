@@ -76,7 +76,7 @@ public sealed class ProgressionTests
     [Fact]
     public async Task Failed_window_save_returns_retryable_failure_without_publishing_an_unsaved_next_window()
     {
-        var clock=new DeadlineTests.ControlledClock();var delivery=new CapturedDelivery();using var underlying=new FirestoreSessionStore("demo-f1game","127.0.0.1:19320");var writes=new InterruptedWrites(underlying);
+        var clock=new DeadlineTests.ControlledClock();var delivery=new CapturedDelivery();using var underlying=new FirestoreSessionStore("demo-f1game",Environment.GetEnvironmentVariable("F1_RECOVERY_HOST")??"127.0.0.1:19100");var writes=new InterruptedWrites(underlying);
         await using var server=Server(clock,delivery).WithWebHostBuilder(builder=>builder.ConfigureServices(services=>services.AddSingleton<ISessionStore>(writes)));using var host=server.CreateClient();
         var (id,device)=await DeadlineTests.StartShared(host);await LockBoth(host,id,device);var intent=delivery.Latest(id);clock.Advance(TimeSpan.FromSeconds(8));writes.FailNext=true;
         using var callback=server.CreateClient();callback.DefaultRequestHeaders.Authorization=new("Bearer","task-token");
@@ -135,7 +135,7 @@ public sealed class ProgressionTests
         Assert.Equal(next.GetProperty("revision").GetInt64(),(await duplicate.Content.ReadFromJsonAsync<JsonElement>()).GetProperty("revision").GetInt64());
     }
     private static WebApplicationFactory<Program> Server(TimeProvider clock,CapturedDelivery? delivery=null,bool durable=false)=>new WebApplicationFactory<Program>().WithWebHostBuilder(builder=>{
-        builder.ConfigureAppConfiguration((_,config)=>config.AddInMemoryCollection(new Dictionary<string,string?>{["Firebase:ProjectId"]="demo-f1game",["Wakeups:Mode"]="manual",["Persistence:ProjectId"]=durable?"demo-f1game":null,["Persistence:EmulatorHost"]="127.0.0.1:19320",
+        builder.ConfigureAppConfiguration((_,config)=>config.AddInMemoryCollection(new Dictionary<string,string?>{["Firebase:ProjectId"]="demo-f1game",["Wakeups:Mode"]="manual",["Persistence:ProjectId"]=durable?"demo-f1game":null,["Persistence:EmulatorHost"]=Environment.GetEnvironmentVariable("F1_RECOVERY_HOST")??"127.0.0.1:19100",
             ["Wakeups:Audience"]="https://service.example.test",["Wakeups:ServiceAccountEmail"]="tasks@example.iam.gserviceaccount.com",["Wakeups:ServiceAccountSubject"]="123456789",["Wakeups:SweepServiceAccountEmail"]="sweep@example.iam.gserviceaccount.com",["Wakeups:SweepServiceAccountSubject"]="987654321"}));
         builder.ConfigureServices(services=>{services.AddSingleton(clock);services.AddSingleton<IGoogleWakeupTokens>(new IssuedTokens(clock));if(delivery is not null)services.AddSingleton<IScheduledWakeups>(delivery);});
     });
