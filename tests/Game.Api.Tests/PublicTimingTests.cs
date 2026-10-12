@@ -1,6 +1,7 @@
 using Game.Application;
 using Game.Domain;
 using Game.Simulation;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using System.Net.Http.Json;
@@ -48,7 +49,9 @@ public sealed class PublicTimingTests
         public RacePreset Get(string name, int laps)
         {
             var preset = new DryRacePresets().Get(name, laps);
-            return preset with { Configuration = preset.Configuration with { LapVariation = 0, Traffic = new(Enabled: false) },
+            return preset with { Configuration = preset.Configuration with { LapVariation = 0, StopVariation = 0, RaceFormVariation = 0, Traffic = new(Enabled: false),
+                    // Exact timing ties must survive legitimate AI pace/compound choices.
+                    Tyres = new(DegradationPerLap:0,WarmupPenalty:0,DegradationPenalty:0,ExhaustionPenalty:0,PushGain:0,ConserveLoss:0,SoftGain:0,HardLoss:0) },
                 Drivers = preset.Drivers.Select(driver => driver with { Gap = 0 }).ToArray() };
         }
     }
@@ -56,7 +59,10 @@ public sealed class PublicTimingTests
     public async Task Strict_fastest_lap_ties_choose_the_ordinal_driver_without_fabricating_initial_times()
     {
         await using var server = new WebApplicationFactory<Program>().WithWebHostBuilder(builder =>
-            builder.ConfigureServices(services => { services.RemoveAll<IRacePresets>(); services.AddSingleton<IRacePresets, EqualTimingPresets>(); }));
+            {
+                builder.ConfigureAppConfiguration((_,config)=>config.AddInMemoryCollection(new Dictionary<string,string?>{{"Designer:Key","tie-fixture-evidence"}}));
+                builder.ConfigureServices(services => { services.RemoveAll<IRacePresets>(); services.AddSingleton<IRacePresets, EqualTimingPresets>(); });
+            });
         using var client = server.CreateClient();
         var created = (await (await client.PostAsJsonAsync("/api/sessions", new CreateSessionInput("open-equal", 6, 123))).Content.ReadFromJsonAsync<SessionCreated>())!;
         client.DefaultRequestHeaders.Authorization = new("Bearer", created.ControllerCapability);
@@ -65,20 +71,19 @@ public sealed class PublicTimingTests
         var state = (await client.GetFromJsonAsync<PublicSnapshot>($"/api/sessions/{created.SessionId}"))!;
         Assert.Equal(1, state.NextDecisionLaps);
         Assert.Equal("driver-01", Assert.Single(state.Classification, row => row.IsFastestLap).DriverId);
-        var preset = new EqualTimingPresets().Get("open-equal", 6);
-        var engine = new RaceEngine(preset.Configuration, preset.Drivers, 123);
-        var result = engine.ResolvePhase(preset.Drivers.ToDictionary(driver => driver.Id,
-            _ => new DriverDecision(PaceInstruction.Standard, null, BattleInstruction.Neutral)));
+        client.DefaultRequestHeaders.Add("X-Designer-Key","tie-fixture-evidence");
+        var record=BrowserReplay.Read(await client.GetFromJsonAsync<JsonElement>($"/api/designer/sessions/{created.SessionId}/record"));
+        var engine = new RaceEngine(record.Replay.Configuration,record.Replay.Drivers,record.Replay.Seed);
+        var result=engine.ResolvePhase(record.Replay.Plan.Scheduled.Where(entry=>entry.Phase==0).ToDictionary(entry=>entry.DriverId,entry=>entry.Decision));
         var completed = result.Events.Where(item => item.DriverId == "driver-01" && item.Kind == RaceEventKind.LapCompleted).ToArray();
+        Assert.Equal(completed.Select(lap=>lap.Time),result.Events.Where(item=>item.DriverId=="driver-02"&&item.Kind==RaceEventKind.LapCompleted).Select(lap=>lap.Time));
+        Assert.Equal(state.Classification.Single(row=>row.DriverId=="driver-01").RecentLapTimes,state.Classification.Single(row=>row.DriverId=="driver-02").RecentLapTimes);
         var previous = completed[0].Time;
         var expected = completed.Skip(1).Select(item => { var duration = item.Time - previous; previous = item.Time; return new PublicLapTime(item.Lap, duration); }).ToArray();
         Assert.Equal(expected, state.Classification.Single(row => row.DriverId == "driver-01").RecentLapTimes);
         Assert.All(state.Classification, row => {
-            Assert.Equal(4, row.RecentLapTimes.Count);
+            Assert.Equal(row.CompletedLaps-1, row.RecentLapTimes.Count);
             Assert.Equal(2, row.RecentLapTimes[0].Lap);
             Assert.DoesNotContain(row.RecentLapTimes, lap => lap.Lap == 1);
         });
     }}
-
-
-

@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import {comparablePublicState} from '../public-state';
 test('lost HTTP acknowledgement recovers the next window rather than submitting again', async ({ page }) => {
     await page.routeWebSocket('**/hubs/race*', route => { const server = route.connectToServer(); server.onMessage(message => { if (typeof message === 'string' && message.includes('"target":"teamSnapshot"'))
         return; route.send(message); }); });
@@ -20,7 +21,7 @@ test('lost HTTP acknowledgement recovers the next window rather than submitting 
     await expect(page.getByRole('region',{name:'Car 1 — Driver 1'}).getByRole('button',{name:'Standard',exact:true})).toHaveAttribute('aria-pressed','true');
     await expect(page.getByRole('button', { name: 'Retry pending submission' })).toHaveCount(0);
     expect(posts).toBe(1);
-    expect(await (await page.request.get('/api/sessions/' + id)).json()).toEqual(before);
+    expect(comparablePublicState(await (await page.request.get('/api/sessions/' + id)).json())).toEqual(comparablePublicState(before));
 });
 test('automatic reconnect rejoins authorized groups and older duplicated wire updates cannot relock a new window', async ({ page }) => {
     let connections = 0;
@@ -123,7 +124,7 @@ test('unavailable connections disable actions and a retry preserves the same in-
     await expect(page.getByRole('region',{name:'Car 1 — Driver 1'}).getByRole('button',{name:'Standard',exact:true})).toHaveAttribute('aria-pressed','true');
     await expect(page.getByRole('button', { name: 'Approve Plan' })).toBeEnabled();
 });
-test('refresh recovers own confirmed choices, rejects edits atomically and expires replaced sessions', async ({ page }) => {
+test('refresh recovers confirmed choices, rejects edits atomically and retains independent session authority', async ({ page }) => {
     await page.goto('/race/new');
     await page.getByRole('button', { name: 'Create race' }).click();
     const url = await page.getByRole('link', { name: 'Open controller' }).getAttribute('href');
@@ -160,7 +161,20 @@ test('refresh recovers own confirmed choices, rejects edits atomically and expir
     await expect(page.getByRole('heading',{name:'Your team final results',exact:true})).toBeVisible();await page.reload();
     await expect(page.getByRole('button',{name:'Approve Plan'})).toBeDisabled();
     await expect(page.getByRole('region',{name:'Car 1 — Driver 1'}).getByRole('button',{name:'Push',exact:true})).toHaveAttribute('aria-pressed','true');
-    await page.request.post('/api/sessions', { data: { preset: 'open-equal', laps: 6, seed: 123 } });
+    const original=new URL(page.url());const id=original.pathname.split('/').at(-1)!;
+    const capability=new URLSearchParams(original.hash.slice(1)).get('capability')!;
+    const before=await (await page.request.get('/api/sessions/'+id)).json();
+    const ownBefore=await (await page.request.get('/api/sessions/'+id+'/team',{headers:{Authorization:'Bearer '+capability}})).json();
+    expect(ownBefore.confirmedPlan.cars[0].pace).toBe('Push');
+    const created=await page.request.post('/api/sessions', { data: { preset: 'open-equal', laps: 6, seed: 123 } });expect(created.ok()).toBe(true);
+    const newer=await created.json();expect(newer.sessionId).not.toBe(id);expect(newer.controllerCapability).not.toBe(capability);
     await page.reload();
-    await expect(page.getByRole('alert')).toContainText('unavailable');
+    await expect(page.getByRole('heading',{name:'Your team final results',exact:true})).toBeVisible();
+    await expect(page.getByRole('button',{name:'Approve Plan'})).toBeDisabled();
+    await expect(page.getByRole('region',{name:'Car 1 — Driver 1'}).getByRole('button',{name:'Push',exact:true})).toHaveAttribute('aria-pressed','true');
+    expect(comparablePublicState(await (await page.request.get('/api/sessions/'+id)).json())).toEqual(comparablePublicState(before));
+    expect(await (await page.request.get('/api/sessions/'+id+'/team',{headers:{Authorization:'Bearer '+capability}})).json()).toEqual(ownBefore);
+    expect((await page.request.get('/api/sessions/'+id+'/team',{headers:{Authorization:'Bearer '+newer.controllerCapability}})).status()).toBe(403);
+    expect((await page.request.get('/api/sessions/'+newer.sessionId+'/team',{headers:{Authorization:'Bearer '+capability}})).status()).toBe(403);
+    const fresh=await (await page.request.get('/api/sessions/'+newer.sessionId)).json();expect(fresh.raceTime).toBe(0);expect(fresh.lifecycle).toBe('awaiting-decisions');
 });

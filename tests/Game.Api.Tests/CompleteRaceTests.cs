@@ -51,9 +51,13 @@ public sealed class CompleteRaceTests
         Assert.Equal("awaiting-decisions", first.GetProperty("lifecycle").GetString());
         var presentation = first.GetProperty("presentation");
         Assert.True(Guid.TryParse(presentation.GetProperty("cursor").GetString(), out _));
-        Assert.Equal(1, presentation.GetProperty("pitEntries").GetInt32());
-        Assert.Equal(1, presentation.GetProperty("pitExits").GetInt32());
-        Assert.Equal(1, presentation.GetProperty("tyreChanges").GetInt32());
+        Assert.Equal(21, presentation.GetProperty("pitEntries").GetInt32());
+        Assert.Equal(21, presentation.GetProperty("pitExits").GetInt32());
+        Assert.Equal(21, presentation.GetProperty("tyreChanges").GetInt32());
+        Assert.Equal(12,first.GetProperty("events").GetArrayLength());
+        Assert.True(presentation.GetProperty("omittedEvents").GetInt32()>0);
+        Assert.Equal(presentation.GetProperty("totalEvents").GetInt32(),first.GetProperty("events").GetArrayLength()+presentation.GetProperty("omittedEvents").GetInt32());
+        Assert.All(first.GetProperty("classification").EnumerateArray(),row=>Assert.Equal(row.GetProperty("driverId").GetString()=="driver-01"?0:1,row.GetProperty("completedPitStops").GetInt32()));
         var ids = first.GetProperty("events").EnumerateArray().Select(item => item.GetProperty("id").GetString()).ToArray();
         Assert.All(ids, value => Assert.True(Guid.TryParse(value, out _)));
         var again = await client.GetFromJsonAsync<JsonElement>(route);
@@ -72,6 +76,6 @@ public sealed class CompleteRaceTests
         });
         Assert.Equal(new[] { "cursor", "resolvedPhase", "totalEvents", "overtakes", "pitEntries", "pitExits", "tyreChanges", "omittedEvents", "summary" }, finish.GetProperty("presentation").EnumerateObject().Select(field => field.Name));
         Assert.NotEqual(presentation.GetProperty("cursor").GetString(), finish.GetProperty("presentation").GetProperty("cursor").GetString());
-        Assert.True(finish.GetProperty("presentation").GetProperty("omittedEvents").GetInt32() > 0);
+        Assert.Equal(finish.GetProperty("presentation").GetProperty("totalEvents").GetInt32(),events.Length+finish.GetProperty("presentation").GetProperty("omittedEvents").GetInt32());
     }
 }
