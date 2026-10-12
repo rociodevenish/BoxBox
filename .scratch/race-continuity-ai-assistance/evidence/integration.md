@@ -19,7 +19,7 @@ The shared-session prerequisite's automated verification is complete; its actual
 
 No deployment project has been selected. Hosted join/reconnect, scale-to-zero wakeup, deployment restart, actual family playtest and measured cloud costs remain pending. [Hosting research](../hosting-research.md) records documentation-based constraints and estimates separately from measured acceptance evidence.
 
-Integrated SHA, unique check results, inspected phone/display captures, preview ports and owned process identities will be recorded after integration verification.
+Final integrated code SHA and verification records are recorded below. Later evidence/status-only commits do not change the tested implementation.
 
 ## Ticket 01
 
@@ -42,3 +42,27 @@ The merger composed one API route-registration conflict, retained every leaf mod
 At `d88037a`, root ran one combined Guided phone flow using ordinary `DryRacePresets`, real Auth/Firestore and owned frontend 4498/API 4598. It applied the saved suggestion, confirmed the two-car plan, reloaded with the accepted lock intact, and checked an ordinary public display without private advice. Passed in 43 seconds including startup; command record `.tools/reports/s06/integrated-visual03.json`. Earlier temporary-config attempts failed before product assertions because their server working directory was wrong; those records are retained separately.
 
 Root inspected [Guided phone](s06-integrated-guided-phone-360.png) (360×800 viewport, full page 360×4047), [locked/reloaded phone](s06-integrated-locked-phone-360.png) (360×4380) and [public display](s06-integrated-public-1920.png) (1920×1080). No horizontal clipping; plan, freshness, uncertainty, human responsibility and normal approval are readable with intentional vertical scrolling. Accepted choices remain selected and approval disabled after reload. All 22 public classification rows fit, ending around 1054px, with no private recommendations. Existing portrait/constructor assets load. These supported presets deliberately retain synthetic Driver labels and do not claim production adoption of provisional 2026 ratings.
+
+## Final local integration, 12 October 2026
+
+Ticket 07 deployment preparation merged at `5c4d4045d87e8eb5c119d48384cfa405a707201f`. Independent review fixes merged at `ad600b78e91e105baf6e4ca82344460fd0fefad9`; residual regression fixtures at `67c44e78e021a7064dce2eff4df284aa1f072619`; final shared-session fixtures at **`bdf451128fdf9bd2bcbdb001a4f388ada79021ba`**. This last merge changes only shared tests/configuration and evidence, with explicit host Continue and manual test wakeups preventing the result-presentation window from racing handoff assertions. Production progression remains covered by real recovery, deadline and scheduled-callback checks.
+
+All twelve required local verification steps have passing results. One initial broad invocation was followed by affected/remaining named steps, preserving failures and each immutable run manifest. Passing test counts below are distinct suites; overlapping focused implementer runs are not added to them.
+
+| Checks | Passing result | Immutable run directory under `.tools/reports/verification/runs/` |
+| --- | --- | --- |
+| Tooling, Angular typecheck, production build | 3 tooling tests; typecheck/build passed | `2026-10-11T10-10-07-456Z-e653a8b8-2a97-43a2-b1ad-49f28a6f2ed7` |
+| Gallery | 34/34 | `2026-10-12T10-21-27-140Z-07707e4b-6efa-454d-aca1-0ee69356da8f` |
+| Backend, browser, stop boundary | 111/111 simulation; 102/102 API; 22/22 browser; 2/2 boundary | `2026-10-12T10-34-29-729Z-e728652b-153b-46fc-a814-283127ccb2af` |
+| Assistance, control, deadlines, direct-origin browser | 1/1 in each suite | `2026-10-12T10-31-51-343Z-010a126c-dcb5-46d6-ae42-31ad2583a04c` |
+| Shared sessions | 8/8 | `2026-10-12T10-39-18-760Z-63f33cf9-a3fd-40a8-83e0-564dc10b216f` |
+
+Each directory contains `result.json` and bounded per-command records with revision, PID, start time, duration and exit status. Earlier passing checks were retained when later changes did not affect their implementation. Full diagnostic logs are in ignored `.tools/reports/s06/`; failed prior manifests remain intact. The 22 browser checks include five full 50-lap races and exact recorded-plan designer replays. The API suite uses real Auth/Firestore emulators. Expected injected connection/authentication failures appear in browser logs; all assertions passed.
+
+The production Angular initial bundle was 395.27 kB: within the 500 kB error budget, above the 300 kB warning budget. Existing QR CommonJS warnings remain. Local release publishing was verified in ticket 07; Docker build, CI execution and cloud deployment were not performed.
+
+Owned test frontend/API were 4498/4598, with recovery Auth/Firestore 19109/19100 and hub/logging 19410/19460; the control suite used 19309/19300 and 19510/19560. Final command PIDs were backend 49108, browser 51508, boundary 51068, assistance 30500, control 51728, deadlines 44068, direct-origin 11140 and shared 8680. After completion, an elevated listener check confirmed all these test ports clear. Existing previews, including the process locking ordinary API output, were preserved. All seven ticket worktrees and the clean review worktree were removed after preserving their reports. The review worktree's 36 report files, including TRX/screenshots, were copied with matching hashes into `.tools/reports/s06/review-fixes-worktree/reports`; dependency junctions were unlinked without recursively touching their targets. Only the root checkout remains.
+
+[Independent review](review.md): Standards 2 heuristic findings resolved; Spec 1 functional finding resolved. Both reviewers confirmed the fixes independently. [Remediation evidence](review-fixes.md) records the narrower checks and fixture adjustments.
+
+Tickets 01–06 are resolved locally. Ticket 07 and S06 are **ready-for-human**: the deployment runbook/configuration are prepared, but a selected cloud project/region, deployment authorization, hosted restart/idle/reconnect measurements, household feedback and actual cost evidence are still required. [Pending hosted acceptance](hosted-family.md) remains unchecked. Local direct-origin success and provisional AI comparisons do not satisfy those human/hosted gates. User roadmap/title edits remain unstaged; only the S06 status change is committed from its spec.

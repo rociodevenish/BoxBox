@@ -1,6 +1,6 @@
 # Race continuity, AI and assistance
 
-Status: ready-for-agent
+Status: ready-for-human
 Blocked by: shared sessions and controller ownership; browser dry-race contracts and deterministic replay; reviewed race-model evidence.
 
 ## Problem Statement
