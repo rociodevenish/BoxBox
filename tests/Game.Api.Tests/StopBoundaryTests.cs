@@ -35,7 +35,7 @@ public sealed class StopBoundaryTests
         Assert.Equal(inPits?"in-pit-lane":"on-track",display.GetProperty("classification").EnumerateArray().Single(car=>car.GetProperty("driverId").GetString()=="driver-02").GetProperty("pitState").GetString());
         var beforePublic=await client.GetStringAsync(route);var beforeTeam=await client.GetStringAsync(route+"/team");
         Assert.Equal(HttpStatusCode.BadRequest,(await client.PostAsJsonAsync(route+"/plans",Plan(1,own.GetProperty("revision").GetInt64(),"Push","Pit","Soft"))).StatusCode);
-        Assert.Equal(beforePublic,await client.GetStringAsync(route));Assert.Equal(beforeTeam,await client.GetStringAsync(route+"/team"));
+        PublicSnapshotAssertions.EqualState(beforePublic,await client.GetStringAsync(route));Assert.Equal(beforeTeam,await client.GetStringAsync(route+"/team"));
         var unchanged=await hub.InvokeAsync<JsonElement>("SubscribeTeam",id,capability);Assert.Equal(JsonValueKind.Null,unchanged.GetProperty("confirmedPlan").ValueKind);
         (await client.PostAsJsonAsync(route+"/plans",Plan(1,own.GetProperty("revision").GetInt64(),"Push","Stay Out",null))).EnsureSuccessStatusCode();
     }

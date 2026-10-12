@@ -51,7 +51,7 @@ public sealed class RecoveryTests
         var before = await client.GetStringAsync($"/api/sessions/{session.SessionId}");
         using var body = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
         Assert.Equal(status, (await client.PostAsync($"/api/sessions/{session.SessionId}/plans", body)).StatusCode);
-        Assert.Equal(before, await client.GetStringAsync($"/api/sessions/{session.SessionId}"));
+        PublicSnapshotAssertions.EqualState(before, await client.GetStringAsync($"/api/sessions/{session.SessionId}"));
         var own = (await client.GetFromJsonAsync<TeamSnapshot>($"/api/sessions/{session.SessionId}/team"))!;
         Assert.Null(own.ConfirmedPlan);
         Assert.Equal("awaiting-decisions", own.Lifecycle);
@@ -93,7 +93,7 @@ public sealed class RecoveryTests
         var repeated = await client.PostAsJsonAsync($"/api/sessions/{session.SessionId}/plans", command);
         repeated.EnsureSuccessStatusCode();
         Assert.Equal(await first.Content.ReadAsStringAsync(), await repeated.Content.ReadAsStringAsync());
-        Assert.Equal(result, await client.GetStringAsync($"/api/sessions/{session.SessionId}"));
+        PublicSnapshotAssertions.EqualState(result, await client.GetStringAsync($"/api/sessions/{session.SessionId}"));
         var changed = command with { Cars = [command.Cars[0] with { Pace = "Conserve" }, command.Cars[1]] };
         Assert.Equal(HttpStatusCode.Conflict, (await client.PostAsJsonAsync($"/api/sessions/{session.SessionId}/plans", changed)).StatusCode);
     }

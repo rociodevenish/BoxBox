@@ -124,7 +124,9 @@ public sealed class DeadlineTests
     internal static async Task<(string Id,string Device)> StartShared(HttpClient client)
     {
         client.DefaultRequestHeaders.Authorization=new("Bearer",await LobbyTests.Identity(false));
-        var created=(await(await client.PostAsJsonAsync("/api/lobbies",new{preset="open-equal",laps=6,seed=123,mode="Competitive",name="Host"})).Content.ReadFromJsonAsync<JsonElement>());
+        var response=await client.PostAsJsonAsync("/api/lobbies",new{preset="open-equal",laps=6,seed=123,mode="Competitive",name="Host"});
+        Assert.True(response.IsSuccessStatusCode,await response.Content.ReadAsStringAsync());
+        var created=(await response.Content.ReadFromJsonAsync<JsonElement>());
         var id=created.GetProperty("lobby").GetProperty("sessionId").GetString()!;var device=created.GetProperty("membership").GetProperty("deviceId").GetString()!;
         foreach(var (name,team) in new[]{("Alex","team-01"),("Sam","team-02")})
         {
