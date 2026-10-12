@@ -8,6 +8,8 @@ The user explicitly requested moving to S07 after committing the remaining edits
 
 S07 uses authored presets and tuning hypotheses. Supplied 2026 driver/track/car data are provisional versioned inputs, not official ratings or calibrated physics. Detailed values and compatibility traits are mapped explicitly; presentation stars do not determine engine coefficients. Qualifying resolution, standing starts, incidents, weather and acquisition/development remain later specs. S07 supplies a preparation freeze seam for the future qualifying-start transition.
 
+Read-only content inventory found 28 supplied driver PNGs and 23 track PNGs matching their JSON slugs. Source content IDs differ from image slugs; runtime mapping must preserve both explicitly. Existing frontend portrait variants cover 22 race drivers and no track variants. Engineer presets, numeric preference compatibility, practice confidence and segmented lap timing are not supplied and require versioned authoring. Track demand and pit-loss ratings are dimensionless, not seconds. Source JSON schema versions are `1.0.0`; driver/track data `2026.10.08-initial-balance`, car specification `2026.10.08-initial-model`.
+
 ## Workflow and environment
 
 Each ticket is implemented in an isolated worktree, merged by an independent merger into this integration branch, and verified through the parent-approved public simulation, API/SignalR and small rendered browser boundaries. The dependency chain is 01 → 02 → 03 → 04 → 05 → 06. Independent Standards and Spec reviews follow integration; one implementer owns remediation.
