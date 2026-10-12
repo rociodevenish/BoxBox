@@ -25,3 +25,24 @@ The time lost by making a pit stop compared with continuing on track, including 
 
 **Classification**:
 The race order ranked by laps completed, then progress within the current lap.
+
+**Weekend Setup**:
+A team's Aero, Mechanical and Tyres choices for both cars at one event. Setup redistributes performance through compromises.
+_Avoid_: Upgrade, Race Package
+
+**Practice Assessment**:
+The one lightweight assessment of a confirmed provisional Weekend Setup, giving feedback for both drivers before final revision.
+_Avoid_: Practice Session, Reroll
+
+**Final-Ready**:
+A team's confirmed preparation awaiting the start of qualifying. Its readiness is distinct from the qualifying lock.
+
+**Qualifying Lock**:
+The moment qualifying begins and every team's Weekend Setup and selected Race Package become fixed for the weekend.
+
+**Driver Preference**:
+A compatibility trait describing how a driver likes the car to behave. Adaptability moderates the effect of a mismatch.
+_Avoid_: Rating, Aggression
+
+**Effective Attributes**:
+The supported performance inputs resulting from a car, driver and selected weekend context. Player-facing Simple groups summarize attributes separately.
