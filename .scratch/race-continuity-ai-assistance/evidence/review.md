@@ -18,3 +18,7 @@ These are heuristics, not demonstrated correctness defects. Repo standards overr
 No additional actionable scope creep or wrong behavior was established. Actual hosting, household feedback and cost measurements remain explicitly pending; documented cold ordinary recovery and trusted scheduled callback behavior differ intentionally.
 
 Summary: Standards 2 heuristic findings (worst P3); Spec 1 functional finding (worst P2). A single implementer owns all fixes and related integration regression adjustments; final remediation evidence follows in `review-fixes.md`.
+
+## Independent remediation recheck
+
+Both reviewers independently inspected `2ba3c6859aa083fa6b44ec2bd7f053f59d588be2` and confirmed their findings resolved. Standards: 2 of 2 resolved, preserving recovery pause/publication behavior and saved control strings. Spec: 1 of 1 resolved, retaining concrete assistance provenance in designer history without exposing it to player/public payloads or fabricating older history. These rechecks were static reviews; automated verification is recorded separately in [remediation evidence](review-fixes.md) and [integration evidence](integration.md).
