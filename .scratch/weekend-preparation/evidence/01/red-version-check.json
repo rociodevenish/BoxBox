@@ -1,0 +1,19 @@
+{
+  "command": "dotnet",
+  "args": [
+    "test",
+    "tests/Game.Simulation.Tests/Game.Simulation.Tests.csproj",
+    "--artifacts-path",
+    ".tools/artifacts/s07-01",
+    "-p:NuGetAudit=false",
+    "-p:BuildInParallel=false",
+    "--filter",
+    "FullyQualifiedName~WeekendPresetTests"
+  ],
+  "cwd": "C:\\Projects\\F1Game\\.worktrees\\s07-01",
+  "pid": 45148,
+  "startedAt": "2026-10-12T11:19:29.820Z",
+  "status": "failed",
+  "exitCode": 1,
+  "elapsedMs": 3998
+}
