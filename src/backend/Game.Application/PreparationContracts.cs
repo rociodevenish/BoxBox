@@ -3,11 +3,17 @@ namespace Game.Application;
 
 public record BeginPreparationInput(string CircuitId = "track-monza");
 public record PracticeCommand(string CommandId, long? Revision, long? AssignmentRevision);
+public record FreezePreparationCommand(string CommandId, long? Revision);
+public record FreezePreparationAck(string CommandId, string SessionId, long Revision, string ContextId);
+public record FrozenPreparedTeam(string TeamId, long Revision, string Source, WeekendPreset Preset,
+    WeekendSetup Setup, EffectiveWeekend Effective);
+public record FrozenPreparationContext(string ContextId, string ModelVersion, IReadOnlyList<FrozenPreparedTeam> Teams);
+public record PreparationReadiness(string TeamId, bool FinalReady, bool Locked);
 public record PracticeSnapshot(string ModelVersion, WeekendSetup Setup, string CircuitFeedback,
     IReadOnlyList<string> Compromises, IReadOnlyList<PracticeDriverFeedback> Drivers);
 public record SetupCommand(string CommandId, long? Revision, long? AssignmentRevision, WeekendSetup? Setup);
 public record PreparationPublicSnapshot(string SessionId, long Revision, string Lifecycle, CircuitPreset Circuit,
-    IReadOnlyList<string> TeamIds);
+    IReadOnlyList<string> TeamIds, IReadOnlyList<PreparationReadiness> Readiness);
 public record PreparationTeamSnapshot(string SessionId, string TeamId, long Revision, long AssignmentRevision,
     string Lifecycle, WeekendSetup Setup, WeekendPreset Preset, IReadOnlyList<DriverSetupFit> DriverFits,
     string Summary, string ModelVersion, PracticeSnapshot? Assessment);

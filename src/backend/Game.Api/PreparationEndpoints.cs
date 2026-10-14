@@ -6,6 +6,45 @@ public static class PreparationEndpoints
 {
     public static void MapPreparationEndpoints(this WebApplication app)
     {
+        foreach(var operation in new[]{"confirm","reopen"})
+        {
+            var reopen=operation=="reopen";
+            app.MapPost("/api/lobbies/{id}/preparation/teams/{teamId}/"+operation,async(string id,string teamId,string deviceId,PracticeCommand input,HttpRequest request,FirebaseIdentity auth,SessionCoordinator sessions,IHubContext<RaceHub> hub)=>
+            {
+                var identity=await auth.Verify(LobbyEndpoints.Token(request));
+                var ack=reopen?sessions.ReopenPreparation(id,identity,deviceId,teamId,input):sessions.ConfirmPreparation(id,identity,deviceId,teamId,input);
+                try
+                {
+                    var team=sessions.HouseholdPreparation(id,identity,deviceId,teamId);
+                    await hub.Clients.Group($"preparation-household:{id}:{teamId}:{team.AssignmentRevision}").SendAsync("preparationTeamSnapshot",team);
+                    try { var open=sessions.OpenPreparation(id,teamId);
+                        await hub.Clients.Group($"preparation-open:{id}:{teamId}:{open.AssignmentRevision}").SendAsync("preparationTeamSnapshot",open); }
+                    catch(SessionFault fault) when(fault.Failure==SessionFailure.Forbidden) { }
+                    await hub.Clients.Group("preparation:"+id).SendAsync("preparationSnapshot",sessions.PreparationPublic(id));
+                }
+                catch(Exception error){app.Logger.LogWarning(error,"Readiness notification failed; recover the saved snapshot.");}
+                return ack;
+            });
+        }
+        app.MapPost("/api/lobbies/{id}/preparation/freeze",async(string id,FreezePreparationCommand input,HttpRequest request,FirebaseIdentity auth,SessionCoordinator sessions,IHubContext<RaceHub> hub)=>
+        {
+            var identity=await auth.Verify(LobbyEndpoints.Token(request));
+            var ack=sessions.FreezePreparationForQualifying(id,identity,input);
+            try
+            {
+                var snapshot=sessions.PreparationPublic(id);
+                await hub.Clients.Group("preparation:"+id).SendAsync("preparationSnapshot",snapshot);
+                foreach(var team in sessions.PreparationControllerUpdates(id,identity))
+                {
+                    await hub.Clients.Group($"preparation-household:{id}:{team.TeamId}:{team.AssignmentRevision}").SendAsync("preparationTeamSnapshot",team);
+                    try { var open=sessions.OpenPreparation(id,team.TeamId);
+                        await hub.Clients.Group($"preparation-open:{id}:{team.TeamId}:{open.AssignmentRevision}").SendAsync("preparationTeamSnapshot",open); }
+                    catch(SessionFault fault) when(fault.Failure==SessionFailure.Forbidden) { }
+                }
+            }
+            catch(Exception error){app.Logger.LogWarning(error,"Freeze notification failed; recover the saved snapshot.");}
+            return ack;
+        });
         app.MapPost("/api/lobbies/{id}/preparation",async(string id,BeginPreparationInput input,HttpRequest request,FirebaseIdentity auth,SessionCoordinator sessions,IHubContext<RaceHub> hub)=>
         {
             var snapshot=sessions.BeginPreparation(id,await auth.Verify(LobbyEndpoints.Token(request)),input);
