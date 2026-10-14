@@ -6,8 +6,21 @@ public static class AssistanceEndpoints
     public static void MapAssistanceEndpoints(this WebApplication app)=>app.MapPost("/api/lobbies/{id}/players/{playerId}/assistance",
         async(string id,string playerId,PlayerAssistanceInput input,HttpRequest request,FirebaseIdentity auth,SessionCoordinator sessions,IHubContext<RaceHub> hub)=>
         {
-            var state=await sessions.SetPlayerAssistance(id,await auth.Verify(LobbyEndpoints.Token(request)),playerId,input);
+            var identity=await auth.Verify(LobbyEndpoints.Token(request));
+            var state=await sessions.SetPlayerAssistance(id,identity,playerId,input);
             try{await hub.Clients.Group("lobby:"+id).SendAsync("lobbySnapshot",state);}catch(Exception error){app.Logger.LogWarning(error,"Assistance setting notification failed; refresh the saved lobby.");}
+            try
+            {
+                foreach(var team in sessions.PreparationControllerUpdates(id,identity))
+                {
+                    await hub.Clients.Group($"preparation-household:{id}:{team.TeamId}:{team.AssignmentRevision}").SendAsync("preparationTeamSnapshot",team);
+                    try {var open=sessions.OpenPreparation(id,team.TeamId);
+                        await hub.Clients.Group($"preparation-open:{id}:{team.TeamId}:{team.AssignmentRevision}").SendAsync("preparationTeamSnapshot",open);}
+                    catch(SessionFault fault) when(fault.Failure==SessionFailure.Forbidden) { }
+                }
+            }
+            catch(SessionFault fault) when(fault.Failure==SessionFailure.Conflict) { }
+            catch(Exception error){app.Logger.LogWarning(error,"Preparation guidance notification failed; recover the saved snapshot.");}
             return state;
         });
 }
