@@ -1,0 +1,19 @@
+{
+  "command": "dotnet",
+  "args": [
+    "run",
+    "--project",
+    "tools/WeekendSetupEvidence",
+    "--artifacts-path",
+    ".tools/artifacts/s07-06-sim",
+    "-p:NuGetAudit=false",
+    "--",
+    ".tools/reports/s07-06/simulation"
+  ],
+  "cwd": "C:\\Projects\\F1Game\\.worktrees\\s07-06",
+  "pid": 4640,
+  "startedAt": "2026-10-14T21:14:37.611Z",
+  "status": "passed",
+  "exitCode": 0,
+  "elapsedMs": 52846
+}
