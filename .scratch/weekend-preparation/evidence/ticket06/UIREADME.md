@@ -32,4 +32,3 @@ These are full-page controller captures at a 360×800 phone viewport and 768×10
 - [Public display](public-display.png) and [missing-track fallback](public-fallback.png): circuit image/demand text and 10 of 11 teams ready fit 1920×1080. No private setup choices, driver cards, advice or designer diagnostics appear. This projection remains public even in the signed-in host browser context.
 
 No visible clipping or overlapping text was found in these reviewed states. The remaining human observations are separate and **pending**: comprehension of the compromises, whether both-driver feedback helps decisions, and actual preparation duration. Automated command elapsed times above are verification runtime, not player timing. Qualifying resolution and S08 are outside this record.
-
