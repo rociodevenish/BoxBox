@@ -34,5 +34,21 @@ public static class PreparationEndpoints
             catch(Exception error) { app.Logger.LogWarning(error,"Setup notification failed; recover the saved snapshot."); }
             return ack;
         });
+        app.MapPost("/api/lobbies/{id}/preparation/teams/{teamId}/practice",async(string id,string teamId,string deviceId,PracticeCommand input,HttpRequest request,FirebaseIdentity auth,SessionCoordinator sessions,IHubContext<RaceHub> hub)=>
+        {
+            var identity=await auth.Verify(LobbyEndpoints.Token(request));
+            var ack=sessions.ConfirmPractice(id,identity,deviceId,teamId,input);
+            try
+            {
+                var team=sessions.HouseholdPreparation(id,identity,deviceId,teamId);
+                await hub.Clients.Group($"preparation-household:{id}:{teamId}:{team.AssignmentRevision}").SendAsync("preparationTeamSnapshot",team);
+                try { var open=sessions.OpenPreparation(id,teamId);
+                    await hub.Clients.Group($"preparation-open:{id}:{teamId}:{open.AssignmentRevision}").SendAsync("preparationTeamSnapshot",open); }
+                catch(SessionFault fault) when(fault.Failure==SessionFailure.Forbidden) { }
+                await hub.Clients.Group("preparation:"+id).SendAsync("preparationSnapshot",sessions.PreparationPublic(id));
+            }
+            catch(Exception error) { app.Logger.LogWarning(error,"Practice notification failed; recover the saved snapshot."); }
+            return ack;
+        });
     }
 }

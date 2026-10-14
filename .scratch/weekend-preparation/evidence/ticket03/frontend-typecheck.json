@@ -1,0 +1,15 @@
+{
+  "command": "C:/Users/sbdev/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+  "args": [
+    "src/frontend/node_modules/@angular/compiler-cli/bundles/src/bin/ngc.js",
+    "-p",
+    "src/frontend/tsconfig.app.json",
+    "--noEmit"
+  ],
+  "cwd": "C:\\Projects\\F1Game\\.worktrees\\s07-03",
+  "pid": 6596,
+  "startedAt": "2026-10-14T20:49:39.106Z",
+  "status": "passed",
+  "exitCode": 0,
+  "elapsedMs": 2814
+}
