@@ -9,10 +9,13 @@ public sealed partial class SessionCoordinator
     private const string PreparationModule = "weekend-preparation-v1";
     private sealed record AcceptedSetup(string Fingerprint, SetupAck Ack);
     private sealed record PreparedTeam(WeekendPreset Preset, WeekendSetup Setup, EffectiveWeekend Effective,
-        long Revision, string Lifecycle, Dictionary<string, AcceptedSetup> Commands, RecordedPractice? Practice = null);
+        long Revision, string Lifecycle, Dictionary<string, AcceptedSetup> Commands, RecordedPractice? Practice = null,
+        string Source = "human");
     private sealed record RecordedPractice(WeekendPreset Preset, int Laps, WeekendSetup Setup, int Seed,
         string ModelVersion, PracticeAssessment Result);
-    private sealed record PreparedLobby(string Version, Dictionary<string, PreparedTeam> Teams);
+    private sealed record AcceptedFreeze(string Fingerprint, FreezePreparationAck Ack);
+    private sealed record PreparedLobby(string Version, Dictionary<string, PreparedTeam> Teams,
+        FrozenPreparationContext? Frozen = null, Dictionary<string, AcceptedFreeze>? FreezeCommands = null);
 
     public PreparationPublicSnapshot BeginPreparation(string id, AuthIdentity identity, BeginPreparationInput input)
     {
@@ -134,12 +137,109 @@ public sealed partial class SessionCoordinator
         }} finally { mutations.Release(); }
     }
 
+    public SetupAck ConfirmPreparation(string id, AuthIdentity identity, string deviceId, string teamId, PracticeCommand command)=>
+        ChangePreparationReadiness(id,identity,deviceId,teamId,command,false);
+
+    public SetupAck ReopenPreparation(string id, AuthIdentity identity, string deviceId, string teamId, PracticeCommand command)=>
+        ChangePreparationReadiness(id,identity,deviceId,teamId,command,true);
+
+    private SetupAck ChangePreparationReadiness(string id, AuthIdentity identity, string deviceId, string teamId,
+        PracticeCommand command, bool reopen)
+    {
+        mutations.Wait();
+        try { lock(gate)
+        {
+            var access=AuthorisePreparationController(id,identity,deviceId,teamId);
+            var lobby=access.Lobby;var state=ReadPreparation(lobby);var team=state.Teams[teamId];
+            if(command is null || !Guid.TryParse(command.CommandId,out var commandId) || commandId==Guid.Empty
+                || command.Revision is null || command.AssignmentRevision is null)
+                throw new SessionFault(SessionFailure.InvalidInput,"Supply command identity and current revisions.");
+            if(command.AssignmentRevision!=access.Assignment.Revision)
+                throw new SessionFault(SessionFailure.Conflict,"Controller assignment changed. Refresh current authority.");
+            var fingerprint=JsonSerializer.Serialize(new {Operation=reopen?"reopen":"confirm",Session=id,Team=teamId,
+                command.Revision,command.AssignmentRevision,Version=PreparationModule});
+            var key=commandId.ToString("D");
+            if(team.Commands.TryGetValue(key,out var accepted))
+            {
+                if(accepted.Fingerprint!=fingerprint)throw new SessionFault(SessionFailure.Conflict,"Command identity was already used with different inputs.");
+                return accepted.Ack;
+            }
+            if(lobby.Lifecycle!="preparing" || team.Lifecycle!=(reopen?"final-ready":"assessed") || team.Practice is null)
+                throw new SessionFault(SessionFailure.Conflict,"Preparation cannot change readiness in this lifecycle.");
+            if(command.Revision!=team.Revision)
+                throw new SessionFault(SessionFailure.Conflict,"Setup changed. Recover the saved revision before confirmation.");
+            team.Setup.Validate();
+            var next=team with {Revision=team.Revision+1,Lifecycle=reopen?"assessed":"final-ready"};
+            var ack=new SetupAck(key,id,teamId,next.Revision,next.Lifecycle);
+            next.Commands[key]=new(fingerprint,ack);state.Teams[teamId]=next;
+            lobby.Revision++;WritePreparation(lobby,state);Persist(id);return ack;
+        }} finally { mutations.Release(); }
+    }
+
+    // S08 invokes this operation when qualifying begins. No race/session is created here.
+    public FreezePreparationAck FreezePreparationForQualifying(string id, AuthIdentity identity, FreezePreparationCommand command)
+    {
+        mutations.Wait();
+        try { lock(gate)
+        {
+            var lobby=RequireLobby(id);RequireHost(lobby,identity);var state=ReadPreparation(lobby);
+            if(command is null || !Guid.TryParse(command.CommandId,out var commandId) || commandId==Guid.Empty || command.Revision is null)
+                throw new SessionFault(SessionFailure.InvalidInput,"Supply command identity and current lobby revision.");
+            var key=commandId.ToString("D");
+            var fingerprint=JsonSerializer.Serialize(new{Operation="freeze",Session=id,command.Revision,Version=PreparationModule});
+            if(state.FreezeCommands?.TryGetValue(key,out var accepted)==true)
+            {
+                if(accepted.Fingerprint!=fingerprint)throw new SessionFault(SessionFailure.Conflict,"Command identity was already used with different inputs.");
+                return accepted.Ack;
+            }
+            if(state.Teams.Values.Any(t=>t.Commands.ContainsKey(key)))
+                throw new SessionFault(SessionFailure.Conflict,"Command identity was already used for a team operation.");
+            if(lobby.Lifecycle!="preparing" || state.Frozen is not null || command.Revision!=lobby.Revision)
+                throw new SessionFault(SessionFailure.Conflict,"Preparation changed or is already frozen.");
+            if(!state.Teams.Keys.Order(StringComparer.Ordinal).SequenceEqual(ConstructorCatalogue.Select(t=>t.TeamId).Order(StringComparer.Ordinal))
+                || state.Teams.Values.Any(t=>t.Lifecycle!="final-ready" || t.Practice is null))
+                throw new SessionFault(SessionFailure.Conflict,"Every team must be final-ready before qualifying can freeze preparation.");
+            foreach(var (teamId,team) in state.Teams)
+            {
+                try
+                {
+                    team.Setup.Validate();
+                    _=WeekendPreparation.Prepare(team.Preset,lobby.Input.Laps!.Value,team.Setup);
+                    if(team.Effective.ModelVersion!=WeekendPreparation.ModelVersion || team.Effective.Setup!=team.Setup
+                        || team.Preset.Cars.Any(c=>c.TeamId!=teamId) || string.IsNullOrWhiteSpace(team.Source))
+                        throw new ArgumentException("Saved effective context does not match the prepared team.");
+                }
+                catch(ArgumentException error){throw new SessionFault(SessionFailure.Conflict,error.Message);}
+            }
+            var context=new FrozenPreparationContext(Guid.NewGuid().ToString("D"),PreparationModule,
+                state.Teams.OrderBy(t=>t.Key,StringComparer.Ordinal).Select(t=>new FrozenPreparedTeam(t.Key,t.Value.Revision,
+                    t.Value.Source,t.Value.Preset,t.Value.Setup,t.Value.Effective)).ToImmutableArray());
+            var ack=new FreezePreparationAck(key,id,lobby.Revision+1,context.ContextId);
+            var receipts=state.FreezeCommands??[];receipts[key]=new(fingerprint,ack);
+            foreach(var (teamId,team) in state.Teams.ToArray())
+                state.Teams[teamId]=team with{Lifecycle="locked",Revision=team.Revision+1};
+            state=state with{Frozen=context,FreezeCommands=receipts};
+            lobby.Lifecycle="preparation-locked";lobby.Revision++;WritePreparation(lobby,state);Persist(id);return ack;
+        }} finally { mutations.Release(); }
+    }
+
+    public FrozenPreparationContext FrozenPreparation(string id,AuthIdentity identity)
+    { lock(gate){var lobby=RequireLobby(id);RequireHost(lobby,identity);
+        return ReadPreparation(lobby).Frozen??throw new SessionFault(SessionFailure.Conflict,"Preparation has not been frozen.");} }
+
+    public IReadOnlyList<PreparationTeamSnapshot> PreparationControllerUpdates(string id,AuthIdentity identity)
+    { lock(gate){var lobby=RequireLobby(id);RequireHost(lobby,identity);var state=ReadPreparation(lobby);
+        return state.Teams.Where(t=>lobby.Assignments.ContainsKey(t.Key)).Select(t=>
+            ProjectPreparationTeam(lobby,t.Value,t.Key,lobby.Assignments[t.Key])).ToArray();} }
+
     private static PreparedLobby ReadPreparation(Lobby lobby)
     {
         if(!lobby.ModuleState.TryGetValue(PreparationModule,out var json))
             throw new SessionFault(SessionFailure.Conflict,"Begin weekend preparation first.");
         var state=JsonSerializer.Deserialize<PreparedLobby>(json,BrowserReplay.JsonOptions);
         if(state is null || state.Version!=PreparationModule || state.Teams.Count!=11
+            || (state.Frozen is not null && (state.Frozen.ModelVersion!=PreparationModule || state.Frozen.Teams.Count!=11
+                || state.Frozen.Teams.Any(t=>t.Effective.ModelVersion!=WeekendPreparation.ModelVersion || t.Effective.SetupModelVersion!=WeekendSetup.Version)))
             || state.Teams.Values.Any(t=>t.Effective.SetupModelVersion!=WeekendSetup.Version
                 || (t.Practice is not null && (t.Practice.ModelVersion!=WeekendPreparation.PracticeModelVersion
                     || t.Practice.Result.Feedback.ModelVersion!=WeekendPreparation.PracticeModelVersion))))
@@ -149,7 +249,8 @@ public sealed partial class SessionCoordinator
     private static void WritePreparation(Lobby lobby,PreparedLobby state)=>
         lobby.ModuleState[PreparationModule]=JsonSerializer.Serialize(state,BrowserReplay.JsonOptions);
     private static PreparationPublicSnapshot ProjectPreparation(Lobby lobby,PreparedLobby state)=>
-        new(lobby.Id,lobby.Revision,lobby.Lifecycle,state.Teams.First().Value.Preset.Circuit,state.Teams.Keys.ToArray());
+        new(lobby.Id,lobby.Revision,lobby.Lifecycle,state.Teams.First().Value.Preset.Circuit,state.Teams.Keys.ToArray(),
+            state.Teams.Select(t=>new PreparationReadiness(t.Key,t.Value.Lifecycle is "final-ready" or "locked",t.Value.Lifecycle=="locked")).ToArray());
     private static PreparationTeamSnapshot ProjectPreparationTeam(Lobby lobby,PreparedTeam team,string teamId,Assignment assignment)=>
         new(lobby.Id,teamId,team.Revision,assignment.Revision,team.Lifecycle,team.Setup,team.Preset,
             team.Effective.DriverFits,team.Effective.Summary,team.Effective.SetupModelVersion,

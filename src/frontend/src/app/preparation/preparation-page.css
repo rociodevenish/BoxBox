@@ -2,3 +2,5 @@
 
 .preferences{display:flex;gap:8px;flex-wrap:wrap}.preferences span{border:1px solid #596065;border-radius:5px;padding:4px 8px;font-size:12px}
 
+
+.readiness{border-left:4px solid #ff877e;padding:10px 14px;background:#282f34;font-weight:800}
