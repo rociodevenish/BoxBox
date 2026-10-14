@@ -1,6 +1,6 @@
 # Effective weekend presets v1
 
-`WeekendPresetCatalog.Open(circuitId, firstDriverId, secondDriverId)` opens supplied circuit and driver identities for a neutral two-car team. `WeekendPreparation.Prepare(preset, laps)` validates and snapshots the source and returns readable circuit/two-car `Summary`, immutable source ratings, and effective race inputs. `CreateRace(effective, seed)` consumes those inputs directly; it never applies the mapping a second time. Ticket 02 adds optional `Prepare(preset, laps, setup)` and a separate opt-in lobby preparation flow. [Weekend Setup tuning and authority](weekend-setup.md) defines its versioned effects. Practice and final/qualifying lock remain subsequent tickets. The two-argument neutral path retains its original effective coefficients.
+`WeekendPresetCatalog.Open(circuitId, firstDriverId, secondDriverId)` opens supplied circuit and driver identities for a neutral two-car team. `WeekendPreparation.Prepare(preset, laps)` validates and snapshots the source and returns readable circuit/two-car `Summary`, immutable source ratings, and effective race inputs. `CreateRace(effective, seed)` consumes those inputs directly; it never applies the mapping a second time. Ticket 02 adds optional `Prepare(preset, laps, setup)` and a separate opt-in lobby preparation flow. [Weekend Setup tuning and authority](weekend-setup.md) defines its versioned effects. Practice Assessment uses this same model; final/qualifying lock remains a subsequent ticket. The two-argument neutral path retains its original effective coefficients.
 
 The public simulation seam was approved in the parent specification. Effective JSON snapshots can be deserialized and raced without reopening the catalog or reading source files. Source content and effective coefficients are retained separately. Unsupported preparation content or effective model versions are rejected explicitly.
 
@@ -31,9 +31,9 @@ Every detailed car, driver and circuit demand input is a finite dimensionless de
 | Tyre Warm-up | tyreWarmup | Neutral path inactive; explicit Weekend Setup path affects the age-zero warm-up penalty separately from preservation |
 | Error Control | errorControl | Inactive until incidents |
 | Wet-Weather Skill | wetWeatherSkill | Inactive until weather |
-| Setup Feedback / Adaptability | setupFeedback / adaptability | Setup Feedback awaits practice; explicit Weekend Setup uses Adaptability to moderate preference mismatch |
+| Setup Feedback / Adaptability | setupFeedback / adaptability | Setup Feedback improves Practice Assessment information; explicit Weekend Setup uses Adaptability to moderate preference mismatch |
 
-Preferences remain immutable labelled compatibility traits. They do not produce a bonus in neutral preparation. Race Engineer Setup is a finite 1–100 information-quality score. The authored neutral engineer has Setup 82, version `authored-engineer-v1`; supplied content has no engineer collection. Engineer Setup is inactive here and never grants pace.
+Preferences remain immutable labelled compatibility traits. They do not produce a bonus in neutral preparation. Race Engineer Setup is a finite 1–100 information-quality score. The authored neutral engineer has Setup 82, version `authored-engineer-v1`; supplied content has no engineer collection. Engineer Setup improves [Practice Assessment](practice-assessment.md) information and never grants pace.
 
 Simple car groups remain Speed, Cornering, Mechanical Grip, Tyres and Reliability. Simple driver groups remain Pace, Racecraft, Tyres, Consistency and Technical. Supplied headline composites/stars are presentation only. No headline value is read by this runtime mapping, and no Aggression attribute is introduced.
 

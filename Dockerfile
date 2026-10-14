@@ -2,6 +2,7 @@ FROM mcr.microsoft.com/dotnet/sdk:10.0.401 AS build
 WORKDIR /source
 COPY global.json Directory.Build.props ./
 COPY src/backend ./src/backend
+COPY .docs/data/f1_strategy_driver_cards_2026.json .docs/data/f1_strategy_track_cards_2026.json ./.docs/data/
 RUN dotnet publish src/backend/Game.Api/Game.Api.csproj -c Release -o /app --nologo
 FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS runtime
 WORKDIR /app

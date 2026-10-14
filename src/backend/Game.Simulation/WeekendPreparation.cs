@@ -6,6 +6,40 @@ namespace Game.Simulation;
 /// <summary>Public immutable preparation seam. Does not persist or advance a session.</summary>
 public static class WeekendPreparation
 {
+    public const string PracticeModelVersion = "practice-assessment-v1";
+
+    public static PracticeAssessment Assess(WeekendPreset preset, int laps, WeekendSetup setup, int seed)
+    {
+        ArgumentNullException.ThrowIfNull(setup);
+        var effective = Prepare(preset, laps, setup);
+        var drivers = effective.DriverFits.Select(fit =>
+        {
+            var driver = preset.Cars.Single(car => car.Driver.Id == fit.DriverId).Driver;
+            // Authored information-quality hypothesis: better feedback narrows uncertainty only.
+            var quality = (preset.Engineer.Setup + driver.Ratings["setupFeedback"]) / 2;
+            var radius = 3 + (100 - quality) * .2;
+            var bytes = System.Security.Cryptography.SHA256.HashData(System.Text.Encoding.UTF8.GetBytes(
+                $"{PracticeModelVersion}|{seed}|{fit.DriverId}"));
+            var observation = Math.Clamp(fit.Compatibility + (bytes[0] / 255d * 2 - 1) * radius, 0, 100);
+            var description = observation >= 90 ? "Comfortable" : observation >= 80 ? "Manageable compromise" : "Preference mismatch";
+            var confidence = quality >= 80 ? "High" : quality >= 55 ? "Moderate" : "Low";
+            return new PracticeDriverFeedback(fit.DriverId, fit.Name, description, confidence,
+                $"Indicative handling observation; uncertainty about {radius:0} compatibility points. No lap-time prediction.",
+                $"{description} with this shared Mechanical choice. Adaptability moderates preference mismatch; a change can suit the other driver differently.");
+        }).ToImmutableArray();
+        var demand = preset.Circuit.Demands;
+        var straight = (demand["topSpeed"] + demand["accelerationDeployment"]) / 2;
+        var corner = (demand["highSpeedCornering"] + demand["lowSpeedCornering"] + demand["mechanicalGrip"] + demand["braking"] + demand["traction"]) / 5;
+        var aeroFocus = setup.Aero < 0 ? "straight performance" : setup.Aero > 0 ? "cornering performance" : "balanced support";
+        var circuitDemand = straight == corner ? "straight and cornering demand are balanced"
+            : $"{(straight > corner ? "straight performance" : "cornering performance")} has greater relative demand";
+        var feedback = new PracticeFeedback(PracticeModelVersion, setup, seed,
+            $"{preset.Circuit.Name}: {circuitDemand}. Your Aero choice prioritises {aeroFocus}, trading straight performance against cornering. This is indicative circuit fit, not a predicted result.",
+            ["More Downforce exchanges straight performance for cornering.",
+             "More Stable exchanges rotation and grip for traction and preservation; both drivers share the compromise.",
+             "More Preservation exchanges early tyre response for stint life. Practice consumes no race tyres or components."], drivers);
+        return new(feedback, new(effective, effective.DriverFits));
+    }
     public const string ModelVersion = "effective-weekend-v1";
     public const string CardVersion = "1.0.0/2026.10.08-initial-balance";
     public const string CarVersion = "car-spec/1.0.0/2026.10.08-initial-model";

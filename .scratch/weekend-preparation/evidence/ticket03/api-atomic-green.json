@@ -1,0 +1,21 @@
+{
+  "command": "C:\\Users\\sbdev\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\node\\bin\\node.exe",
+  "args": [
+    "C:/Projects/F1Game/.tools/s06-dependencies/auth/node_modules/firebase-tools/lib/bin/firebase.js",
+    "emulators:exec",
+    "--only",
+    "auth,firestore",
+    "--project",
+    "demo-f1game",
+    "--config",
+    "C:\\Projects\\F1Game\\.worktrees\\s07-03/.tools/reports/s07-03/firebase-runtime.json",
+    "--non-interactive",
+    "dotnet test tests/Game.Api.Tests --artifacts-path .tools/artifacts/s07-03-api -p:NuGetAudit=false --filter FullyQualifiedName~Confirmed_practice --verbosity minimal"
+  ],
+  "cwd": "C:\\Projects\\F1Game\\.worktrees\\s07-03",
+  "pid": 11168,
+  "startedAt": "2026-10-14T20:49:15.886Z",
+  "status": "passed",
+  "exitCode": 0,
+  "elapsedMs": 11640
+}

@@ -1,0 +1,20 @@
+{
+  "command": "dotnet",
+  "args": [
+    "test",
+    "tests/Game.Simulation.Tests",
+    "--artifacts-path",
+    ".tools/artifacts/s07-03",
+    "-p:NuGetAudit=false",
+    "--filter",
+    "FullyQualifiedName~PracticeAssessmentTests",
+    "--verbosity",
+    "minimal"
+  ],
+  "cwd": "C:\\Projects\\F1Game\\.worktrees\\s07-03",
+  "pid": 34068,
+  "startedAt": "2026-10-14T10:59:32.040Z",
+  "status": "failed",
+  "exitCode": 1,
+  "elapsedMs": 5203
+}

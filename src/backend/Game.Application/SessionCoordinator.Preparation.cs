@@ -9,7 +9,9 @@ public sealed partial class SessionCoordinator
     private const string PreparationModule = "weekend-preparation-v1";
     private sealed record AcceptedSetup(string Fingerprint, SetupAck Ack);
     private sealed record PreparedTeam(WeekendPreset Preset, WeekendSetup Setup, EffectiveWeekend Effective,
-        long Revision, string Lifecycle, Dictionary<string, AcceptedSetup> Commands);
+        long Revision, string Lifecycle, Dictionary<string, AcceptedSetup> Commands, RecordedPractice? Practice = null);
+    private sealed record RecordedPractice(WeekendPreset Preset, int Laps, WeekendSetup Setup, int Seed,
+        string ModelVersion, PracticeAssessment Result);
     private sealed record PreparedLobby(string Version, Dictionary<string, PreparedTeam> Teams);
 
     public PreparationPublicSnapshot BeginPreparation(string id, AuthIdentity identity, BeginPreparationInput input)
@@ -85,7 +87,7 @@ public sealed partial class SessionCoordinator
                 if(accepted.Fingerprint!=fingerprint)throw new SessionFault(SessionFailure.Conflict,"Command identity was already used with different setup inputs.");
                 return accepted.Ack;
             }
-            if(lobby.Lifecycle!="preparing" || team.Lifecycle!="provisional")
+            if(lobby.Lifecycle!="preparing" || team.Lifecycle is not ("provisional" or "assessed"))
                 throw new SessionFault(SessionFailure.Conflict,"Setup is not editable in this lifecycle.");
             if(command.Revision!=team.Revision)throw new SessionFault(SessionFailure.Conflict,"Setup changed. Recover the saved revision before editing.");
             var effective=WeekendPreparation.Prepare(team.Preset,lobby.Input.Laps!.Value,command.Setup);
@@ -96,13 +98,51 @@ public sealed partial class SessionCoordinator
         }} finally { mutations.Release(); }
     }
 
+    public SetupAck ConfirmPractice(string id,AuthIdentity identity,string deviceId,string teamId,PracticeCommand command)
+    {
+        mutations.Wait();
+        try { lock(gate)
+        {
+            var access=AuthorisePreparationController(id,identity,deviceId,teamId);
+            var lobby=access.Lobby;var state=ReadPreparation(lobby);var team=state.Teams[teamId];
+            if(command is null || !Guid.TryParse(command.CommandId,out var commandId) || commandId==Guid.Empty
+                || command.Revision is null || command.AssignmentRevision is null)
+                throw new SessionFault(SessionFailure.InvalidInput,"Supply command identity and current revisions.");
+            if(command.AssignmentRevision!=access.Assignment.Revision)
+                throw new SessionFault(SessionFailure.Conflict,"Controller assignment changed. Refresh current authority.");
+            var fingerprint=JsonSerializer.Serialize(new {Operation="practice",Session=id,Team=teamId,command.Revision,
+                command.AssignmentRevision,Version=PreparationModule});
+            var key=commandId.ToString("D");
+            if(team.Commands.TryGetValue(key,out var accepted))
+            {
+                if(accepted.Fingerprint!=fingerprint)
+                    throw new SessionFault(SessionFailure.Conflict,"Command identity was already used with different inputs.");
+                return accepted.Ack;
+            }
+            if(lobby.Lifecycle!="preparing" || team.Lifecycle!="provisional" || team.Practice is not null)
+                throw new SessionFault(SessionFailure.Conflict,"This team already assessed practice or cannot assess in this lifecycle.");
+            if(command.Revision!=team.Revision)
+                throw new SessionFault(SessionFailure.Conflict,"Setup changed. Recover the saved revision before confirming practice.");
+            var seed=lobby.Input.Seed!.Value;
+            var result=WeekendPreparation.Assess(team.Preset,lobby.Input.Laps!.Value,team.Setup,seed);
+            var recorded=new RecordedPractice(team.Preset,lobby.Input.Laps.Value,team.Setup,seed,
+                WeekendPreparation.PracticeModelVersion,result);
+            var next=team with {Practice=recorded,Revision=team.Revision+1,Lifecycle="assessed"};
+            var ack=new SetupAck(key,id,teamId,next.Revision,next.Lifecycle);
+            next.Commands[key]=new(fingerprint,ack);state.Teams[teamId]=next;
+            lobby.Revision++;WritePreparation(lobby,state);Persist(id);return ack;
+        }} finally { mutations.Release(); }
+    }
+
     private static PreparedLobby ReadPreparation(Lobby lobby)
     {
         if(!lobby.ModuleState.TryGetValue(PreparationModule,out var json))
             throw new SessionFault(SessionFailure.Conflict,"Begin weekend preparation first.");
         var state=JsonSerializer.Deserialize<PreparedLobby>(json,BrowserReplay.JsonOptions);
         if(state is null || state.Version!=PreparationModule || state.Teams.Count!=11
-            || state.Teams.Values.Any(t=>t.Effective.SetupModelVersion!=WeekendSetup.Version))
+            || state.Teams.Values.Any(t=>t.Effective.SetupModelVersion!=WeekendSetup.Version
+                || (t.Practice is not null && (t.Practice.ModelVersion!=WeekendPreparation.PracticeModelVersion
+                    || t.Practice.Result.Feedback.ModelVersion!=WeekendPreparation.PracticeModelVersion))))
             throw new SessionFault(SessionFailure.Conflict,"Saved preparation model is incompatible; preserved inputs require the compatible deployment.");
         return state;
     }
@@ -112,7 +152,10 @@ public sealed partial class SessionCoordinator
         new(lobby.Id,lobby.Revision,lobby.Lifecycle,state.Teams.First().Value.Preset.Circuit,state.Teams.Keys.ToArray());
     private static PreparationTeamSnapshot ProjectPreparationTeam(Lobby lobby,PreparedTeam team,string teamId,Assignment assignment)=>
         new(lobby.Id,teamId,team.Revision,assignment.Revision,team.Lifecycle,team.Setup,team.Preset,
-            team.Effective.DriverFits,team.Effective.Summary,team.Effective.SetupModelVersion);
+            team.Effective.DriverFits,team.Effective.Summary,team.Effective.SetupModelVersion,
+            team.Practice is null ? null : new PracticeSnapshot(team.Practice.Result.Feedback.ModelVersion,
+                team.Practice.Result.Feedback.Setup,team.Practice.Result.Feedback.CircuitFeedback,
+                team.Practice.Result.Feedback.Compromises,team.Practice.Result.Feedback.Drivers));
 
     // Explicit preset identity; constructor metadata and illustrative card stars never provide coefficients.
     private static readonly (string First,string Second)[] PreparationDrivers = [
