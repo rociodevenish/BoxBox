@@ -66,6 +66,11 @@ app.MapGet("/api/designer/sessions/{id}/record", (string id, HttpContext context
     RequireDesigner(context, configuration);
     return sessions.DesignerRecord(id);
 });
+app.MapGet("/api/designer/lobbies/{id}/preparation",(string id,HttpContext context,IConfiguration configuration,SessionCoordinator sessions)=>
+{
+    RequireDesigner(context,configuration);
+    return sessions.PreparationAutomaticRecords(id);
+});
 app.MapPost("/api/designer/replay/verify", (JsonElement input, HttpContext context, IConfiguration configuration) =>
 {
     RequireDesigner(context, configuration);

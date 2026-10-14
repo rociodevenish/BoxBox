@@ -5,7 +5,7 @@ namespace Game.Simulation;
 // Authored hypotheses, not inferred physics or researched numerical preference data.
 internal static class WeekendSetupTuning
 {
-    private static readonly ImmutableDictionary<string, double> MechanicalPreference = new Dictionary<string, double>
+    internal static readonly ImmutableDictionary<string, double> MechanicalPreference = new Dictionary<string, double>
     {
         ["adaptable-balance"] = 0, ["aggressive-entry-braking"] = -1, ["aggressive-front"] = -2,
         ["braking-stability"] = 2, ["clean-exit-traction"] = 2, ["confidence-predictability"] = 1,

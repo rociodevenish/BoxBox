@@ -10,7 +10,7 @@ public sealed partial class SessionCoordinator
     private sealed record AcceptedSetup(string Fingerprint, SetupAck Ack);
     private sealed record PreparedTeam(WeekendPreset Preset, WeekendSetup Setup, EffectiveWeekend Effective,
         long Revision, string Lifecycle, Dictionary<string, AcceptedSetup> Commands, RecordedPractice? Practice = null,
-        string Source = "human");
+        string Source = "human",IReadOnlyList<RecordedPreparationChoice>? AutomaticChoices=null);
     private sealed record RecordedPractice(WeekendPreset Preset, int Laps, WeekendSetup Setup, int Seed,
         string ModelVersion, PracticeAssessment Result);
     private sealed record AcceptedFreeze(string Fingerprint, FreezePreparationAck Ack);
@@ -49,6 +49,8 @@ public sealed partial class SessionCoordinator
             catch (ArgumentException error) { throw new SessionFault(SessionFailure.InvalidInput,error.Message); }
             lobby.RequiredTeams=lobby.Assignments.Keys.Order(StringComparer.Ordinal).ToArray();
             lobby.ScriptedTeams=teams.Keys.Except(lobby.RequiredTeams).Order(StringComparer.Ordinal).ToArray();
+            foreach(var teamId in lobby.ScriptedTeams)
+                teams[teamId]=PrepareAutomaticTeam(lobby,teams[teamId]);
             var state=new PreparedLobby(PreparationModule,teams);
             lobby.Lifecycle="preparing"; lobby.Revision++; WritePreparation(lobby,state); Persist(id);
             return ProjectPreparation(lobby,state);
@@ -213,7 +215,7 @@ public sealed partial class SessionCoordinator
             }
             var context=new FrozenPreparationContext(Guid.NewGuid().ToString("D"),PreparationModule,
                 state.Teams.OrderBy(t=>t.Key,StringComparer.Ordinal).Select(t=>new FrozenPreparedTeam(t.Key,t.Value.Revision,
-                    t.Value.Source,t.Value.Preset,t.Value.Setup,t.Value.Effective)).ToImmutableArray());
+                    t.Value.Source,t.Value.Preset,t.Value.Setup,t.Value.Effective,t.Value.AutomaticChoices)).ToImmutableArray());
             var ack=new FreezePreparationAck(key,id,lobby.Revision+1,context.ContextId);
             var receipts=state.FreezeCommands??[];receipts[key]=new(fingerprint,ack);
             foreach(var (teamId,team) in state.Teams.ToArray())
@@ -251,12 +253,45 @@ public sealed partial class SessionCoordinator
     private static PreparationPublicSnapshot ProjectPreparation(Lobby lobby,PreparedLobby state)=>
         new(lobby.Id,lobby.Revision,lobby.Lifecycle,state.Teams.First().Value.Preset.Circuit,state.Teams.Keys.ToArray(),
             state.Teams.Select(t=>new PreparationReadiness(t.Key,t.Value.Lifecycle is "final-ready" or "locked",t.Value.Lifecycle=="locked")).ToArray());
+    private static PreparationPolicyObservation ObservePreparation(PreparedTeam team)=>
+        new(PreparationDecisionPolicy.ObservationVersion,string.Join("|",team.Preset.Version,team.Preset.Circuit.Version,
+            team.Preset.Cars[0].Car.Version,team.Preset.Cars[0].Driver.Version,team.Preset.Cars[1].Driver.Version,team.Preset.Engineer.Version),
+            team.Preset.Circuit.Name,team.Preset.Circuit.Demands,
+            team.Preset.Cars[0].Car.Ratings,team.Preset.Cars.Select(c=>new PreparationDriverObservation(c.Driver.Id,
+                c.Driver.Name,c.Driver.Preferences,c.Driver.Ratings["adaptability"])).ToArray(),
+            team.Practice is null?null:new(team.Practice.Result.Feedback.ModelVersion,team.Practice.Setup,
+                team.Practice.Result.Feedback.CircuitFeedback,team.Practice.Result.Feedback.Drivers));
+
+    private static PreparedTeam PrepareAutomaticTeam(Lobby lobby,PreparedTeam team)
+    {
+        var provisionalObservation=ObservePreparation(team);
+        var provisional=PreparationDecisionPolicy.Evaluate(provisionalObservation);
+        var result=WeekendPreparation.Assess(team.Preset,lobby.Input.Laps!.Value,provisional.Setup,lobby.Input.Seed!.Value);
+        var assessed=team with{Setup=provisional.Setup,Practice=new(team.Preset,lobby.Input.Laps.Value,provisional.Setup,
+            lobby.Input.Seed.Value,WeekendPreparation.PracticeModelVersion,result)};
+        var finalObservation=ObservePreparation(assessed);var final=PreparationDecisionPolicy.Evaluate(finalObservation);
+        return assessed with{Setup=final.Setup,Effective=WeekendPreparation.Prepare(team.Preset,lobby.Input.Laps.Value,final.Setup),
+            Lifecycle="final-ready",Revision=team.Revision+3,Source="unclaimed-ai",
+            AutomaticChoices=[new("provisional",provisionalObservation,provisional),new("final",finalObservation,final)]};
+    }
+
+    public IReadOnlyList<PreparationAutomaticRecord> PreparationAutomaticRecords(string id)
+    { lock(gate){return ReadPreparation(RequireLobby(id)).Teams.Where(t=>t.Value.AutomaticChoices is not null)
+        .Select(t=>new PreparationAutomaticRecord(t.Key,t.Value.Source,t.Value.AutomaticChoices!)).ToArray();} }
+
+    private static PreparationGuidance ProjectPreparationGuidance(Lobby lobby,PreparedTeam team,Assignment assignment)
+    {
+        var settings=AssistanceSettings(lobby,assignment.PlayerId);
+        return new(settings.HelpLevel,settings.AutoAcceptRecommendation,settings.HelpLevel=="Standard"?null:
+            PreparationDecisionPolicy.Evaluate(ObservePreparation(team)));
+    }
+
     private static PreparationTeamSnapshot ProjectPreparationTeam(Lobby lobby,PreparedTeam team,string teamId,Assignment assignment)=>
         new(lobby.Id,teamId,team.Revision,assignment.Revision,team.Lifecycle,team.Setup,team.Preset,
             team.Effective.DriverFits,team.Effective.Summary,team.Effective.SetupModelVersion,
             team.Practice is null ? null : new PracticeSnapshot(team.Practice.Result.Feedback.ModelVersion,
                 team.Practice.Result.Feedback.Setup,team.Practice.Result.Feedback.CircuitFeedback,
-                team.Practice.Result.Feedback.Compromises,team.Practice.Result.Feedback.Drivers));
+                team.Practice.Result.Feedback.Compromises,team.Practice.Result.Feedback.Drivers),ProjectPreparationGuidance(lobby,team,assignment));
 
     // Explicit preset identity; constructor metadata and illustrative card stars never provide coefficients.
     private static readonly (string First,string Second)[] PreparationDrivers = [
