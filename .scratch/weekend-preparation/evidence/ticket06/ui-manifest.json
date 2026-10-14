@@ -1,0 +1,54 @@
+{
+  "checkedAt": "2026-10-14T21:16:44.1222071Z",
+  "ports": [
+    4506,
+    4606,
+    19349,
+    19340,
+    19550,
+    19600,
+    9150
+  ],
+  "listeners": [],
+  "sourceRevision": "2368ab154bbe78692ce8efb6cdf9ed4a7e7a816e",
+  "observedChildren": [
+    2088,
+    2284,
+    14652
+  ],
+  "runnerPid": 13436,
+  "captures": [
+    {
+      "sha256": "C99DA686A9708D04F980C8201EB292F47AE346409384CA426BA8B37A9DCA4B08",
+      "file": "phone-final-ready.png"
+    },
+    {
+      "sha256": "8F42D58666ED4D74A9E6BF74C1F72A200B4C9DF0D7FF9870AE2A623CF0AEAE7F",
+      "file": "phone-reopened.png"
+    },
+    {
+      "sha256": "6EF9E2B7E2C92A2D76E1D5F7EC62B3234C18FAD0B734973373D54AF29E01BA8B",
+      "file": "tablet-final-ready.png"
+    },
+    {
+      "sha256": "4BD5C916136C212EBDF240FE7CE055A17A9800329433F9452B85BDDECD4A0908",
+      "file": "tablet-reopened.png"
+    },
+    {
+      "sha256": "516AE6910D32C30C25E9974388D3E4071044A83A73FE3D78B026FBDB6E563F6C",
+      "file": "guided-phone.png"
+    },
+    {
+      "sha256": "C28B0BF47AA7F376D19CE73E6BD520C8E95C597CBC44BCA8CB1FF51136F7E00B",
+      "file": "phone-fallback.png"
+    },
+    {
+      "sha256": "201DDE7697AECF6BF825801D1518ABA4F633736608B3272DA55D36BF884DB45E",
+      "file": "public-display.png"
+    },
+    {
+      "sha256": "996342D5DB8784A9185D5221A3A5072158F9631D3C26DCD58458925CC6D9B2BA",
+      "file": "public-fallback.png"
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "command": "node",
+  "args": [
+    "node_modules/@playwright/test/cli.js",
+    "test",
+    "--config",
+    "playwright.shared.config.ts",
+    "preparation.spec.ts",
+    "preparation-guidance.spec.ts"
+  ],
+  "cwd": "C:\\Projects\\F1Game\\.worktrees\\s07-06\\src\\frontend",
+  "pid": 13436,
+  "startedAt": "2026-10-14T21:16:00.052Z",
+  "status": "passed",
+  "exitCode": 0,
+  "elapsedMs": 27032
+}

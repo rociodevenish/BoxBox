@@ -1,0 +1,210 @@
+{
+  "schema": "s07-simulation-manifest-v1",
+  "hashNormalization": "UTF-8 text with CRLF normalized to LF; byte counts describe authored files",
+  "integration": "d7d4cad",
+  "productionBase": "2368ab154bbe78692ce8efb6cdf9ed4a7e7a816e",
+  "node": "24.19.0",
+  "dotnetSdk": "10.0.401",
+  "sources": [
+    {
+      "path": "tools/WeekendSetupEvidence/Program.cs",
+      "sha256": "ac98ddbbb7b3dc3e96efb085301c84d5b88185ddd0281f3d2c6c7490ec57e5b8"
+    },
+    {
+      "path": "tools/WeekendSetupEvidence/summarize.mjs",
+      "sha256": "0e0c052d9bbc2d67912afc31f274acef837bb34abc68c161e60de2f4b4c55b18"
+    },
+    {
+      "path": ".docs/data/f1_strategy_driver_cards_2026.json",
+      "sha256": "fc1bea18ae7ddf8304cfd3e1810682b29bf52f16deac7667d4538437ceede12b"
+    },
+    {
+      "path": ".docs/data/f1_strategy_track_cards_2026.json",
+      "sha256": "10e715e217d00bba7ada2380de3b46ca61b770bf87fa32a3e7d4882ab23028b7"
+    },
+    {
+      "path": ".docs/data/f1_strategy_car_attribute_spec_2026.json",
+      "sha256": "21fb8a8baa535922da7680d6b6fdc13f53e162a42ae47d1dc9d26cfd67f0b866"
+    }
+  ],
+  "outputs": [
+    {
+      "name": "RESULTS.md",
+      "bytes": 4562,
+      "sha256": "86b389c46e3ab3ed1e89312a0c9a2fb6131023c9c3e63bc206e7e7970ccc1bcc"
+    },
+    {
+      "name": "analysis.json",
+      "bytes": 43587,
+      "sha256": "e879f2bc544c77ab38cf33f9eef12bf99572d9716ab1af462e23891ab4c8cb95"
+    },
+    {
+      "name": "isolation-probes.json",
+      "bytes": 894143,
+      "sha256": "7cf8f4cb96ec8263fca887e80a0c699760d44dc3e2f4413fcef1e6d164ee4832"
+    },
+    {
+      "name": "summary.json",
+      "bytes": 42079,
+      "sha256": "5dcf10016707f086216bab78ee987beab3b6815214701b0dea05727e9387affe"
+    },
+    {
+      "name": "track-monaco-equal-clear-zero.json",
+      "bytes": 327567,
+      "sha256": "aaa06655e2b277184122e51015e9df6761e6285f0e8849158c7f36aecfff3c75"
+    },
+    {
+      "name": "track-monaco-equal-traffic-noisy.json",
+      "bytes": 1570197,
+      "sha256": "61b31613780df99e81b84761d69a4f0a180d058d78e0ecac0a150d54b4058f30"
+    },
+    {
+      "name": "track-monaco-equal-traffic-zero.json",
+      "bytes": 327562,
+      "sha256": "d42138ad3d6a63dc0c87f37a99f1d63f1a362845a69905fe6fb1d361be8bb44f"
+    },
+    {
+      "name": "track-monaco-mixed-clear-zero.json",
+      "bytes": 325063,
+      "sha256": "151d70c9139da7d1c4fe1e0bd0a58f447c3f9c1cbb21b59face150a7cfa5ffa8"
+    },
+    {
+      "name": "track-monaco-mixed-traffic-noisy.json",
+      "bytes": 1568560,
+      "sha256": "cf49e52bd02c8e5916c8043c337263fb5fc92e86bd457e412dab9852505949d3"
+    },
+    {
+      "name": "track-monaco-mixed-traffic-zero.json",
+      "bytes": 325079,
+      "sha256": "4af923536018e5b72bad93877823628db82fe635dc75c298ed12b7236f891aca"
+    },
+    {
+      "name": "track-monza-equal-clear-zero.json",
+      "bytes": 328208,
+      "sha256": "8035e54e5710d102e862040ed51124877153edc163adaf1d666a31af1311d542"
+    },
+    {
+      "name": "track-monza-equal-traffic-noisy.json",
+      "bytes": 1571729,
+      "sha256": "3139e632c8aead9b6860683998cd8dffc88290ab4adb617abbc932462c25ac15"
+    },
+    {
+      "name": "track-monza-equal-traffic-zero.json",
+      "bytes": 328201,
+      "sha256": "eed7ea40a49e2bf9b39f0e3be00f577e3c6617aedc65121aa43e5ba452099a99"
+    },
+    {
+      "name": "track-monza-mixed-clear-zero.json",
+      "bytes": 325718,
+      "sha256": "fdab47fa588b2d3f8b9e7aec028a3611a816f6edc1546fef532e33d3480fa0bb"
+    },
+    {
+      "name": "track-monza-mixed-traffic-noisy.json",
+      "bytes": 1569652,
+      "sha256": "2bf3fcf97c047e0fc146822e8184efae43ca59665edcfaf260eaf402f60cc411"
+    },
+    {
+      "name": "track-monza-mixed-traffic-zero.json",
+      "bytes": 325702,
+      "sha256": "0a324b6687ed0c8e80ee9ad5420de036f8778ea254d01e9681126bcde2f4f656"
+    }
+  ],
+  "cases": [
+    {
+      "name": "track-monaco-equal-clear-zero.json",
+      "entries": 22,
+      "teams": 11,
+      "outcomes": 7,
+      "allCompleteFullFields": true,
+      "allTwoCompoundEligible": true
+    },
+    {
+      "name": "track-monaco-equal-traffic-noisy.json",
+      "entries": 22,
+      "teams": 11,
+      "outcomes": 84,
+      "allCompleteFullFields": true,
+      "allTwoCompoundEligible": true
+    },
+    {
+      "name": "track-monaco-equal-traffic-zero.json",
+      "entries": 22,
+      "teams": 11,
+      "outcomes": 7,
+      "allCompleteFullFields": true,
+      "allTwoCompoundEligible": true
+    },
+    {
+      "name": "track-monaco-mixed-clear-zero.json",
+      "entries": 22,
+      "teams": 11,
+      "outcomes": 7,
+      "allCompleteFullFields": true,
+      "allTwoCompoundEligible": true
+    },
+    {
+      "name": "track-monaco-mixed-traffic-noisy.json",
+      "entries": 22,
+      "teams": 11,
+      "outcomes": 84,
+      "allCompleteFullFields": true,
+      "allTwoCompoundEligible": true
+    },
+    {
+      "name": "track-monaco-mixed-traffic-zero.json",
+      "entries": 22,
+      "teams": 11,
+      "outcomes": 7,
+      "allCompleteFullFields": true,
+      "allTwoCompoundEligible": true
+    },
+    {
+      "name": "track-monza-equal-clear-zero.json",
+      "entries": 22,
+      "teams": 11,
+      "outcomes": 7,
+      "allCompleteFullFields": true,
+      "allTwoCompoundEligible": true
+    },
+    {
+      "name": "track-monza-equal-traffic-noisy.json",
+      "entries": 22,
+      "teams": 11,
+      "outcomes": 84,
+      "allCompleteFullFields": true,
+      "allTwoCompoundEligible": true
+    },
+    {
+      "name": "track-monza-equal-traffic-zero.json",
+      "entries": 22,
+      "teams": 11,
+      "outcomes": 7,
+      "allCompleteFullFields": true,
+      "allTwoCompoundEligible": true
+    },
+    {
+      "name": "track-monza-mixed-clear-zero.json",
+      "entries": 22,
+      "teams": 11,
+      "outcomes": 7,
+      "allCompleteFullFields": true,
+      "allTwoCompoundEligible": true
+    },
+    {
+      "name": "track-monza-mixed-traffic-noisy.json",
+      "entries": 22,
+      "teams": 11,
+      "outcomes": 84,
+      "allCompleteFullFields": true,
+      "allTwoCompoundEligible": true
+    },
+    {
+      "name": "track-monza-mixed-traffic-zero.json",
+      "entries": 22,
+      "teams": 11,
+      "outcomes": 7,
+      "allCompleteFullFields": true,
+      "allTwoCompoundEligible": true
+    }
+  ]
+}

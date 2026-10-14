@@ -1,0 +1,1533 @@
+{
+  "schema": "weekend-setup-analysis-v1",
+  "sign": "alternative minus neutral seconds; negative faster",
+  "comparisons": [
+    {
+      "circuit": "track-monza",
+      "field": "equal",
+      "mode": "clear-zero",
+      "variant": "speed",
+      "statistics": {
+        "meanSeconds": -5.145307869527869,
+        "minSeconds": -5.145307869527869,
+        "maxSeconds": -5.145307869527869,
+        "standardDeviationSeconds": 0,
+        "faster": 1,
+        "tied": 0,
+        "slower": 0,
+        "signChanges": false
+      }
+    },
+    {
+      "circuit": "track-monza",
+      "field": "equal",
+      "mode": "clear-zero",
+      "variant": "downforce",
+      "statistics": {
+        "meanSeconds": 5.366928919133443,
+        "minSeconds": 5.366928919133443,
+        "maxSeconds": 5.366928919133443,
+        "standardDeviationSeconds": 0,
+        "faster": 0,
+        "tied": 0,
+        "slower": 1,
+        "signChanges": false
+      }
+    },
+    {
+      "circuit": "track-monza",
+      "field": "equal",
+      "mode": "clear-zero",
+      "variant": "responsive",
+      "statistics": {
+        "meanSeconds": 0.09942899749194112,
+        "minSeconds": 0.09942899749194112,
+        "maxSeconds": 0.09942899749194112,
+        "standardDeviationSeconds": 0,
+        "faster": 0,
+        "tied": 0,
+        "slower": 1,
+        "signChanges": false
+      }
+    },
+    {
+      "circuit": "track-monza",
+      "field": "equal",
+      "mode": "clear-zero",
+      "variant": "stable",
+      "statistics": {
+        "meanSeconds": 0.2729304132794823,
+        "minSeconds": 0.2729304132794823,
+        "maxSeconds": 0.2729304132794823,
+        "standardDeviationSeconds": 0,
+        "faster": 0,
+        "tied": 0,
+        "slower": 1,
+        "signChanges": false
+      }
+    },
+    {
+      "circuit": "track-monza",
+      "field": "equal",
+      "mode": "clear-zero",
+      "variant": "warm-up",
+      "statistics": {
+        "meanSeconds": -0.4282039802506006,
+        "minSeconds": -0.4282039802506006,
+        "maxSeconds": -0.4282039802506006,
+        "standardDeviationSeconds": 0,
+        "faster": 1,
+        "tied": 0,
+        "slower": 0,
+        "signChanges": false
+      }
+    },
+    {
+      "circuit": "track-monza",
+      "field": "equal",
+      "mode": "clear-zero",
+      "variant": "preservation",
+      "statistics": {
+        "meanSeconds": 0.4296425211573478,
+        "minSeconds": 0.4296425211573478,
+        "maxSeconds": 0.4296425211573478,
+        "standardDeviationSeconds": 0,
+        "faster": 0,
+        "tied": 0,
+        "slower": 1,
+        "signChanges": false
+      }
+    },
+    {
+      "circuit": "track-monza",
+      "field": "equal",
+      "mode": "traffic-zero",
+      "variant": "speed",
+      "statistics": {
+        "meanSeconds": -5.145307869527869,
+        "minSeconds": -5.145307869527869,
+        "maxSeconds": -5.145307869527869,
+        "standardDeviationSeconds": 0,
+        "faster": 1,
+        "tied": 0,
+        "slower": 0,
+        "signChanges": false
+      }
+    },
+    {
+      "circuit": "track-monza",
+      "field": "equal",
+      "mode": "traffic-zero",
+      "variant": "downforce",
+      "statistics": {
+        "meanSeconds": 5.1453078763631765,
+        "minSeconds": 5.1453078763631765,
+        "maxSeconds": 5.1453078763631765,
+        "standardDeviationSeconds": 0,
+        "faster": 0,
+        "tied": 0,
+        "slower": 1,
+        "signChanges": false
+      }
+    },
+    {
+      "circuit": "track-monza",
+      "field": "equal",
+      "mode": "traffic-zero",
+      "variant": "responsive",
+      "statistics": {
+        "meanSeconds": 0.09942899749194112,
+        "minSeconds": 0.09942899749194112,
+        "maxSeconds": 0.09942899749194112,
+        "standardDeviationSeconds": 0,
+        "faster": 0,
+        "tied": 0,
+        "slower": 1,
+        "signChanges": false
+      }
+    },
+    {
+      "circuit": "track-monza",
+      "field": "equal",
+      "mode": "traffic-zero",
+      "variant": "stable",
+      "statistics": {
+        "meanSeconds": 0.2729304132794823,
+        "minSeconds": 0.2729304132794823,
+        "maxSeconds": 0.2729304132794823,
+        "standardDeviationSeconds": 0,
+        "faster": 0,
+        "tied": 0,
+        "slower": 1,
+        "signChanges": false
+      }
+    },
+    {
+      "circuit": "track-monza",
+      "field": "equal",
+      "mode": "traffic-zero",
+      "variant": "warm-up",
+      "statistics": {
+        "meanSeconds": -0.4282039802506006,
+        "minSeconds": -0.4282039802506006,
+        "maxSeconds": -0.4282039802506006,
+        "standardDeviationSeconds": 0,
+        "faster": 1,
+        "tied": 0,
+        "slower": 0,
+        "signChanges": false
+      }
+    },
+    {
+      "circuit": "track-monza",
+      "field": "equal",
+      "mode": "traffic-zero",
+      "variant": "preservation",
+      "statistics": {
+        "meanSeconds": 0.4296425211573478,
+        "minSeconds": 0.4296425211573478,
+        "maxSeconds": 0.4296425211573478,
+        "standardDeviationSeconds": 0,
+        "faster": 0,
+        "tied": 0,
+        "slower": 1,
+        "signChanges": false
+      }
+    },
+    {
+      "circuit": "track-monza",
+      "field": "equal",
+      "mode": "traffic-noisy",
+      "variant": "speed",
+      "statistics": {
+        "meanSeconds": -5.145307802875777,
+        "minSeconds": -5.145310975573011,
+        "maxSeconds": -5.145306122448346,
+        "standardDeviationSeconds": 0.0000017299100325308543,
+        "faster": 12,
+        "tied": 0,
+        "slower": 0,
+        "signChanges": false
+      }
+    },
+    {
+      "circuit": "track-monza",
+      "field": "equal",
+      "mode": "traffic-noisy",
+      "variant": "downforce",
+      "statistics": {
+        "meanSeconds": 5.1945155814799095,
+        "minSeconds": 5.145306122449028,
+        "maxSeconds": 5.444983011489285,
+        "standardDeviationSeconds": 0.0977924722936739,
+        "faster": 0,
+        "tied": 0,
+        "slower": 12,
+        "signChanges": false
+      }
+    },
+    {
+      "circuit": "track-monza",
+      "field": "equal",
+      "mode": "traffic-noisy",
+      "variant": "responsive",
+      "statistics": {
+        "meanSeconds": 0.11283268207660058,
+        "minSeconds": 0.09942997869165993,
+        "maxSeconds": 0.2509654086309183,
+        "standardDeviationSeconds": 0.04165835235309768,
+        "faster": 0,
+        "tied": 0,
+        "slower": 12,
+        "signChanges": false
+      }
+    },
+    {
+      "circuit": "track-monza",
+      "field": "equal",
+      "mode": "traffic-noisy",
+      "variant": "stable",
+      "statistics": {
+        "meanSeconds": 0.2845126979404616,
+        "minSeconds": 0.2704928386096981,
+        "maxSeconds": 0.42109549543579305,
+        "standardDeviationSeconds": 0.041190864185672055,
+        "faster": 0,
+        "tied": 0,
+        "slower": 12,
+        "signChanges": false
+      }
+    },
+    {
+      "circuit": "track-monza",
+      "field": "equal",
+      "mode": "traffic-noisy",
+      "variant": "warm-up",
+      "statistics": {
+        "meanSeconds": -0.4257952039942741,
+        "minSeconds": -0.4282019840566136,
+        "maxSeconds": -0.4214500701500583,
+        "standardDeviationSeconds": 0.0022218159959843994,
+        "faster": 12,
+        "tied": 0,
+        "slower": 0,
+        "signChanges": false
+      }
+    },
+    {
+      "circuit": "track-monza",
+      "field": "equal",
+      "mode": "traffic-noisy",
+      "variant": "preservation",
+      "statistics": {
+        "meanSeconds": 0.4403331105651394,
+        "minSeconds": 0.42480111623308403,
+        "maxSeconds": 0.5761569995381706,
+        "standardDeviationSeconds": 0.04099052098059406,
+        "faster": 0,
+        "tied": 0,
+        "slower": 12,
+        "signChanges": false
+      }
+    },
+    {
+      "circuit": "track-monza",
+      "field": "mixed",
+      "mode": "clear-zero",
+      "variant": "speed",
+      "statistics": {
+        "meanSeconds": -5.1455542263652205,
+        "minSeconds": -5.1455542263652205,
+        "maxSeconds": -5.1455542263652205,
+        "standardDeviationSeconds": 0,
+        "faster": 1,
+        "tied": 0,
+        "slower": 0,
+        "signChanges": false
+      }
+    },
+    {
+      "circuit": "track-monza",
+      "field": "mixed",
+      "mode": "clear-zero",
+      "variant": "downforce",
+      "statistics": {
+        "meanSeconds": 5.369072870324999,
+        "minSeconds": 5.369072870324999,
+        "maxSeconds": 5.369072870324999,
+        "standardDeviationSeconds": 0,
+        "faster": 0,
+        "tied": 0,
+        "slower": 1,
+        "signChanges": false
+      }
+    },
+    {
+      "circuit": "track-monza",
+      "field": "mixed",
+      "mode": "clear-zero",
+      "variant": "responsive",
+      "statistics": {
+        "meanSeconds": 0.28563468619677224,
+        "minSeconds": 0.28563468619677224,
+        "maxSeconds": 0.28563468619677224,
+        "standardDeviationSeconds": 0,
+        "faster": 0,
+        "tied": 0,
+        "slower": 1,
+        "signChanges": false
+      }
+    },
+    {
+      "circuit": "track-monza",
+      "field": "mixed",
+      "mode": "clear-zero",
+      "variant": "stable",
+      "statistics": {
+        "meanSeconds": 0.08679706939733478,
+        "minSeconds": 0.08679706939733478,
+        "maxSeconds": 0.08679706939733478,
+        "standardDeviationSeconds": 0,
+        "faster": 0,
+        "tied": 0,
+        "slower": 1,
+        "signChanges": false
+      }
+    },
+    {
+      "circuit": "track-monza",
+      "field": "mixed",
+      "mode": "clear-zero",
+      "variant": "warm-up",
+      "statistics": {
+        "meanSeconds": -0.428310906497245,
+        "minSeconds": -0.428310906497245,
+        "maxSeconds": -0.428310906497245,
+        "standardDeviationSeconds": 0,
+        "faster": 1,
+        "tied": 0,
+        "slower": 0,
+        "signChanges": false
+      }
+    },
+    {
+      "circuit": "track-monza",
+      "field": "mixed",
+      "mode": "clear-zero",
+      "variant": "preservation",
+      "statistics": {
+        "meanSeconds": 0.42974451691998183,
+        "minSeconds": 0.42974451691998183,
+        "maxSeconds": 0.42974451691998183,
+        "standardDeviationSeconds": 0,
+        "faster": 0,
+        "tied": 0,
+        "slower": 1,
+        "signChanges": false
+      }
+    },
+    {
+      "circuit": "track-monza",
+      "field": "mixed",
+      "mode": "traffic-zero",
+      "variant": "speed",
+      "statistics": {
+        "meanSeconds": -5.145307916786578,
+        "minSeconds": -5.145307916786578,
+        "maxSeconds": -5.145307916786578,
+        "standardDeviationSeconds": 0,
+        "faster": 1,
+        "tied": 0,
+        "slower": 0,
+        "signChanges": false
+      }
+    },
+    {
+      "circuit": "track-monza",
+      "field": "mixed",
+      "mode": "traffic-zero",
+      "variant": "downforce",
+      "statistics": {
+        "meanSeconds": 5.145307923804694,
+        "minSeconds": 5.145307923804694,
+        "maxSeconds": 5.145307923804694,
+        "standardDeviationSeconds": 0,
+        "faster": 0,
+        "tied": 0,
+        "slower": 1,
+        "signChanges": false
+      }
+    },
+    {
+      "circuit": "track-monza",
+      "field": "mixed",
+      "mode": "traffic-zero",
+      "variant": "responsive",
+      "statistics": {
+        "meanSeconds": 0.28561383488249703,
+        "minSeconds": 0.28561383488249703,
+        "maxSeconds": 0.28561383488249703,
+        "standardDeviationSeconds": 0,
+        "faster": 0,
+        "tied": 0,
+        "slower": 1,
+        "signChanges": false
+      }
+    },
+    {
+      "circuit": "track-monza",
+      "field": "mixed",
+      "mode": "traffic-zero",
+      "variant": "stable",
+      "statistics": {
+        "meanSeconds": 0.08674807871784651,
+        "minSeconds": 0.08674807871784651,
+        "maxSeconds": 0.08674807871784651,
+        "standardDeviationSeconds": 0,
+        "faster": 0,
+        "tied": 0,
+        "slower": 1,
+        "signChanges": false
+      }
+    },
+    {
+      "circuit": "track-monza",
+      "field": "mixed",
+      "mode": "traffic-zero",
+      "variant": "warm-up",
+      "statistics": {
+        "meanSeconds": -0.42820351198110984,
+        "minSeconds": -0.42820351198110984,
+        "maxSeconds": -0.42820351198110984,
+        "standardDeviationSeconds": 0,
+        "faster": 1,
+        "tied": 0,
+        "slower": 0,
+        "signChanges": false
+      }
+    },
+    {
+      "circuit": "track-monza",
+      "field": "mixed",
+      "mode": "traffic-zero",
+      "variant": "preservation",
+      "statistics": {
+        "meanSeconds": 0.4296420659186424,
+        "minSeconds": 0.4296420659186424,
+        "maxSeconds": 0.4296420659186424,
+        "standardDeviationSeconds": 0,
+        "faster": 0,
+        "tied": 0,
+        "slower": 1,
+        "signChanges": false
+      }
+    },
+    {
+      "circuit": "track-monza",
+      "field": "mixed",
+      "mode": "traffic-noisy",
+      "variant": "speed",
+      "statistics": {
+        "meanSeconds": -5.145307794439968,
+        "minSeconds": -5.145311018368375,
+        "maxSeconds": -5.145305807554905,
+        "standardDeviationSeconds": 0.0000017747600297275057,
+        "faster": 12,
+        "tied": 0,
+        "slower": 0,
+        "signChanges": false
+      }
+    },
+    {
+      "circuit": "track-monza",
+      "field": "mixed",
+      "mode": "traffic-noisy",
+      "variant": "downforce",
+      "statistics": {
+        "meanSeconds": 5.188579333710872,
+        "minSeconds": 5.005927199447797,
+        "maxSeconds": 5.681336212340511,
+        "standardDeviationSeconds": 0.15680468924764196,
+        "faster": 0,
+        "tied": 0,
+        "slower": 12,
+        "signChanges": false
+      }
+    },
+    {
+      "circuit": "track-monza",
+      "field": "mixed",
+      "mode": "traffic-noisy",
+      "variant": "responsive",
+      "statistics": {
+        "meanSeconds": 0.24986928487997298,
+        "minSeconds": -0.048712916039221454,
+        "maxSeconds": 0.5322444459602593,
+        "standardDeviationSeconds": 0.1295483518978649,
+        "faster": 1,
+        "tied": 0,
+        "slower": 11,
+        "signChanges": true
+      }
+    },
+    {
+      "circuit": "track-monza",
+      "field": "mixed",
+      "mode": "traffic-noisy",
+      "variant": "stable",
+      "statistics": {
+        "meanSeconds": 0.15607577128232228,
+        "minSeconds": 0.08674113372808279,
+        "maxSeconds": 0.27122571820518715,
+        "standardDeviationSeconds": 0.06817431029697164,
+        "faster": 0,
+        "tied": 0,
+        "slower": 12,
+        "signChanges": false
+      }
+    },
+    {
+      "circuit": "track-monza",
+      "field": "mixed",
+      "mode": "traffic-noisy",
+      "variant": "warm-up",
+      "statistics": {
+        "meanSeconds": -0.438843185910154,
+        "minSeconds": -0.5746250208876518,
+        "maxSeconds": -0.4232242087086888,
+        "standardDeviationSeconds": 0.04098005265360967,
+        "faster": 12,
+        "tied": 0,
+        "slower": 0,
+        "signChanges": false
+      }
+    },
+    {
+      "circuit": "track-monza",
+      "field": "mixed",
+      "mode": "traffic-noisy",
+      "variant": "preservation",
+      "statistics": {
+        "meanSeconds": 0.42784637228119965,
+        "minSeconds": 0.42480111623285666,
+        "maxSeconds": 0.42964012553761677,
+        "standardDeviationSeconds": 0.001825342513596125,
+        "faster": 0,
+        "tied": 0,
+        "slower": 12,
+        "signChanges": false
+      }
+    },
+    {
+      "circuit": "track-monaco",
+      "field": "equal",
+      "mode": "clear-zero",
+      "variant": "speed",
+      "statistics": {
+        "meanSeconds": 0.23029922725004326,
+        "minSeconds": 0.23029922725004326,
+        "maxSeconds": 0.23029922725004326,
+        "standardDeviationSeconds": 0,
+        "faster": 0,
+        "tied": 0,
+        "slower": 1,
+        "signChanges": false
+      }
+    },
+    {
+      "circuit": "track-monaco",
+      "field": "equal",
+      "mode": "clear-zero",
+      "variant": "downforce",
+      "statistics": {
+        "meanSeconds": -0.23029921770239525,
+        "minSeconds": -0.23029921770239525,
+        "maxSeconds": -0.23029921770239525,
+        "standardDeviationSeconds": 0,
+        "faster": 1,
+        "tied": 0,
+        "slower": 0,
+        "signChanges": false
+      }
+    },
+    {
+      "circuit": "track-monaco",
+      "field": "equal",
+      "mode": "clear-zero",
+      "variant": "responsive",
+      "statistics": {
+        "meanSeconds": 0.026794149923489385,
+        "minSeconds": 0.026794149923489385,
+        "maxSeconds": 0.026794149923489385,
+        "standardDeviationSeconds": 0,
+        "faster": 0,
+        "tied": 0,
+        "slower": 1,
+        "signChanges": false
+      }
+    },
+    {
+      "circuit": "track-monaco",
+      "field": "equal",
+      "mode": "clear-zero",
+      "variant": "stable",
+      "statistics": {
+        "meanSeconds": 0.3455958541733253,
+        "minSeconds": 0.3455958541733253,
+        "maxSeconds": 0.3455958541733253,
+        "standardDeviationSeconds": 0,
+        "faster": 0,
+        "tied": 0,
+        "slower": 1,
+        "signChanges": false
+      }
+    },
+    {
+      "circuit": "track-monaco",
+      "field": "equal",
+      "mode": "clear-zero",
+      "variant": "warm-up",
+      "statistics": {
+        "meanSeconds": -0.42601378672111423,
+        "minSeconds": -0.42601378672111423,
+        "maxSeconds": -0.42601378672111423,
+        "standardDeviationSeconds": 0,
+        "faster": 1,
+        "tied": 0,
+        "slower": 0,
+        "signChanges": false
+      }
+    },
+    {
+      "circuit": "track-monaco",
+      "field": "equal",
+      "mode": "clear-zero",
+      "variant": "preservation",
+      "statistics": {
+        "meanSeconds": 0.42757472301377675,
+        "minSeconds": 0.42757472301377675,
+        "maxSeconds": 0.42757472301377675,
+        "standardDeviationSeconds": 0,
+        "faster": 0,
+        "tied": 0,
+        "slower": 1,
+        "signChanges": false
+      }
+    },
+    {
+      "circuit": "track-monaco",
+      "field": "equal",
+      "mode": "traffic-zero",
+      "variant": "speed",
+      "statistics": {
+        "meanSeconds": 0.23029922725004326,
+        "minSeconds": 0.23029922725004326,
+        "maxSeconds": 0.23029922725004326,
+        "standardDeviationSeconds": 0,
+        "faster": 0,
+        "tied": 0,
+        "slower": 1,
+        "signChanges": false
+      }
+    },
+    {
+      "circuit": "track-monaco",
+      "field": "equal",
+      "mode": "traffic-zero",
+      "variant": "downforce",
+      "statistics": {
+        "meanSeconds": -0.23029921770239525,
+        "minSeconds": -0.23029921770239525,
+        "maxSeconds": -0.23029921770239525,
+        "standardDeviationSeconds": 0,
+        "faster": 1,
+        "tied": 0,
+        "slower": 0,
+        "signChanges": false
+      }
+    },
+    {
+      "circuit": "track-monaco",
+      "field": "equal",
+      "mode": "traffic-zero",
+      "variant": "responsive",
+      "statistics": {
+        "meanSeconds": 0.026794149923489385,
+        "minSeconds": 0.026794149923489385,
+        "maxSeconds": 0.026794149923489385,
+        "standardDeviationSeconds": 0,
+        "faster": 0,
+        "tied": 0,
+        "slower": 1,
+        "signChanges": false
+      }
+    },
+    {
+      "circuit": "track-monaco",
+      "field": "equal",
+      "mode": "traffic-zero",
+      "variant": "stable",
+      "statistics": {
+        "meanSeconds": 0.3455958541733253,
+        "minSeconds": 0.3455958541733253,
+        "maxSeconds": 0.3455958541733253,
+        "standardDeviationSeconds": 0,
+        "faster": 0,
+        "tied": 0,
+        "slower": 1,
+        "signChanges": false
+      }
+    },
+    {
+      "circuit": "track-monaco",
+      "field": "equal",
+      "mode": "traffic-zero",
+      "variant": "warm-up",
+      "statistics": {
+        "meanSeconds": -0.42601378672111423,
+        "minSeconds": -0.42601378672111423,
+        "maxSeconds": -0.42601378672111423,
+        "standardDeviationSeconds": 0,
+        "faster": 1,
+        "tied": 0,
+        "slower": 0,
+        "signChanges": false
+      }
+    },
+    {
+      "circuit": "track-monaco",
+      "field": "equal",
+      "mode": "traffic-zero",
+      "variant": "preservation",
+      "statistics": {
+        "meanSeconds": 0.42757472301377675,
+        "minSeconds": 0.42757472301377675,
+        "maxSeconds": 0.42757472301377675,
+        "standardDeviationSeconds": 0,
+        "faster": 0,
+        "tied": 0,
+        "slower": 1,
+        "signChanges": false
+      }
+    },
+    {
+      "circuit": "track-monaco",
+      "field": "equal",
+      "mode": "traffic-noisy",
+      "variant": "speed",
+      "statistics": {
+        "meanSeconds": 0.24410834731863437,
+        "minSeconds": 0.23029555771745436,
+        "maxSeconds": 0.3801404239131898,
+        "standardDeviationSeconds": 0.0412472068764337,
+        "faster": 0,
+        "tied": 0,
+        "slower": 12,
+        "signChanges": false
+      }
+    },
+    {
+      "circuit": "track-monaco",
+      "field": "equal",
+      "mode": "traffic-noisy",
+      "variant": "downforce",
+      "statistics": {
+        "meanSeconds": -0.21779829530273295,
+        "minSeconds": -0.23030129124776977,
+        "maxSeconds": -0.08046290433890135,
+        "standardDeviationSeconds": 0.0414082052525964,
+        "faster": 12,
+        "tied": 0,
+        "slower": 0,
+        "signChanges": false
+      }
+    },
+    {
+      "circuit": "track-monaco",
+      "field": "equal",
+      "mode": "traffic-noisy",
+      "variant": "responsive",
+      "statistics": {
+        "meanSeconds": 0.027742155484550796,
+        "minSeconds": 0.026795182585829025,
+        "maxSeconds": 0.029279728040819464,
+        "standardDeviationSeconds": 0.0009589431419748951,
+        "faster": 0,
+        "tied": 0,
+        "slower": 12,
+        "signChanges": false
+      }
+    },
+    {
+      "circuit": "track-monaco",
+      "field": "equal",
+      "mode": "traffic-noisy",
+      "variant": "stable",
+      "statistics": {
+        "meanSeconds": 0.3446467029972382,
+        "minSeconds": 0.34296707732255527,
+        "maxSeconds": 0.3455948150608492,
+        "standardDeviationSeconds": 0.0009697806752950607,
+        "faster": 0,
+        "tied": 0,
+        "slower": 12,
+        "signChanges": false
+      }
+    },
+    {
+      "circuit": "track-monaco",
+      "field": "equal",
+      "mode": "traffic-noisy",
+      "variant": "warm-up",
+      "statistics": {
+        "meanSeconds": -0.4235344397804776,
+        "minSeconds": -0.4260117061241999,
+        "maxSeconds": -0.4192592522792893,
+        "standardDeviationSeconds": 0.0022613597088798577,
+        "faster": 12,
+        "tied": 0,
+        "slower": 0,
+        "signChanges": false
+      }
+    },
+    {
+      "circuit": "track-monaco",
+      "field": "equal",
+      "mode": "traffic-noisy",
+      "variant": "preservation",
+      "statistics": {
+        "meanSeconds": 0.43818402807316187,
+        "minSeconds": 0.4224440635839528,
+        "maxSeconds": 0.5739526997149369,
+        "standardDeviationSeconds": 0.04097769617781712,
+        "faster": 0,
+        "tied": 0,
+        "slower": 12,
+        "signChanges": false
+      }
+    },
+    {
+      "circuit": "track-monaco",
+      "field": "mixed",
+      "mode": "clear-zero",
+      "variant": "speed",
+      "statistics": {
+        "meanSeconds": 0.23034183515824225,
+        "minSeconds": 0.23034183515824225,
+        "maxSeconds": 0.23034183515824225,
+        "standardDeviationSeconds": 0,
+        "faster": 0,
+        "tied": 0,
+        "slower": 1,
+        "signChanges": false
+      }
+    },
+    {
+      "circuit": "track-monaco",
+      "field": "mixed",
+      "mode": "clear-zero",
+      "variant": "downforce",
+      "statistics": {
+        "meanSeconds": -0.2303422109582698,
+        "minSeconds": -0.2303422109582698,
+        "maxSeconds": -0.2303422109582698,
+        "standardDeviationSeconds": 0,
+        "faster": 1,
+        "tied": 0,
+        "slower": 0,
+        "signChanges": false
+      }
+    },
+    {
+      "circuit": "track-monaco",
+      "field": "mixed",
+      "mode": "clear-zero",
+      "variant": "responsive",
+      "statistics": {
+        "meanSeconds": 0.21298634826825946,
+        "minSeconds": 0.21298634826825946,
+        "maxSeconds": 0.21298634826825946,
+        "standardDeviationSeconds": 0,
+        "faster": 0,
+        "tied": 0,
+        "slower": 1,
+        "signChanges": false
+      }
+    },
+    {
+      "circuit": "track-monaco",
+      "field": "mixed",
+      "mode": "clear-zero",
+      "variant": "stable",
+      "statistics": {
+        "meanSeconds": 0.15947595049715346,
+        "minSeconds": 0.15947595049715346,
+        "maxSeconds": 0.15947595049715346,
+        "standardDeviationSeconds": 0,
+        "faster": 0,
+        "tied": 0,
+        "slower": 1,
+        "signChanges": false
+      }
+    },
+    {
+      "circuit": "track-monaco",
+      "field": "mixed",
+      "mode": "clear-zero",
+      "variant": "warm-up",
+      "statistics": {
+        "meanSeconds": -0.42612009350796143,
+        "minSeconds": -0.42612009350796143,
+        "maxSeconds": -0.42612009350796143,
+        "standardDeviationSeconds": 0,
+        "faster": 1,
+        "tied": 0,
+        "slower": 0,
+        "signChanges": false
+      }
+    },
+    {
+      "circuit": "track-monaco",
+      "field": "mixed",
+      "mode": "clear-zero",
+      "variant": "preservation",
+      "statistics": {
+        "meanSeconds": 0.4276759939839394,
+        "minSeconds": 0.4276759939839394,
+        "maxSeconds": 0.4276759939839394,
+        "standardDeviationSeconds": 0,
+        "faster": 0,
+        "tied": 0,
+        "slower": 1,
+        "signChanges": false
+      }
+    },
+    {
+      "circuit": "track-monaco",
+      "field": "mixed",
+      "mode": "traffic-zero",
+      "variant": "speed",
+      "statistics": {
+        "meanSeconds": 0.23029917141820988,
+        "minSeconds": 0.23029917141820988,
+        "maxSeconds": 0.23029917141820988,
+        "standardDeviationSeconds": 0,
+        "faster": 0,
+        "tied": 0,
+        "slower": 1,
+        "signChanges": false
+      }
+    },
+    {
+      "circuit": "track-monaco",
+      "field": "mixed",
+      "mode": "traffic-zero",
+      "variant": "downforce",
+      "statistics": {
+        "meanSeconds": -0.23029916161522124,
+        "minSeconds": -0.23029916161522124,
+        "maxSeconds": -0.23029916161522124,
+        "standardDeviationSeconds": 0,
+        "faster": 1,
+        "tied": 0,
+        "slower": 0,
+        "signChanges": false
+      }
+    },
+    {
+      "circuit": "track-monaco",
+      "field": "mixed",
+      "mode": "traffic-zero",
+      "variant": "responsive",
+      "statistics": {
+        "meanSeconds": 0.2129790888639036,
+        "minSeconds": 0.2129790888639036,
+        "maxSeconds": 0.2129790888639036,
+        "standardDeviationSeconds": 0,
+        "faster": 0,
+        "tied": 0,
+        "slower": 1,
+        "signChanges": false
+      }
+    },
+    {
+      "circuit": "track-monaco",
+      "field": "mixed",
+      "mode": "traffic-zero",
+      "variant": "stable",
+      "statistics": {
+        "meanSeconds": 0.15941359555108647,
+        "minSeconds": 0.15941359555108647,
+        "maxSeconds": 0.15941359555108647,
+        "standardDeviationSeconds": 0,
+        "faster": 0,
+        "tied": 0,
+        "slower": 1,
+        "signChanges": false
+      }
+    },
+    {
+      "circuit": "track-monaco",
+      "field": "mixed",
+      "mode": "traffic-zero",
+      "variant": "warm-up",
+      "statistics": {
+        "meanSeconds": -0.42601329865078696,
+        "minSeconds": -0.42601329865078696,
+        "maxSeconds": -0.42601329865078696,
+        "standardDeviationSeconds": 0,
+        "faster": 1,
+        "tied": 0,
+        "slower": 0,
+        "signChanges": false
+      }
+    },
+    {
+      "circuit": "track-monaco",
+      "field": "mixed",
+      "mode": "traffic-zero",
+      "variant": "preservation",
+      "statistics": {
+        "meanSeconds": 0.42757424908222674,
+        "minSeconds": 0.42757424908222674,
+        "maxSeconds": 0.42757424908222674,
+        "standardDeviationSeconds": 0,
+        "faster": 0,
+        "tied": 0,
+        "slower": 1,
+        "signChanges": false
+      }
+    },
+    {
+      "circuit": "track-monaco",
+      "field": "mixed",
+      "mode": "traffic-noisy",
+      "variant": "speed",
+      "statistics": {
+        "meanSeconds": 0.23366692714428913,
+        "minSeconds": 0.2302955071577344,
+        "maxSeconds": 0.26737205114136486,
+        "standardDeviationSeconds": 0.010203908804816475,
+        "faster": 0,
+        "tied": 0,
+        "slower": 12,
+        "signChanges": false
+      }
+    },
+    {
+      "circuit": "track-monaco",
+      "field": "mixed",
+      "mode": "traffic-noisy",
+      "variant": "downforce",
+      "statistics": {
+        "meanSeconds": -0.24278807254376034,
+        "minSeconds": -0.3801400518968876,
+        "maxSeconds": -0.23029548110343967,
+        "standardDeviationSeconds": 0.04141318079815038,
+        "faster": 12,
+        "tied": 0,
+        "slower": 0,
+        "signChanges": false
+      }
+    },
+    {
+      "circuit": "track-monaco",
+      "field": "mixed",
+      "mode": "traffic-noisy",
+      "variant": "responsive",
+      "statistics": {
+        "meanSeconds": 0.18975471994673399,
+        "minSeconds": 0.0285939734603744,
+        "maxSeconds": 0.4597068914358715,
+        "standardDeviationSeconds": 0.10507124475982138,
+        "faster": 0,
+        "tied": 0,
+        "slower": 12,
+        "signChanges": false
+      }
+    },
+    {
+      "circuit": "track-monaco",
+      "field": "mixed",
+      "mode": "traffic-noisy",
+      "variant": "stable",
+      "statistics": {
+        "meanSeconds": 0.22870081244404142,
+        "minSeconds": 0.15940585983753408,
+        "maxSeconds": 0.34382202722690636,
+        "standardDeviationSeconds": 0.06813647332468233,
+        "faster": 0,
+        "tied": 0,
+        "slower": 12,
+        "signChanges": false
+      }
+    },
+    {
+      "circuit": "track-monaco",
+      "field": "mixed",
+      "mode": "traffic-noisy",
+      "variant": "warm-up",
+      "statistics": {
+        "meanSeconds": -0.4365784223337907,
+        "minSeconds": -0.5722903077489718,
+        "maxSeconds": -0.4208659978135074,
+        "standardDeviationSeconds": 0.04096216820330251,
+        "faster": 12,
+        "tied": 0,
+        "slower": 0,
+        "signChanges": false
+      }
+    },
+    {
+      "circuit": "track-monaco",
+      "field": "mixed",
+      "mode": "traffic-noisy",
+      "variant": "preservation",
+      "statistics": {
+        "meanSeconds": 0.42570127449069634,
+        "minSeconds": 0.4224919661789954,
+        "maxSeconds": 0.4275722290176418,
+        "standardDeviationSeconds": 0.001906237988471223,
+        "faster": 0,
+        "tied": 0,
+        "slower": 12,
+        "signChanges": false
+      }
+    }
+  ],
+  "contradictions": [
+    {
+      "circuit": "track-monza",
+      "field": "mixed",
+      "mode": "traffic-noisy",
+      "variant": "responsive",
+      "statistics": {
+        "meanSeconds": 0.24986928487997298,
+        "minSeconds": -0.048712916039221454,
+        "maxSeconds": 0.5322444459602593,
+        "standardDeviationSeconds": 0.1295483518978649,
+        "faster": 1,
+        "tied": 0,
+        "slower": 11,
+        "signChanges": true
+      },
+      "clearZeroReferenceSeconds": 0.28563468619677224,
+      "oppositeToClearControlCount": 1
+    }
+  ],
+  "zeroVariationPairedCases": [],
+  "negligibleVariationPairedCases": [
+    {
+      "circuit": "track-monza",
+      "field": "equal",
+      "variant": "speed",
+      "standardDeviationSeconds": 0.0000017299100325308543
+    },
+    {
+      "circuit": "track-monza",
+      "field": "mixed",
+      "variant": "speed",
+      "standardDeviationSeconds": 0.0000017747600297275057
+    },
+    {
+      "circuit": "track-monaco",
+      "field": "equal",
+      "variant": "responsive",
+      "standardDeviationSeconds": 0.0009589431419748951
+    },
+    {
+      "circuit": "track-monaco",
+      "field": "equal",
+      "variant": "stable",
+      "standardDeviationSeconds": 0.0009697806752950607
+    }
+  ],
+  "stints": [
+    {
+      "circuit": "track-monza",
+      "laps": 1,
+      "setup": "warm-up",
+      "finishSeconds": 89.3789,
+      "finalCondition": 0.9753183927337348,
+      "eligibility": false
+    },
+    {
+      "circuit": "track-monza",
+      "laps": 1,
+      "setup": "neutral",
+      "finishSeconds": 89.5709,
+      "finalCondition": 0.9755501222493888,
+      "eligibility": false
+    },
+    {
+      "circuit": "track-monza",
+      "laps": 1,
+      "setup": "preservation",
+      "finishSeconds": 89.7629,
+      "finalCondition": 0.9757775409359558,
+      "eligibility": false
+    },
+    {
+      "circuit": "track-monza",
+      "laps": 20,
+      "setup": "warm-up",
+      "finishSeconds": 1791.8046850930625,
+      "finalCondition": 0.5063678546746955,
+      "eligibility": false
+    },
+    {
+      "circuit": "track-monza",
+      "laps": 20,
+      "setup": "neutral",
+      "finishSeconds": 1791.715571623605,
+      "finalCondition": 0.511002444987775,
+      "eligibility": false
+    },
+    {
+      "circuit": "track-monza",
+      "laps": 20,
+      "setup": "preservation",
+      "finishSeconds": 1791.6342702302861,
+      "finalCondition": 0.5155508187191162,
+      "eligibility": false
+    },
+    {
+      "circuit": "track-monaco",
+      "laps": 1,
+      "setup": "warm-up",
+      "finishSeconds": 89.3789,
+      "finalCondition": 0.9753086419753086,
+      "eligibility": false
+    },
+    {
+      "circuit": "track-monaco",
+      "laps": 1,
+      "setup": "neutral",
+      "finishSeconds": 89.5709,
+      "finalCondition": 0.9755501222493888,
+      "eligibility": false
+    },
+    {
+      "circuit": "track-monaco",
+      "laps": 1,
+      "setup": "preservation",
+      "finishSeconds": 89.7629,
+      "finalCondition": 0.9757869249394674,
+      "eligibility": false
+    },
+    {
+      "circuit": "track-monaco",
+      "laps": 20,
+      "setup": "warm-up",
+      "finishSeconds": 1791.8165873934445,
+      "finalCondition": 0.5061728395061729,
+      "eligibility": false
+    },
+    {
+      "circuit": "track-monaco",
+      "laps": 20,
+      "setup": "neutral",
+      "finishSeconds": 1791.7155716236048,
+      "finalCondition": 0.5110024449877749,
+      "eligibility": false
+    },
+    {
+      "circuit": "track-monaco",
+      "laps": 20,
+      "setup": "preservation",
+      "finishSeconds": 1791.6230332391433,
+      "finalCondition": 0.5157384987893479,
+      "eligibility": false
+    }
+  ],
+  "postPit": [
+    {
+      "circuit": "track-monza",
+      "setup": "neutral",
+      "pitExitTime": 1002.9654166097763,
+      "firstPostPitLapCompleteTime": 1093.7171166097764,
+      "firstPostPitLapDurationSeconds": 90.75170000000014,
+      "finishSeconds": 1811.189292901605,
+      "finalCondition": 0.8459657701711498
+    },
+    {
+      "circuit": "track-monza",
+      "setup": "warm-up",
+      "pitExitTime": 1002.8172496883976,
+      "firstPostPitLapCompleteTime": 1093.2809496883976,
+      "firstPostPitLapDurationSeconds": 90.46370000000002,
+      "finishSeconds": 1810.7644111864138,
+      "finalCondition": 0.844505874222529
+    },
+    {
+      "circuit": "track-monza",
+      "setup": "preservation",
+      "pitExitTime": 1003.1148009639708,
+      "firstPostPitLapCompleteTime": 1094.1545009639706,
+      "firstPostPitLapDurationSeconds": 91.03969999999981,
+      "finishSeconds": 1811.6157037705186,
+      "finalCondition": 0.8473985078965218
+    },
+    {
+      "circuit": "track-monaco",
+      "setup": "neutral",
+      "pitExitTime": 1002.9654166097764,
+      "firstPostPitLapCompleteTime": 1093.7171166097762,
+      "firstPostPitLapDurationSeconds": 90.7516999999998,
+      "finishSeconds": 1811.1892929016049,
+      "finalCondition": 0.8459657701711489
+    },
+    {
+      "circuit": "track-monaco",
+      "setup": "warm-up",
+      "pitExitTime": 1002.8191031702486,
+      "firstPostPitLapCompleteTime": 1093.2828031702486,
+      "firstPostPitLapDurationSeconds": 90.46370000000002,
+      "finishSeconds": 1810.7667464316082,
+      "finalCondition": 0.8444444444444446
+    },
+    {
+      "circuit": "track-monaco",
+      "setup": "preservation",
+      "pitExitTime": 1003.1130510649648,
+      "firstPostPitLapCompleteTime": 1094.1527510649648,
+      "firstPostPitLapDurationSeconds": 91.03970000000004,
+      "finishSeconds": 1811.6134989083641,
+      "finalCondition": 0.8474576271186435
+    }
+  ],
+  "person": [
+    {
+      "adaptability": 10,
+      "information": 10,
+      "firstFinishSeconds": 1794.0827045371711,
+      "secondFinishSeconds": 1792.1390428148607,
+      "exactFits": [
+        {
+          "driverId": "driver-lando-norris",
+          "name": "Lando Norris",
+          "compatibility": 7.9999999999999964,
+          "description": "Preference mismatch; Adaptability 10/100 moderates mechanical mismatch. Provisional compatibility model."
+        },
+        {
+          "driverId": "driver-oscar-piastri",
+          "name": "Oscar Piastri",
+          "compatibility": 100,
+          "description": "Comfortable; Adaptability 10/100 moderates mechanical mismatch. Provisional compatibility model."
+        }
+      ],
+      "observed": [
+        {
+          "driverId": "driver-lando-norris",
+          "name": "Lando Norris",
+          "fit": "Preference mismatch",
+          "confidence": "Low",
+          "uncertainty": "Indicative handling observation; uncertainty about 21 compatibility points. No lap-time prediction.",
+          "feedback": "Preference mismatch with this shared Mechanical choice. Adaptability moderates preference mismatch; a change can suit the other driver differently."
+        },
+        {
+          "driverId": "driver-oscar-piastri",
+          "name": "Oscar Piastri",
+          "fit": "Comfortable",
+          "confidence": "Low",
+          "uncertainty": "Indicative handling observation; uncertainty about 21 compatibility points. No lap-time prediction.",
+          "feedback": "Comfortable with this shared Mechanical choice. Adaptability moderates preference mismatch; a change can suit the other driver differently."
+        }
+      ],
+      "outcomeSha256": "4CCC32E0988CCBEABB7B7CE7C28BA89FFFD4EF78480BD8ACADB8367482413AF2"
+    },
+    {
+      "adaptability": 10,
+      "information": 95,
+      "firstFinishSeconds": 1794.0827045371711,
+      "secondFinishSeconds": 1792.1390428148607,
+      "exactFits": [
+        {
+          "driverId": "driver-lando-norris",
+          "name": "Lando Norris",
+          "compatibility": 7.9999999999999964,
+          "description": "Preference mismatch; Adaptability 10/100 moderates mechanical mismatch. Provisional compatibility model."
+        },
+        {
+          "driverId": "driver-oscar-piastri",
+          "name": "Oscar Piastri",
+          "compatibility": 100,
+          "description": "Comfortable; Adaptability 10/100 moderates mechanical mismatch. Provisional compatibility model."
+        }
+      ],
+      "observed": [
+        {
+          "driverId": "driver-lando-norris",
+          "name": "Lando Norris",
+          "fit": "Preference mismatch",
+          "confidence": "High",
+          "uncertainty": "Indicative handling observation; uncertainty about 4 compatibility points. No lap-time prediction.",
+          "feedback": "Preference mismatch with this shared Mechanical choice. Adaptability moderates preference mismatch; a change can suit the other driver differently."
+        },
+        {
+          "driverId": "driver-oscar-piastri",
+          "name": "Oscar Piastri",
+          "fit": "Comfortable",
+          "confidence": "High",
+          "uncertainty": "Indicative handling observation; uncertainty about 4 compatibility points. No lap-time prediction.",
+          "feedback": "Comfortable with this shared Mechanical choice. Adaptability moderates preference mismatch; a change can suit the other driver differently."
+        }
+      ],
+      "outcomeSha256": "4CCC32E0988CCBEABB7B7CE7C28BA89FFFD4EF78480BD8ACADB8367482413AF2"
+    },
+    {
+      "adaptability": 95,
+      "information": 10,
+      "firstFinishSeconds": 1792.038708263846,
+      "secondFinishSeconds": 1792.1393798838762,
+      "exactFits": [
+        {
+          "driverId": "driver-lando-norris",
+          "name": "Lando Norris",
+          "compatibility": 76,
+          "description": "Preference mismatch; Adaptability 95/100 moderates mechanical mismatch. Provisional compatibility model."
+        },
+        {
+          "driverId": "driver-oscar-piastri",
+          "name": "Oscar Piastri",
+          "compatibility": 100,
+          "description": "Comfortable; Adaptability 95/100 moderates mechanical mismatch. Provisional compatibility model."
+        }
+      ],
+      "observed": [
+        {
+          "driverId": "driver-lando-norris",
+          "name": "Lando Norris",
+          "fit": "Comfortable",
+          "confidence": "Low",
+          "uncertainty": "Indicative handling observation; uncertainty about 21 compatibility points. No lap-time prediction.",
+          "feedback": "Comfortable with this shared Mechanical choice. Adaptability moderates preference mismatch; a change can suit the other driver differently."
+        },
+        {
+          "driverId": "driver-oscar-piastri",
+          "name": "Oscar Piastri",
+          "fit": "Comfortable",
+          "confidence": "Low",
+          "uncertainty": "Indicative handling observation; uncertainty about 21 compatibility points. No lap-time prediction.",
+          "feedback": "Comfortable with this shared Mechanical choice. Adaptability moderates preference mismatch; a change can suit the other driver differently."
+        }
+      ],
+      "outcomeSha256": "DFCF5B7F26CF708A5841411C9DD548774B28E648A463D0506C64563E6206CF7F"
+    },
+    {
+      "adaptability": 95,
+      "information": 95,
+      "firstFinishSeconds": 1792.038708263846,
+      "secondFinishSeconds": 1792.1393798838762,
+      "exactFits": [
+        {
+          "driverId": "driver-lando-norris",
+          "name": "Lando Norris",
+          "compatibility": 76,
+          "description": "Preference mismatch; Adaptability 95/100 moderates mechanical mismatch. Provisional compatibility model."
+        },
+        {
+          "driverId": "driver-oscar-piastri",
+          "name": "Oscar Piastri",
+          "compatibility": 100,
+          "description": "Comfortable; Adaptability 95/100 moderates mechanical mismatch. Provisional compatibility model."
+        }
+      ],
+      "observed": [
+        {
+          "driverId": "driver-lando-norris",
+          "name": "Lando Norris",
+          "fit": "Preference mismatch",
+          "confidence": "High",
+          "uncertainty": "Indicative handling observation; uncertainty about 4 compatibility points. No lap-time prediction.",
+          "feedback": "Preference mismatch with this shared Mechanical choice. Adaptability moderates preference mismatch; a change can suit the other driver differently."
+        },
+        {
+          "driverId": "driver-oscar-piastri",
+          "name": "Oscar Piastri",
+          "fit": "Comfortable",
+          "confidence": "High",
+          "uncertainty": "Indicative handling observation; uncertainty about 4 compatibility points. No lap-time prediction.",
+          "feedback": "Comfortable with this shared Mechanical choice. Adaptability moderates preference mismatch; a change can suit the other driver differently."
+        }
+      ],
+      "outcomeSha256": "DFCF5B7F26CF708A5841411C9DD548774B28E648A463D0506C64563E6206CF7F"
+    }
+  ],
+  "qualityPairs": [
+    {
+      "adaptability": 10,
+      "lowInformation": 10,
+      "highInformation": 95,
+      "fullFieldRaceOutcomeIdentical": true
+    },
+    {
+      "adaptability": 95,
+      "lowInformation": 10,
+      "highInformation": 95,
+      "fullFieldRaceOutcomeIdentical": true
+    }
+  ],
+  "replayChecks": 72,
+  "allReplaysIdentical": true
+}
