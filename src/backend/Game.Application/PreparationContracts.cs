@@ -17,6 +17,6 @@ public record SetupCommand(string CommandId, long? Revision, long? AssignmentRev
 public record PreparationPublicSnapshot(string SessionId, long Revision, string Lifecycle, CircuitPreset Circuit,
     IReadOnlyList<string> TeamIds, IReadOnlyList<PreparationReadiness> Readiness);
 public record PreparationTeamSnapshot(string SessionId, string TeamId, long Revision, long AssignmentRevision,
-    string Lifecycle, WeekendSetup Setup, WeekendPreset Preset, IReadOnlyList<DriverSetupFit> DriverFits,
+    string Lifecycle, WeekendSetup Setup, WeekendPreset Preset,
     string Summary, string ModelVersion, PracticeSnapshot? Assessment,PreparationGuidance Guidance);
 public record SetupAck(string CommandId, string SessionId, string TeamId, long Revision, string Lifecycle);

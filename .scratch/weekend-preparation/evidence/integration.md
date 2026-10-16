@@ -1,5 +1,7 @@
 # S07 integration record
 
+**Capture provenance after review:** ticket 02–06 preparation screenshots and the standalone ticket04/ticket05 phone captures are historical pre-remediation evidence. Some show an exact compatibility preview that was subsequently found to violate the information boundary and removed from both API/SignalR and UI. They are preserved as original evidence, not presented as the current interface. [Review remediation and current captures](review-remediation/README.md) supersede those player-view claims; deterministic simulation evidence retains its designer-only meaning.
+
 Implementation starts on `codex/weekend-preparation`, based on `9a54a39db0fa5caa8fada77508da446ce21ad795`. This includes the locally verified S06 implementation and the user's committed stable roadmap/spec codes. The root working tree was clean at S07 start.
 
 ## Scope and acceptance limits

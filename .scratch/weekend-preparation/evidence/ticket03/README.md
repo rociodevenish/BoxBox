@@ -1,5 +1,7 @@
 # Ticket 03 focused local verification
 
+**Historical capture notice:** these captures predate the review removal of exact compatibility previews from player contracts. Use [review remediation/current captures](../review-remediation/README.md) for the corrected interface; original captures remain unchanged.
+
 Implemented and checked on `codex/s07-03`, incorporating integration tip `9954d6c`. Approved boundaries are public simulation, authenticated API/SignalR and a focused rendered browser flow. The root integration owns broad regression. These checks do not establish cloud deployment, player comprehension, preparation duration or calibrated balance.
 
 ## Commands and observations

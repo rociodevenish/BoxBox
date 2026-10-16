@@ -1,5 +1,7 @@
 # S07 preparation evidence: local engineering complete
 
+**Historical player-capture notice:** these original UI captures predate the S07 review correction that removes exact compatibility previews from normal API/SignalR and UI. They remain historical evidence. [Review remediation/current captures](../review-remediation/README.md) supersede player-view claims; deterministic full-field simulation reports remain designer evidence.
+
 This evidence extends the prior two-car probes to **22 cars / 11 teams**, using public preparation, assessment, race and replay operations. It was authored against production integration `2368ab154bbe78692ce8efb6cdf9ed4a7e7a816e`, then merged with documentation tip `d7d4cad` before completion. No production feature or package version changed. Root owns the subsequent broad regression and independent review; the local evidence here does not claim those checks, hosted deployment or human acceptance.
 
 ## Reproduce

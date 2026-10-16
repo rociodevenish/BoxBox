@@ -15,12 +15,7 @@ public static class PreparationEndpoints
                 var ack=reopen?sessions.ReopenPreparation(id,identity,deviceId,teamId,input):sessions.ConfirmPreparation(id,identity,deviceId,teamId,input);
                 try
                 {
-                    var team=sessions.HouseholdPreparation(id,identity,deviceId,teamId);
-                    await hub.Clients.Group($"preparation-household:{id}:{teamId}:{team.AssignmentRevision}").SendAsync("preparationTeamSnapshot",team);
-                    try { var open=sessions.OpenPreparation(id,teamId);
-                        await hub.Clients.Group($"preparation-open:{id}:{teamId}:{open.AssignmentRevision}").SendAsync("preparationTeamSnapshot",open); }
-                    catch(SessionFault fault) when(fault.Failure==SessionFailure.Forbidden) { }
-                    await hub.Clients.Group("preparation:"+id).SendAsync("preparationSnapshot",sessions.PreparationPublic(id));
+                    await PreparationNotifications.PublishControllerChange(hub,sessions,id,identity,deviceId,teamId);
                 }
                 catch(Exception error){app.Logger.LogWarning(error,"Readiness notification failed; recover the saved snapshot.");}
                 return ack;
@@ -35,12 +30,7 @@ public static class PreparationEndpoints
                 var snapshot=sessions.PreparationPublic(id);
                 await hub.Clients.Group("preparation:"+id).SendAsync("preparationSnapshot",snapshot);
                 foreach(var team in sessions.PreparationControllerUpdates(id,identity))
-                {
-                    await hub.Clients.Group($"preparation-household:{id}:{team.TeamId}:{team.AssignmentRevision}").SendAsync("preparationTeamSnapshot",team);
-                    try { var open=sessions.OpenPreparation(id,team.TeamId);
-                        await hub.Clients.Group($"preparation-open:{id}:{team.TeamId}:{open.AssignmentRevision}").SendAsync("preparationTeamSnapshot",open); }
-                    catch(SessionFault fault) when(fault.Failure==SessionFailure.Forbidden) { }
-                }
+                    await PreparationNotifications.PublishTeam(hub,sessions,team);
             }
             catch(Exception error){app.Logger.LogWarning(error,"Freeze notification failed; recover the saved snapshot.");}
             return ack;
@@ -63,12 +53,7 @@ public static class PreparationEndpoints
             var ack=sessions.SaveSetup(id,identity,deviceId,teamId,input);
             try
             {
-                var team=sessions.HouseholdPreparation(id,identity,deviceId,teamId);
-                await hub.Clients.Group($"preparation-household:{id}:{teamId}:{team.AssignmentRevision}").SendAsync("preparationTeamSnapshot",team);
-                try { var open=sessions.OpenPreparation(id,teamId);
-                    await hub.Clients.Group($"preparation-open:{id}:{teamId}:{open.AssignmentRevision}").SendAsync("preparationTeamSnapshot",open); }
-                catch(SessionFault fault) when(fault.Failure==SessionFailure.Forbidden) { }
-                await hub.Clients.Group("preparation:"+id).SendAsync("preparationSnapshot",sessions.PreparationPublic(id));
+                await PreparationNotifications.PublishControllerChange(hub,sessions,id,identity,deviceId,teamId);
             }
             catch(Exception error) { app.Logger.LogWarning(error,"Setup notification failed; recover the saved snapshot."); }
             return ack;
@@ -79,12 +64,7 @@ public static class PreparationEndpoints
             var ack=sessions.ConfirmPractice(id,identity,deviceId,teamId,input);
             try
             {
-                var team=sessions.HouseholdPreparation(id,identity,deviceId,teamId);
-                await hub.Clients.Group($"preparation-household:{id}:{teamId}:{team.AssignmentRevision}").SendAsync("preparationTeamSnapshot",team);
-                try { var open=sessions.OpenPreparation(id,teamId);
-                    await hub.Clients.Group($"preparation-open:{id}:{teamId}:{open.AssignmentRevision}").SendAsync("preparationTeamSnapshot",open); }
-                catch(SessionFault fault) when(fault.Failure==SessionFailure.Forbidden) { }
-                await hub.Clients.Group("preparation:"+id).SendAsync("preparationSnapshot",sessions.PreparationPublic(id));
+                await PreparationNotifications.PublishControllerChange(hub,sessions,id,identity,deviceId,teamId);
             }
             catch(Exception error) { app.Logger.LogWarning(error,"Practice notification failed; recover the saved snapshot."); }
             return ack;

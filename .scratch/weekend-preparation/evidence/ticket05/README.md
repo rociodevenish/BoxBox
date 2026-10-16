@@ -1,5 +1,7 @@
 # Ticket 05 focused evidence
 
+**Historical capture notice:** the linked ticket05 phone capture predates removal of exact compatibility previews. Use [review remediation/current captures](../review-remediation/README.md) for the corrected interface; the original is preserved unchanged.
+
 Base: integration `c44351643e90161caf6344d62a2323b9a1520310`. User-approved seams: public API/SignalR, stateless public simulation policy and a small rendered Guided flow. No broad suite, hosted deployment or human playtest is claimed.
 
 ## Red and green

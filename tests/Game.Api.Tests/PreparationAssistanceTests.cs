@@ -87,7 +87,12 @@ public sealed class PreparationAssistanceTests
         var revision=human.GetProperty("revision").GetInt64();var assignmentRevision=human.GetProperty("assignmentRevision").GetInt64();
         var saved=await client.PostAsJsonAsync(uri.Replace("?","/setup?"),new{commandId=Guid.NewGuid().ToString(),revision,assignmentRevision,setup=new{aero=2,mechanical=2,tyres=2}});saved.EnsureSuccessStatusCode();
         var changed=await client.GetFromJsonAsync<JsonElement>(uri);
-        Assert.NotEqual(human.GetProperty("driverFits").GetRawText(),changed.GetProperty("driverFits").GetRawText());
+        // Compare designer diagnostics only through the approved public simulation seam.
+        var source=JsonSerializer.Deserialize<PreparationTeamSnapshot>(human.GetRawText(),new JsonSerializerOptions(JsonSerializerDefaults.Web))!;
+        var savedCandidate=JsonSerializer.Deserialize<PreparationTeamSnapshot>(changed.GetRawText(),new JsonSerializerOptions(JsonSerializerDefaults.Web))!;
+        Assert.NotEqual(JsonSerializer.Serialize(WeekendPreparation.Prepare(source.Preset,6,source.Setup).DriverFits),
+            JsonSerializer.Serialize(WeekendPreparation.Prepare(savedCandidate.Preset,6,savedCandidate.Setup).DriverFits));
+        Assert.False(changed.TryGetProperty("driverFits",out _));
         Assert.Equal(recommendation,changed.GetProperty("guidance").GetProperty("recommendation").GetRawText());
         (await client.PostAsJsonAsync($"/api/lobbies/{id}/players/{player}/assistance",new{helpLevel="Standard",autoAcceptRecommendation=false})).EnsureSuccessStatusCode();
         var standard=await client.GetFromJsonAsync<JsonElement>(uri);Assert.Equal(JsonValueKind.Null,standard.GetProperty("guidance").GetProperty("recommendation").ValueKind);

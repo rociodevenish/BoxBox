@@ -12,12 +12,7 @@ public static class AssistanceEndpoints
             try
             {
                 foreach(var team in sessions.PreparationControllerUpdates(id,identity))
-                {
-                    await hub.Clients.Group($"preparation-household:{id}:{team.TeamId}:{team.AssignmentRevision}").SendAsync("preparationTeamSnapshot",team);
-                    try {var open=sessions.OpenPreparation(id,team.TeamId);
-                        await hub.Clients.Group($"preparation-open:{id}:{team.TeamId}:{team.AssignmentRevision}").SendAsync("preparationTeamSnapshot",open);}
-                    catch(SessionFault fault) when(fault.Failure==SessionFailure.Forbidden) { }
-                }
+                    await PreparationNotifications.PublishTeam(hub,sessions,team);
             }
             catch(SessionFault fault) when(fault.Failure==SessionFailure.Conflict) { }
             catch(Exception error){app.Logger.LogWarning(error,"Preparation guidance notification failed; recover the saved snapshot.");}

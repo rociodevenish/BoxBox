@@ -77,21 +77,14 @@ public sealed partial class SessionCoordinator
         {
             var access=AuthorisePreparationController(id,identity,deviceId,teamId);
             var lobby=access.Lobby; var state=ReadPreparation(lobby); var team=state.Teams[teamId];
-            if(command is null || !Guid.TryParse(command.CommandId,out var commandId) || commandId==Guid.Empty
-                || command.Revision is null || command.AssignmentRevision is null || command.Setup is null)
+            if(command is null || command.Setup is null)
                 throw new SessionFault(SessionFailure.InvalidInput,"Supply command identity, current revisions and all three setup choices.");
-            if(command.AssignmentRevision!=access.Assignment.Revision)
-                throw new SessionFault(SessionFailure.Conflict,"Controller assignment changed. Refresh current authority.");
+            var key=ValidatePreparationCommand(command.CommandId,command.Revision,command.AssignmentRevision,access.Assignment.Revision);
             try { command.Setup.Validate(); }
             catch(ArgumentException error) { throw new SessionFault(SessionFailure.InvalidInput,error.Message); }
             var fingerprint=JsonSerializer.Serialize(new {Operation="setup",Session=id,Team=teamId,command.Revision,
                 command.AssignmentRevision,command.Setup,Version=PreparationModule});
-            var key=commandId.ToString("D");
-            if(team.Commands.TryGetValue(key,out var accepted))
-            {
-                if(accepted.Fingerprint!=fingerprint)throw new SessionFault(SessionFailure.Conflict,"Command identity was already used with different setup inputs.");
-                return accepted.Ack;
-            }
+            if(PreparationReceipt(team,key,fingerprint) is {} accepted)return accepted;
             if(lobby.Lifecycle!="preparing" || team.Lifecycle is not ("provisional" or "assessed"))
                 throw new SessionFault(SessionFailure.Conflict,"Setup is not editable in this lifecycle.");
             if(command.Revision!=team.Revision)throw new SessionFault(SessionFailure.Conflict,"Setup changed. Recover the saved revision before editing.");
@@ -110,20 +103,12 @@ public sealed partial class SessionCoordinator
         {
             var access=AuthorisePreparationController(id,identity,deviceId,teamId);
             var lobby=access.Lobby;var state=ReadPreparation(lobby);var team=state.Teams[teamId];
-            if(command is null || !Guid.TryParse(command.CommandId,out var commandId) || commandId==Guid.Empty
-                || command.Revision is null || command.AssignmentRevision is null)
+            if(command is null)
                 throw new SessionFault(SessionFailure.InvalidInput,"Supply command identity and current revisions.");
-            if(command.AssignmentRevision!=access.Assignment.Revision)
-                throw new SessionFault(SessionFailure.Conflict,"Controller assignment changed. Refresh current authority.");
+            var key=ValidatePreparationCommand(command.CommandId,command.Revision,command.AssignmentRevision,access.Assignment.Revision);
             var fingerprint=JsonSerializer.Serialize(new {Operation="practice",Session=id,Team=teamId,command.Revision,
                 command.AssignmentRevision,Version=PreparationModule});
-            var key=commandId.ToString("D");
-            if(team.Commands.TryGetValue(key,out var accepted))
-            {
-                if(accepted.Fingerprint!=fingerprint)
-                    throw new SessionFault(SessionFailure.Conflict,"Command identity was already used with different inputs.");
-                return accepted.Ack;
-            }
+            if(PreparationReceipt(team,key,fingerprint) is {} accepted)return accepted;
             if(lobby.Lifecycle!="preparing" || team.Lifecycle!="provisional" || team.Practice is not null)
                 throw new SessionFault(SessionFailure.Conflict,"This team already assessed practice or cannot assess in this lifecycle.");
             if(command.Revision!=team.Revision)
@@ -153,19 +138,12 @@ public sealed partial class SessionCoordinator
         {
             var access=AuthorisePreparationController(id,identity,deviceId,teamId);
             var lobby=access.Lobby;var state=ReadPreparation(lobby);var team=state.Teams[teamId];
-            if(command is null || !Guid.TryParse(command.CommandId,out var commandId) || commandId==Guid.Empty
-                || command.Revision is null || command.AssignmentRevision is null)
+            if(command is null)
                 throw new SessionFault(SessionFailure.InvalidInput,"Supply command identity and current revisions.");
-            if(command.AssignmentRevision!=access.Assignment.Revision)
-                throw new SessionFault(SessionFailure.Conflict,"Controller assignment changed. Refresh current authority.");
+            var key=ValidatePreparationCommand(command.CommandId,command.Revision,command.AssignmentRevision,access.Assignment.Revision);
             var fingerprint=JsonSerializer.Serialize(new {Operation=reopen?"reopen":"confirm",Session=id,Team=teamId,
                 command.Revision,command.AssignmentRevision,Version=PreparationModule});
-            var key=commandId.ToString("D");
-            if(team.Commands.TryGetValue(key,out var accepted))
-            {
-                if(accepted.Fingerprint!=fingerprint)throw new SessionFault(SessionFailure.Conflict,"Command identity was already used with different inputs.");
-                return accepted.Ack;
-            }
+            if(PreparationReceipt(team,key,fingerprint) is {} accepted)return accepted;
             if(lobby.Lifecycle!="preparing" || team.Lifecycle!=(reopen?"final-ready":"assessed") || team.Practice is null)
                 throw new SessionFault(SessionFailure.Conflict,"Preparation cannot change readiness in this lifecycle.");
             if(command.Revision!=team.Revision)
@@ -234,6 +212,24 @@ public sealed partial class SessionCoordinator
         return state.Teams.Where(t=>lobby.Assignments.ContainsKey(t.Key)).Select(t=>
             ProjectPreparationTeam(lobby,t.Value,t.Key,lobby.Assignments[t.Key])).ToArray();} }
 
+    // Call after current controller authorisation. Payload fingerprints and lifecycle checks remain operation-specific.
+    private static string ValidatePreparationCommand(string commandId,long? revision,long? assignmentRevision,long currentAssignmentRevision)
+    {
+        if(!Guid.TryParse(commandId,out var identity) || identity==Guid.Empty || revision is null || assignmentRevision is null)
+            throw new SessionFault(SessionFailure.InvalidInput,"Supply command identity and current revisions.");
+        if(assignmentRevision!=currentAssignmentRevision)
+            throw new SessionFault(SessionFailure.Conflict,"Controller assignment changed. Refresh current authority.");
+        return identity.ToString("D");
+    }
+
+    private static SetupAck? PreparationReceipt(PreparedTeam team,string key,string fingerprint)
+    {
+        if(!team.Commands.TryGetValue(key,out var accepted))return null;
+        if(accepted.Fingerprint!=fingerprint)
+            throw new SessionFault(SessionFailure.Conflict,"Command identity was already used with different inputs.");
+        return accepted.Ack;
+    }
+
     private static PreparedLobby ReadPreparation(Lobby lobby)
     {
         if(!lobby.ModuleState.TryGetValue(PreparationModule,out var json))
@@ -288,7 +284,7 @@ public sealed partial class SessionCoordinator
 
     private static PreparationTeamSnapshot ProjectPreparationTeam(Lobby lobby,PreparedTeam team,string teamId,Assignment assignment)=>
         new(lobby.Id,teamId,team.Revision,assignment.Revision,team.Lifecycle,team.Setup,team.Preset,
-            team.Effective.DriverFits,team.Effective.Summary,team.Effective.SetupModelVersion,
+            team.Effective.Summary,team.Effective.SetupModelVersion,
             team.Practice is null ? null : new PracticeSnapshot(team.Practice.Result.Feedback.ModelVersion,
                 team.Practice.Result.Feedback.Setup,team.Practice.Result.Feedback.CircuitFeedback,
                 team.Practice.Result.Feedback.Compromises,team.Practice.Result.Feedback.Drivers),ProjectPreparationGuidance(lobby,team,assignment));
