@@ -189,7 +189,7 @@ public sealed class PreparationTests
         Assert.Equal(HttpStatusCode.Conflict,(await client.PostAsJsonAsync($"/api/lobbies/{id}/start",new{})).StatusCode);
         var publicText=await client.GetStringAsync($"/api/lobbies/{id}/preparation");
         Assert.DoesNotContain("driverFits",publicText); Assert.DoesNotContain("adaptability",publicText);
-        Assert.Equal(2, (await client.GetFromJsonAsync<JsonElement>(uri)).GetProperty("driverFits").GetArrayLength());
+        Assert.False((await client.GetFromJsonAsync<JsonElement>(uri)).TryGetProperty("driverFits",out _));
     }
 
     [Fact]

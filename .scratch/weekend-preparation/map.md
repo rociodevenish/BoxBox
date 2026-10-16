@@ -1,5 +1,7 @@
 # Weekend preparation decisions
 
+The independent S07 review's information-boundary correction and two narrow duplication refactors are recorded in [review remediation and current captures](evidence/review-remediation/README.md). Earlier player screenshots are retained as historical pre-remediation evidence.
+
 | Ticket | Status | Answer |
 | --- | --- | --- |
 | [01 — Effective weekend presets](issues/01-effective-weekend-presets.md) | resolved | Immutable public preparation/race seam, explicit detailed-content mapping, neutral composition and paired circuit-fit evidence. |

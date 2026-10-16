@@ -1,5 +1,7 @@
 # Ticket 02 focused local verification
 
+**Historical capture notice:** these captures predate the review removal of exact compatibility previews from player contracts. Keep them as original evidence; use [review remediation/current captures](../review-remediation/README.md) for the corrected private/Open information boundary.
+
 Public immutable preparation/race, authenticated API/SignalR and small rendered browser flow are the parent-approved seams. Initial simulation tracer failed compilation because the setup overload/snapshot did not exist, then passed after implementation. Browser route/button were inspected missing before wiring; a runtime browser red was unavailable until the backend/service seam existed. Later rendered tests exposed and corrected nested-label locators, dense summaries, wrapped words and text encoding. This is focused local evidence, not hosted/human acceptance or a full regression report; root owns the integrated broad pass.
 
 ## Checks

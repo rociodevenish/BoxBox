@@ -1,5 +1,7 @@
 # Ticket 04 focused evidence
 
+**Historical capture notice:** the linked ticket04 phone capture predates removal of exact compatibility previews. Use [review remediation/current captures](../review-remediation/README.md) for the corrected interface; the original is preserved unchanged.
+
 Implemented against integration `7d24b27573fb540624ae2f0bce0f9db420a22b4d`, using the approved public API/SignalR and focused rendered-browser seams. This record covers S07 only. The full regression suite, hosted deployment and human acceptance remain separate.
 
 ## Red and green
