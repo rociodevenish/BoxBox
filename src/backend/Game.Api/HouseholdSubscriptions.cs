@@ -10,6 +10,5 @@ public sealed class HouseholdSubscriptions
  public void RemoveConnection(string connection){foreach(var key in streams.Keys.Where(key=>key.Connection==connection))streams.TryRemove(key,out _);}
  public async Task CloseObsolete(IGroupManager groups,LobbySnapshot lobby)
  {foreach(var key in streams.Keys.Where(key=>key.Session==lobby.SessionId&&lobby.Teams.Any(team=>team.TeamId==key.Team&&team.AssignmentRevision!=key.Revision)))
-  {await groups.RemoveFromGroupAsync(key.Connection,$"household:{key.Session}:{key.Team}:{key.Revision}");await groups.RemoveFromGroupAsync(key.Connection,$"preparation-household:{key.Session}:{key.Team}:{key.Revision}");streams.TryRemove(key,out _);}}
+  {await groups.RemoveFromGroupAsync(key.Connection,$"household:{key.Session}:{key.Team}:{key.Revision}");await groups.RemoveFromGroupAsync(key.Connection,$"preparation-household:{key.Session}:{key.Team}:{key.Revision}");await groups.RemoveFromGroupAsync(key.Connection,$"qualifying-household:{key.Session}:{key.Team}:{key.Revision}");streams.TryRemove(key,out _);}}
 }
-

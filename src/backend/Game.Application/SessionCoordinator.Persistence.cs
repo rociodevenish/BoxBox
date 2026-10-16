@@ -50,7 +50,7 @@ public sealed partial class SessionCoordinator
         {
             var payload=Capture(id);
             var session=lobbies.GetValueOrDefault(id)?.Race ?? (active?.Id==id?active:null);
-            storageVersions[id]=persistence.Write(id,storageVersions.GetValueOrDefault(id),payload,lobbies.GetValueOrDefault(id)?.Code,session is null||session.Paused?null:Progress(session).Wakeup);
+            storageVersions[id]=persistence.Write(id,storageVersions.GetValueOrDefault(id),payload,lobbies.GetValueOrDefault(id)?.Code,session is null?QualifyingWakeup(id):session.Paused?null:Progress(session).Wakeup);
             durableRecords[id]=new(storageVersions[id],payload);
             if(lobbies.GetValueOrDefault(id)?.Race is {} race)race.StorageError=false;
             if(active?.Id==id)active.StorageError=false;

@@ -51,6 +51,7 @@ app.Use(async (context, next) =>
 });
 app.MapLobbyEndpoints();
 app.MapPreparationEndpoints();
+app.MapQualifyingEndpoints();
 app.MapAssistanceEndpoints();
 app.MapWakeupEndpoints();
 app.MapControlEndpoints();

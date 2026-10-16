@@ -47,7 +47,8 @@ public sealed partial class SessionCoordinator
     private void DispatchSavedWakeup(string id)
     {
         var session=lobbies.GetValueOrDefault(id)?.Race ?? (active?.Id==id?active:null);
-        if(session is null||session.Paused||Progress(session).Wakeup is not {} wakeup)return;
+        var wakeup=session is null?QualifyingWakeup(id):session.Paused?null:Progress(session).Wakeup;
+        if(wakeup is null)return;
         try{scheduledWakeups?.Enqueue(wakeup);}
         catch(Exception error){System.Diagnostics.Trace.TraceWarning("Wakeup enqueue pending for {0}: {1}",id,error.GetType().Name);}
     }
@@ -108,9 +109,9 @@ public sealed partial class SessionCoordinator
         {
             ScheduledWakeup? wakeup;
             await mutations.WaitAsync();
-            try{lock(gate){EnsureRecovered(id);var session=lobbies.GetValueOrDefault(id)?.Race ?? (active?.Id==id?active:null);wakeup=session is null||session.Paused?null:Progress(session).Wakeup;if(wakeup is not null)DispatchSavedWakeup(id);}}
+            try{lock(gate){EnsureRecovered(id);var session=lobbies.GetValueOrDefault(id)?.Race ?? (active?.Id==id?active:null);wakeup=session is null?QualifyingWakeup(id):session.Paused?null:Progress(session).Wakeup;if(wakeup is not null)DispatchSavedWakeup(id);}}
             finally{mutations.Release();}
-            if(wakeup is not null&&clock.GetUtcNow()>=wakeup.DueUtc){await DeliverWakeup(new(id,wakeup.Generation,wakeup.Phase,wakeup.WindowRevision));count++;}
+            if(wakeup is not null&&clock.GetUtcNow()>=wakeup.DueUtc){await DeliverScheduledWakeup(new(id,wakeup.Generation,wakeup.Phase,wakeup.WindowRevision));count++;}
         }
         return count;
     }
