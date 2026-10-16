@@ -45,3 +45,7 @@ Merged at `2368ab154bbe78692ce8efb6cdf9ed4a7e7a816e`. [AI and assistance evidenc
 ## Dependency audit finding
 
 Ticket 04 restore reported NU1903 for the existing `Microsoft.AspNetCore.SignalR.Common` 10.0.12 dependency. [Microsoft's advisory](https://github.com/advisories/GHSA-334f-vvp4-7g6p), published 13 October 2026, lists 10.0.13 as patched and describes denial of service involving stateful reconnect. Local behavioral checks use command-scoped `NuGetAudit=false`; this is an explicit verification limitation, not remediation or a clean dependency audit. No dependency/runtime update or deployed remediation is claimed by S07.
+
+## Final integration
+
+Ticket 06 merged at `b618faabf583c6aef681a3a000db4323c1b52d8a`; all twelve broad verification steps passed at that revision. Independent Standards and Spec reviews then identified two duplication heuristics and one exact-fit information leak. One implementer corrected all findings, with fifteen affected API cases, three browser flows and named typecheck/build checks passing. Remediation merged at `8e1826a0b07a6f28325f1bd5fb276b0199030d09`; both independent rechecks cleared the findings. [Final records, current reviewed captures, cleanup and external acceptance limits](final/README.md) pin the results. All implementation worktrees were removed after report preservation. S07 is locally implemented and ready for human acceptance; S08 was not started.

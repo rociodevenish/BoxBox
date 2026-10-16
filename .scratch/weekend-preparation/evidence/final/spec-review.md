@@ -1,0 +1,19 @@
+SPEC review: 9a54a39db0fa5caa8fada77508da446ce21ad795...b618faabf583c6aef681a3a000db4323c1b52d8a
+
+Implemented but wrong — [P1] Exact compatibility bypasses the one uncertain practice assessment.
+
+Spec: `.scratch/weekend-preparation/spec.md:27` says “feedback labelled with confidence, so that I do not mistake advice for exact hidden measurements”; line 50 requires “legitimate feedback plus separate designer diagnostics” and final revision “without unlimited rerolls or extra feedback”. Ticket 02 line 15 additionally requires previews to use legitimate observations.
+
+`src/backend/Game.Application/SessionCoordinator.Preparation.cs:291` projects `team.Effective.DriverFits` directly into every authorised/Open preparation snapshot. `src/frontend/src/app/preparation/preparation-page.html:11` renders its exact numeric compatibility /100, refreshed on every saved choice (line 12 expressly tells players to save changes to refresh fit). These are the very exact fits from which `WeekendPreparation.Assess` generates noisy, confidence-labelled observations (`src/backend/Game.Simulation/WeekendPreparation.cs:15-26`); its designer diagnostics separately contain those fits at line 41. Consequently players can save all five Mechanical choices and inspect exact fit for both drivers before practice, or after the single frozen assessment, regardless of engineer/Setup Feedback quality. That makes the information-quality and one-assessment restrictions ineffective and gives humans diagnostic information intentionally withheld from AI observations.
+
+Action: keep exact DriverFits inside designer diagnostics; project legitimate qualitative preference guidance before practice and the recorded uncertain assessment afterward. Candidate revisions should not supply fresh exact fit measurements. Cover the API/SignalR projection, including Open views, rather than only hiding the number in the template.
+
+Missing/partial spec: no additional code omission substantiated. Unasked behaviour: none substantiated. Reviewed all six tickets, source/content/effective versions, frozen context, persistence/retry rollback, recorded AI choices, observation filtering and retained replay/evidence contracts. No broad tests rerun.
+
+External acceptance: hosted deployment/recovery, human comprehension, measured duration and household playtest remain explicitly pending; these are acceptance gates, not missing S07 implementation. Actual qualifying integration belongs to S08; the S07 atomic freeze seam exists.
+
+Commits captured with git log baseline..target --oneline: b618faa, cdba4e4, 62280a4, d7d4cad, 2368ab1, 6eb9df4, c443516, 102267f, 7d24b27, 9b91106, 9954d6c, 610798e, ccb8f32, f25bbac, 1a6f31f, 0f9b1b8, 5eaf3a9, 75a3239, 21fca09, 947e03f, dd60c4d.
+
+Recheck — 2026-10-17 — target 8e1826a0b07a6f28325f1bd5fb276b0199030d09
+
+Prior P1 resolved. Inspected the b618faa...8e1826a remediation diff, PreparationInformationTests and review-remediation/README.md. PreparationTeamSnapshot and its shared projection no longer include exact DriverFits; private/Open GET and SignalR use that projection. The UI shows source preferences/Adaptability and only the original confidence-labelled practice observation. Later candidate saves preserve the recorded assessment and provide no fresh measurement. Exact fits remain in designer simulation diagnostics and saved effective/replay contexts, outside normal player projections. The new public API/SignalR regression checks both initial subscriptions, both GET views, both update streams, one assessment and four later Mechanical revisions; it asserts unchanged assessment and absence of diagnostic/compatibility fields. Evidence records 15 affected API cases, three browser flows and successful typecheck/build. No tests duplicated. No new blocking spec issue found in this narrow recheck. Hosted/human acceptance remains a separate pending gate.

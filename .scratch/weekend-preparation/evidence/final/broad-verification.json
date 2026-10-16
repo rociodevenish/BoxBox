@@ -1,0 +1,202 @@
+{
+  "runId": "2026-10-14T21-22-29-414Z-c38aeca0-8b9d-436a-a4bd-7eae16d9d850",
+  "revision": "b618faabf583c6aef681a3a000db4323c1b52d8a",
+  "startedAt": "2026-10-14T21:22:29.449Z",
+  "node": "v24.19.0",
+  "steps": [
+    {
+      "name": "tooling",
+      "command": "C:\\Users\\sbdev\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\node\\bin\\node.exe",
+      "args": [
+        "--test",
+        "tools/tests/run-bounded.test.mjs",
+        "tools/tests/publish-evidence.test.mjs"
+      ],
+      "cwd": "C:\\Projects\\F1Game",
+      "pid": 3012,
+      "startedAt": "2026-10-14T21:22:29.450Z",
+      "status": "passed",
+      "exitCode": 0,
+      "elapsedMs": 735
+    },
+    {
+      "name": "typecheck",
+      "command": "C:\\Users\\sbdev\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\node\\bin\\node.exe",
+      "args": [
+        "C:\\Projects\\F1Game\\src\\frontend\\node_modules\\@angular\\compiler-cli\\bundles\\src\\bin\\ngc.js",
+        "-p",
+        "tsconfig.app.json",
+        "--noEmit"
+      ],
+      "cwd": "C:\\Projects\\F1Game\\src\\frontend",
+      "pid": 200,
+      "startedAt": "2026-10-14T21:22:30.190Z",
+      "status": "passed",
+      "exitCode": 0,
+      "elapsedMs": 2374
+    },
+    {
+      "name": "build",
+      "command": "C:\\Users\\sbdev\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\node\\bin\\node.exe",
+      "args": [
+        "C:\\Projects\\F1Game\\src\\frontend\\node_modules\\@angular\\cli\\bin\\ng.js",
+        "build"
+      ],
+      "cwd": "C:\\Projects\\F1Game\\src\\frontend",
+      "pid": 13896,
+      "startedAt": "2026-10-14T21:22:32.568Z",
+      "status": "passed",
+      "exitCode": 0,
+      "elapsedMs": 5141
+    },
+    {
+      "name": "backend",
+      "command": "C:\\Users\\sbdev\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\node\\bin\\node.exe",
+      "args": [
+        "C:\\Projects\\F1Game\\tools\\auth-emulator\\node_modules\\firebase-tools\\lib\\bin\\firebase.js",
+        "emulators:exec",
+        "--only",
+        "auth,firestore",
+        "--project",
+        "demo-f1game",
+        "--config",
+        "C:\\Projects\\F1Game\\tools\\auth-emulator\\firebase.recovery.json",
+        "--non-interactive",
+        "\"C:\\Users\\sbdev\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\node\\bin\\node.exe\" tools/run-backend-tests.mjs"
+      ],
+      "cwd": "C:\\Projects\\F1Game",
+      "pid": 20536,
+      "startedAt": "2026-10-14T21:22:37.712Z",
+      "status": "passed",
+      "exitCode": 0,
+      "elapsedMs": 55414
+    },
+    {
+      "name": "gallery",
+      "command": "C:\\Users\\sbdev\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\node\\bin\\node.exe",
+      "args": [
+        "C:\\Projects\\F1Game\\src\\frontend\\node_modules\\@playwright\\test\\cli.js",
+        "test"
+      ],
+      "cwd": "C:\\Projects\\F1Game\\src\\frontend",
+      "pid": 17788,
+      "startedAt": "2026-10-14T21:23:33.128Z",
+      "status": "passed",
+      "exitCode": 0,
+      "elapsedMs": 12799
+    },
+    {
+      "name": "browser",
+      "command": "C:\\Users\\sbdev\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\node\\bin\\node.exe",
+      "args": [
+        "C:\\Projects\\F1Game\\src\\frontend\\node_modules\\@playwright\\test\\cli.js",
+        "test",
+        "--config",
+        "playwright.browser.config.ts"
+      ],
+      "cwd": "C:\\Projects\\F1Game\\src\\frontend",
+      "pid": 9536,
+      "startedAt": "2026-10-14T21:23:45.930Z",
+      "status": "passed",
+      "exitCode": 0,
+      "elapsedMs": 93031
+    },
+    {
+      "name": "boundary",
+      "command": "C:\\Users\\sbdev\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\node\\bin\\node.exe",
+      "args": [
+        "C:\\Projects\\F1Game\\src\\frontend\\node_modules\\@playwright\\test\\cli.js",
+        "test",
+        "--config",
+        "playwright.boundary.config.ts"
+      ],
+      "cwd": "C:\\Projects\\F1Game\\src\\frontend",
+      "pid": 4516,
+      "startedAt": "2026-10-14T21:25:18.964Z",
+      "status": "passed",
+      "exitCode": 0,
+      "elapsedMs": 18019
+    },
+    {
+      "name": "shared",
+      "command": "C:\\Users\\sbdev\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\node\\bin\\node.exe",
+      "args": [
+        "C:\\Projects\\F1Game\\src\\frontend\\node_modules\\@playwright\\test\\cli.js",
+        "test",
+        "--config",
+        "playwright.shared.config.ts"
+      ],
+      "cwd": "C:\\Projects\\F1Game\\src\\frontend",
+      "pid": 18668,
+      "startedAt": "2026-10-14T21:25:36.987Z",
+      "status": "passed",
+      "exitCode": 0,
+      "elapsedMs": 59617
+    },
+    {
+      "name": "assistance",
+      "command": "C:\\Users\\sbdev\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\node\\bin\\node.exe",
+      "args": [
+        "C:\\Projects\\F1Game\\src\\frontend\\node_modules\\@playwright\\test\\cli.js",
+        "test",
+        "--config",
+        "playwright.assistance.config.ts"
+      ],
+      "cwd": "C:\\Projects\\F1Game\\src\\frontend",
+      "pid": 12840,
+      "startedAt": "2026-10-14T21:26:36.606Z",
+      "status": "passed",
+      "exitCode": 0,
+      "elapsedMs": 18179
+    },
+    {
+      "name": "control",
+      "command": "C:\\Users\\sbdev\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\node\\bin\\node.exe",
+      "args": [
+        "C:\\Projects\\F1Game\\src\\frontend\\node_modules\\@playwright\\test\\cli.js",
+        "test",
+        "--config",
+        "playwright.control.config.ts"
+      ],
+      "cwd": "C:\\Projects\\F1Game\\src\\frontend",
+      "pid": 10416,
+      "startedAt": "2026-10-14T21:26:54.789Z",
+      "status": "passed",
+      "exitCode": 0,
+      "elapsedMs": 19524
+    },
+    {
+      "name": "deadlines",
+      "command": "C:\\Users\\sbdev\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\node\\bin\\node.exe",
+      "args": [
+        "C:\\Projects\\F1Game\\src\\frontend\\node_modules\\@playwright\\test\\cli.js",
+        "test",
+        "--config",
+        "playwright.deadlines.config.ts"
+      ],
+      "cwd": "C:\\Projects\\F1Game\\src\\frontend",
+      "pid": 3652,
+      "startedAt": "2026-10-14T21:27:14.316Z",
+      "status": "passed",
+      "exitCode": 0,
+      "elapsedMs": 18186
+    },
+    {
+      "name": "hosted",
+      "command": "C:\\Users\\sbdev\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\node\\bin\\node.exe",
+      "args": [
+        "C:\\Projects\\F1Game\\src\\frontend\\node_modules\\@playwright\\test\\cli.js",
+        "test",
+        "--config",
+        "playwright.hosted.config.ts"
+      ],
+      "cwd": "C:\\Projects\\F1Game\\src\\frontend",
+      "pid": 23020,
+      "startedAt": "2026-10-14T21:27:32.505Z",
+      "status": "passed",
+      "exitCode": 0,
+      "elapsedMs": 8380
+    }
+  ],
+  "finishedAt": "2026-10-14T21:27:40.886Z"
+}

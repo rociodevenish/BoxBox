@@ -1,0 +1,21 @@
+{
+  "command": "C:/Users/sbdev/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+  "args": [
+    "tools/auth-emulator/node_modules/firebase-tools/lib/bin/firebase.js",
+    "emulators:exec",
+    "--only",
+    "auth,firestore",
+    "--project",
+    "demo-f1game",
+    "--config",
+    ".tools/firebase-review.json",
+    "--non-interactive",
+    "dotnet test tests/Game.Api.Tests --artifacts-path .tools/dotnet-review -p:NuGetAudit=false --filter FullyQualifiedName~Preparation --nologo"
+  ],
+  "cwd": "C:\\Projects\\F1Game\\.worktrees\\s07-review-fixes",
+  "pid": 22664,
+  "startedAt": "2026-10-14T21:28:15.833Z",
+  "status": "passed",
+  "exitCode": 0,
+  "elapsedMs": 20713
+}

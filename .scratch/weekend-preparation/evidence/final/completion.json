@@ -1,0 +1,63 @@
+{
+  "spec": "S07",
+  "status": "local-implementation-complete",
+  "branch": "codex/weekend-preparation",
+  "baseline": "9a54a39db0fa5caa8fada77508da446ce21ad795",
+  "integratedCode": "8e1826a0b07a6f28325f1bd5fb276b0199030d09",
+  "broadRun": "2026-10-14T21-22-29-414Z-c38aeca0-8b9d-436a-a4bd-7eae16d9d850",
+  "broadPassedSteps": [
+    "tooling",
+    "typecheck",
+    "build",
+    "backend",
+    "gallery",
+    "browser",
+    "boundary",
+    "shared",
+    "assistance",
+    "control",
+    "deadlines",
+    "hosted"
+  ],
+  "postReviewChecks": [
+    "15 preparation API tests",
+    "3 rendered preparation flows",
+    "typecheck",
+    "build"
+  ],
+  "standards": {
+    "resolvedHeuristics": 2,
+    "hardViolations": 0,
+    "outstanding": 0
+  },
+  "specReview": {
+    "resolvedP1": 1,
+    "outstanding": 0
+  },
+  "pendingExternal": [
+    "hosted deployment and recovery",
+    "household comprehension and preparation duration",
+    "household playtest and cost evidence"
+  ],
+  "knownDependencyFinding": "GHSA-334f-vvp4-7g6p; existing SignalR 10.0.12; test invocation audit override is not remediation",
+  "s08Started": false,
+  "ownedListenersRemaining": [],
+  "files": [
+    {
+      "name": "affected-api.json",
+      "sha256": "87BD917555645A84B644903537BF5D4C3CAC098DFF42D9278C9A1DEC08D034ED"
+    },
+    {
+      "name": "affected-browser.json",
+      "sha256": "49AF3CD84428C3D7FC600A5E22F625905DD5C459F029DB06E21355EE54334332"
+    },
+    {
+      "name": "affected-build.json",
+      "sha256": "F76BE7E86C879A1E806B6CC89C92DB2A6EA0DF371BD7161F1E24468193876735"
+    },
+    {
+      "name": "broad-verification.json",
+      "sha256": "679F6FC47D06775E31D05DEC35729BDE42D83D7DA23CEDE27CA60C1EE0E7731F"
+    }
+  ]
+}

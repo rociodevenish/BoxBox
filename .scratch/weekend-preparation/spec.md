@@ -1,6 +1,6 @@
 # S07 — Weekend preparation and effective attributes
 
-Status: ready-for-agent
+Status: ready-for-human (local implementation and verification complete; hosted and household acceptance pending)
 Blocked by: race continuity, AI and assistance; reviewed segment-model evidence and browser playtest findings.
 
 ## Problem Statement
