@@ -1,0 +1,13 @@
+# Qualifying and automatic race start decisions
+
+Integration branch: `codex/qualifying-race-start`, based on committed S07 at `cd7c61f248cdc1e32f38beda5bd4b31dc738cc1a`.
+
+| Ticket | Status | Dependency |
+| --- | --- | --- |
+| [01 — Q1 and preparation lock](issues/01-q1-preparation-lock.md) | ready-for-agent | S07 local implementation |
+| [02 — Q2, Q3 and final grid](issues/02-q2-q3-grid.md) | ready-for-agent | 01 |
+| [03 — Policies and missed choices](issues/03-qualifying-policies.md) | ready-for-agent | 02 |
+| [04 — Automatic opening](issues/04-automatic-opening.md) | ready-for-agent | 02 |
+| [05 — Complete experience evidence](issues/05-qualifying-start-evidence.md) | ready-for-agent | 03, 04 |
+
+See [integration scope and verification](evidence/integration.md). Household timing, readability and actual hosted acceptance remain separate from local deterministic and rendered checks.
