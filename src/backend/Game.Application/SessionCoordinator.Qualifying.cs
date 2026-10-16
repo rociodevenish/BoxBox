@@ -15,7 +15,7 @@ public sealed partial class SessionCoordinator
         FrozenPreparationContext Preparation,QualifyingAttemptInput Input,Dictionary<string,QualifyingLock> Locks,Dictionary<string,QualifyingLock> TimeoutLocks,
         Dictionary<string,AcceptedQualifying> Commands,Dictionary<string,AcceptedQualifyingStart> Starts,
         DecisionTimingPolicy TimingPolicy,DateTimeOffset? Deadline,ScheduledWakeup? Wakeup,
-        string Lifecycle="awaiting-decisions",bool Paused=false,double? Remaining=null,QualifyingResult? Result=null);
+        string Lifecycle="awaiting-decisions",bool Paused=false,double? Remaining=null,QualifyingResult? Result=null,QualifyingAttemptInput[]? Attempts=null,QualifyingResult[]? Results=null,QualifyingRank[]? Grid=null,Dictionary<string,DueTransitionInput>? ContinueCommands=null);
 
     public StartQualifyingAck StartQualifying(string id,AuthIdentity identity,StartQualifyingCommand command)
     {
@@ -77,27 +77,32 @@ public sealed partial class SessionCoordinator
             var access=AuthorisePreparationController(id,identity,deviceId,teamId);var lobby=access.Lobby;var state=ReadQualifying(lobby);
             if(command is null||command.Choices is null||command.Choices.Any(c=>c is null||string.IsNullOrWhiteSpace(c.EntryId)))throw new SessionFault(SessionFailure.InvalidInput,"Supply complete eligible-driver choices.");
             var key=ValidatePreparationCommand(command.CommandId,command.Revision,command.AssignmentRevision,access.Assignment.Revision);
-            var choices=command.Choices.OrderBy(c=>c.EntryId,StringComparer.Ordinal).ToArray();
+            var choices=command.Choices.OrderBy(c=>c.EntryId,StringComparer.Ordinal).ToImmutableArray();
             var fingerprint=JsonSerializer.Serialize(new{Operation="qualifying-lock",id,teamId,command.Session,command.Revision,command.AssignmentRevision,Choices=choices,Version=QualifyingModule});
             if(state.Commands.TryGetValue(key,out var accepted))return accepted.Fingerprint==fingerprint?accepted.Ack:throw new SessionFault(SessionFailure.Conflict,"Command identity was already used differently.");
-            if(state.Starts.ContainsKey(key)||ReadPreparation(lobby).Teams.Values.Any(t=>t.Commands.ContainsKey(key)))throw new SessionFault(SessionFailure.Conflict,"Command identity already belongs to another operation.");
-            var eligible=QualifyingDrivers(state).Where(c=>c.TeamId==teamId).Select(c=>c.EntryId).Order(StringComparer.Ordinal);
-            if(!choices.Select(c=>c.EntryId).SequenceEqual(eligible)||choices.Any(c=>c.Approach is not ("Safe" or "Push" or "All-Out")))
+            if(state.Starts.ContainsKey(key)||state.ContinueCommands?.ContainsKey(key)==true||ReadPreparation(lobby).Teams.Values.Any(t=>t.Commands.ContainsKey(key)))throw new SessionFault(SessionFailure.Conflict,"Command identity already belongs to another operation.");
+            var eligible=QualifyingDrivers(state).Where(c=>c.TeamId==teamId).Select(c=>c.EntryId).Order(StringComparer.Ordinal).ToArray();
+            if(eligible.Length==0||!choices.Select(c=>c.EntryId).SequenceEqual(eligible)||choices.Any(c=>c.Approach is not ("Safe" or "Push" or "All-Out")))
                 throw new SessionFault(SessionFailure.InvalidInput,"Lock exactly one Safe, Push or All-Out choice for each eligible driver.");
             if(command.Session!=state.Session||command.Revision!=state.WindowRevision||state.Paused||state.Lifecycle!="awaiting-decisions"||state.Locks.ContainsKey(teamId))
                 throw new SessionFault(SessionFailure.Conflict,"This qualifying window changed or your team is already locked.");
             if(state.Deadline is {} deadline&&clock.GetUtcNow()>=deadline)
                 throw new SessionFault(SessionFailure.Conflict,"The qualifying deadline has passed. Refresh the recorded result.");
             state.Locks[teamId]=new("human","human-v1",choices);state=state with{Revision=state.Revision+1};
-            if(lobby.RequiredTeams.All(state.Locks.ContainsKey))state=ResolveQualifying(state);
+            if(RequiredQualifyingTeams(lobby,state).All(state.Locks.ContainsKey))state=ResolveQualifying(lobby,state);
             var ack=new QualifyingAck(key,id,teamId,state.Session,state.Revision,state.Lifecycle);state.Commands[key]=new(fingerprint,ack);
             lobby.Revision++;WriteQualifying(lobby,state);Persist(id);return ack;
         }}finally{mutations.Release();}
     }
-    private static QualifyingState ResolveQualifying(QualifyingState state)
+    private QualifyingState ResolveQualifying(Lobby lobby,QualifyingState state)
     {
         var input=state.Input with{Choices=state.Locks.OrderBy(p=>p.Key,StringComparer.Ordinal).SelectMany(p=>p.Value.Choices).ToArray()};
-        return state with{Input=input,Result=Qualifying.Resolve(input),Lifecycle="session-result",Deadline=null,Wakeup=null};
+        var result=Qualifying.Resolve(input);var results=(state.Results??[]).Append(result).ToArray();
+        var due=clock.GetUtcNow().AddSeconds(PresentationSeconds);
+        var grid=state.Session=="Q3"?Qualifying.Grid(results):null;
+        return state with{Input=input,Result=result,Results=results,Attempts=(state.Attempts??[]).Append(input).ToArray(),Grid=grid,
+            Lifecycle=grid is null?"session-result":"grid-ready",Deadline=grid is null&&!state.Paused?due:null,
+            Wakeup=grid is null&&!state.Paused?new(lobby.Id,Guid.NewGuid().ToString("N"),"qualifying-presentation",Stage(state),state.WindowRevision,due):null};
     }
     private static QualifyingLock SafeQualifyingLock(QualifyingAttemptInput input,string team,string source)=>
         new(source,QualifyingBaseline,input.Weekends.SelectMany(w=>w.Cars).Where(c=>c.Source.TeamId==team&&input.PreSessionOrder.Contains(c.Source.EntryId)).Select(c=>new QualifyingChoice(c.Source.EntryId,"Safe")).ToArray());
@@ -118,17 +123,29 @@ public sealed partial class SessionCoordinator
             }
             catch(ArgumentException){throw new SessionFault(SessionFailure.Conflict,"Saved qualifying replay is incompatible. Preserve its recorded inputs and result.");}
         }
+        if(state.Result is not null&&state.Results is null)state=state with{Results=[state.Result],Attempts=[state.Input]};
+        if(state.Attempts is {} attempts&&state.Results is {} results)
+        {
+            if(attempts.Length!=results.Length)throw new SessionFault(SessionFailure.Conflict,"Recorded qualifying history is incomplete.");
+            for(var i=0;i<attempts.Length;i++)
+                if(!Qualifying.Resolve(attempts[i]).Ranking.SequenceEqual(results[i].Ranking))throw new SessionFault(SessionFailure.Conflict,"Recorded qualifying history is incompatible.");
+            if(state.Grid is {} grid&&!grid.SequenceEqual(Qualifying.Grid(results)))throw new SessionFault(SessionFailure.Conflict,"Recorded grid is incompatible.");
+        }
         return state;
     }
     private static void WriteQualifying(Lobby lobby,QualifyingState state)=>lobby.ModuleState[QualifyingModule]=JsonSerializer.Serialize(state,BrowserReplay.JsonOptions);
+    private static int Stage(QualifyingState state)=>int.Parse(state.Session[1..],System.Globalization.CultureInfo.InvariantCulture);
+    private static string[] RequiredQualifyingTeams(Lobby lobby,QualifyingState state)=>lobby.RequiredTeams.Where(team=>QualifyingDrivers(state).Any(d=>d.TeamId==team)).ToArray();
+    private static QualifyingDriver[] AllQualifyingDrivers(QualifyingState state)=>state.Input.Weekends.SelectMany(w=>w.Cars)
+        .Select(c=>new QualifyingDriver(c.Source.EntryId,c.Source.Driver.Id,c.Source.Driver.Name,c.Source.Driver.Slug,c.Source.TeamId)).ToArray();
     private static QualifyingDriver[] QualifyingDrivers(QualifyingState state)=>state.Input.Weekends.SelectMany(w=>w.Cars).Where(c=>state.Input.PreSessionOrder.Contains(c.Source.EntryId))
         .Select(c=>new QualifyingDriver(c.Source.EntryId,c.Source.Driver.Id,c.Source.Driver.Name,c.Source.Driver.Slug,c.Source.TeamId)).ToArray();
     private static QualifyingPublicSnapshot ProjectQualifying(Lobby lobby,QualifyingState state)
     {
         var circuit=state.Input.Weekends[0].Source.Circuit;
-        return new(lobby.Id,state.Revision,state.Session,state.Lifecycle,state.Paused,circuit.Id,circuit.Name,circuit.Slug,QualifyingDrivers(state),
-            state.Input.Weekends.Select(w=>w.Cars[0].Source.TeamId).Select(team=>new QualifyingTeamStatus(team,state.Locks.ContainsKey(team),state.Locks.GetValueOrDefault(team)?.Source)).ToArray(),
-            state.Result,state.Deadline,state.TimingPolicy,state.Input.Rules.Version,state.Input.Rules.Retain,"Unclaimed and missing teams use Safe for both cars (safe-baseline-v1). Accepted locks are preserved.");
+        return new(lobby.Id,state.Revision,state.Session,state.Lifecycle,state.Paused,circuit.Id,circuit.Name,circuit.Slug,AllQualifyingDrivers(state),
+            state.Input.Weekends.Select(w=>w.Cars[0].Source.TeamId).Where(team=>QualifyingDrivers(state).Any(d=>d.TeamId==team)).Select(team=>new QualifyingTeamStatus(team,state.Locks.ContainsKey(team),state.Locks.GetValueOrDefault(team)?.Source)).ToArray(),
+            state.Result,state.Lifecycle=="awaiting-decisions"?state.Deadline:null,state.TimingPolicy,state.Input.Rules.Version,state.Input.Rules.Retain,"Unclaimed and missing teams use Safe for both cars (safe-baseline-v1). Accepted locks are preserved.",state.Results??[],state.Grid??[],state.WindowRevision,state.Lifecycle=="session-result"?state.Deadline:null);
     }
     private static QualifyingTeamSnapshot ProjectQualifyingTeam(Lobby lobby,QualifyingState state,string team,Assignment assignment)=>new(lobby.Id,team,state.WindowRevision,assignment.Revision,state.Session,
         state.Lifecycle,state.Locks.ContainsKey(team),QualifyingDrivers(state).Where(c=>c.TeamId==team).ToArray(),state.Locks.GetValueOrDefault(team)?.Choices);

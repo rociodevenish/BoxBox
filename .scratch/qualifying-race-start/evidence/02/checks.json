@@ -1,0 +1,345 @@
+{
+  "base": "c64dddb59e7874e30e4c0352eb9a9a4c3e9ab927",
+  "branch": "codex/s08-02",
+  "ports": {
+    "UI": 4512,
+    "API": 4612,
+    "Auth": 19349,
+    "Firestore": 19340,
+    "hub": 19550,
+    "logging": 19600,
+    "websocket": 9158
+  },
+  "uniqueChecks": {
+    "API": {
+      "passed": 8,
+      "record": "green3"
+    },
+    "simulation": {
+      "passed": 5,
+      "record": "simulation"
+    },
+    "browser": {
+      "passed": 1,
+      "record": "browser-final"
+    },
+    "angularTypecheck": "typecheck-final",
+    "frontendBuild": "frontend-build-final",
+    "backendBuild": "build-final"
+  },
+  "reviewedCaptures": {
+    "phone-two-car-choices.png": "360x800, full-page capture; independent choices, readable scroll and no horizontal overflow",
+    "phone-q2-elimination.png": "360x800; eliminated teammate explicit, eligible driver retains independent approach, session results readable",
+    "phone-final-grid.png": "360x800; final22 with names, exact/no-time results and session selector; vertical scroll intentional",
+    "public-final-grid.png": "1920x1080; all22 visible, explicit fixed groups, no-time outcomes, circuit image fallback and history selector"
+  },
+  "records": {
+    "red": {
+      "command": "node",
+      "args": [
+        "tools/auth-emulator/node_modules/firebase-tools/lib/bin/firebase.js",
+        "emulators:exec",
+        "--only",
+        "auth,firestore",
+        "--project",
+        "demo-f1game",
+        "--config",
+        ".tools/s08-emulators.json",
+        "--non-interactive",
+        "dotnet test tests/Game.Api.Tests --artifacts-path .tools/dotnet-s08-02 -p:NuGetAudit=false -p:BuildInParallel=false -m:1 --filter FullyQualifiedName~Three_recorded_sessions --nologo"
+      ],
+      "cwd": "C:\\Projects\\F1Game\\.worktrees\\s08-02",
+      "pid": 3472,
+      "startedAt": "2026-10-16T22:27:08.622Z",
+      "status": "failed",
+      "exitCode": 1,
+      "elapsedMs": 16925
+    },
+    "green": {
+      "command": "node",
+      "args": [
+        "tools/auth-emulator/node_modules/firebase-tools/lib/bin/firebase.js",
+        "emulators:exec",
+        "--only",
+        "auth,firestore",
+        "--project",
+        "demo-f1game",
+        "--config",
+        ".tools/s08-emulators.json",
+        "--non-interactive",
+        "dotnet test tests/Game.Api.Tests --artifacts-path .tools/dotnet-s08-02 -p:NuGetAudit=false -p:BuildInParallel=false -m:1 --filter FullyQualifiedName~QualifyingTests --nologo"
+      ],
+      "cwd": "C:\\Projects\\F1Game\\.worktrees\\s08-02",
+      "pid": 25552,
+      "startedAt": "2026-10-16T22:28:27.003Z",
+      "status": "failed",
+      "exitCode": 1,
+      "elapsedMs": 19955
+    },
+    "green2": {
+      "command": "node",
+      "args": [
+        "tools/auth-emulator/node_modules/firebase-tools/lib/bin/firebase.js",
+        "emulators:exec",
+        "--only",
+        "auth,firestore",
+        "--project",
+        "demo-f1game",
+        "--config",
+        ".tools/s08-emulators.json",
+        "--non-interactive",
+        "dotnet test tests/Game.Api.Tests --artifacts-path .tools/dotnet-s08-02 -p:NuGetAudit=false -p:BuildInParallel=false -m:1 --filter FullyQualifiedName~QualifyingTests --nologo"
+      ],
+      "cwd": "C:\\Projects\\F1Game\\.worktrees\\s08-02",
+      "pid": 31056,
+      "startedAt": "2026-10-16T22:29:47.711Z",
+      "status": "passed",
+      "exitCode": 0,
+      "elapsedMs": 19776
+    },
+    "green3": {
+      "command": "node",
+      "args": [
+        "tools/auth-emulator/node_modules/firebase-tools/lib/bin/firebase.js",
+        "emulators:exec",
+        "--only",
+        "auth,firestore",
+        "--project",
+        "demo-f1game",
+        "--config",
+        ".tools/s08-emulators.json",
+        "--non-interactive",
+        "dotnet test tests/Game.Api.Tests --artifacts-path .tools/dotnet-s08-02 -p:NuGetAudit=false -p:BuildInParallel=false -m:1 --filter FullyQualifiedName~QualifyingTests --nologo"
+      ],
+      "cwd": "C:\\Projects\\F1Game\\.worktrees\\s08-02",
+      "pid": 20720,
+      "startedAt": "2026-10-16T22:33:14.305Z",
+      "status": "passed",
+      "exitCode": 0,
+      "elapsedMs": 22811
+    },
+    "simulation": {
+      "command": "dotnet",
+      "args": [
+        "test",
+        "tests/Game.Simulation.Tests",
+        "--artifacts-path",
+        ".tools/dotnet-sim-s08-02",
+        "-p:NuGetAudit=false",
+        "-p:BuildInParallel=false",
+        "-m:1",
+        "--filter",
+        "FullyQualifiedName~QualifyingTests",
+        "--nologo"
+      ],
+      "cwd": "C:\\Projects\\F1Game\\.worktrees\\s08-02",
+      "pid": 26800,
+      "startedAt": "2026-10-16T22:30:35.724Z",
+      "status": "passed",
+      "exitCode": 0,
+      "elapsedMs": 3624
+    },
+    "build-final": {
+      "command": "dotnet",
+      "args": [
+        "build",
+        "src/backend/Game.Api",
+        "--artifacts-path",
+        ".tools/dotnet-s08-02",
+        "-p:NuGetAudit=false",
+        "-p:BuildInParallel=false",
+        "-m:1",
+        "--nologo"
+      ],
+      "cwd": "C:\\Projects\\F1Game\\.worktrees\\s08-02",
+      "pid": 22144,
+      "startedAt": "2026-10-16T22:33:49.043Z",
+      "status": "passed",
+      "exitCode": 0,
+      "elapsedMs": 3533
+    },
+    "typecheck-final": {
+      "command": "node",
+      "args": [
+        "src/frontend/node_modules/@angular/compiler-cli/bundles/src/bin/ngc.js",
+        "-p",
+        "src/frontend/tsconfig.app.json",
+        "--noEmit"
+      ],
+      "cwd": "C:\\Projects\\F1Game\\.worktrees\\s08-02",
+      "pid": 5724,
+      "startedAt": "2026-10-16T22:37:44.904Z",
+      "status": "passed",
+      "exitCode": 0,
+      "elapsedMs": 2704
+    },
+    "frontend-build-final": {
+      "command": "node",
+      "args": [
+        "node_modules/@angular/cli/bin/ng.js",
+        "build"
+      ],
+      "cwd": "C:\\Projects\\F1Game\\.worktrees\\s08-02\\src\\frontend",
+      "pid": 32644,
+      "startedAt": "2026-10-16T22:37:34.168Z",
+      "status": "passed",
+      "exitCode": 0,
+      "elapsedMs": 5580
+    },
+    "browser": {
+      "command": "node",
+      "args": [
+        "src/frontend/node_modules/@playwright/test/cli.js",
+        "test",
+        "--config",
+        ".tools/playwright-s08.config.cjs"
+      ],
+      "cwd": "C:\\Projects\\F1Game\\.worktrees\\s08-02",
+      "pid": 31920,
+      "startedAt": "2026-10-16T22:31:05.298Z",
+      "status": "failed",
+      "exitCode": 1,
+      "elapsedMs": 77216
+    },
+    "browser2": {
+      "command": "node",
+      "args": [
+        "src/frontend/node_modules/@playwright/test/cli.js",
+        "test",
+        "--config",
+        ".tools/playwright-s08.config.cjs"
+      ],
+      "cwd": "C:\\Projects\\F1Game\\.worktrees\\s08-02",
+      "pid": 14468,
+      "startedAt": "2026-10-16T22:33:59.435Z",
+      "status": "failed",
+      "exitCode": 1,
+      "elapsedMs": 29756
+    },
+    "browser3": {
+      "command": "node",
+      "args": [
+        "src/frontend/node_modules/@playwright/test/cli.js",
+        "test",
+        "--config",
+        ".tools/playwright-s08.config.cjs"
+      ],
+      "cwd": "C:\\Projects\\F1Game\\.worktrees\\s08-02",
+      "pid": 420,
+      "startedAt": "2026-10-16T22:34:46.487Z",
+      "status": "failed",
+      "exitCode": 1,
+      "elapsedMs": 35067
+    },
+    "browser4": {
+      "command": "node",
+      "args": [
+        "src/frontend/node_modules/@playwright/test/cli.js",
+        "test",
+        "--config",
+        ".tools/playwright-s08.config.cjs"
+      ],
+      "cwd": "C:\\Projects\\F1Game\\.worktrees\\s08-02",
+      "pid": 33368,
+      "startedAt": "2026-10-16T22:35:53.415Z",
+      "status": "passed",
+      "exitCode": 0,
+      "elapsedMs": 22820
+    },
+    "browser-final": {
+      "command": "node",
+      "args": [
+        "src/frontend/node_modules/@playwright/test/cli.js",
+        "test",
+        "--config",
+        ".tools/playwright-s08.config.cjs"
+      ],
+      "cwd": "C:\\Projects\\F1Game\\.worktrees\\s08-02",
+      "pid": 31380,
+      "startedAt": "2026-10-16T22:36:56.380Z",
+      "status": "passed",
+      "exitCode": 0,
+      "elapsedMs": 22609
+    },
+    "preflight": {
+      "at": "2026-10-16T22:36:56.294Z",
+      "ports": [
+        4512,
+        4612,
+        19349,
+        19340,
+        19550,
+        19600,
+        9158
+      ],
+      "status": "all available"
+    },
+    "browser4-processes": [
+      {
+        "pid": 1764,
+        "parent": 33368,
+        "command": "C:\\Windows\\system32\\cmd.exe /d /s /c \"node tools/auth-emulator/node_modules/firebase-tools/lib/bin/firebase.js emulators:start --only auth,firestore --project demo-f1game --config .tools/s08-emulators.json --non-interactive\""
+      },
+      {
+        "pid": 26084,
+        "parent": 33368,
+        "command": "C:\\Windows\\system32\\cmd.exe /d /s /c \"dotnet .tools/dotnet-s08-02/bin/Game.Api/debug/Game.Api.dll --urls http://127.0.0.1:4612\""
+      },
+      {
+        "pid": 8040,
+        "parent": 33368,
+        "command": "C:\\Windows\\system32\\cmd.exe /d /s /c \"node node_modules/@angular/cli/bin/ng.js serve --host 127.0.0.1 --port 4512 --proxy-config proxy.test.cjs\""
+      },
+      {
+        "pid": 24632,
+        "parent": 33368,
+        "command": "C:\\Users\\sbdev\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\node\\bin\\node.exe C:\\Projects\\F1Game\\.tools\\s06-dependencies\\frontend\\node_modules\\playwright\\lib\\worker\\workerProcessEntry.js"
+      },
+      {
+        "pid": 23436,
+        "parent": 1764,
+        "command": "node  tools/auth-emulator/node_modules/firebase-tools/lib/bin/firebase.js emulators:start --only auth,firestore --project demo-f1game --config .tools/s08-emulators.json --non-interactive"
+      },
+      {
+        "pid": 18100,
+        "parent": 26084,
+        "command": "dotnet  .tools/dotnet-s08-02/bin/Game.Api/debug/Game.Api.dll --urls http://127.0.0.1:4612"
+      },
+      {
+        "pid": 28112,
+        "parent": 8040,
+        "command": "node  node_modules/@angular/cli/bin/ng.js serve --host 127.0.0.1 --port 4512 --proxy-config proxy.test.cjs"
+      },
+      {
+        "pid": 6872,
+        "parent": 24632,
+        "command": "C:\\Projects\\F1Game\\.tools\\playwright\\chromium_headless_shell-1234\\chrome-headless-shell-win64\\chrome-headless-shell.exe --disable-field-trial-config --disable-background-networking --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-back-forward-cache --disable-breakpad --disable-client-side-phishing-detection --disable-component-extensions-with-background-pages --disable-component-update --no-default-browser-check --disable-default-apps --disable-dev-shm-usage --disable-edgeupdater --disable-extensions --disable-features=AvoidUnnecessaryBeforeUnloadCheckSync,BoundaryEventDispatchTracksNodeRemoval,DestroyProfileOnBrowserClose,DialMediaRouteProvider,GlobalMediaControls,HttpsUpgrades,LensOverlay,MediaRouter,PaintHolding,ThirdPartyStoragePartitioning,BlockOriginHeaderModificationOnRedirect,Translate,AutoDeElevate,OptimizationHints,msForceBrowserSignIn,msEdgeUpdateLaunchServicesPreferredVersion --enable-features=CDPScreenshotNewSurface --allow-pre-commit-input --disable-hang-monitor --disable-ipc-flooding-protection --disable-popup-blocking --disable-prompt-on-repost --disable-renderer-backgrounding --disable-updater-scheduler --force-color-profile=srgb --metrics-recording-only --no-first-run --password-store=basic --use-mock-keychain --no-service-autorun --export-tagged-pdf --disable-search-engine-choice-screen --unsafely-disable-devtools-self-xss-warnings --edge-skip-compat-layer-relaunch --disable-infobars --disable-search-engine-choice-screen --disable-sync --enable-unsafe-swiftshader --headless --hide-scrollbars --mute-audio --blink-settings=primaryHoverType=2,availableHoverTypes=2,primaryPointerType=4,availablePointerTypes=4 --no-sandbox --user-data-dir=C:\\Users\\sbdev\\AppData\\Local\\Temp\\playwright_chromiumdev_profile-bgmmHt --remote-debugging-pipe --no-startup-window"
+      },
+      {
+        "pid": 23520,
+        "parent": 23436,
+        "command": "java -Dgoogle.cloud_firestore.debug_log_level=FINE -Duser.language=en -jar C:\\Users\\sbdev\\.cache\\firebase\\emulators\\cloud-firestore-emulator-v1.22.0.jar --host 127.0.0.1 --port 19340 --websocket_port 9158 --database-edition standard --project_id demo-f1game --rules C:/Projects/F1Game/.worktrees/s08-02/tools/auth-emulator/firestore.rules --single_project_mode true"
+      },
+      {
+        "pid": 25256,
+        "parent": 28112,
+        "command": "C:\\Projects\\F1Game\\.tools\\s06-dependencies\\frontend\\node_modules\\@esbuild\\win32-arm64\\esbuild.exe --service=0.28.2 --ping"
+      },
+      {
+        "pid": 33232,
+        "parent": 6872,
+        "command": "\"C:\\Projects\\F1Game\\.tools\\playwright\\chromium_headless_shell-1234\\chrome-headless-shell-win64\\chrome-headless-shell.exe\" --type=gpu-process --no-sandbox --disable-breakpad --headless --use-angle=swiftshader-webgl --enable-unsafe-swiftshader --gpu-preferences=WAAAAAAAAADgAAAEAAAAAAAAAAAAAGAAQAAAAAAAAAAAAAAAAAAAADgAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAKAAAAAAAAAAoAAAAAAAAAAgAAAAAAAAADAAAAAEAAAAAAAAAAAAAAAgAAAAAAAAACAAAAAAAAAA= --field-trial-handle=1660,i,11421716204715121974,2458191662538733416,262144 --enable-features=CDPScreenshotNewSurface --disable-features=AutoDeElevate,AvoidUnnecessaryBeforeUnloadCheckSync,BlockOriginHeaderModificationOnRedirect,BoundaryEventDispatchTracksNodeRemoval,DestroyProfileOnBrowserClose,DialMediaRouteProvider,GlobalMediaControls,HttpsUpgrades,LensOverlay,MediaRouter,OptimizationHints,PaintHolding,ThirdPartyStoragePartitioning,Translate,msEdgeUpdateLaunchServicesPreferredVersion,msForceBrowserSignIn --variations-seed-version --pseudonymization-salt-handle=1708,i,71135030814143550,16111552067957465994,4 --trace-process-track-uuid=3190708988185955192 --enable-logging=handle --log-file=1744 --mojo-platform-channel-handle=1692 /prefetch:2"
+      },
+      {
+        "pid": 24084,
+        "parent": 6872,
+        "command": "\"C:\\Projects\\F1Game\\.tools\\playwright\\chromium_headless_shell-1234\\chrome-headless-shell-win64\\chrome-headless-shell.exe\" --type=utility --utility-sub-type=network.mojom.NetworkService --lang=en-GB --service-sandbox-type=none --no-sandbox --use-angle=swiftshader-webgl --use-gl=angle --mute-audio --headless=old --field-trial-handle=1660,i,11421716204715121974,2458191662538733416,262144 --enable-features=CDPScreenshotNewSurface --disable-features=AutoDeElevate,AvoidUnnecessaryBeforeUnloadCheckSync,BlockOriginHeaderModificationOnRedirect,BoundaryEventDispatchTracksNodeRemoval,DestroyProfileOnBrowserClose,DialMediaRouteProvider,GlobalMediaControls,HttpsUpgrades,LensOverlay,MediaRouter,OptimizationHints,PaintHolding,ThirdPartyStoragePartitioning,Translate,msEdgeUpdateLaunchServicesPreferredVersion,msForceBrowserSignIn --variations-seed-version --pseudonymization-salt-handle=1708,i,71135030814143550,16111552067957465994,4 --trace-process-track-uuid=3190708989122997041 --enable-logging=handle --log-file=2264 --mojo-platform-channel-handle=2272 /prefetch:11"
+      },
+      {
+        "pid": 3652,
+        "parent": 6872,
+        "command": "\"C:\\Projects\\F1Game\\.tools\\playwright\\chromium_headless_shell-1234\\chrome-headless-shell-win64\\chrome-headless-shell.exe\" --type=renderer --headless=old --no-sandbox --disable-back-forward-cache --disable-background-timer-throttling --disable-breakpad --force-color-profile=srgb --remote-debugging-pipe --allow-pre-commit-input --blink-settings=primaryHoverType=2,availableHoverTypes=2,primaryPointerType=4,availablePointerTypes=4 --disable-gpu-compositing --video-capture-use-gpu-memory-buffer --lang=en-GB --device-scale-factor=1.5 --num-raster-threads=4 --enable-main-frame-before-activation --renderer-client-id=4 --time-ticks-at-unix-epoch=-1791995589775566 --launch-time-ticks=194576282383 --field-trial-handle=1660,i,11421716204715121974,2458191662538733416,262144 --enable-features=CDPScreenshotNewSurface --disable-features=AutoDeElevate,AvoidUnnecessaryBeforeUnloadCheckSync,BlockOriginHeaderModificationOnRedirect,BoundaryEventDispatchTracksNodeRemoval,DestroyProfileOnBrowserClose,DialMediaRouteProvider,GlobalMediaControls,HttpsUpgrades,LensOverlay,MediaRouter,OptimizationHints,PaintHolding,ThirdPartyStoragePartitioning,Translate,msEdgeUpdateLaunchServicesPreferredVersion,msForceBrowserSignIn --variations-seed-version --pseudonymization-salt-handle=1708,i,71135030814143550,16111552067957465994,4 --trace-process-track-uuid=3190708990060038890 --enable-logging=handle --log-file=3284 --mojo-platform-channel-handle=3280 /prefetch:1"
+      }
+    ]
+  }
+}

@@ -5,6 +5,19 @@ namespace Game.Simulation.Tests;
 public sealed class QualifyingTests
 {
     [Fact]
+    public void Grid_preserves_each_elimination_group_even_with_ties_and_no_times()
+    {
+        var order=Enumerable.Range(1,22).Select(i=>$"entry-{i:00}").ToArray();
+        QualifyingResult Session(string name,string[] entries,int retain)=>new(name,1,Qualifying.ModelVersion,Qualifying.RandomnessVersion,Qualifying.RulesVersion,
+            Qualifying.Rank(entries.Reverse().Select(id=>new QualifyingTime(id,"driver-"+id,"team",id=="entry-01"?"valid":"no-time",id=="entry-01"?90000:null)).ToArray(),entries,new(retain)));
+        var q1=Session("Q1",order,16);var q2=Session("Q2",order.Take(16).Reverse().ToArray(),10);
+        var q3=Session("Q3",q2.Ranking.Take(10).Select(r=>r.EntryId).Reverse().ToArray(),0);
+        var grid=Qualifying.Grid([q1,q2,q3]);
+        Assert.Equal(new[]{"entry-01","entry-08","entry-09","entry-10","entry-11","entry-12","entry-13","entry-14","entry-15","entry-16","entry-07","entry-06","entry-05","entry-04","entry-03","entry-02","entry-17","entry-18","entry-19","entry-20","entry-21","entry-22"},grid.Select(r=>r.EntryId));
+        Assert.Equal(Enumerable.Range(1,22),grid.Select(r=>r.Position));
+        Assert.Throws<ArgumentException>(()=>Qualifying.Grid([q1,q2,q3 with{Ranking=q3.Ranking.Take(9).ToArray()}]));
+    }
+    [Fact]
     public void Frozen_attempts_replay_independently_of_input_iteration_and_retries()
     {
         var weekend=WeekendPreparation.Prepare(WeekendPresetCatalog.Open("track-monza"),6,new(0,0,0));

@@ -32,9 +32,23 @@ public sealed class QualifyingTests
             Armed=false;if(commitFirst)inner.Write(id,expected,payload,code,wakeup);throw new IOException("deliberate save failure");
         }
     }
-    private static WebApplicationFactory<Program> Server(ISessionStore store,Clock? clock=null)=>LobbyTests.Server().WithWebHostBuilder(builder=>builder.ConfigureServices(services=>
-    {services.Replace(ServiceDescriptor.Singleton(store));if(clock is not null)services.Replace(ServiceDescriptor.Singleton<TimeProvider>(clock));}));
-    private static ISessionStore Store()=>new FirestoreSessionStore("demo-f1game",Environment.GetEnvironmentVariable("F1_RECOVERY_HOST")??Environment.GetEnvironmentVariable("FIRESTORE_EMULATOR_HOST"));
+    private sealed class CapturedWakeups:IScheduledWakeups
+    {
+        public List<ScheduledWakeup> Items{get;}=[];
+        public void Enqueue(ScheduledWakeup wakeup)=>Items.Add(wakeup);
+    }
+    private static WebApplicationFactory<Program> Server(ISessionStore store,Clock? clock=null,CapturedWakeups? wakeups=null)=>LobbyTests.Server().WithWebHostBuilder(builder=>builder.ConfigureServices(services=>
+    {services.Replace(ServiceDescriptor.Singleton(store));if(clock is not null)services.Replace(ServiceDescriptor.Singleton<TimeProvider>(clock));if(wakeups is not null)services.Replace(ServiceDescriptor.Singleton<IScheduledWakeups>(wakeups));}));
+    private sealed class TestSessionScope(ISessionStore inner):ISessionStore
+    {
+        private readonly HashSet<string> ids=[];
+        public StoredSession? Read(string id)=>inner.Read(id);
+        public IReadOnlyList<string> FindByJoinCode(string code)=>inner.FindByJoinCode(code);
+        public IReadOnlyList<string> ListSessions()=>inner.ListSessions().Where(ids.Contains).ToArray();
+        public string Write(string id,string? expected,string payload,string? code)=>Write(id,expected,payload,code,null);
+        public string Write(string id,string? expected,string payload,string? code,ScheduledWakeup? wakeup){var version=inner.Write(id,expected,payload,code,wakeup);ids.Add(id);return version;}
+    }
+    private static ISessionStore Store()=>new TestSessionScope(new FirestoreSessionStore("demo-f1game",Environment.GetEnvironmentVariable("F1_RECOVERY_HOST")??Environment.GetEnvironmentVariable("FIRESTORE_EMULATOR_HOST")));
     private static async Task<(string Id,string Device)> Ready(HttpClient client,string token,bool twoTeams=false)
     {
         client.DefaultRequestHeaders.Authorization=new("Bearer",token);
@@ -67,6 +81,59 @@ public sealed class QualifyingTests
     private static void PublicOnly(JsonElement state)
     {
         var json=state.GetRawText();foreach(var hidden in new[]{"seed","choices","effective","ratings","randomness","compatibility","diagnostics"})Assert.DoesNotContain("\""+hidden+"\"",json,StringComparison.OrdinalIgnoreCase);
+    }
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task Three_recorded_sessions_recover_to_a_unique_grid_with_fixed_elimination_groups(bool commitFirst)
+    {
+        var store=new FailingStore(Store(),commitFirst);var clock=new Clock();var wakeups=new CapturedWakeups();var token=await LobbyTests.Identity(false);
+        await using var server=Server(store,clock,wakeups);using var client=server.CreateClient();var(id,device)=await Ready(client,token);
+        (await client.PostAsJsonAsync($"/api/lobbies/{id}/qualifying",await StartCommand(client,id))).EnsureSuccessStatusCode();
+        var root=$"/api/lobbies/{id}/qualifying";var results=new List<JsonElement>();
+        for(var stage=1;stage<=3;stage++)
+        {
+            var own=await client.GetFromJsonAsync<JsonElement>(root+$"/teams/team-01?deviceId={device}");
+            var choices=Choice(own) with{Session=$"Q{stage}"};
+            if(choices.Choices!.Count>0)(await client.PostAsJsonAsync(root+$"/teams/team-01/choices?deviceId={device}",choices)).EnsureSuccessStatusCode();
+            if(choices.Choices!.Count==0&&own.GetProperty("lifecycle").GetString()=="awaiting-decisions"){clock.Advance(60);await server.Services.GetRequiredService<SessionCoordinator>().SweepWakeups();}
+            var result=await client.GetFromJsonAsync<JsonElement>(root);results.Add(result.GetProperty("result").Clone());
+            Assert.Equal($"Q{stage}",result.GetProperty("session").GetString());
+            Assert.Equal(stage==1?22:stage==2?16:10,result.GetProperty("result").GetProperty("ranking").GetArrayLength());
+            if(stage<3)
+            {
+                var presentation=wakeups.Items.Last(w=>w.SessionId==id&&w.Kind=="qualifying-presentation");
+                if(stage==2)
+                {
+                    (await client.PostAsJsonAsync($"/api/lobbies/{id}/pause",new{})).EnsureSuccessStatusCode();clock.Advance(20);
+                    var coordinator=server.Services.GetRequiredService<SessionCoordinator>();
+                    var stale=new WakeupInput(id,presentation.Generation,presentation.Phase,presentation.WindowRevision);
+                    Assert.True((await coordinator.DeliverQualifyingWakeup(stale)).Paused);
+                    (await client.PostAsJsonAsync($"/api/lobbies/{id}/resume",new{})).EnsureSuccessStatusCode();
+                    var resumed=wakeups.Items.Last(w=>w.SessionId==id);clock.Advance(8);
+                    await coordinator.DeliverQualifyingWakeup(new(id,resumed.Generation,resumed.Phase,resumed.WindowRevision));
+                    var savedStage=await client.GetStringAsync(root);await coordinator.DeliverQualifyingWakeup(stale);
+                    await coordinator.DeliverQualifyingWakeup(new(id,resumed.Generation,resumed.Phase,resumed.WindowRevision));
+                    Assert.Equal(savedStage,await client.GetStringAsync(root));continue;
+                }
+                var command=new{commandId=Guid.NewGuid().ToString(),phase=stage,windowRevision=result.GetProperty("windowRevision").GetInt64()};
+                var before=await client.GetStringAsync(root);store.Armed=true;
+                Assert.Equal(HttpStatusCode.ServiceUnavailable,(await client.PostAsJsonAsync(root+"/continue",command)).StatusCode);
+                if(!commitFirst)Assert.Equal(before,await client.GetStringAsync(root));
+                var advanced=await client.PostAsJsonAsync(root+"/continue",command);advanced.EnsureSuccessStatusCode();
+                var saved=await client.GetStringAsync(root);
+                (await client.PostAsJsonAsync(root+"/continue",command)).EnsureSuccessStatusCode();Assert.Equal(saved,await client.GetStringAsync(root));
+                Assert.False((await client.PostAsJsonAsync(root+$"/teams/team-01/choices?deviceId={device}",choices with{CommandId=Guid.NewGuid().ToString()})).IsSuccessStatusCode);
+            }
+        }
+        var final=await client.GetFromJsonAsync<JsonElement>(root);Assert.Equal("grid-ready",final.GetProperty("lifecycle").GetString());
+        var grid=final.GetProperty("grid").EnumerateArray().ToArray();Assert.Equal(22,grid.Length);Assert.Equal(22,grid.Select(r=>r.GetProperty("entryId").GetString()).Distinct().Count());
+        Assert.Equal(Enumerable.Range(1,22),grid.Select(r=>r.GetProperty("position").GetInt32()));
+        Assert.Equal(results[0].GetProperty("ranking").EnumerateArray().Skip(16).Select(r=>r.GetProperty("entryId").GetString()),grid.Skip(16).Select(r=>r.GetProperty("entryId").GetString()));
+        Assert.Equal(results[1].GetProperty("ranking").EnumerateArray().Skip(10).Select(r=>r.GetProperty("entryId").GetString()),grid.Skip(10).Take(6).Select(r=>r.GetProperty("entryId").GetString()));
+        Assert.Equal(results[2].GetProperty("ranking").EnumerateArray().Select(r=>r.GetProperty("entryId").GetString()),grid.Take(10).Select(r=>r.GetProperty("entryId").GetString()));
+        await using var restarted=Server(store,clock);using var recovered=restarted.CreateClient();Assert.Equal(final.GetRawText(),await recovered.GetStringAsync(root));
+        clock.Advance(100);Assert.Equal(0,await restarted.Services.GetRequiredService<SessionCoordinator>().SweepWakeups());
     }
     [Theory]
     [InlineData(false)]
