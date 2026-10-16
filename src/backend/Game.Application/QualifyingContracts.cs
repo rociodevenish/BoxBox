@@ -10,6 +10,6 @@ public sealed record QualifyingTeamStatus(string TeamId,bool Locked,string? Sour
 public sealed record QualifyingPublicSnapshot(string SessionId,long Revision,string Session,string Lifecycle,bool Paused,
     string CircuitId,string CircuitName,string CircuitSlug,IReadOnlyList<QualifyingDriver> Drivers,
     IReadOnlyList<QualifyingTeamStatus> Teams,QualifyingResult? Result,DateTimeOffset? DecisionDeadlineUtc,
-    DecisionTimingPolicy TimingPolicy,string RulesVersion,int Retain,string BaselinePolicy);
+    DecisionTimingPolicy TimingPolicy,string RulesVersion,int Retain,string BaselinePolicy,IReadOnlyList<QualifyingResult> Results,IReadOnlyList<QualifyingRank> Grid,long WindowRevision,DateTimeOffset? PresentationDeadlineUtc);
 public sealed record QualifyingTeamSnapshot(string SessionId,string TeamId,long Revision,long AssignmentRevision,string Session,
     string Lifecycle,bool Locked,IReadOnlyList<QualifyingDriver> EligibleDrivers,IReadOnlyList<QualifyingChoice>? Choices);

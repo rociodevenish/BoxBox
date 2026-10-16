@@ -18,6 +18,8 @@ public static class QualifyingEndpoints
             catch(Exception error){app.Logger.LogWarning(error,"Qualifying start notification failed; recover the saved state.");}
             return ack;
         });
+        app.MapPost("/api/lobbies/{id}/qualifying/continue",async(string id,DueTransitionInput input,HttpRequest request,FirebaseIdentity auth,SessionCoordinator sessions)=>
+            await sessions.ContinueQualifying(id,await auth.Verify(LobbyEndpoints.Token(request)),input));
         app.MapGet("/api/lobbies/{id}/qualifying",(string id,SessionCoordinator sessions)=>sessions.QualifyingPublic(id));
         app.MapGet("/api/lobbies/{id}/qualifying/teams/{teamId}",async(string id,string teamId,string deviceId,HttpRequest request,FirebaseIdentity auth,SessionCoordinator sessions)=>
             sessions.HouseholdQualifying(id,await auth.Verify(LobbyEndpoints.Token(request)),deviceId,teamId));

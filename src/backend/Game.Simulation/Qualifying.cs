@@ -64,7 +64,21 @@ public static class Qualifying
         return times.OrderBy(t=>t.Status=="valid"?0:1).ThenBy(t=>t.TimeMilliseconds).ThenBy(t=>order[t.EntryId])
             .Select((t,i)=>new QualifyingRank(i+1,t.EntryId,t.DriverId,t.TeamId,t.Status,t.TimeMilliseconds,i<rules.Retain)).ToArray();
     }
-    private static double Unit(QualifyingAttemptInput input,string driver,string eventId)
+    /// <summary>The three game-format groups are fixed by their own session, including no-times.</summary>
+    public static QualifyingRank[] Grid(IReadOnlyList<QualifyingResult> results)
+    {
+        if(results is null||results.Count!=3||!results.Select(r=>r.Session).SequenceEqual(new[]{"Q1","Q2","Q3"})
+            ||results[0].Ranking.Count!=22||results[1].Ranking.Count!=16||results[2].Ranking.Count!=10
+            ||results.Any(r=>r.ModelVersion!=ModelVersion||r.RandomnessVersion!=RandomnessVersion||r.RulesVersion!=RulesVersion)
+            ||!results[0].Ranking.Take(16).Select(r=>r.EntryId).Order().SequenceEqual(results[1].Ranking.Select(r=>r.EntryId).Order())
+            ||!results[1].Ranking.Take(10).Select(r=>r.EntryId).Order().SequenceEqual(results[2].Ranking.Select(r=>r.EntryId).Order()))
+            throw new ArgumentException("Supply complete consecutive Q1/Q2/Q3 results with unchanged eligible identities.");
+        var grid=results[2].Ranking.Concat(results[1].Ranking.Skip(10)).Concat(results[0].Ranking.Skip(16))
+            .Select((r,i)=>r with{Position=i+1,Advances=false}).ToArray();
+        if(grid.Select(r=>r.EntryId).Distinct().Count()!=22||grid.Select(r=>r.DriverId).Distinct().Count()!=22)
+            throw new ArgumentException("Every entry and driver must occupy exactly one grid slot.");
+        return grid;
+    }    private static double Unit(QualifyingAttemptInput input,string driver,string eventId)
     {
         var identity=System.Text.Json.JsonSerializer.Serialize(new object[]{RandomnessVersion,input.Seed,driver,input.Session,input.Attempt,eventId});
         return BinaryPrimitives.ReadUInt32LittleEndian(SHA256.HashData(Encoding.UTF8.GetBytes(identity)))/(double)uint.MaxValue;
