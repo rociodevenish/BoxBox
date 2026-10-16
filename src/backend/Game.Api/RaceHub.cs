@@ -3,6 +3,37 @@ using Microsoft.AspNetCore.SignalR;
 namespace Game.Api;
 public sealed class RaceHub(SessionCoordinator sessions,FirebaseIdentity auth,HouseholdSubscriptions subscriptions) : Hub
 {
+    public async Task<QualifyingPublicSnapshot> SubscribeQualifying(string id)
+    {
+        try{_=sessions.QualifyingPublic(id);await Groups.AddToGroupAsync(Context.ConnectionId,"qualifying:"+id);return sessions.QualifyingPublic(id);}
+        catch(SessionFault fault){throw new HubException(fault.Message);}
+    }
+    public async Task<QualifyingTeamSnapshot> SubscribeHouseholdQualifying(string id,string deviceId,string teamId)
+    {
+        try
+        {
+            var request=Context.GetHttpContext()!.Request;
+            var identity=await auth.Verify(LobbyEndpoints.Token(request)??request.Query["access_token"].FirstOrDefault());
+            var own=sessions.HouseholdQualifying(id,identity,deviceId,teamId);var group=$"qualifying-household:{id}:{teamId}:{own.AssignmentRevision}";
+            subscriptions.Add(Context.ConnectionId,id,teamId,own.AssignmentRevision);await Groups.AddToGroupAsync(Context.ConnectionId,group);
+            try{var current=sessions.HouseholdQualifying(id,identity,deviceId,teamId);if(current.AssignmentRevision!=own.AssignmentRevision)throw new SessionFault(SessionFailure.Forbidden,"Assignment changed.");return current;}
+            catch{await Groups.RemoveFromGroupAsync(Context.ConnectionId,group);throw;}
+        }
+        catch(SessionFault fault){throw new HubException(fault.Message);}
+    }
+    public async Task<QualifyingTeamSnapshot> SubscribeOpenQualifying(string id,string teamId)
+    {
+        try
+        {
+            var own=sessions.OpenQualifying(id,teamId);var group=$"qualifying-open:{id}:{teamId}:{own.AssignmentRevision}";
+            await Groups.AddToGroupAsync(Context.ConnectionId,group);
+            try{var current=sessions.OpenQualifying(id,teamId);if(current.AssignmentRevision!=own.AssignmentRevision)throw new SessionFault(SessionFailure.Forbidden,"Open assignment changed.");return current;}
+            catch{await Groups.RemoveFromGroupAsync(Context.ConnectionId,group);throw;}
+        }
+        catch(SessionFault fault){throw new HubException(fault.Message);}
+    }
+    public Task UnsubscribeHouseholdQualifying(string id,string teamId,long revision)
+    {subscriptions.Remove(Context.ConnectionId,id,teamId,revision);return Groups.RemoveFromGroupAsync(Context.ConnectionId,$"qualifying-household:{id}:{teamId}:{revision}");}
     public async Task<PreparationPublicSnapshot> SubscribePreparation(string id)
     {
         try { _=sessions.PreparationPublic(id); await Groups.AddToGroupAsync(Context.ConnectionId,"preparation:"+id); return sessions.PreparationPublic(id); }
@@ -78,6 +109,12 @@ public sealed class RaceHub(SessionCoordinator sessions,FirebaseIdentity auth,Ho
 }
 public sealed class SessionNotifications(IHubContext<RaceHub> hub, ILogger<SessionNotifications> logger) : ISessionNotifications
 {
+    public async Task PublishQualifying(QualifyingPublicSnapshot display,IReadOnlyList<QualifyingTeamSnapshot> teams,IReadOnlyList<QualifyingTeamSnapshot> openTeams)
+    {
+        await hub.Clients.Group("qualifying:"+display.SessionId).SendAsync("qualifyingSnapshot",display);
+        foreach(var team in teams)await hub.Clients.Group($"qualifying-household:{team.SessionId}:{team.TeamId}:{team.AssignmentRevision}").SendAsync("qualifyingTeamSnapshot",team);
+        foreach(var team in openTeams)await hub.Clients.Group($"qualifying-open:{team.SessionId}:{team.TeamId}:{team.AssignmentRevision}").SendAsync("qualifyingTeamSnapshot",team);
+    }
     public async Task PublishHousehold(PublicSnapshot display,IReadOnlyList<TeamSnapshot> teams,IReadOnlyList<OpenTeamSnapshot> openTeams)
     {
         await hub.Clients.Group("public:"+display.SessionId).SendAsync("publicSnapshot",display);

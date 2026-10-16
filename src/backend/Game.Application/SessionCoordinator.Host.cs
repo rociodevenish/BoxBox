@@ -5,7 +5,7 @@ public sealed partial class SessionCoordinator
  {
   await mutations.WaitAsync();try
   {
-   Session session;lock(gate){var lobby=RequireLobby(id);RequireHost(lobby,identity);session=lobby.Race??throw new SessionFault(SessionFailure.Conflict,"Start the race before pausing.");}
+   Session session;lock(gate){var lobby=RequireLobby(id);RequireHost(lobby,identity);if(lobby.Race is null&&lobby.ModuleState.ContainsKey(QualifyingModule))return SetQualifyingPaused(lobby,paused);session=lobby.Race??throw new SessionFault(SessionFailure.Conflict,"Start the race before pausing.");}
    if(paused&&IsDecisionDue(session))await CloseExpiredSerially(session,true);
    PublicSnapshot display;TeamSnapshot own;LobbySnapshot lobbyState;
    lock(gate)

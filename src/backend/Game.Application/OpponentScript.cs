@@ -34,5 +34,6 @@ internal static class OpponentScript
     }
 }
 public interface ISessionNotifications
-{ Task Publish(PublicSnapshot display,TeamSnapshot team);
+{ Task PublishQualifying(QualifyingPublicSnapshot display,IReadOnlyList<QualifyingTeamSnapshot> teams,IReadOnlyList<QualifyingTeamSnapshot> openTeams)=>Task.CompletedTask;
+  Task Publish(PublicSnapshot display,TeamSnapshot team);
   Task PublishHousehold(PublicSnapshot display,IReadOnlyList<TeamSnapshot> teams,IReadOnlyList<OpenTeamSnapshot> openTeams); }

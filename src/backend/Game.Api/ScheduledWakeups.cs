@@ -51,7 +51,7 @@ public sealed class LocalWakeupDelivery(LocalWakeupQueue queue,SessionCoordinato
         while(await timer.WaitForNextTickAsync(stoppingToken))
             foreach(var wakeup in queue.Due(clock.GetUtcNow()))
             {
-                try{await sessions.DeliverWakeup(new(wakeup.SessionId,wakeup.Generation,wakeup.Phase,wakeup.WindowRevision));queue.Complete(wakeup.Generation);}
+                try{await sessions.DeliverScheduledWakeup(new(wakeup.SessionId,wakeup.Generation,wakeup.Phase,wakeup.WindowRevision));queue.Complete(wakeup.Generation);}
                 catch(Exception error){logger.LogWarning("Local wakeup delivery failed for {Session}: {Failure}",wakeup.SessionId,error.GetType().Name);}
             }
     }

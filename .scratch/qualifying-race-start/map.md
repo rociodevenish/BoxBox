@@ -4,7 +4,7 @@ Integration branch: `codex/qualifying-race-start`, based on committed S07 at `cd
 
 | Ticket | Status | Dependency |
 | --- | --- | --- |
-| [01 — Q1 and preparation lock](issues/01-q1-preparation-lock.md) | ready-for-agent | S07 local implementation |
+| [01 — Q1 and preparation lock](issues/01-q1-preparation-lock.md) | resolved — [Answer and evidence](evidence/01/README.md) | Atomic preparation/Q1 commit, complete private team locks, recorded full-field attempts and reviewed phone/public flow. |
 | [02 — Q2, Q3 and final grid](issues/02-q2-q3-grid.md) | ready-for-agent | 01 |
 | [03 — Policies and missed choices](issues/03-qualifying-policies.md) | ready-for-agent | 02 |
 | [04 — Automatic opening](issues/04-automatic-opening.md) | ready-for-agent | 02 |
