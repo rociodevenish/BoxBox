@@ -6,6 +6,31 @@ using Xunit;
 namespace Game.Api.Tests;
 public sealed partial class QualifyingTests
 {
+    [Fact]
+    public async Task Opening_presentation_pause_and_stale_wakeups_cannot_start_two_first_windows()
+    {
+        var clock=new Clock();var wakeups=new CapturedWakeups();var token=await LobbyTests.Identity(false);
+        await using var server=Server(Store(),clock,wakeups);using var client=server.CreateClient();var(id,_)=await Ready(client,token);
+        var coordinator=server.Services.GetRequiredService<SessionCoordinator>();var root=$"/api/lobbies/{id}/qualifying";
+        (await client.PostAsJsonAsync(root,await StartCommand(client,id))).EnsureSuccessStatusCode();
+        for(var stage=1;stage<=3;stage++)
+        {
+            clock.Advance(30);await coordinator.SweepWakeups();
+            if(stage<3){var state=(await client.GetFromJsonAsync<QualifyingPublicSnapshot>(root))!;(await client.PostAsJsonAsync(root+"/continue",new DueTransitionInput(Guid.NewGuid().ToString(),stage,state.WindowRevision))).EnsureSuccessStatusCode();}
+        }
+        var presentation=wakeups.Items.Last(w=>w.SessionId==id&&w.Kind=="presentation");
+        var stale=new WakeupInput(id,presentation.Generation,presentation.Phase,presentation.WindowRevision);
+        clock.Advance(7);Assert.Equal("phase-result",(await coordinator.DeliverWakeup(stale)).Lifecycle);
+        (await client.PostAsJsonAsync($"/api/lobbies/{id}/pause",new{})).EnsureSuccessStatusCode();clock.Advance(50);
+        Assert.True((await coordinator.DeliverWakeup(stale)).Paused);
+        (await client.PostAsJsonAsync($"/api/lobbies/{id}/resume",new{})).EnsureSuccessStatusCode();
+        var paused=(await client.GetFromJsonAsync<PublicSnapshot>($"/api/sessions/{id}"))!;Assert.Null(paused.DecisionDeadlineUtc);
+        var resumed=wakeups.Items.Last(w=>w.SessionId==id);Assert.NotEqual(presentation.Generation,resumed.Generation);
+        clock.Advance(1);var first=await coordinator.DeliverWakeup(new(id,resumed.Generation,resumed.Phase,resumed.WindowRevision));
+        Assert.Equal("awaiting-decisions",first.Lifecycle);Assert.Equal(0,first.Phase);Assert.Equal(clock.GetUtcNow().AddSeconds(30),first.DecisionDeadlineUtc);
+        Assert.Equal(first.WindowRevision,(await coordinator.DeliverWakeup(stale)).WindowRevision);
+        Assert.Equal(first.WindowRevision,(await coordinator.DeliverWakeup(new(id,resumed.Generation,resumed.Phase,resumed.WindowRevision))).WindowRevision);
+    }
     [Theory]
     [InlineData(false)]
     [InlineData(true)]

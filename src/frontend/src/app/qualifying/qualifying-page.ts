@@ -1,3 +1,4 @@
+import {OpeningHandoff} from '../opening/opening-handoff';
 import {Component,signal} from '@angular/core';
 import {HubConnection,HubConnectionBuilder} from '@microsoft/signalr';
 import type {User} from 'firebase/auth';
@@ -15,7 +16,7 @@ interface Assignment {teamId:string;constructorName:string;control:string;assign
 interface Command {commandId:string;session:string;revision:number;assignmentRevision:number;choices:Choice[]}
 class Failure extends Error {constructor(readonly status:number,message:string){super(message);}}
 
-@Component({selector:'app-qualifying-page',templateUrl:'./qualifying-page.html',styleUrl:'./qualifying-page.css'})
+@Component({selector:'app-qualifying-page',imports:[OpeningHandoff],templateUrl:'./qualifying-page.html',styleUrl:'./qualifying-page.css'})
 export class QualifyingPage {
  readonly id=location.pathname.split('/')[2];readonly params=new URL(location.href).searchParams;
  readonly shared=this.params.get('shared')==='1';readonly openTeam=this.params.get('open')??'';readonly display=!this.params.has('team')&&!this.shared;
