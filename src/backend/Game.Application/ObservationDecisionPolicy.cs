@@ -19,6 +19,7 @@ public static class ObservationDecisionPolicy
         foreach(var tyre in input.Observation.TeamTyres.OrderBy(t=>t.DriverId,StringComparer.Ordinal))
         {
             var row=input.Observation.Classification.Single(c=>c.DriverId==tyre.DriverId);
+            if(row.RetirementTime is not null||row.FinishTime is not null)continue;
             var remaining=Math.Max(0,input.TotalLaps-row.Laps);
             var leaderRemaining=Math.Max(0,input.TotalLaps-input.Observation.LeaderLap);
             var reasons=new List<string>();

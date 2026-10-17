@@ -7,7 +7,7 @@ public sealed partial class SessionCoordinator
         ?new(interruption.Identity,interruption.Time,interruption.DriverId,interruption.Kind.ToString()):null;
     private static string[] ExpectedCommandDrivers(Session session,string team)=>session.WindowKind=="SafetyCar"
         ?session.Engine.GetSafetyCarOptions().Where(option=>option.Status=="available"&&session.Drivers.Single(driver=>driver.Id==option.DriverId).Team==team).Select(option=>option.DriverId).ToArray()
-        :session.Drivers.Where(driver=>driver.Team==team).Select(driver=>driver.Id).ToArray();
+        :session.Engine.GetSafetyCarOptions().Where(option=>option.Status is not ("retired" or "finished")&&session.Drivers.Single(driver=>driver.Id==option.DriverId).Team==team).Select(option=>option.DriverId).ToArray();
     private static PhaseResult ResolveOperation(RaceEngine engine,string kind,IReadOnlyDictionary<string,DriverDecision> plan)=>BrowserReplay.ResolveOperation(engine,kind,plan);
     private static IReadOnlyDictionary<string,DriverDecision> FreezeSafetyCar(Session session,IEnumerable<string> teams)
     {

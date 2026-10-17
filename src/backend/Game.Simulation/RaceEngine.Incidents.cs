@@ -42,7 +42,7 @@ public sealed partial class RaceEngine
     }
     private double Demand(Car car) => car.Pace switch { PaceInstruction.Push => 1.8, PaceInstruction.Conserve => .55, _ => 1 };
     // Inputs are sampled at lap entry: splitting equivalent geometry cannot create opportunities or change rates.
-    private double ErrorRate(Car car) => configuration.Incidents is { } t ? t.ErrorRate * Demand(car)
+    private double ErrorRate(Car car) => !neutralised && configuration.Incidents is { } t ? t.ErrorRate * Demand(car)
         * (2 - (car.Driver.IncidentProfile?.ErrorControl ?? 82) / 100) * (2 - car.LapTyreCondition) : 0;
     private double FailureRate(Car car) => configuration.Incidents is { } t ? t.FailureRate * Demand(car)
         * t.MechanicalStress * (2 - (car.Driver.IncidentProfile?.Reliability ?? 82) / 100)
@@ -101,7 +101,7 @@ public sealed partial class RaceEngine
     private void ApplyIncident(Car car, IncidentKind kind, string identity, Car? other = null)
     {
         if (!Active(car)) return;
-        if (configuration.Incidents is { InterruptMajorIncidents: true } && kind != IncidentKind.LockUp && !chequered)
+        if (!neutralised && configuration.Incidents is { InterruptMajorIncidents: true } && kind != IncidentKind.LockUp && !chequered)
             interruption ??= new($"local-incidents-v1:{Uri.EscapeDataString(car.Driver.Id)}:{identity}", time, car.Driver.Id, kind);
         ConsumeTyres(car, Progress(car));
         car.Trace.Add((time, Distance(car)));

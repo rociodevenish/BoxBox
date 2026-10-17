@@ -29,6 +29,8 @@ public sealed partial class RaceEngine
         public double WearProgress { get; set; }
         public TyreCompound? PendingPit { get; set; }
         public double? PitExit { get; set; }
+        public double PitTravelStart { get; set; }
+        public double PitRouteProgress { get; set; }
         public HashSet<TyreCompound> UsedCompounds { get; } = [driver.StartingCompound];
         public Car? Following { get; set; }
         public double FreeDuration { get; set; }
@@ -82,6 +84,8 @@ public sealed partial class RaceEngine
             || !double.IsFinite(configuration.PassingVariation) || configuration.PassingVariation is < 0 or > 1
             || !double.IsFinite(configuration.Track.PitLaneLoss) || configuration.Track.PitLaneLoss < 0
             || !double.IsFinite(configuration.Track.StationaryStop) || configuration.Track.StationaryStop < 0
+            || configuration.Track.PitRoute is {} route && (!double.IsFinite(route.MainRouteLapFraction) || route.MainRouteLapFraction is <=0 or >=1
+                || !double.IsFinite(route.LaneTransitSeconds) || route.LaneTransitSeconds<=0)
             || !double.IsFinite(configuration.StopVariation) || configuration.StopVariation < 0
             || configuration.StopVariation > configuration.Track.StationaryStop * 2
             || !double.IsFinite(configuration.Track.PitLaneLoss + configuration.Track.StationaryStop + configuration.StopVariation)
@@ -129,6 +133,11 @@ public sealed partial class RaceEngine
         }
         this.configuration = configuration;
         this.seed = seed;
+        var safety=configuration.SafetyCar??new();
+        if(new[]{safety.DurationSeconds,safety.LeaderLapMultiplier,safety.CatchUpLapMultiplier,safety.FollowingSeconds}.Any(v=>!double.IsFinite(v))
+            || safety.DurationSeconds is <=0 or >600 || safety.CatchUpLapMultiplier<1 || safety.LeaderLapMultiplier<safety.CatchUpLapMultiplier
+            || safety.LeaderLapMultiplier>4 || safety.FollowingSeconds is <=0 or >10)
+            throw new ArgumentException("Invalid bounded Safety Car tuning.");
         ValidateIncidents(drivers);
         ValidateDerivedConfiguration(drivers);
         cars = drivers.Select(d => new Car(d){Pace=initialPace,Battle=BattleInstruction.Neutral}).ToList();
@@ -223,12 +232,12 @@ public sealed partial class RaceEngine
                 .ThenBy(c => Segments is null ? 0 : c.ContactOrder)
                 .ThenBy(c => c.Driver.Id, StringComparer.Ordinal).First();
             // Complete every event at the boundary timestamp before accepting new decisions.
-            if (!chequered && (interruption is not null || cars.Any(c => Active(c) && c.Laps + Progress(c) >= target - 1e-9))
+            if (!chequered && (neutralised && time>=neutralisedUntil-1e-8 || !neutralised && interruption is not null || cars.Any(c => Active(c) && c.Laps + Progress(c) >= target - 1e-9))
                 && NextEvent(car) > time + 1e-8) break;
             var eventTime = NextEvent(car);
             var targetTime = chequered || interruption is not null ? double.PositiveInfinity
                 : cars.Where(Active).Select(c => TargetTime(c, target)).Min();
-            var nextTime = Math.Min(eventTime, targetTime);
+            var nextTime = Math.Min(Math.Min(eventTime, targetTime),chequered?double.PositiveInfinity:neutralisedUntil);
             var incidentDue = NextIncidentTime(car) < OrdinaryNextEvent(car) - 1e-8;
             AdvanceIncidentExposure(nextTime);
             foreach (var current in cars.Where(c => c.Following is not null && Active(c) && c.PitExit is null))
@@ -244,14 +253,26 @@ public sealed partial class RaceEngine
             if (incidentDue) { ResolveIncident(car); UpdateTraffic(); continue; }
             if (car.PassTime == time)
             {
-                ResolveEncounter(car);
+                if(!neutralised)ResolveEncounter(car);
                 car.PassTime = null;
                 UpdateTraffic();
                 continue;
             }
             if (car.PitExit is not null)
             {
+                var routeProgress=car.PitRouteProgress;
                 car.PitExit = null;
+                if(routeProgress>0)
+                {
+                    car.SegmentIndex=0;
+                    if(Segments is {} pitLayout)
+                        while(car.SegmentIndex<pitLayout.Count-1&&SegmentStart(car)+SegmentShare(car)<=routeProgress+1e-10)car.SegmentIndex++;
+                    var duration=LapTime(car);
+                    car.LapStart=time-(routeProgress-SegmentStart(car))/SegmentShare(car)*duration;
+                    car.LapEnd=car.LapStart+duration;car.FreeDuration=duration;
+                    ConsumeTyres(car,routeProgress);
+                    car.PitRouteProgress=0;
+                }
                 if (Segments is not null)
                 {
                     var rejoinDistance = Distance(car);
@@ -261,7 +282,7 @@ public sealed partial class RaceEngine
                     if (contact is not null) { MoveBehind(car, contact); car.Following = contact; }
                 }
                 history.Add(new RaceEvent(time, car.Driver.Id, car.Laps, RaceEventKind.PitExit,
-                    SegmentId: Segments?[0].Id, DistanceMetres: Segments is null ? null : car.Laps * TrackLength));
+                    SegmentId: Segments?[car.SegmentIndex].Id, DistanceMetres: Segments is null ? null : Distance(car)));
                 UpdateTraffic();
                 continue;
             }
@@ -326,7 +347,7 @@ public sealed partial class RaceEngine
                         + RandomOffset(RandomChannel.PitService, "pit-service", car.Driver.Id,
                             Segments is null ? car.Laps : car.Stops,
                             Segments is null ? $"lap:{car.Laps}" : $"stop:{car.Stops}", configuration.StopVariation);
-                    var loss = configuration.Track.PitLaneLoss + service;
+                    var loss = (configuration.Track.PitRoute?.LaneTransitSeconds ?? configuration.Track.PitLaneLoss) + service;
                     history.Add(new RaceEvent(time, car.Driver.Id, car.Laps, RaceEventKind.PitEntry, loss,
                         SegmentId: Segments?[0].Id, DistanceMetres: Segments is null ? null : car.Laps * TrackLength));
                     history.Add(new RaceEvent(time, car.Driver.Id, car.Laps, RaceEventKind.PitService, service,
@@ -338,6 +359,8 @@ public sealed partial class RaceEngine
                     car.LapTyreCondition = 1;
                     car.PendingPit = null;
                     car.PitExit = time + loss;
+                    car.PitTravelStart=time+service;
+                    car.PitRouteProgress=configuration.Track.PitRoute?.MainRouteLapFraction??0;
                     history.Add(new RaceEvent(time, car.Driver.Id, car.Laps, RaceEventKind.TyreChanged, Compound: compound));
                 }
                 car.LapPenalty = TyrePenalty(car);
@@ -379,6 +402,7 @@ public sealed partial class RaceEngine
 
     private void UpdateTraffic()
     {
+        if(neutralised){UpdateNeutralisedTraffic();return;}
         if (!Traffic.Enabled) return;
         if (Segments is not null)
         {
@@ -795,7 +819,8 @@ public sealed partial class RaceEngine
             + (condition <= 0 ? Tyres.ExhaustionPenalty : 0);
     }
 
-    private double Progress(Car car) => car.RetirementTime is not null ? car.RetiredProgress : !Active(car) || car.PitExit is not null ? 0
+    private double Progress(Car car) => car.RetirementTime is not null ? car.RetiredProgress : !Active(car) ? 0
+        : car.PitExit is {} exit ? car.PitRouteProgress*Math.Clamp((time-car.PitTravelStart)/Math.Max(1e-9,exit-car.PitTravelStart),0,1)
         : SegmentStart(car) + SegmentShare(car) * LocalProgress(car);
 
     public IReadOnlyList<RaceTimingEntry> GetTimingObservation()

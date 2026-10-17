@@ -1,5 +1,6 @@
 using Game.Application;
 using Game.Domain;
+using Game.Simulation;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.DependencyInjection;
@@ -12,14 +13,44 @@ namespace Game.Api.Tests;
 public sealed class SafetyCarWindowTests
 {
     [Fact]
+    public void Legacy_staging_designer_replay_retains_commit_only_safety_car_semantics()
+    {
+        var config=new RaceConfiguration(20,new("Lab"),Incidents:new(ComponentWearPerSecond:0,InterruptMajorIncidents:true));
+        Driver[] drivers=[new("a","A"),new("b","B",Gap:9)];var scenario=new IncidentScenario([new("a",IncidentKind.Spin,36)]);
+        var engine=new RaceEngine(config,drivers,9,scenario);var normal=engine.ResolvePhase();
+        var staged=engine.CommitSafetyCarChoices(new Dictionary<string,SafetyCarDecision>{["a"]=new(TyreCompound.Hard),["b"]=new()});
+        var plan=new StrategyPlan([new(1,"a",new(PitCompound:TyreCompound.Hard)),new(1,"b",new())],[]);
+        var replay=SimulationReplay.CaptureDiagnostic(config,drivers,plan,9,scenario);
+        var record=new BrowserReplayRecord(BrowserReplay.LegacyDisruptionFormatVersion,"legacy","lab","A","dry-observation-ai-v2",replay,
+            [new(0,normal.LeaderLap,normal.Time,false,BrowserReplay.OutcomeHash(normal)),new(1,staged.LeaderLap,staged.Time,false,BrowserReplay.OutcomeHash(staged))],false,OperationKinds:["Normal","SafetyCar"]);
+        Assert.True(BrowserReplay.Verify(record).Matches);
+        Assert.False(BrowserReplay.Verify(record with{FormatVersion=BrowserReplay.DisruptionFormatVersion}).Matches);
+    }
+    [Fact]
+    public async Task Team_with_two_committed_stops_returns_to_normal_human_barrier_after_neutralised_running()
+    {
+        await using var server=new WebApplicationFactory<Program>().WithWebHostBuilder(builder=>builder.ConfigureServices(services=>services.AddSingleton<IRacePresets>(new Game.TestFixtures.SafetyCarWindowPresets())));
+        using var client=server.CreateClient();var created=(await(await client.PostAsJsonAsync("/api/sessions",new CreateSessionInput("open-equal",10,123))).Content.ReadFromJsonAsync<SessionCreated>())!;
+        client.DefaultRequestHeaders.Authorization=new("Bearer",created.ControllerCapability);var route="/api/sessions/"+created.SessionId;
+        (await client.PostAsJsonAsync(route+"/plans",new TeamCommand(Guid.NewGuid().ToString(),0,1,[new("driver-01","Standard","Pit","Hard","Neutral"),new("driver-02","Standard","Pit","Hard","Neutral")]))).EnsureSuccessStatusCode();
+        var state=(await client.GetFromJsonAsync<PublicSnapshot>(route))!;var own=(await client.GetFromJsonAsync<TeamSnapshot>(route+"/team"))!;
+        Assert.Equal("awaiting-decisions",state.Lifecycle);Assert.Null(own.WindowKind);Assert.Null(state.SafetyCar);
+        Assert.Contains(state.Readiness!,team=>team.TeamId=="team-01"&&!team.Locked);
+        Assert.All(own.Cars,car=>Assert.Equal("Hard",car.Compound));
+        (await client.PostAsJsonAsync(route+"/plans",new TeamCommand(Guid.NewGuid().ToString(),own.Phase,own.Revision,
+            own.Cars.Select(car=>new CarCommand(car.DriverId,"Standard","Stay Out",null,"Neutral")).ToArray()))).EnsureSuccessStatusCode();
+    }
+    [Fact]
     public async Task Team_without_live_cars_does_not_hold_the_special_barrier()
     {
         await using var server=new WebApplicationFactory<Program>().WithWebHostBuilder(builder=>builder.ConfigureServices(services=>services.AddSingleton<IRacePresets>(new Game.TestFixtures.SafetyCarWindowPresets())));
         using var client=server.CreateClient();var created=(await(await client.PostAsJsonAsync("/api/sessions",new CreateSessionInput("restricted-equal",10,123))).Content.ReadFromJsonAsync<SessionCreated>())!;
         client.DefaultRequestHeaders.Authorization=new("Bearer",created.ControllerCapability);var route="/api/sessions/"+created.SessionId;
         (await client.PostAsJsonAsync(route+"/plans",new TeamCommand(Guid.NewGuid().ToString(),0,1,[new("driver-01","Standard","Stay Out",null,"Neutral"),new("driver-02","Standard","Stay Out",null,"Neutral")]))).EnsureSuccessStatusCode();
-        var state=(await client.GetFromJsonAsync<PublicSnapshot>(route))!;Assert.Equal("safety-car-ready",state.Lifecycle);Assert.Empty(state.Readiness!);
-        Assert.Equal(2,state.Classification.Count(car=>car.TeamId=="team-01"&&car.PitState=="retired"));Assert.Equal(state.SafetyCar!.Time,state.RaceTime);
+        var state=(await client.GetFromJsonAsync<PublicSnapshot>(route))!;Assert.Equal("awaiting-decisions",state.Lifecycle);Assert.Empty(state.Readiness!);
+        Assert.Equal(2,state.Classification.Count(car=>car.TeamId=="team-01"&&car.PitState=="retired"));Assert.Null(state.SafetyCar);
+        var own=(await client.GetFromJsonAsync<TeamSnapshot>(route+"/team"))!;
+        (await client.PostAsJsonAsync(route+"/plans",new TeamCommand(Guid.NewGuid().ToString(),own.Phase,own.Revision,[]))).EnsureSuccessStatusCode();
     }
     [Fact]
     public async Task Shared_window_freezes_allowance_and_deadline_fills_only_missing_team_preserving_recovered_lock()
@@ -46,14 +77,14 @@ public sealed class SafetyCarWindowTests
         Assert.Contains(before.Readiness!,team=>team.TeamId=="team-01"&&team.Locked);
         clock.Advance(TimeSpan.FromSeconds(120));var due=new DueTransitionInput(Guid.NewGuid().ToString(),before.Phase,before.WindowRevision);
         var closed=await restored.PostAsJsonAsync(route+"/advance-due",due);closed.EnsureSuccessStatusCode();var staged=(await closed.Content.ReadFromJsonAsync<PublicSnapshot>())!;
-        Assert.Equal("safety-car-ready",staged.Lifecycle);Assert.Equal(before.RaceTime,staged.RaceTime);
+        Assert.Equal("phase-result",staged.Lifecycle);Assert.Equal(before.RaceTime+180,staged.RaceTime,7);
         Assert.Contains(staged.DecisionSources!,source=>source.TeamId=="team-01"&&source.Source=="human");Assert.Contains(staged.DecisionSources!,source=>source.TeamId=="team-02"&&source.Source=="timeout-ai");
-        var ownAfter=(await restored.GetFromJsonAsync<TeamSnapshot>($"{route}/teams/team-01?deviceId={device}"))!;Assert.Equal(TyreCompound.Hard,ownAfter.Cars[0].SafetyCar!.CommittedCompound);
+        var ownAfter=(await restored.GetFromJsonAsync<TeamSnapshot>($"{route}/teams/team-01?deviceId={device}"))!;Assert.Equal("Hard",ownAfter.Cars[0].Compound);
         var retry=await restored.PostAsJsonAsync($"{route}/teams/team-01/safety-car-plans?deviceId={device}",command);retry.EnsureSuccessStatusCode();Assert.Equal(await accepted.Content.ReadAsStringAsync(),await retry.Content.ReadAsStringAsync());
         var repeated=(await(await restored.PostAsJsonAsync(route+"/advance-due",due)).Content.ReadFromJsonAsync<PublicSnapshot>())!;Assert.Equal(staged.Revision,repeated.Revision);
     }
     [Fact]
-    public async Task Incident_opens_one_narrow_window_and_retry_recovery_preserves_committed_choices_without_running_time()
+    public async Task Incident_window_resolves_actual_neutralised_running_once_and_recovery_preserves_restart()
     {
         var store=new VolatileSessionStore();
         WebApplicationFactory<Program> Server()=>new WebApplicationFactory<Program>().WithWebHostBuilder(builder=>{builder.ConfigureAppConfiguration((_,config)=>config.AddInMemoryCollection(new Dictionary<string,string?>{["Designer:Key"]="s09-window-replay"}));builder.ConfigureServices(services=>{
@@ -72,15 +103,14 @@ public sealed class SafetyCarWindowTests
         var command=new SafetyCarTeamCommand(Guid.NewGuid().ToString(),team.Phase,team.Revision,[new("driver-01","Pit","Hard"),new("driver-02","Stay Out",null)]);
         var first=await client.PostAsJsonAsync(route+"/safety-car-plans",command);first.EnsureSuccessStatusCode();
         var retry=await client.PostAsJsonAsync(route+"/safety-car-plans",command);retry.EnsureSuccessStatusCode();Assert.Equal(await first.Content.ReadAsStringAsync(),await retry.Content.ReadAsStringAsync());
-        var staged=(await client.GetFromJsonAsync<PublicSnapshot>(route))!;Assert.Equal(interrupted.RaceTime,staged.RaceTime);Assert.Equal("safety-car-ready",staged.Lifecycle);
+        var staged=(await client.GetFromJsonAsync<PublicSnapshot>(route))!;Assert.Equal(interrupted.RaceTime+180,staged.RaceTime,7);Assert.Equal("awaiting-decisions",staged.Lifecycle);Assert.Null(staged.SafetyCar);
         await using var recovered=Server();using var restored=recovered.CreateClient();restored.DefaultRequestHeaders.Authorization=client.DefaultRequestHeaders.Authorization;
         var saved=(await restored.GetFromJsonAsync<TeamSnapshot>(route+"/team"))!;
-        Assert.Equal("queued",saved.Cars.Single(car=>car.DriverId=="driver-01").SafetyCar!.Status);Assert.NotNull(saved.ConfirmedPlan);
-        Assert.Equal(interrupted.SafetyCar,(await restored.GetFromJsonAsync<PublicSnapshot>(route))!.SafetyCar);
+        Assert.Equal("Hard",saved.Cars.Single(car=>car.DriverId=="driver-01").Compound);Assert.Null(saved.ConfirmedPlan);Assert.Null(saved.WindowKind);
+        Assert.Null((await restored.GetFromJsonAsync<PublicSnapshot>(route))!.SafetyCar);
         var json=await restored.GetStringAsync(route);Assert.DoesNotContain("Exposure",json,StringComparison.OrdinalIgnoreCase);Assert.DoesNotContain("ComponentCondition",json,StringComparison.OrdinalIgnoreCase);
         restored.DefaultRequestHeaders.Add("X-Designer-Key","s09-window-replay");var replay=await restored.GetFromJsonAsync<JsonElement>("/api/designer/sessions/"+created.SessionId+"/record");
         Assert.Equal(BrowserReplay.DisruptionFormatVersion,replay.GetProperty("formatVersion").GetString());
         var verified=await restored.PostAsJsonAsync("/api/designer/replay/verify",replay);verified.EnsureSuccessStatusCode();Assert.True((await verified.Content.ReadFromJsonAsync<JsonElement>()).GetProperty("matches").GetBoolean());
     }
 }
-

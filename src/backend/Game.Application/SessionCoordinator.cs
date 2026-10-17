@@ -168,7 +168,8 @@ public sealed partial class SessionCoordinator(ISessionNotifications notificatio
         }).ToArray();
         return new(session.Id, session.Phase, session.Revision, session.StorageError ? "storage-error" : session.Lifecycle, state.LeaderLap,
             session.Configuration.Laps, state.Time, Array.AsReadOnly(rows), session.Events, session.Presentation,
-            state.Finished ? 0 : Math.Min(5, session.Configuration.Laps - state.LeaderLap),
+            state.Finished ? 0 : session.Configuration.Incidents is null ? Math.Min(5, session.Configuration.Laps - state.LeaderLap)
+                : Math.Round(Math.Min(session.Configuration.NormalPhaseLaps??5,Math.Max(0,session.Configuration.Laps-state.Classification.Where(row=>row.RetirementTime is null&&row.FinishTime is null).Select(row=>row.Laps+row.Progress).DefaultIfEmpty(session.Configuration.Laps).Max())),3),
             Array.AsReadOnly(session.RequiredTeams.Select(team => new TeamReadiness(team, session.Locks.ContainsKey(team))).ToArray()),session.Paused || session.StorageError, session.DecisionDeadlineUtc, session.PausedRemainingSeconds, session.TimingPolicy, clock.GetUtcNow(), session.LastDecisionSources,PublicControl(session),Progress(session).PresentationDeadline,Progress(session).PresentationRemaining,session.WindowRevision,ProjectOpening(session),ProjectSafetyCar(session));
     }
     private static PublicGap ProjectGap(TimingGap gap) => gap.Laps > 0 ? new("laps", Laps: gap.Laps)
@@ -189,7 +190,7 @@ public sealed partial class SessionCoordinator(ISessionNotifications notificatio
         var observation = session.Engine.GetTeamObservation(teamId);
         var own = observation.TeamTyres.Select(tyre => new PrivateCar(tyre.DriverId, tyre.Compound.ToString(),
             tyre.Age, tyre.EstimatedCondition, tyre.InPits, tyre.StopQueued,
-            Array.AsReadOnly(observation.BattleOptions[tyre.DriverId].Select(option => option.ToString()).ToArray()),session.WindowKind=="SafetyCar"?session.Engine.GetSafetyCarOptions().Single(option=>option.DriverId==tyre.DriverId):null)).ToArray();
+            Array.AsReadOnly(observation.BattleOptions[tyre.DriverId].Select(option => option.ToString()).ToArray()),session.Configuration.Incidents is not null?session.Engine.GetSafetyCarOptions().Single(option=>option.DriverId==tyre.DriverId):null)).ToArray();
         return new(session.Id, session.Phase, session.Revision, session.StorageError ? "storage-error" : session.Lifecycle, assignment?.PlayerId ?? session.Player, teamId,
             assignment?.DeviceId ?? session.Device, Array.AsReadOnly(own), assignment is null ? session.ConfirmedPlan : session.Locks.GetValueOrDefault(teamId), assignment?.Revision ?? 0, session.WindowRevision,ProjectAssistance(session,teamId),assignment is null?null:ControlStatus(session,teamId),session.WindowKind);
     }
@@ -316,9 +317,9 @@ public sealed partial class SessionCoordinator(ISessionNotifications notificatio
                 fresh.Length - selected.Length, fresh.Length == 0 ? "Quiet phase: no overtakes or pit events recorded."
                 : $"{overtakes} overtakes · {entries} pit entries · {exits} pit exits · {changes} tyre changes."
                     + (fresh.Length > selected.Length ? $" Showing {selected.Length} highlights of {fresh.Length} recorded events." : ""));
-            if(operation=="SafetyCar")session.Presentation=session.Presentation with{Summary="Safety Car choices locked. Committed stops remain queued or ongoing."};
+            if(operation=="SafetyCar")session.Presentation=session.Presentation with{Summary="Safety Car running complete. Racing resumes from current positions with a fresh normal decision window."};
             else if(result.Interruption is {} disruption)session.Presentation=session.Presentation with{Summary=$"Safety Car deployed: {disruption.Kind} observed at {disruption.Time:F1}s. Choose legal pit instructions."};
-            session.Lifecycle = result.Finished ? "finished" : operation=="SafetyCar" ? "safety-car-ready" : "phase-result"; session.Revision++;
+            session.Lifecycle = result.Finished ? "finished" : "phase-result"; session.Revision++;
             session.PresentationPhases.Add(session.Presentation.Cursor, session.Phase);
     }
     private async Task PublishSafely(PublicSnapshot display, TeamSnapshot team)

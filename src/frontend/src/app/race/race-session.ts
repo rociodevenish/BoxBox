@@ -277,7 +277,7 @@ export class RaceSession {
         const team = this.team();
         if (!team || !this.canSubmit())
             return;
-        const command = this.pending() ?? { commandId: commandId(), phase: team.phase, revision: this.householdTeam ? team.commandRevision : team.revision, cars: this.choices().filter(car=>team.windowKind!=='SafetyCar'||team.cars.find(owned=>owned.driverId===car.driverId)?.safetyCar?.status==='available').map(car => ({ ...car, pit: car.pit === 'Pit' ? 'Pit' : 'Stay Out', compound: car.pit === 'Pit' ? car.compound : null })) };
+        const command = this.pending() ?? { commandId: commandId(), phase: team.phase, revision: this.householdTeam ? team.commandRevision : team.revision, cars: this.choices().filter(car=>{const owned=team.cars.find(owned=>owned.driverId===car.driverId);return team.windowKind==='SafetyCar'?owned?.safetyCar?.status==='available':!['retired','finished'].includes(owned?.safetyCar?.status??'');}).map(car => ({ ...car, pit: car.pit === 'Pit' ? 'Pit' : 'Stay Out', compound: car.pit === 'Pit' ? car.compound : null })) };
         this.pending.set(command);
         this.busy.set(true);
         this.error.set('');
