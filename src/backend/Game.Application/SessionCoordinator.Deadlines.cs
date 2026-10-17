@@ -9,6 +9,7 @@ public sealed partial class SessionCoordinator
     private void InitializeDecisionWindow(Session session,Lobby lobby)
     {
         ApplyControlBoundary(session);
+        session.RequiredTeams=session.RequiredTeams.Where(team=>ExpectedCommandDrivers(session,team).Length>0).ToArray();
         session.FrozenOpponents=OpponentScript.Freeze(session.Engine,session.Drivers.Select(driver=>driver.Team).Distinct().Where(team=>!session.RequiredTeams.Contains(team)),session.Configuration.Laps,session.ScriptVersion);
         if(session.WindowKind=="SafetyCar")
         {

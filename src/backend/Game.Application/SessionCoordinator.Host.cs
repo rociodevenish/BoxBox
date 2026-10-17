@@ -31,8 +31,9 @@ public sealed partial class SessionCoordinator
  {
   var opening=IsOpeningPresentation(session);
   session.WindowKind=session.Engine.GetState().Interruption is not null?"SafetyCar":null;
+  if(!lobbies.ContainsKey(session.Id))session.RequiredTeams=["team-01"];
   if(!opening)session.Phase++;
-  if(session.WindowKind=="SafetyCar")session.RequiredTeams=session.RequiredTeams.Where(team=>ExpectedCommandDrivers(session,team).Length>0).ToArray();
+  session.RequiredTeams=session.RequiredTeams.Where(team=>ExpectedCommandDrivers(session,team).Length>0).ToArray();
   session.Revision++;session.WindowRevision=session.Revision;session.Lifecycle="awaiting-decisions";
   session.ConfirmedPlan=null;session.Locks.Clear();session.HumanDecisions.Clear();
   session.FrozenOpponents=OpponentScript.Freeze(session.Engine,session.Drivers.Select(driver=>driver.Team).Distinct().Where(team=>!session.RequiredTeams.Contains(team)),session.Configuration.Laps,session.ScriptVersion);

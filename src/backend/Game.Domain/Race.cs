@@ -58,7 +58,11 @@ public record TrackSegment(string Id, double Length, double BaselineTime,
 }
 
 public record Track(string Name, double BaseLapTime = 90, double SpeedWeight = .5,
-    double PitLaneLoss = 20, double StationaryStop = 3, double PassingChance = .4, IReadOnlyList<TrackSegment>? Segments = null);
+    double PitLaneLoss = 20, double StationaryStop = 3, double PassingChance = .4, IReadOnlyList<TrackSegment>? Segments = null,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] PitRoute? PitRoute = null);
+
+// Authored lane route bypasses this fraction of the lap, with fixed transit plus stationary service.
+public record PitRoute(double MainRouteLapFraction, double LaneTransitSeconds);
 
 public record TrafficTuning(bool Enabled = true, double FollowingLoss = .3, double BlueFlagLoss = .15,
     double BattleProximity = 3, double AttackMultiplier = 1.7, double DefendMultiplier = .55, double BattleWear = .2);
@@ -66,7 +70,8 @@ public record TrafficTuning(bool Enabled = true, double FollowingLoss = .3, doub
 public record RaceConfiguration(int Laps, Track Track, double AttributeSeconds = 1,
     double LapVariation = 0, TyreTuning? Tyres = null, double StopVariation = .6,
     TrafficTuning? Traffic = null, double EstimateError = .04, double RaceFormVariation = 0, double PassingVariation = 1, [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] IncidentTuning? Incidents = null,
-    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] double? NormalPhaseLaps = null)
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] double? NormalPhaseLaps = null,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] SafetyCarTuning? SafetyCar = null)
 {
     public RaceConfiguration WithExplicitTuning() => this with { Tyres = Tyres ?? new(), Traffic = Traffic ?? new(),
         Track = Track with { Segments = Track.Segments is null ? null : Array.AsReadOnly(Track.Segments.ToArray()) } };

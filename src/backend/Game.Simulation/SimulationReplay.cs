@@ -18,7 +18,8 @@ public static class SimulationReplay
         return result.Engine;
     }
     public static string Model(RaceConfiguration config) => (config.Track.Segments is null
-        ? SimulationVersions.AggregateModel : SimulationVersions.SegmentedModel) + (config.Incidents is null ? "" : "+local-incidents-v1");
+        ? SimulationVersions.AggregateModel : SimulationVersions.SegmentedModel) + (config.Incidents is null ? "" : "+local-incidents-v1")
+        + (config.Track.PitRoute is null ? "" : "+pit-route-v1");
     public static string Randomness(RaceConfiguration config) => (config.Track.Segments is null
         ? SimulationVersions.AggregateRandomness : SimulationVersions.SegmentedRandomness) + (config.Incidents is null ? "" : "+incident-sha256-v1");
     public static RaceReplay CaptureDiagnostic(RaceConfiguration config, IReadOnlyList<Driver> drivers,

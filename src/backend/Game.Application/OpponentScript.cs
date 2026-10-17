@@ -17,6 +17,7 @@ internal static class OpponentScript
             {
                 foreach(var tyre in observation.TeamTyres)
                 {
+                    if(observation.Classification.Single(row=>row.DriverId==tyre.DriverId) is { RetirementTime:not null } or { FinishTime:not null })continue;
                     var pace=tyre.EstimatedCondition<.5?PaceInstruction.Conserve:PaceInstruction.Standard;
                     var needsStop=observation.LeaderLap>=laps/2&&tyre.Compound==TyreCompound.Medium;
                     TyreCompound? pit=!tyre.InPits&&!tyre.StopQueued&&(needsStop||tyre.EstimatedCondition<.35)

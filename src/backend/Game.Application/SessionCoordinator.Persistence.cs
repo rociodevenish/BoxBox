@@ -101,6 +101,7 @@ public sealed partial class SessionCoordinator
         session.PendingPlan=null;session.PendingCommand=null;session.PendingFingerprint=null;
         session.DecisionDeadlineUtc=null;session.PausedRemainingSeconds=null;
         PhaseCommitted(session);
+        if(session.WindowKind=="SafetyCar"&&!lobbies.ContainsKey(session.Id))session.DeferNextWindow=false;
         if(session.WindowKind!="SafetyCar"&&session.Engine.GetState().Interruption is not null&&session.Lifecycle!="finished")
         {
             OpenHouseholdWindow(session);session.DeferNextWindow=true;
