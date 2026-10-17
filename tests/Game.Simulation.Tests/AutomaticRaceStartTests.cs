@@ -7,6 +7,23 @@ namespace Game.Simulation.Tests;
 public sealed class AutomaticRaceStartTests
 {
     [Fact]
+    public void Automatic_opening_uses_Standard_pace_and_retains_its_effects_through_replay_and_handoff()
+    {
+        var weekend=WeekendPreparation.Prepare(WeekendPresetCatalog.Open("track-monza"),10,new(0,0,0));
+        var configuration=weekend.Configuration with{Traffic=new(Enabled:false),Tyres=new(ConserveLoss:12,ConserveWear:.1)};
+        var input=new AutomaticStartInput(configuration,[weekend],weekend.Cars.Select((c,i)=>new StartGridSlot(i+1,c.Source.EntryId)).ToArray(),17,new());
+        var current=AutomaticRaceStart.Create(input);
+        Assert.All(current.Opening.Tyres,t=>Assert.Equal(PaceInstruction.Standard,t.Pace));
+        var legacy=AutomaticRaceStart.Create(input with{ModelVersion="automatic-standing-start-v1"});
+        Assert.All(legacy.Opening.Tyres,t=>Assert.Equal(PaceInstruction.Conserve,t.Pace));
+        Assert.True(current.Opening.Time<legacy.Opening.Time);
+        Assert.True(current.Opening.Tyres[0].Condition<legacy.Opening.Tyres[0].Condition);
+        var replay=AutomaticRaceStart.Replay(new(input,AutomaticRaceStart.OutcomeHash(current.Opening),"frozen-standard"));
+        var next=current.Engine.ResolvePhase();
+        Assert.Equal(6,next.LeaderLap);
+        Assert.Equal(AutomaticRaceStart.OutcomeHash(next),AutomaticRaceStart.OutcomeHash(replay.Engine.ResolvePhase()));
+    }
+    [Fact]
     public void A_better_launch_can_pass_from_a_real_trailing_grid_coordinate()
     {
         var baseline=WeekendPresetCatalog.Open("track-monza");

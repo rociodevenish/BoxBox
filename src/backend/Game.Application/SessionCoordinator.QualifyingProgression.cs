@@ -22,8 +22,7 @@ public sealed partial class SessionCoordinator
                 if(state.Lifecycle=="session-result")state=OpenQualifyingStage(lobby,state);
                 else if(state.Lifecycle=="awaiting-decisions")
                 {
-                    foreach(var team in RequiredQualifyingTeams(lobby,state).Where(team=>!state.Locks.ContainsKey(team)))state.Locks[team]=state.TimeoutLocks[team];
-                    state=ResolveQualifying(lobby,state) with{Revision=state.Revision+1};
+                    state=SettleExpiredQualifying(lobby,state) with{Revision=state.Revision+1};
                 }
                 else return ProjectQualifying(lobby,state);
                 lobby.Revision++;WriteQualifying(lobby,state);Persist(lobby.Id);snapshot=ProjectQualifying(lobby,state);
@@ -75,8 +74,7 @@ public sealed partial class SessionCoordinator
         // Expired choices settle before the pause; accepted locks remain untouched.
         if(paused&&state.Lifecycle=="awaiting-decisions"&&state.Deadline is {} due&&clock.GetUtcNow()>=due)
         {
-            foreach(var team in RequiredQualifyingTeams(lobby,state).Where(team=>!state.Locks.ContainsKey(team)))state.Locks[team]=state.TimeoutLocks[team];
-            state=ResolveQualifying(lobby,state);
+            state=SettleExpiredQualifying(lobby,state);
         }
         var remaining=state.Deadline is {} deadline?Math.Max(0,(deadline-clock.GetUtcNow()).TotalSeconds):state.Remaining;
         state=state with{Paused=paused,Revision=state.Revision+1,Remaining=paused?remaining:null,Deadline=null,Wakeup=null};
@@ -86,6 +84,11 @@ public sealed partial class SessionCoordinator
             state=state with{Deadline=next,Wakeup=new(lobby.Id,Guid.NewGuid().ToString("N"),state.Lifecycle=="session-result"?"qualifying-presentation":"qualifying-decision",Stage(state),state.WindowRevision,next)};
         }
         lobby.Revision++;WriteQualifying(lobby,state);Persist(lobby.Id);return ProjectLobby(lobby);
+    }
+    private QualifyingState SettleExpiredQualifying(Lobby lobby,QualifyingState state)
+    {
+        foreach(var team in RequiredQualifyingTeams(lobby,state).Where(team=>!state.Locks.ContainsKey(team)))state.Locks[team]=state.TimeoutLocks[team];
+        return ResolveQualifying(lobby,state);
     }
     public async Task PublishQualifying(string id)
     {

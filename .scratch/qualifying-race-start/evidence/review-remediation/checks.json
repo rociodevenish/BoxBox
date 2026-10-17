@@ -1,0 +1,880 @@
+{
+  "baseRevision": "dc2d9d283eb7feb2d44f941f5ecb92f31652db06",
+  "branch": "codex/s08-review-fixes",
+  "sourceHashes": {
+    "src/backend/Game.Application/SessionCoordinator.Opening.cs": "c5639245af9b6c7d78bdcc5ed801ad3cc36f454bb919df2ee4f13d8a62f83052",
+    "src/backend/Game.Application/SessionCoordinator.QualifyingProgression.cs": "fc6ac7252db7579a80c56b85b95047b31557b8bf3fb0a05bc215e0d3a96310f5",
+    "src/backend/Game.Domain/AutomaticStart.cs": "7d806a078f367ac37cb3ec8af29ce774e84f7d28133aaa1e78542996867ae609",
+    "src/backend/Game.Simulation/AutomaticRaceStart.cs": "17bea1f45c2f98c4d9746dda1c43beefb92c4b86a2277f8bd3194a7f76703e20",
+    "src/backend/Game.Simulation/RaceEngine.cs": "1268b379cb1a740080c3f50d66e4b7e32709049b16516aa8dac02cacd6bb4bd6",
+    "src/frontend/src/app/race/race-page.ts": "e2d817e21645627af49189adc1b7484fac3e6338c045c99fcaf773e439af90d1",
+    "tests/Game.Simulation.Tests/AutomaticRaceStartTests.cs": "ed982784a4ebeb5daf0343443c1ca426087201d9e5b183484d214ca6500b5513",
+    "tests/Game.Api.Tests/LegacyOpeningTests.cs": "f203c26ed6e617a0c4de1b67ff6325edab20cf1e8d4e9a95da558ca04f93211c"
+  },
+  "sourceDigest": "12f4ba93e99bea1b4ca45d247598f1497cde30e7008f9119aeb764328ad219a9",
+  "uniqueAffectedChecks": {
+    "simulationTests": 62,
+    "apiTests": 13,
+    "browserTests": 2,
+    "legacySavedWeekends": 400,
+    "currentSavedWeekends": 400
+  },
+  "overlap": "Simulation/API/browser subsets overlap root broad coverage; do not sum them with broad totals. Dataset replay records are not test-case counts.",
+  "ports": {
+    "ui": 4518,
+    "api": 4618,
+    "auth": 19369,
+    "firestore": 19360,
+    "hub": 19590,
+    "logging": 19640,
+    "websocket": 9160
+  },
+  "preflightListeners": [],
+  "finalListeners": [],
+  "emulatorConfiguration": {
+    "emulators": {
+      "auth": {
+        "host": "127.0.0.1",
+        "port": 19369
+      },
+      "firestore": {
+        "host": "127.0.0.1",
+        "port": 19360,
+        "websocketPort": 9160
+      },
+      "hub": {
+        "host": "127.0.0.1",
+        "port": 19590
+      },
+      "logging": {
+        "host": "127.0.0.1",
+        "port": 19640
+      },
+      "ui": {
+        "enabled": false
+      },
+      "singleProjectMode": true
+    },
+    "firestore": {
+      "rules": "firestore.rules"
+    }
+  },
+  "environment": {
+    "node": "24.19.0",
+    "dotnet": "10.0.401",
+    "java": "C:/Projects/F1Game/.tools/java/jdk-21.0.12.1+1/bin",
+    "chromiumCache": "C:/Projects/F1Game/.tools/playwright",
+    "testScopedNuGetAudit": false,
+    "artifactDirectories": [
+      ".tools/artifacts",
+      ".tools/api-artifacts",
+      ".tools/browser-artifacts"
+    ]
+  },
+  "captures": {
+    "phone": {
+      "viewport": "360x800",
+      "files": [
+        "phone-opening.png",
+        "phone-first-window.png"
+      ]
+    },
+    "public": {
+      "viewport": "1920x1080",
+      "files": [
+        "public-opening.png",
+        "public-first-window.png"
+      ]
+    },
+    "assessment": "Inspected all four; readable, vertical phone scrolling, no horizontal overflow, all 22 public rows fit. Phone portrait fallback is deliberately tested."
+  },
+  "redGreen": [
+    {
+      "red": "red-assertion.json",
+      "green": "green-simulation.json",
+      "observed": "Expected Standard, actual Conserve at public automatic opening tyre state."
+    },
+    {
+      "red": "api-red-tests.json",
+      "green": "api-green-tests.json",
+      "observed": "Expected saved opening v1, actual projected v2."
+    },
+    {
+      "red": "C:/Projects/F1Game/.tools/reports/verification/runs/2026-10-17T06-10-02-831Z-91237078-6dcd-4d42-a947-704c15e3ae19/result.json",
+      "green": "compact.json",
+      "observed": "Root broad legacy controller locator Driver 1 failed after S08 changed name to Driver 01."
+    }
+  ],
+  "commands": {
+    "api-build.json": {
+      "command": "dotnet",
+      "args": [
+        "build",
+        "tests/Game.Api.Tests",
+        "-p:",
+        "NuGetAudit=false",
+        "-p:",
+        "BuildInParallel=false",
+        "-m:1",
+        "--artifacts-path",
+        ".tools/api-artifacts"
+      ],
+      "cwd": "C:\\Projects\\F1Game\\.worktrees\\s08-review-fixes",
+      "pid": 4292,
+      "startedAt": "2026-10-17T11:03:15.325Z",
+      "status": "passed",
+      "exitCode": 0,
+      "elapsedMs": 4053
+    },
+    "api-green-build.json": {
+      "command": "dotnet",
+      "args": [
+        "build",
+        "tests/Game.Api.Tests",
+        "-p:",
+        "NuGetAudit=false",
+        "-p:",
+        "BuildInParallel=false",
+        "-m:1",
+        "--artifacts-path",
+        ".tools/api-artifacts"
+      ],
+      "cwd": "C:\\Projects\\F1Game\\.worktrees\\s08-review-fixes",
+      "pid": 22204,
+      "startedAt": "2026-10-17T11:04:04.604Z",
+      "status": "passed",
+      "exitCode": 0,
+      "elapsedMs": 2208
+    },
+    "api-green-tests.json": {
+      "command": "dotnet",
+      "args": [
+        "test",
+        "tests/Game.Api.Tests",
+        "--no-build",
+        "--no-restore",
+        "--artifacts-path",
+        ".tools/api-artifacts",
+        "--filter",
+        "FullyQualifiedName~QualifyingTests",
+        "-p:NuGetAudit=false"
+      ],
+      "cwd": "C:\\Projects\\F1Game\\.worktrees\\s08-review-fixes",
+      "pid": 28744,
+      "startedAt": "2026-10-17T11:04:13.405Z",
+      "status": "passed",
+      "exitCode": 0,
+      "elapsedMs": 18846
+    },
+    "api-green.json": {
+      "command": "C:\\Users\\sbdev\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\node\\bin\\node.exe",
+      "args": [
+        "C:\\Projects\\F1Game\\.worktrees\\s08-review-fixes\\tools\\auth-emulator\\node_modules\\firebase-tools\\lib\\bin\\firebase.js",
+        "emulators:exec",
+        "--only",
+        "auth,firestore",
+        "--project",
+        "demo-f1game",
+        "--config",
+        "C:\\Projects\\F1Game\\.worktrees\\s08-review-fixes\\.tools\\emulator-remediation\\firebase.json",
+        "--non-interactive",
+        "\"C:\\Users\\sbdev\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\node\\bin\\node.exe\" .tools/remediation-api.mjs inner green"
+      ],
+      "cwd": "C:\\Projects\\F1Game\\.worktrees\\s08-review-fixes",
+      "pid": 27248,
+      "startedAt": "2026-10-17T11:04:06.907Z",
+      "status": "passed",
+      "exitCode": 0,
+      "elapsedMs": 25982
+    },
+    "api-red-tests.json": {
+      "command": "dotnet",
+      "args": [
+        "test",
+        "tests/Game.Api.Tests",
+        "--no-build",
+        "--no-restore",
+        "--artifacts-path",
+        ".tools/api-artifacts",
+        "--filter",
+        "FullyQualifiedName~Legacy_opening_recovers",
+        "-p:NuGetAudit=false"
+      ],
+      "cwd": "C:\\Projects\\F1Game\\.worktrees\\s08-review-fixes",
+      "pid": 13232,
+      "startedAt": "2026-10-17T11:03:44.671Z",
+      "status": "failed",
+      "exitCode": 1,
+      "elapsedMs": 5183
+    },
+    "api-red.json": {
+      "command": "C:\\Users\\sbdev\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\node\\bin\\node.exe",
+      "args": [
+        "C:\\Projects\\F1Game\\.worktrees\\s08-review-fixes\\tools\\auth-emulator\\node_modules\\firebase-tools\\lib\\bin\\firebase.js",
+        "emulators:exec",
+        "--only",
+        "auth,firestore",
+        "--project",
+        "demo-f1game",
+        "--config",
+        "C:\\Projects\\F1Game\\.worktrees\\s08-review-fixes\\.tools\\emulator-remediation\\firebase.json",
+        "--non-interactive",
+        "\"C:\\Users\\sbdev\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\node\\bin\\node.exe\" .tools/remediation-api.mjs inner red"
+      ],
+      "cwd": "C:\\Projects\\F1Game\\.worktrees\\s08-review-fixes",
+      "pid": 10168,
+      "startedAt": "2026-10-17T11:03:38.197Z",
+      "status": "failed",
+      "exitCode": 1,
+      "elapsedMs": 12535
+    },
+    "compact.json": {
+      "command": "C:\\Users\\sbdev\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\node\\bin\\node.exe",
+      "args": [
+        "C:\\Projects\\F1Game\\.worktrees\\s08-review-fixes\\src\\frontend\\node_modules\\@playwright\\test\\cli.js",
+        "test",
+        "--config",
+        "playwright.browser.config.ts",
+        "tests/browser/compact-controller.spec.ts"
+      ],
+      "cwd": "C:\\Projects\\F1Game\\.worktrees\\s08-review-fixes\\src\\frontend",
+      "pid": 23212,
+      "startedAt": "2026-10-17T11:01:41.265Z",
+      "status": "passed",
+      "exitCode": 0,
+      "elapsedMs": 32388
+    },
+    "current-control-track-monaco-aero--2.json.gz.json": {
+      "command": "dotnet",
+      "args": [
+        "C:\\Projects\\F1Game\\.worktrees\\s08-review-fixes\\.tools\\artifacts\\bin\\QualifyingEvidence\\debug\\QualifyingEvidence.dll",
+        "--replay",
+        ".scratch/qualifying-race-start/evidence/review-remediation/control-track-monaco-aero--2.json.gz"
+      ],
+      "cwd": "C:\\Projects\\F1Game\\.worktrees\\s08-review-fixes",
+      "pid": 33184,
+      "startedAt": "2026-10-17T11:02:02.613Z",
+      "status": "passed",
+      "exitCode": 0,
+      "elapsedMs": 821
+    },
+    "current-control-track-monaco-aero-2.json.gz.json": {
+      "command": "dotnet",
+      "args": [
+        "C:\\Projects\\F1Game\\.worktrees\\s08-review-fixes\\.tools\\artifacts\\bin\\QualifyingEvidence\\debug\\QualifyingEvidence.dll",
+        "--replay",
+        ".scratch/qualifying-race-start/evidence/review-remediation/control-track-monaco-aero-2.json.gz"
+      ],
+      "cwd": "C:\\Projects\\F1Game\\.worktrees\\s08-review-fixes",
+      "pid": 20728,
+      "startedAt": "2026-10-17T11:02:03.436Z",
+      "status": "passed",
+      "exitCode": 0,
+      "elapsedMs": 761
+    },
+    "current-control-track-monza-aero--2.json.gz.json": {
+      "command": "dotnet",
+      "args": [
+        "C:\\Projects\\F1Game\\.worktrees\\s08-review-fixes\\.tools\\artifacts\\bin\\QualifyingEvidence\\debug\\QualifyingEvidence.dll",
+        "--replay",
+        ".scratch/qualifying-race-start/evidence/review-remediation/control-track-monza-aero--2.json.gz"
+      ],
+      "cwd": "C:\\Projects\\F1Game\\.worktrees\\s08-review-fixes",
+      "pid": 21388,
+      "startedAt": "2026-10-17T11:02:04.198Z",
+      "status": "passed",
+      "exitCode": 0,
+      "elapsedMs": 717
+    },
+    "current-control-track-monza-aero-2.json.gz.json": {
+      "command": "dotnet",
+      "args": [
+        "C:\\Projects\\F1Game\\.worktrees\\s08-review-fixes\\.tools\\artifacts\\bin\\QualifyingEvidence\\debug\\QualifyingEvidence.dll",
+        "--replay",
+        ".scratch/qualifying-race-start/evidence/review-remediation/control-track-monza-aero-2.json.gz"
+      ],
+      "cwd": "C:\\Projects\\F1Game\\.worktrees\\s08-review-fixes",
+      "pid": 33612,
+      "startedAt": "2026-10-17T11:02:04.916Z",
+      "status": "passed",
+      "exitCode": 0,
+      "elapsedMs": 699
+    },
+    "current-track-monaco-equal.json.gz.json": {
+      "command": "dotnet",
+      "args": [
+        "C:\\Projects\\F1Game\\.worktrees\\s08-review-fixes\\.tools\\artifacts\\bin\\QualifyingEvidence\\debug\\QualifyingEvidence.dll",
+        "--replay",
+        ".scratch/qualifying-race-start/evidence/review-remediation/track-monaco-equal.json.gz"
+      ],
+      "cwd": "C:\\Projects\\F1Game\\.worktrees\\s08-review-fixes",
+      "pid": 26056,
+      "startedAt": "2026-10-17T11:02:05.616Z",
+      "status": "passed",
+      "exitCode": 0,
+      "elapsedMs": 6524
+    },
+    "current-track-monaco-mixed.json.gz.json": {
+      "command": "dotnet",
+      "args": [
+        "C:\\Projects\\F1Game\\.worktrees\\s08-review-fixes\\.tools\\artifacts\\bin\\QualifyingEvidence\\debug\\QualifyingEvidence.dll",
+        "--replay",
+        ".scratch/qualifying-race-start/evidence/review-remediation/track-monaco-mixed.json.gz"
+      ],
+      "cwd": "C:\\Projects\\F1Game\\.worktrees\\s08-review-fixes",
+      "pid": 23864,
+      "startedAt": "2026-10-17T11:02:12.140Z",
+      "status": "passed",
+      "exitCode": 0,
+      "elapsedMs": 6107
+    },
+    "current-track-monza-equal.json.gz.json": {
+      "command": "dotnet",
+      "args": [
+        "C:\\Projects\\F1Game\\.worktrees\\s08-review-fixes\\.tools\\artifacts\\bin\\QualifyingEvidence\\debug\\QualifyingEvidence.dll",
+        "--replay",
+        ".scratch/qualifying-race-start/evidence/review-remediation/track-monza-equal.json.gz"
+      ],
+      "cwd": "C:\\Projects\\F1Game\\.worktrees\\s08-review-fixes",
+      "pid": 17228,
+      "startedAt": "2026-10-17T11:02:18.247Z",
+      "status": "passed",
+      "exitCode": 0,
+      "elapsedMs": 5881
+    },
+    "current-track-monza-mixed.json.gz.json": {
+      "command": "dotnet",
+      "args": [
+        "C:\\Projects\\F1Game\\.worktrees\\s08-review-fixes\\.tools\\artifacts\\bin\\QualifyingEvidence\\debug\\QualifyingEvidence.dll",
+        "--replay",
+        ".scratch/qualifying-race-start/evidence/review-remediation/track-monza-mixed.json.gz"
+      ],
+      "cwd": "C:\\Projects\\F1Game\\.worktrees\\s08-review-fixes",
+      "pid": 31844,
+      "startedAt": "2026-10-17T11:02:24.128Z",
+      "status": "passed",
+      "exitCode": 0,
+      "elapsedMs": 5669
+    },
+    "evidence-checks.json": [
+      {
+        "id": "legacy-control-track-monaco-aero--2.json.gz",
+        "command": "dotnet",
+        "args": [
+          "C:\\Projects\\F1Game\\.worktrees\\s08-review-fixes\\.tools\\artifacts\\bin\\QualifyingEvidence\\debug\\QualifyingEvidence.dll",
+          "--replay",
+          ".scratch/qualifying-race-start/evidence/05/control-track-monaco-aero--2.json.gz"
+        ],
+        "cwd": "C:\\Projects\\F1Game\\.worktrees\\s08-review-fixes",
+        "pid": 29392,
+        "startedAt": "2026-10-17T11:01:17.057Z",
+        "status": "passed",
+        "exitCode": 0,
+        "elapsedMs": 1141
+      },
+      {
+        "id": "legacy-control-track-monaco-aero-2.json.gz",
+        "command": "dotnet",
+        "args": [
+          "C:\\Projects\\F1Game\\.worktrees\\s08-review-fixes\\.tools\\artifacts\\bin\\QualifyingEvidence\\debug\\QualifyingEvidence.dll",
+          "--replay",
+          ".scratch/qualifying-race-start/evidence/05/control-track-monaco-aero-2.json.gz"
+        ],
+        "cwd": "C:\\Projects\\F1Game\\.worktrees\\s08-review-fixes",
+        "pid": 32588,
+        "startedAt": "2026-10-17T11:01:18.199Z",
+        "status": "passed",
+        "exitCode": 0,
+        "elapsedMs": 744
+      },
+      {
+        "id": "legacy-control-track-monza-aero--2.json.gz",
+        "command": "dotnet",
+        "args": [
+          "C:\\Projects\\F1Game\\.worktrees\\s08-review-fixes\\.tools\\artifacts\\bin\\QualifyingEvidence\\debug\\QualifyingEvidence.dll",
+          "--replay",
+          ".scratch/qualifying-race-start/evidence/05/control-track-monza-aero--2.json.gz"
+        ],
+        "cwd": "C:\\Projects\\F1Game\\.worktrees\\s08-review-fixes",
+        "pid": 19964,
+        "startedAt": "2026-10-17T11:01:18.944Z",
+        "status": "passed",
+        "exitCode": 0,
+        "elapsedMs": 709
+      },
+      {
+        "id": "legacy-control-track-monza-aero-2.json.gz",
+        "command": "dotnet",
+        "args": [
+          "C:\\Projects\\F1Game\\.worktrees\\s08-review-fixes\\.tools\\artifacts\\bin\\QualifyingEvidence\\debug\\QualifyingEvidence.dll",
+          "--replay",
+          ".scratch/qualifying-race-start/evidence/05/control-track-monza-aero-2.json.gz"
+        ],
+        "cwd": "C:\\Projects\\F1Game\\.worktrees\\s08-review-fixes",
+        "pid": 22344,
+        "startedAt": "2026-10-17T11:01:19.653Z",
+        "status": "passed",
+        "exitCode": 0,
+        "elapsedMs": 711
+      },
+      {
+        "id": "legacy-track-monaco-equal.json.gz",
+        "command": "dotnet",
+        "args": [
+          "C:\\Projects\\F1Game\\.worktrees\\s08-review-fixes\\.tools\\artifacts\\bin\\QualifyingEvidence\\debug\\QualifyingEvidence.dll",
+          "--replay",
+          ".scratch/qualifying-race-start/evidence/05/track-monaco-equal.json.gz"
+        ],
+        "cwd": "C:\\Projects\\F1Game\\.worktrees\\s08-review-fixes",
+        "pid": 31064,
+        "startedAt": "2026-10-17T11:01:20.365Z",
+        "status": "passed",
+        "exitCode": 0,
+        "elapsedMs": 6388
+      },
+      {
+        "id": "legacy-track-monaco-mixed.json.gz",
+        "command": "dotnet",
+        "args": [
+          "C:\\Projects\\F1Game\\.worktrees\\s08-review-fixes\\.tools\\artifacts\\bin\\QualifyingEvidence\\debug\\QualifyingEvidence.dll",
+          "--replay",
+          ".scratch/qualifying-race-start/evidence/05/track-monaco-mixed.json.gz"
+        ],
+        "cwd": "C:\\Projects\\F1Game\\.worktrees\\s08-review-fixes",
+        "pid": 27056,
+        "startedAt": "2026-10-17T11:01:26.755Z",
+        "status": "passed",
+        "exitCode": 0,
+        "elapsedMs": 5942
+      },
+      {
+        "id": "legacy-track-monza-equal.json.gz",
+        "command": "dotnet",
+        "args": [
+          "C:\\Projects\\F1Game\\.worktrees\\s08-review-fixes\\.tools\\artifacts\\bin\\QualifyingEvidence\\debug\\QualifyingEvidence.dll",
+          "--replay",
+          ".scratch/qualifying-race-start/evidence/05/track-monza-equal.json.gz"
+        ],
+        "cwd": "C:\\Projects\\F1Game\\.worktrees\\s08-review-fixes",
+        "pid": 31028,
+        "startedAt": "2026-10-17T11:01:32.697Z",
+        "status": "passed",
+        "exitCode": 0,
+        "elapsedMs": 6047
+      },
+      {
+        "id": "legacy-track-monza-mixed.json.gz",
+        "command": "dotnet",
+        "args": [
+          "C:\\Projects\\F1Game\\.worktrees\\s08-review-fixes\\.tools\\artifacts\\bin\\QualifyingEvidence\\debug\\QualifyingEvidence.dll",
+          "--replay",
+          ".scratch/qualifying-race-start/evidence/05/track-monza-mixed.json.gz"
+        ],
+        "cwd": "C:\\Projects\\F1Game\\.worktrees\\s08-review-fixes",
+        "pid": 18596,
+        "startedAt": "2026-10-17T11:01:38.746Z",
+        "status": "passed",
+        "exitCode": 0,
+        "elapsedMs": 5849
+      },
+      {
+        "id": "generate-current",
+        "command": "dotnet",
+        "args": [
+          "C:\\Projects\\F1Game\\.worktrees\\s08-review-fixes\\.tools\\artifacts\\bin\\QualifyingEvidence\\debug\\QualifyingEvidence.dll",
+          ".scratch/qualifying-race-start/evidence/review-remediation"
+        ],
+        "cwd": "C:\\Projects\\F1Game\\.worktrees\\s08-review-fixes",
+        "pid": 15276,
+        "startedAt": "2026-10-17T11:01:44.596Z",
+        "status": "passed",
+        "exitCode": 0,
+        "elapsedMs": 16437
+      },
+      {
+        "id": "generate-controls",
+        "command": "dotnet",
+        "args": [
+          "C:\\Projects\\F1Game\\.worktrees\\s08-review-fixes\\.tools\\artifacts\\bin\\QualifyingEvidence\\debug\\QualifyingEvidence.dll",
+          "--controls",
+          ".scratch/qualifying-race-start/evidence/review-remediation"
+        ],
+        "cwd": "C:\\Projects\\F1Game\\.worktrees\\s08-review-fixes",
+        "pid": 33076,
+        "startedAt": "2026-10-17T11:02:01.034Z",
+        "status": "passed",
+        "exitCode": 0,
+        "elapsedMs": 1578
+      },
+      {
+        "id": "current-control-track-monaco-aero--2.json.gz",
+        "command": "dotnet",
+        "args": [
+          "C:\\Projects\\F1Game\\.worktrees\\s08-review-fixes\\.tools\\artifacts\\bin\\QualifyingEvidence\\debug\\QualifyingEvidence.dll",
+          "--replay",
+          ".scratch/qualifying-race-start/evidence/review-remediation/control-track-monaco-aero--2.json.gz"
+        ],
+        "cwd": "C:\\Projects\\F1Game\\.worktrees\\s08-review-fixes",
+        "pid": 33184,
+        "startedAt": "2026-10-17T11:02:02.613Z",
+        "status": "passed",
+        "exitCode": 0,
+        "elapsedMs": 821
+      },
+      {
+        "id": "current-control-track-monaco-aero-2.json.gz",
+        "command": "dotnet",
+        "args": [
+          "C:\\Projects\\F1Game\\.worktrees\\s08-review-fixes\\.tools\\artifacts\\bin\\QualifyingEvidence\\debug\\QualifyingEvidence.dll",
+          "--replay",
+          ".scratch/qualifying-race-start/evidence/review-remediation/control-track-monaco-aero-2.json.gz"
+        ],
+        "cwd": "C:\\Projects\\F1Game\\.worktrees\\s08-review-fixes",
+        "pid": 20728,
+        "startedAt": "2026-10-17T11:02:03.436Z",
+        "status": "passed",
+        "exitCode": 0,
+        "elapsedMs": 761
+      },
+      {
+        "id": "current-control-track-monza-aero--2.json.gz",
+        "command": "dotnet",
+        "args": [
+          "C:\\Projects\\F1Game\\.worktrees\\s08-review-fixes\\.tools\\artifacts\\bin\\QualifyingEvidence\\debug\\QualifyingEvidence.dll",
+          "--replay",
+          ".scratch/qualifying-race-start/evidence/review-remediation/control-track-monza-aero--2.json.gz"
+        ],
+        "cwd": "C:\\Projects\\F1Game\\.worktrees\\s08-review-fixes",
+        "pid": 21388,
+        "startedAt": "2026-10-17T11:02:04.198Z",
+        "status": "passed",
+        "exitCode": 0,
+        "elapsedMs": 717
+      },
+      {
+        "id": "current-control-track-monza-aero-2.json.gz",
+        "command": "dotnet",
+        "args": [
+          "C:\\Projects\\F1Game\\.worktrees\\s08-review-fixes\\.tools\\artifacts\\bin\\QualifyingEvidence\\debug\\QualifyingEvidence.dll",
+          "--replay",
+          ".scratch/qualifying-race-start/evidence/review-remediation/control-track-monza-aero-2.json.gz"
+        ],
+        "cwd": "C:\\Projects\\F1Game\\.worktrees\\s08-review-fixes",
+        "pid": 33612,
+        "startedAt": "2026-10-17T11:02:04.916Z",
+        "status": "passed",
+        "exitCode": 0,
+        "elapsedMs": 699
+      },
+      {
+        "id": "current-track-monaco-equal.json.gz",
+        "command": "dotnet",
+        "args": [
+          "C:\\Projects\\F1Game\\.worktrees\\s08-review-fixes\\.tools\\artifacts\\bin\\QualifyingEvidence\\debug\\QualifyingEvidence.dll",
+          "--replay",
+          ".scratch/qualifying-race-start/evidence/review-remediation/track-monaco-equal.json.gz"
+        ],
+        "cwd": "C:\\Projects\\F1Game\\.worktrees\\s08-review-fixes",
+        "pid": 26056,
+        "startedAt": "2026-10-17T11:02:05.616Z",
+        "status": "passed",
+        "exitCode": 0,
+        "elapsedMs": 6524
+      },
+      {
+        "id": "current-track-monaco-mixed.json.gz",
+        "command": "dotnet",
+        "args": [
+          "C:\\Projects\\F1Game\\.worktrees\\s08-review-fixes\\.tools\\artifacts\\bin\\QualifyingEvidence\\debug\\QualifyingEvidence.dll",
+          "--replay",
+          ".scratch/qualifying-race-start/evidence/review-remediation/track-monaco-mixed.json.gz"
+        ],
+        "cwd": "C:\\Projects\\F1Game\\.worktrees\\s08-review-fixes",
+        "pid": 23864,
+        "startedAt": "2026-10-17T11:02:12.140Z",
+        "status": "passed",
+        "exitCode": 0,
+        "elapsedMs": 6107
+      },
+      {
+        "id": "current-track-monza-equal.json.gz",
+        "command": "dotnet",
+        "args": [
+          "C:\\Projects\\F1Game\\.worktrees\\s08-review-fixes\\.tools\\artifacts\\bin\\QualifyingEvidence\\debug\\QualifyingEvidence.dll",
+          "--replay",
+          ".scratch/qualifying-race-start/evidence/review-remediation/track-monza-equal.json.gz"
+        ],
+        "cwd": "C:\\Projects\\F1Game\\.worktrees\\s08-review-fixes",
+        "pid": 17228,
+        "startedAt": "2026-10-17T11:02:18.247Z",
+        "status": "passed",
+        "exitCode": 0,
+        "elapsedMs": 5881
+      },
+      {
+        "id": "current-track-monza-mixed.json.gz",
+        "command": "dotnet",
+        "args": [
+          "C:\\Projects\\F1Game\\.worktrees\\s08-review-fixes\\.tools\\artifacts\\bin\\QualifyingEvidence\\debug\\QualifyingEvidence.dll",
+          "--replay",
+          ".scratch/qualifying-race-start/evidence/review-remediation/track-monza-mixed.json.gz"
+        ],
+        "cwd": "C:\\Projects\\F1Game\\.worktrees\\s08-review-fixes",
+        "pid": 31844,
+        "startedAt": "2026-10-17T11:02:24.128Z",
+        "status": "passed",
+        "exitCode": 0,
+        "elapsedMs": 5669
+      }
+    ],
+    "generate-controls.json": {
+      "command": "dotnet",
+      "args": [
+        "C:\\Projects\\F1Game\\.worktrees\\s08-review-fixes\\.tools\\artifacts\\bin\\QualifyingEvidence\\debug\\QualifyingEvidence.dll",
+        "--controls",
+        ".scratch/qualifying-race-start/evidence/review-remediation"
+      ],
+      "cwd": "C:\\Projects\\F1Game\\.worktrees\\s08-review-fixes",
+      "pid": 33076,
+      "startedAt": "2026-10-17T11:02:01.034Z",
+      "status": "passed",
+      "exitCode": 0,
+      "elapsedMs": 1578
+    },
+    "generate-current.json": {
+      "command": "dotnet",
+      "args": [
+        "C:\\Projects\\F1Game\\.worktrees\\s08-review-fixes\\.tools\\artifacts\\bin\\QualifyingEvidence\\debug\\QualifyingEvidence.dll",
+        ".scratch/qualifying-race-start/evidence/review-remediation"
+      ],
+      "cwd": "C:\\Projects\\F1Game\\.worktrees\\s08-review-fixes",
+      "pid": 15276,
+      "startedAt": "2026-10-17T11:01:44.596Z",
+      "status": "passed",
+      "exitCode": 0,
+      "elapsedMs": 16437
+    },
+    "green-simulation.json": {
+      "command": "dotnet",
+      "args": [
+        "test",
+        "tests/Game.Simulation.Tests",
+        "-p:",
+        "NuGetAudit=false",
+        "-p:",
+        "BuildInParallel=false",
+        "-m:1",
+        "--artifacts-path",
+        ".tools/artifacts",
+        "--filter",
+        "FullyQualifiedName~AutomaticRaceStartTests|FullyQualifiedName~ReplayTests|FullyQualifiedName~Segment|FullyQualifiedName~Qualifying"
+      ],
+      "cwd": "C:\\Projects\\F1Game\\.worktrees\\s08-review-fixes",
+      "pid": 33644,
+      "startedAt": "2026-10-17T11:00:14.213Z",
+      "status": "passed",
+      "exitCode": 0,
+      "elapsedMs": 10039
+    },
+    "legacy-control-track-monaco-aero--2.json.gz.json": {
+      "command": "dotnet",
+      "args": [
+        "C:\\Projects\\F1Game\\.worktrees\\s08-review-fixes\\.tools\\artifacts\\bin\\QualifyingEvidence\\debug\\QualifyingEvidence.dll",
+        "--replay",
+        ".scratch/qualifying-race-start/evidence/05/control-track-monaco-aero--2.json.gz"
+      ],
+      "cwd": "C:\\Projects\\F1Game\\.worktrees\\s08-review-fixes",
+      "pid": 29392,
+      "startedAt": "2026-10-17T11:01:17.057Z",
+      "status": "passed",
+      "exitCode": 0,
+      "elapsedMs": 1141
+    },
+    "legacy-control-track-monaco-aero-2.json.gz.json": {
+      "command": "dotnet",
+      "args": [
+        "C:\\Projects\\F1Game\\.worktrees\\s08-review-fixes\\.tools\\artifacts\\bin\\QualifyingEvidence\\debug\\QualifyingEvidence.dll",
+        "--replay",
+        ".scratch/qualifying-race-start/evidence/05/control-track-monaco-aero-2.json.gz"
+      ],
+      "cwd": "C:\\Projects\\F1Game\\.worktrees\\s08-review-fixes",
+      "pid": 32588,
+      "startedAt": "2026-10-17T11:01:18.199Z",
+      "status": "passed",
+      "exitCode": 0,
+      "elapsedMs": 744
+    },
+    "legacy-control-track-monza-aero--2.json.gz.json": {
+      "command": "dotnet",
+      "args": [
+        "C:\\Projects\\F1Game\\.worktrees\\s08-review-fixes\\.tools\\artifacts\\bin\\QualifyingEvidence\\debug\\QualifyingEvidence.dll",
+        "--replay",
+        ".scratch/qualifying-race-start/evidence/05/control-track-monza-aero--2.json.gz"
+      ],
+      "cwd": "C:\\Projects\\F1Game\\.worktrees\\s08-review-fixes",
+      "pid": 19964,
+      "startedAt": "2026-10-17T11:01:18.944Z",
+      "status": "passed",
+      "exitCode": 0,
+      "elapsedMs": 709
+    },
+    "legacy-control-track-monza-aero-2.json.gz.json": {
+      "command": "dotnet",
+      "args": [
+        "C:\\Projects\\F1Game\\.worktrees\\s08-review-fixes\\.tools\\artifacts\\bin\\QualifyingEvidence\\debug\\QualifyingEvidence.dll",
+        "--replay",
+        ".scratch/qualifying-race-start/evidence/05/control-track-monza-aero-2.json.gz"
+      ],
+      "cwd": "C:\\Projects\\F1Game\\.worktrees\\s08-review-fixes",
+      "pid": 22344,
+      "startedAt": "2026-10-17T11:01:19.653Z",
+      "status": "passed",
+      "exitCode": 0,
+      "elapsedMs": 711
+    },
+    "legacy-track-monaco-equal.json.gz.json": {
+      "command": "dotnet",
+      "args": [
+        "C:\\Projects\\F1Game\\.worktrees\\s08-review-fixes\\.tools\\artifacts\\bin\\QualifyingEvidence\\debug\\QualifyingEvidence.dll",
+        "--replay",
+        ".scratch/qualifying-race-start/evidence/05/track-monaco-equal.json.gz"
+      ],
+      "cwd": "C:\\Projects\\F1Game\\.worktrees\\s08-review-fixes",
+      "pid": 31064,
+      "startedAt": "2026-10-17T11:01:20.365Z",
+      "status": "passed",
+      "exitCode": 0,
+      "elapsedMs": 6388
+    },
+    "legacy-track-monaco-mixed.json.gz.json": {
+      "command": "dotnet",
+      "args": [
+        "C:\\Projects\\F1Game\\.worktrees\\s08-review-fixes\\.tools\\artifacts\\bin\\QualifyingEvidence\\debug\\QualifyingEvidence.dll",
+        "--replay",
+        ".scratch/qualifying-race-start/evidence/05/track-monaco-mixed.json.gz"
+      ],
+      "cwd": "C:\\Projects\\F1Game\\.worktrees\\s08-review-fixes",
+      "pid": 27056,
+      "startedAt": "2026-10-17T11:01:26.755Z",
+      "status": "passed",
+      "exitCode": 0,
+      "elapsedMs": 5942
+    },
+    "legacy-track-monza-equal.json.gz.json": {
+      "command": "dotnet",
+      "args": [
+        "C:\\Projects\\F1Game\\.worktrees\\s08-review-fixes\\.tools\\artifacts\\bin\\QualifyingEvidence\\debug\\QualifyingEvidence.dll",
+        "--replay",
+        ".scratch/qualifying-race-start/evidence/05/track-monza-equal.json.gz"
+      ],
+      "cwd": "C:\\Projects\\F1Game\\.worktrees\\s08-review-fixes",
+      "pid": 31028,
+      "startedAt": "2026-10-17T11:01:32.697Z",
+      "status": "passed",
+      "exitCode": 0,
+      "elapsedMs": 6047
+    },
+    "legacy-track-monza-mixed.json.gz.json": {
+      "command": "dotnet",
+      "args": [
+        "C:\\Projects\\F1Game\\.worktrees\\s08-review-fixes\\.tools\\artifacts\\bin\\QualifyingEvidence\\debug\\QualifyingEvidence.dll",
+        "--replay",
+        ".scratch/qualifying-race-start/evidence/05/track-monza-mixed.json.gz"
+      ],
+      "cwd": "C:\\Projects\\F1Game\\.worktrees\\s08-review-fixes",
+      "pid": 18596,
+      "startedAt": "2026-10-17T11:01:38.746Z",
+      "status": "passed",
+      "exitCode": 0,
+      "elapsedMs": 5849
+    },
+    "opening-browser.json": {
+      "command": "C:\\Users\\sbdev\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\node\\bin\\node.exe",
+      "args": [
+        "C:\\Projects\\F1Game\\.worktrees\\s08-review-fixes\\src\\frontend\\node_modules\\@playwright\\test\\cli.js",
+        "test",
+        "--config",
+        "playwright.shared.config.ts",
+        "tests/shared/opening.spec.ts"
+      ],
+      "cwd": "C:\\Projects\\F1Game\\.worktrees\\s08-review-fixes\\src\\frontend",
+      "pid": 6752,
+      "startedAt": "2026-10-17T11:02:13.654Z",
+      "status": "passed",
+      "exitCode": 0,
+      "elapsedMs": 56077
+    },
+    "red-assertion.json": {
+      "command": "dotnet",
+      "args": [
+        "test",
+        "tests/Game.Simulation.Tests",
+        "-p:",
+        "NuGetAudit=false",
+        "-p:",
+        "BuildInParallel=false",
+        "-m:1",
+        "--artifacts-path",
+        ".tools/artifacts",
+        "--filter",
+        "FullyQualifiedName~Automatic_opening"
+      ],
+      "cwd": "C:\\Projects\\F1Game\\.worktrees\\s08-review-fixes",
+      "pid": 26184,
+      "startedAt": "2026-10-17T06:13:58.381Z",
+      "status": "failed",
+      "exitCode": 1,
+      "elapsedMs": 7593
+    },
+    "red.json": {
+      "command": "dotnet",
+      "args": [
+        "test",
+        "tests/Game.Simulation.Tests",
+        "-p:",
+        "NuGetAudit=false",
+        "-p:",
+        "BuildInParallel=false",
+        "-m:",
+        "1",
+        "--artifacts-path",
+        ".tools/artifacts",
+        "--filter",
+        "FullyQualifiedName~Automatic_opening"
+      ],
+      "cwd": "C:\\Projects\\F1Game\\.worktrees\\s08-review-fixes",
+      "pid": 12336,
+      "startedAt": "2026-10-17T06:13:50.073Z",
+      "status": "failed",
+      "exitCode": 1,
+      "elapsedMs": 231
+    },
+    "tool-build.json": {
+      "command": "dotnet",
+      "args": [
+        "build",
+        "tools/QualifyingEvidence",
+        "-p:",
+        "NuGetAudit=false",
+        "-p:",
+        "BuildInParallel=false",
+        "-m:1",
+        "--artifacts-path",
+        ".tools/artifacts"
+      ],
+      "cwd": "C:\\Projects\\F1Game\\.worktrees\\s08-review-fixes",
+      "pid": 11824,
+      "startedAt": "2026-10-17T11:00:52.463Z",
+      "status": "passed",
+      "exitCode": 0,
+      "elapsedMs": 1710
+    }
+  },
+  "nonCommandAttempts": [
+    "Initial PowerShell test edit duplicated the new test; corrected before compiling.",
+    "Initial unquoted -m:1 command failed MSBuild argument parsing; corrected quoted form used.",
+    "First evidence orchestration import path failed before launching tools; corrected to ../tools/run-bounded.mjs.",
+    "One green attempt was not executed: automatic approval review usage limit. Retried successfully after user continue."
+  ],
+  "cleanup": "All owned listeners absent after bounded runs. Cached dependency junctions removed before commit; their target folders preserved."
+}
