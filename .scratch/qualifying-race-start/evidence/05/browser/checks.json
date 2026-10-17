@@ -1,0 +1,234 @@
+{
+  "sourceCommit": "539bb563b5b332d0e6f8bc7b1fb55842c1632b91",
+  "initialRun": {
+    "command": "node",
+    "args": [
+      "src/frontend/node_modules/@playwright/test/cli.js",
+      "test",
+      "--config",
+      "src/frontend/playwright.shared.config.ts",
+      "opening.spec.ts",
+      "qualifying-guidance.spec.ts"
+    ],
+    "cwd": "C:\\Projects\\F1Game\\.worktrees\\s08-05",
+    "pid": 4360,
+    "startedAt": "2026-10-17T06:01:54.084Z",
+    "status": "passed",
+    "exitCode": 0,
+    "elapsedMs": 117850
+  },
+  "initialListeners": [
+    {
+      "LocalAddress": "127.0.0.1",
+      "LocalPort": 19600,
+      "OwningProcess": 13012
+    },
+    {
+      "LocalAddress": "127.0.0.1",
+      "LocalPort": 19550,
+      "OwningProcess": 13012
+    },
+    {
+      "LocalAddress": "127.0.0.1",
+      "LocalPort": 19349,
+      "OwningProcess": 13012
+    },
+    {
+      "LocalAddress": "127.0.0.1",
+      "LocalPort": 19340,
+      "OwningProcess": 28712
+    },
+    {
+      "LocalAddress": "127.0.0.1",
+      "LocalPort": 9158,
+      "OwningProcess": 28712
+    },
+    {
+      "LocalAddress": "127.0.0.1",
+      "LocalPort": 4615,
+      "OwningProcess": 31964
+    }
+  ],
+  "runtime": {
+    "java": "root .tools/java/jdk-21.0.12.1+1/bin",
+    "chromium": "root .tools/playwright",
+    "dotnetArtifacts": ".tools/reports/s08-05-ui/artifacts",
+    "node": "24.19.0 cached primary runtime",
+    "NuGetAudit": "false scoped to behavioral check; not remediation"
+  },
+  "cleanup": {
+    "remainingListeners": [],
+    "ports": [
+      4515,
+      4615,
+      19349,
+      19340,
+      19550,
+      19600,
+      9158
+    ],
+    "checkedAt": "2026-10-17T06:05:40.107644Z"
+  },
+  "captures": [
+    {
+      "file": "phone-first-window.png",
+      "sha256": "675cd7687764d2e5582ffc85d6373c022965e7aa002d3db809fab9049ebcb59d"
+    },
+    {
+      "file": "phone-guided-draft.png",
+      "sha256": "582aa428e2c6310e1b70dbaa2c948a314ab345e893f613a61d63e66618b193ba"
+    },
+    {
+      "file": "phone-opening.png",
+      "sha256": "ff662b29b0ad040f05a78cdb72abe00cf3e56cabcdd5bdb2a190f02d6a20cd3f"
+    },
+    {
+      "file": "phone-q2-elimination.png",
+      "sha256": "bb1f0abf7dc71ab8b4f16f67adaf3ef0fe261a6b49912784b6f770c9c6c05567"
+    },
+    {
+      "file": "phone-recovered-lock.png",
+      "sha256": "043dd8fa941ab97bf25bf652a583b690ac5ec5071cf9241a84d9e6b80deceb94"
+    },
+    {
+      "file": "phone-two-car-choices.png",
+      "sha256": "d2d8661ad11a51f015185bb8bcdffe6541c827e2e87bd375a0a2e12edf9cd693"
+    },
+    {
+      "file": "public-final-grid.png",
+      "sha256": "396c06dc878d40857b702ae923cd16f35c32441e20d8d26e34c4129ab984ff3d"
+    },
+    {
+      "file": "public-first-window.png",
+      "sha256": "eef24aa444aaf30f4d1ef00cfa594b6be159b0985ff541a8469f4e02ee135eff"
+    },
+    {
+      "file": "public-opening.png",
+      "sha256": "d644f823093ba0768fabf734ae4a976c06e215db09cc04fe633d396d6d650e3b"
+    },
+    {
+      "file": "public-q1-fallback.png",
+      "sha256": "3c503781a31d425601c34a3a17ec7e9b87f10176d3d9c63ae5e3fc3354b4e22e"
+    },
+    {
+      "file": "public-q1-results.png",
+      "sha256": "5d2a65f24976adf05c4be51ab9abcd4d1bc9cbafc121b7d2d8ad6d2f510284a7"
+    },
+    {
+      "file": "tablet-handoff.png",
+      "sha256": "21379272e2773ff02d7dd5d6ec4d5f7c1eb40b4a3ff9d4cb37d73f482eb4d509"
+    },
+    {
+      "file": "tablet-identities-fallback.png",
+      "sha256": "ead8c953e7a72bdce49e3462a0031a54ce1bfe0b6c3355a0237e5a763a81a69c"
+    },
+    {
+      "file": "tablet-q1-results.png",
+      "sha256": "283cc1899455390154c6629de84c7d35c9e2ae4cabea96780fda3fc15a5b398f"
+    }
+  ],
+  "date": "2026-10-17",
+  "emulatorConfig": {
+    "emulators": {
+      "auth": {
+        "host": "127.0.0.1",
+        "port": 19349
+      },
+      "firestore": {
+        "host": "127.0.0.1",
+        "port": 19340,
+        "websocketPort": 9158
+      },
+      "hub": {
+        "host": "127.0.0.1",
+        "port": 19550
+      },
+      "logging": {
+        "host": "127.0.0.1",
+        "port": 19600
+      },
+      "ui": {
+        "enabled": false
+      },
+      "singleProjectMode": true
+    },
+    "firestore": {
+      "rules": "firestore.rules"
+    }
+  },
+  "affectedOpeningRun": {
+    "command": "node",
+    "args": [
+      "src/frontend/node_modules/@playwright/test/cli.js",
+      "test",
+      "--config",
+      "src/frontend/playwright.shared.config.ts",
+      "opening.spec.ts"
+    ],
+    "cwd": "C:\\Projects\\F1Game\\.worktrees\\s08-05",
+    "pid": 25264,
+    "startedAt": "2026-10-17T06:04:37.523Z",
+    "status": "passed",
+    "exitCode": 0,
+    "elapsedMs": 47883
+  },
+  "viewports": [
+    "360x800",
+    "768x1024",
+    "1920x1080"
+  ],
+  "results": {
+    "affected": "1 passed: opening 20.6s",
+    "sharedDependencyLinks": "Both verified junctions unlinked after owned services stopped",
+    "initial": "2 passed: opening 26.9s, Guided 4.8s",
+    "humanAcceptance": "Not observed: qualifying duration, household comprehension, start readability and overall pacing"
+  },
+  "finalListeners": [
+    {
+      "LocalAddress": "127.0.0.1",
+      "LocalPort": 19600,
+      "OwningProcess": 32380
+    },
+    {
+      "LocalAddress": "127.0.0.1",
+      "LocalPort": 19550,
+      "OwningProcess": 32380
+    },
+    {
+      "LocalAddress": "127.0.0.1",
+      "LocalPort": 19349,
+      "OwningProcess": 32380
+    },
+    {
+      "LocalAddress": "127.0.0.1",
+      "LocalPort": 19340,
+      "OwningProcess": 26940
+    },
+    {
+      "LocalAddress": "127.0.0.1",
+      "LocalPort": 9158,
+      "OwningProcess": 26940
+    },
+    {
+      "LocalAddress": "127.0.0.1",
+      "LocalPort": 4615,
+      "OwningProcess": 12536
+    }
+  ],
+  "frontendProcesses": [
+    {
+      "command": "node node_modules/@angular/cli/bin/ng.js serve --host 127.0.0.1 --port 4515 --proxy-config proxy.test.cjs",
+      "pid": 19384,
+      "run": "initial",
+      "evidence": "Playwright owned WebServer stdout",
+      "port": 4515
+    },
+    {
+      "command": "node node_modules/@angular/cli/bin/ng.js serve --host 127.0.0.1 --port 4515 --proxy-config proxy.test.cjs",
+      "pid": 26824,
+      "run": "affected opening",
+      "evidence": "Playwright owned WebServer stdout",
+      "port": 4515
+    }
+  ]
+}

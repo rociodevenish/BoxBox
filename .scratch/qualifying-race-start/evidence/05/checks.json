@@ -1,0 +1,360 @@
+{
+  "sourceCommit": "539bb563b5b332d0e6f8bc7b1fb55842c1632b91",
+  "runtime": {
+    "node": "24.19.0",
+    "NuGetAudit": "false, scoped existing advisory workaround",
+    "scope": "public simulation evidence; no new product behavior",
+    "dotnet": "10.0.401"
+  },
+  "sourceHash": "F63C5EA9FC26A5E4EDF58740F5BAAB039C4EBABF83EBA88BFD2C195AFE218995",
+  "commands": [
+    {
+      "file": "controls-command.json",
+      "record": {
+        "command": "dotnet",
+        "args": [
+          "run",
+          "--project",
+          "tools/QualifyingEvidence",
+          "-p:NuGetAudit=false",
+          "--",
+          "--controls",
+          ".tools/reports/s08-05/controls"
+        ],
+        "cwd": "C:\\Projects\\F1Game\\.worktrees\\s08-05",
+        "pid": 16876,
+        "startedAt": "2026-10-17T06:04:25.343Z",
+        "status": "passed",
+        "exitCode": 0,
+        "elapsedMs": 4703
+      }
+    },
+    {
+      "file": "generate-command-2.json",
+      "record": {
+        "command": "dotnet",
+        "args": [
+          "run",
+          "--project",
+          "tools/QualifyingEvidence",
+          "-p:",
+          "NuGetAudit=false",
+          "--",
+          ".tools/reports/s08-05/frozen"
+        ],
+        "cwd": "C:\\Projects\\F1Game\\.worktrees\\s08-05",
+        "pid": 1816,
+        "startedAt": "2026-10-17T06:02:00.212Z",
+        "status": "passed",
+        "exitCode": 0,
+        "elapsedMs": 25736
+      }
+    },
+    {
+      "file": "generate-command-3.json",
+      "record": {
+        "command": "dotnet",
+        "args": [
+          "run",
+          "--project",
+          "tools/QualifyingEvidence",
+          "-p:",
+          "NuGetAudit=false",
+          "--",
+          ".tools/reports/s08-05/frozen-compressed"
+        ],
+        "cwd": "C:\\Projects\\F1Game\\.worktrees\\s08-05",
+        "pid": 27756,
+        "startedAt": "2026-10-17T06:02:45.959Z",
+        "status": "passed",
+        "exitCode": 0,
+        "elapsedMs": 34451
+      }
+    },
+    {
+      "file": "generate-command.json",
+      "record": {
+        "command": "dotnet",
+        "args": [
+          "run",
+          "--project",
+          "tools/QualifyingEvidence",
+          "-p:",
+          "NuGetAudit=false",
+          "--",
+          ".tools/reports/s08-05/frozen"
+        ],
+        "cwd": "C:\\Projects\\F1Game\\.worktrees\\s08-05",
+        "pid": 16728,
+        "startedAt": "2026-10-17T06:01:45.92Z",
+        "status": "failed",
+        "exitCode": 1,
+        "elapsedMs": 4159
+      }
+    },
+    {
+      "file": "simulation-command-2.json",
+      "record": {
+        "command": "dotnet",
+        "args": [
+          "test",
+          "tests/Game.Simulation.Tests",
+          "--filter",
+          "FullyQualifiedName~QualifyingTests|FullyQualifiedName~AutomaticRaceStartTests",
+          "-p:NuGetAudit=false",
+          "-m:1",
+          "-p:BuildInParallel=false",
+          "--artifacts-path",
+          ".tools/reports/s08-05/test-artifacts"
+        ],
+        "cwd": "C:\\Projects\\F1Game\\.worktrees\\s08-05",
+        "pid": 7220,
+        "startedAt": "2026-10-17T06:03:11.275Z",
+        "status": "passed",
+        "exitCode": 0,
+        "elapsedMs": 12422
+      }
+    },
+    {
+      "file": "simulation-command.json",
+      "record": {
+        "command": "dotnet",
+        "args": [
+          "test",
+          "tests/Game.Simulation.Tests",
+          "--filter",
+          "FullyQualifiedName~QualifyingTests|FullyQualifiedName~AutomaticRaceStartTests",
+          "-p:",
+          "NuGetAudit=false",
+          "-m:",
+          "1",
+          "-p:",
+          "BuildInParallel=false",
+          "--artifacts-path",
+          ".tools/reports/s08-05/test-artifacts"
+        ],
+        "cwd": "C:\\Projects\\F1Game\\.worktrees\\s08-05",
+        "pid": 19532,
+        "startedAt": "2026-10-17T06:03:03.783Z",
+        "status": "failed",
+        "exitCode": 1,
+        "elapsedMs": 445
+      }
+    }
+  ],
+  "replays": [
+    {
+      "file": "replay-control-track-monaco-aero--2.json",
+      "record": {
+        "command": "dotnet",
+        "args": [
+          "run",
+          "--no-build",
+          "--project",
+          "tools/QualifyingEvidence",
+          "--",
+          "--replay",
+          ".scratch/qualifying-race-start/evidence/05/control-track-monaco-aero--2.json.gz"
+        ],
+        "cwd": "C:\\Projects\\F1Game\\.worktrees\\s08-05",
+        "pid": 6636,
+        "startedAt": "2026-10-17T06:05:28.556Z",
+        "status": "passed",
+        "exitCode": 0,
+        "elapsedMs": 2274
+      }
+    },
+    {
+      "file": "replay-control-track-monaco-aero-2.json",
+      "record": {
+        "command": "dotnet",
+        "args": [
+          "run",
+          "--no-build",
+          "--project",
+          "tools/QualifyingEvidence",
+          "--",
+          "--replay",
+          ".scratch/qualifying-race-start/evidence/05/control-track-monaco-aero-2.json.gz"
+        ],
+        "cwd": "C:\\Projects\\F1Game\\.worktrees\\s08-05",
+        "pid": 30572,
+        "startedAt": "2026-10-17T06:05:32.812Z",
+        "status": "passed",
+        "exitCode": 0,
+        "elapsedMs": 1761
+      }
+    },
+    {
+      "file": "replay-control-track-monza-aero--2.json",
+      "record": {
+        "command": "dotnet",
+        "args": [
+          "run",
+          "--no-build",
+          "--project",
+          "tools/QualifyingEvidence",
+          "--",
+          "--replay",
+          ".scratch/qualifying-race-start/evidence/05/control-track-monza-aero--2.json.gz"
+        ],
+        "cwd": "C:\\Projects\\F1Game\\.worktrees\\s08-05",
+        "pid": 8148,
+        "startedAt": "2026-10-17T06:05:20.224Z",
+        "status": "passed",
+        "exitCode": 0,
+        "elapsedMs": 2248
+      }
+    },
+    {
+      "file": "replay-control-track-monza-aero-2.json",
+      "record": {
+        "command": "dotnet",
+        "args": [
+          "run",
+          "--no-build",
+          "--project",
+          "tools/QualifyingEvidence",
+          "--",
+          "--replay",
+          ".scratch/qualifying-race-start/evidence/05/control-track-monza-aero-2.json.gz"
+        ],
+        "cwd": "C:\\Projects\\F1Game\\.worktrees\\s08-05",
+        "pid": 23128,
+        "startedAt": "2026-10-17T06:05:24.565Z",
+        "status": "passed",
+        "exitCode": 0,
+        "elapsedMs": 2186
+      }
+    },
+    {
+      "file": "replay-monaco-equal.json",
+      "record": {
+        "command": "dotnet",
+        "args": [
+          "run",
+          "--no-build",
+          "--project",
+          "tools/QualifyingEvidence",
+          "--",
+          "--replay",
+          ".scratch/qualifying-race-start/evidence/05/track-monaco-equal.json.gz"
+        ],
+        "cwd": "C:\\Projects\\F1Game\\.worktrees\\s08-05",
+        "pid": 25236,
+        "startedAt": "2026-10-17T06:04:36.853Z",
+        "status": "passed",
+        "exitCode": 0,
+        "elapsedMs": 9971
+      }
+    },
+    {
+      "file": "replay-monaco-mixed.json",
+      "record": {
+        "command": "dotnet",
+        "args": [
+          "run",
+          "--no-build",
+          "--project",
+          "tools/QualifyingEvidence",
+          "--",
+          "--replay",
+          ".scratch/qualifying-race-start/evidence/05/track-monaco-mixed.json.gz"
+        ],
+        "cwd": "C:\\Projects\\F1Game\\.worktrees\\s08-05",
+        "pid": 3276,
+        "startedAt": "2026-10-17T06:05:01.643Z",
+        "status": "passed",
+        "exitCode": 0,
+        "elapsedMs": 13161
+      }
+    },
+    {
+      "file": "replay-monza-equal.json",
+      "record": {
+        "command": "dotnet",
+        "args": [
+          "run",
+          "--no-build",
+          "--project",
+          "tools/QualifyingEvidence",
+          "--",
+          "--replay",
+          ".scratch/qualifying-race-start/evidence/05/track-monza-equal.json.gz"
+        ],
+        "cwd": "C:\\Projects\\F1Game\\.worktrees\\s08-05",
+        "pid": 15772,
+        "startedAt": "2026-10-17T06:03:30.921Z",
+        "status": "passed",
+        "exitCode": 0,
+        "elapsedMs": 12521
+      }
+    },
+    {
+      "file": "replay-monza-mixed.json",
+      "record": {
+        "command": "dotnet",
+        "args": [
+          "run",
+          "--no-build",
+          "--project",
+          "tools/QualifyingEvidence",
+          "--",
+          "--replay",
+          ".scratch/qualifying-race-start/evidence/05/track-monza-mixed.json.gz"
+        ],
+        "cwd": "C:\\Projects\\F1Game\\.worktrees\\s08-05",
+        "pid": 3408,
+        "startedAt": "2026-10-17T06:03:56.489Z",
+        "status": "passed",
+        "exitCode": 0,
+        "elapsedMs": 8888
+      }
+    }
+  ],
+  "savedFiles": [
+    {
+      "file": "control-track-monaco-aero--2.json.gz",
+      "bytes": 236867,
+      "sha256": "B4896ED612FDF045687CEE149BA747019DC1CC7F1AED027157113599D7D9C71D"
+    },
+    {
+      "file": "control-track-monaco-aero-2.json.gz",
+      "bytes": 233851,
+      "sha256": "E35CB65049057A0B841F989B11E98B435206E8FFD0DAADC0749C569736D80EDE"
+    },
+    {
+      "file": "control-track-monza-aero--2.json.gz",
+      "bytes": 238765,
+      "sha256": "ADCEC6E5FE43399CC1335AD7627C8DE3E6C232A2B4E8EB40D34BB51E0C43485D"
+    },
+    {
+      "file": "control-track-monza-aero-2.json.gz",
+      "bytes": 243326,
+      "sha256": "FCE6A79544719C25E5794B2E8CB557ABA9AFA8F62E285F1BF2BBF867C6B5FAB5"
+    },
+    {
+      "file": "track-monaco-equal.json.gz",
+      "bytes": 2195477,
+      "sha256": "94009690BCA8B1D34F32F42B34EDF691439D69CB8B8694E3F891281F88669541"
+    },
+    {
+      "file": "track-monaco-mixed.json.gz",
+      "bytes": 5649346,
+      "sha256": "412E9C3746440253979848C347DFD0E3C4BC4C832E808313FEC15E913BCA15AF"
+    },
+    {
+      "file": "track-monza-equal.json.gz",
+      "bytes": 2315746,
+      "sha256": "0241E06A325D1B9A43DC9D31FE3A5CA40E262229DC7B348FB935CED6550A7D6A"
+    },
+    {
+      "file": "track-monza-mixed.json.gz",
+      "bytes": 5786613,
+      "sha256": "F2D4486467CCB0AB6B1EFB3B53201929885F58FEF2ED0A1EB6EAA274AED32249"
+    }
+  ],
+  "servicesLaunched": "none by simulation worker; browser owned services/config/cleanup in browser/checks.json",
+  "testResult": "12 passed, 0 failed, 0 skipped",
+  "replayResult": "400 full-field saved weekends passed in eight separate invocations"
+}

@@ -3,7 +3,7 @@ import {resolve} from 'node:path';
 import {captures} from '../../playwright.runtime';
 import {test,expect} from '@playwright/test';
 
-const evidence=resolve(captures,'s08-03');
+const evidence=resolve(captures,process.env['F1_S08_EVIDENCE']??'s08-03');
 test.beforeAll(()=>mkdirSync(evidence,{recursive:true}));
 test.use({hasTouch:true,reducedMotion:'reduce',actionTimeout:15000});
 

@@ -1,0 +1,84 @@
+{
+  "definition": "grid.position minus opening Classification.position; positive is gain; each driver-weekend counted once",
+  "files": [
+    {
+      "file": "control-track-monaco-aero--2.json.gz",
+      "weekends": 4,
+      "weekendsWithMovement": 3,
+      "movedEntries": 8,
+      "gains": 4,
+      "losses": 4,
+      "maximumAbsolutePositions": 1
+    },
+    {
+      "file": "control-track-monaco-aero-2.json.gz",
+      "weekends": 4,
+      "weekendsWithMovement": 3,
+      "movedEntries": 12,
+      "gains": 5,
+      "losses": 7,
+      "maximumAbsolutePositions": 3
+    },
+    {
+      "file": "control-track-monza-aero--2.json.gz",
+      "weekends": 4,
+      "weekendsWithMovement": 2,
+      "movedEntries": 6,
+      "gains": 3,
+      "losses": 3,
+      "maximumAbsolutePositions": 1
+    },
+    {
+      "file": "control-track-monza-aero-2.json.gz",
+      "weekends": 4,
+      "weekendsWithMovement": 2,
+      "movedEntries": 8,
+      "gains": 3,
+      "losses": 5,
+      "maximumAbsolutePositions": 3
+    },
+    {
+      "file": "track-monaco-equal.json.gz",
+      "weekends": 96,
+      "weekendsWithMovement": 65,
+      "movedEntries": 253,
+      "gains": 112,
+      "losses": 141,
+      "maximumAbsolutePositions": 4
+    },
+    {
+      "file": "track-monaco-mixed.json.gz",
+      "weekends": 96,
+      "weekendsWithMovement": 74,
+      "movedEntries": 255,
+      "gains": 116,
+      "losses": 139,
+      "maximumAbsolutePositions": 4
+    },
+    {
+      "file": "track-monza-equal.json.gz",
+      "weekends": 96,
+      "weekendsWithMovement": 65,
+      "movedEntries": 254,
+      "gains": 106,
+      "losses": 148,
+      "maximumAbsolutePositions": 4
+    },
+    {
+      "file": "track-monza-mixed.json.gz",
+      "weekends": 96,
+      "weekendsWithMovement": 68,
+      "movedEntries": 255,
+      "gains": 103,
+      "losses": 152,
+      "maximumAbsolutePositions": 7
+    }
+  ],
+  "totals": {
+    "weekends": 400,
+    "weekendsWithMovement": 282,
+    "movedEntries": 1051,
+    "gains": 452,
+    "losses": 599
+  }
+}
