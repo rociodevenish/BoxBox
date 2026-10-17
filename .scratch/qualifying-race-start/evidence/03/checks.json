@@ -1,0 +1,174 @@
+[
+  {
+    "command": "node",
+    "args": [
+      "tools/auth-emulator/node_modules/firebase-tools/lib/bin/firebase.js",
+      "emulators:exec",
+      "--only",
+      "auth,firestore",
+      "--project",
+      "demo-f1game",
+      "--config",
+      ".tools/s08-emulators.json",
+      "--non-interactive",
+      "dotnet test tests/Game.Api.Tests -p:NuGetAudit=false -p:BuildInParallel=false -m:1 --filter FullyQualifiedName~QualifyingTests --nologo"
+    ],
+    "cwd": "C:\\Projects\\F1Game\\.worktrees\\s08-03",
+    "pid": 8408,
+    "startedAt": "2026-10-17T05:46:57.2Z",
+    "status": "failed",
+    "exitCode": 1,
+    "elapsedMs": 36884
+  },
+  {
+    "command": "node",
+    "args": [
+      "tools/auth-emulator/node_modules/firebase-tools/lib/bin/firebase.js",
+      "emulators:exec",
+      "--only",
+      "auth,firestore",
+      "--project",
+      "demo-f1game",
+      "--config",
+      ".tools/s08-emulators.json",
+      "--non-interactive",
+      "dotnet test tests/Game.Api.Tests -p:NuGetAudit=false -p:BuildInParallel=false -m:1 --filter FullyQualifiedName~Guided_plans --nologo"
+    ],
+    "cwd": "C:\\Projects\\F1Game\\.worktrees\\s08-03",
+    "pid": 2764,
+    "startedAt": "2026-10-17T05:48:03.772Z",
+    "status": "passed",
+    "exitCode": 0,
+    "elapsedMs": 19258
+  },
+  {
+    "command": "node",
+    "args": [
+      "tools/auth-emulator/node_modules/firebase-tools/lib/bin/firebase.js",
+      "emulators:exec",
+      "--only",
+      "auth,firestore",
+      "--project",
+      "demo-f1game",
+      "--config",
+      ".tools/s08-emulators.json",
+      "--non-interactive",
+      "dotnet test tests/Game.Api.Tests -p:NuGetAudit=false -p:BuildInParallel=false -m:1 --filter FullyQualifiedName~QualifyingTests --nologo"
+    ],
+    "cwd": "C:\\Projects\\F1Game\\.worktrees\\s08-03",
+    "pid": 7780,
+    "startedAt": "2026-10-17T05:42:53.977Z",
+    "status": "failed",
+    "exitCode": 1,
+    "elapsedMs": 36686
+  },
+  {
+    "command": "node",
+    "args": [
+      "tools/auth-emulator/node_modules/firebase-tools/lib/bin/firebase.js",
+      "emulators:exec",
+      "--only",
+      "auth,firestore",
+      "--project",
+      "demo-f1game",
+      "--config",
+      ".tools/s08-emulators.json",
+      "--non-interactive",
+      "dotnet test tests/Game.Api.Tests -p:NuGetAudit=false -p:BuildInParallel=false -m:1 --filter FullyQualifiedName~QualifyingTests --nologo"
+    ],
+    "cwd": "C:\\Projects\\F1Game\\.worktrees\\s08-03",
+    "pid": 27784,
+    "startedAt": "2026-10-17T05:43:55.195Z",
+    "status": "passed",
+    "exitCode": 0,
+    "elapsedMs": 33299
+  },
+  {
+    "command": "node",
+    "args": [
+      "src/frontend/node_modules/@playwright/test/cli.js",
+      "test",
+      "--config",
+      ".tools/playwright-s08.config.cjs"
+    ],
+    "cwd": "C:\\Projects\\F1Game\\.worktrees\\s08-03",
+    "pid": 31936,
+    "startedAt": "2026-10-17T05:48:45.534Z",
+    "status": "passed",
+    "exitCode": 0,
+    "elapsedMs": 32944
+  },
+  {
+    "command": "node",
+    "args": [
+      "src/frontend/node_modules/@playwright/test/cli.js",
+      "test",
+      "--config",
+      ".tools/playwright-s08.config.cjs"
+    ],
+    "cwd": "C:\\Projects\\F1Game\\.worktrees\\s08-03",
+    "pid": 27640,
+    "startedAt": "2026-10-17T05:45:05Z",
+    "status": "passed",
+    "exitCode": 0,
+    "elapsedMs": 57640
+  },
+  {
+    "command": "dotnet",
+    "args": [
+      "test",
+      "tests/Game.Simulation.Tests",
+      "-p:",
+      "NuGetAudit=false",
+      "-m:",
+      "1",
+      "-p:",
+      "BuildInParallel=false",
+      "--filter",
+      "FullyQualifiedName~QualifyingTests",
+      "--nologo"
+    ],
+    "cwd": "C:\\Projects\\F1Game\\.worktrees\\s08-03",
+    "pid": 5356,
+    "startedAt": "2026-10-17T05:46:24.082Z",
+    "status": "failed",
+    "exitCode": 1,
+    "elapsedMs": 298
+  },
+  {
+    "command": "dotnet",
+    "args": [
+      "test",
+      "tests/Game.Simulation.Tests",
+      "-p:",
+      "NuGetAudit=false",
+      "--filter",
+      "FullyQualifiedName~QualifyingTests",
+      "--nologo"
+    ],
+    "cwd": "C:\\Projects\\F1Game\\.worktrees\\s08-03",
+    "pid": 19904,
+    "startedAt": "2026-10-17T05:46:46.471Z",
+    "status": "passed",
+    "exitCode": 0,
+    "elapsedMs": 5655
+  },
+  {
+    "command": "dotnet",
+    "args": [
+      "test",
+      "tests/Game.Simulation.Tests",
+      "-p:",
+      "NuGetAudit=false",
+      "--filter",
+      "FullyQualifiedName~QualifyingTests",
+      "--nologo"
+    ],
+    "cwd": "C:\\Projects\\F1Game\\.worktrees\\s08-03",
+    "pid": 8096,
+    "startedAt": "2026-10-17T05:47:45.091Z",
+    "status": "passed",
+    "exitCode": 0,
+    "elapsedMs": 3708
+  }
+]

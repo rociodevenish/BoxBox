@@ -7,7 +7,6 @@ namespace Game.Application;
 public sealed partial class SessionCoordinator
 {
     private const string QualifyingModule="qualifying-session-v1";
-    private const string QualifyingBaseline="safe-baseline-v1";
     private sealed record AcceptedQualifyingStart(string Fingerprint,StartQualifyingAck Ack);
     private sealed record AcceptedQualifying(string Fingerprint,QualifyingAck Ack);
     private sealed record QualifyingLock(string Source,string PolicyVersion,IReadOnlyList<QualifyingChoice> Choices);
@@ -15,7 +14,7 @@ public sealed partial class SessionCoordinator
         FrozenPreparationContext Preparation,QualifyingAttemptInput Input,Dictionary<string,QualifyingLock> Locks,Dictionary<string,QualifyingLock> TimeoutLocks,
         Dictionary<string,AcceptedQualifying> Commands,Dictionary<string,AcceptedQualifyingStart> Starts,
         DecisionTimingPolicy TimingPolicy,DateTimeOffset? Deadline,ScheduledWakeup? Wakeup,
-        string Lifecycle="awaiting-decisions",bool Paused=false,double? Remaining=null,QualifyingResult? Result=null,QualifyingAttemptInput[]? Attempts=null,QualifyingResult[]? Results=null,QualifyingRank[]? Grid=null,Dictionary<string,DueTransitionInput>? ContinueCommands=null);
+        string Lifecycle="awaiting-decisions",bool Paused=false,double? Remaining=null,QualifyingResult? Result=null,QualifyingAttemptInput[]? Attempts=null,QualifyingResult[]? Results=null,QualifyingRank[]? Grid=null,Dictionary<string,DueTransitionInput>? ContinueCommands=null,Dictionary<string,RecordedQualifyingAdvice>? Assistance=null);
 
     public StartQualifyingAck StartQualifying(string id,AuthIdentity identity,StartQualifyingCommand command)
     {
@@ -48,15 +47,15 @@ public sealed partial class SessionCoordinator
                     t.Value.Source,t.Value.Preset,t.Value.Setup,t.Value.Effective,t.Value.AutomaticChoices)).ToImmutableArray());
             var order=frozen.Teams.SelectMany(t=>t.Effective.Cars.Select(c=>c.Source.EntryId)).ToArray();
             var input=new QualifyingAttemptInput("Q1",1,lobby.Input.Seed!.Value,frozen.Teams.Select(t=>t.Effective).ToArray(),[],order,new());
-            var timing=BuildTimingPolicy(lobby,lobby.RequiredTeams) with{TimeoutPolicy="Safe for missing teams only; accepted choices are preserved. Unclaimed teams use recorded Safe choices (safe-baseline-v1)."};
+            var timing=BuildTimingPolicy(lobby,lobby.RequiredTeams) with{TimeoutPolicy=QualifyingTimeoutDisclosure};
             var deadline=clock.GetUtcNow().AddSeconds(timing.EffectiveSeconds);var revision=lobby.Revision+1;
             var locks=new Dictionary<string,QualifyingLock>();
-            foreach(var team in lobby.ScriptedTeams)locks[team]=SafeQualifyingLock(input,team,"unclaimed-baseline");
             var ack=new StartQualifyingAck(key,id,revision,"Q1",frozen.ContextId);
-            var state=new QualifyingState(QualifyingModule,"Q1",revision,revision,frozen,input,locks,lobby.RequiredTeams.ToDictionary(team=>team,team=>SafeQualifyingLock(input,team,"timeout-baseline")),[],new(){{key,new(fingerprint,ack)}},timing,deadline,
+            var state=new QualifyingState(QualifyingModule,"Q1",revision,revision,frozen,input,locks,[],[],new(){{key,new(fingerprint,ack)}},timing,deadline,
                 new(id,Guid.NewGuid().ToString("N"),"qualifying-decision",1,revision,deadline));
-            // Validate the full recorded baseline at the public simulation seam before any mutation.
-            _=Qualifying.Resolve(input with{Choices=order.Select(entry=>new QualifyingChoice(entry,"Safe")).ToArray()});
+            state=FreezeQualifyingPolicies(lobby,state);
+            // Validate the frozen complete policy choices before any mutation.
+            _=Qualifying.Resolve(input with{Choices=state.Locks.Values.Concat(state.TimeoutLocks.Values).SelectMany(plan=>plan.Choices).ToArray()});
             foreach(var (teamId,team) in preparation.Teams.ToArray())preparation.Teams[teamId]=team with{Lifecycle="locked",Revision=team.Revision+1};
             WritePreparation(lobby,preparation with{Frozen=frozen});
             lobby.Lifecycle="qualifying";lobby.Revision=revision;WriteQualifying(lobby,state);Persist(id);return ack;
@@ -110,8 +109,6 @@ public sealed partial class SessionCoordinator
             Lifecycle=grid is null?"session-result":"grid-ready",Deadline=grid is null&&!state.Paused?due:null,
             Wakeup=grid is null&&!state.Paused?new(lobby.Id,Guid.NewGuid().ToString("N"),"qualifying-presentation",Stage(state),state.WindowRevision,due):null};
     }
-    private static QualifyingLock SafeQualifyingLock(QualifyingAttemptInput input,string team,string source)=>
-        new(source,QualifyingBaseline,input.Weekends.SelectMany(w=>w.Cars).Where(c=>c.Source.TeamId==team&&input.PreSessionOrder.Contains(c.Source.EntryId)).Select(c=>new QualifyingChoice(c.Source.EntryId,"Safe")).ToArray());
     private static QualifyingState ReadQualifying(Lobby lobby)
     {
         if(!lobby.ModuleState.TryGetValue(QualifyingModule,out var json))throw new SessionFault(SessionFailure.Conflict,"Begin qualifying first.");
@@ -151,10 +148,10 @@ public sealed partial class SessionCoordinator
         var circuit=state.Input.Weekends[0].Source.Circuit;
         return new(lobby.Id,state.Revision,state.Session,state.Lifecycle,state.Paused,circuit.Id,circuit.Name,circuit.Slug,AllQualifyingDrivers(state),
             state.Input.Weekends.Select(w=>w.Cars[0].Source.TeamId).Where(team=>QualifyingDrivers(state).Any(d=>d.TeamId==team)).Select(team=>new QualifyingTeamStatus(team,state.Locks.ContainsKey(team),state.Locks.GetValueOrDefault(team)?.Source)).ToArray(),
-            state.Result,state.Lifecycle=="awaiting-decisions"?state.Deadline:null,state.TimingPolicy,state.Input.Rules.Version,state.Input.Rules.Retain,"Unclaimed and missing teams use Safe for both cars (safe-baseline-v1). Accepted locks are preserved.",state.Results??[],state.Grid??[],state.WindowRevision,state.Lifecycle=="session-result"?state.Deadline:null);
+            state.Result,state.Lifecycle=="awaiting-decisions"?state.Deadline:null,state.TimingPolicy,state.Input.Rules.Version,state.Input.Rules.Retain,state.TimingPolicy.TimeoutPolicy,state.Results??[],state.Grid??[],state.WindowRevision,state.Lifecycle=="session-result"?state.Deadline:null);
     }
     private static QualifyingTeamSnapshot ProjectQualifyingTeam(Lobby lobby,QualifyingState state,string team,Assignment assignment)=>new(lobby.Id,team,state.WindowRevision,assignment.Revision,state.Session,
-        state.Lifecycle,state.Locks.ContainsKey(team),QualifyingDrivers(state).Where(c=>c.TeamId==team).ToArray(),state.Locks.GetValueOrDefault(team)?.Choices);
+        state.Lifecycle,state.Locks.ContainsKey(team),QualifyingDrivers(state).Where(c=>c.TeamId==team).ToArray(),state.Locks.GetValueOrDefault(team)?.Choices,ProjectQualifyingAdvice(state,team),state.Locks.GetValueOrDefault(team)?.Source,state.Locks.GetValueOrDefault(team)?.PolicyVersion);
     public IReadOnlyList<QualifyingTeamSnapshot> QualifyingControllerUpdates(string id)
     {lock(gate){var lobby=RequireLobby(id);var state=ReadQualifying(lobby);return lobby.Assignments.Select(p=>ProjectQualifyingTeam(lobby,state,p.Key,p.Value)).ToArray();}}
 }
