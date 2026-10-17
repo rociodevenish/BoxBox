@@ -7,6 +7,20 @@ namespace Game.Simulation;
 /// <summary>Versioned supplied content, packaged with this model rather than read from mutable runtime files.</summary>
 public static class WeekendPresetCatalog
 {
+    // Explicit lab opt-in; ordinary prepared weekends retain the historical incident-free contract.
+    public static (RaceConfiguration Configuration, Driver[] Drivers) IncidentInputs(EffectiveWeekend weekend, IncidentTuning tuning)
+    {
+        using var tracks = Read("weekend.tracks.json");
+        var track = Find(tracks.RootElement.GetProperty("tracks"), weekend.Source.Circuit.Id);
+        var ordinal = track.GetProperty("raceCharacteristics").GetProperty("mechanicalStress").GetDouble();
+        if (ordinal is < 1 or > 5) throw new ArgumentException("Mechanical Stress must be an authored 1–5 ordinal.");
+        // Authored hypothesis: ordinal endpoints map to 0.5–1.5 operating stress, not headline stars.
+        var configured = tuning with { MechanicalStress = .5 + (ordinal - 1) / 4 };
+        return (weekend.Configuration with { Incidents = configured }, weekend.Cars.Select(car => car.RaceDriver with {
+            IncidentProfile = new(car.Source.Driver.Ratings["errorControl"], car.Source.Car.Ratings["reliability"],
+                SourceVersion: $"local-profile-v1/{car.Source.Driver.Version}/{car.Source.Car.Version}/{Version(tracks)}")
+        }).ToArray());
+    }
     public static WeekendPreset Open(string circuitId, string firstDriverId = "driver-max-verstappen",
         string secondDriverId = "driver-george-russell")
     {
