@@ -67,7 +67,7 @@ public static class BrowserReplay
         if (replay.Plan.Scheduled.Any(entry => entry is null || entry.Phase < 0 || entry.Phase >= record.Phases.Count)
             || replay.Plan.Scheduled.Length != record.Phases.Count * replay.Drivers.Length)
             throw new ArgumentException("Replay must contain exactly one accepted decision per driver and recorded phase.");
-        var engine = new RaceEngine(replay.Configuration, replay.Drivers, replay.Seed);
+        var engine = SimulationReplay.CreateEngine(replay with{Opening=record.Replay.Opening});
         var verified = new List<VerifiedReplayPhase>();
         for (var phase = 0; phase < record.Phases.Count; phase++)
         {

@@ -1,0 +1,13 @@
+<section aria-label="Automatic race opening" class="opening">
+ <p class="eyebrow">Automatic standing start</p><h2>{{revealing()?'Lights out · the field is away':'Opening lap confirmed'}}</h2>
+ <p>No launch choice needed. Starts, Racecraft and the prepared car shape the opening.</p>
+ @if(error()){<p role="alert">{{error()}}</p>}
+ @if(state();as race){@if(race.opening;as opening){
+  @if(revealing()){<div class="lights" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div><p role="status">Following the opening lap…</p><button (click)="skip()">Skip start presentation</button>}
+  @else{<p role="status">Exact order at {{opening.boundary.toLowerCase()}}. Skipping and reduced motion preserve this result.</p>
+   <ol class="gains">@for(car of opening.cars;track car.entryId){<li><b class="position">{{car.position}}</b>@if(!failed().includes(car.entryId)){<img [src]="'/portraits/'+car.slug+'-384.webp'" alt="" (error)="portraitFailed(car.entryId)" />}<strong>{{car.name}}<small>Grid {{car.gridPosition}} · {{car.teamId}}</small></strong><span [class.gain]="car.positionsGained>0">{{car.positionsGained>0?'+'+car.positionsGained:car.positionsGained===0?'—':car.positionsGained}}</span></li>}</ol>
+  }
+  <nav>@if(host()&&race.lifecycle==='phase-result'){<button [disabled]="race.paused||busy()" (click)="continue()">Continue to first race window</button>}<a [href]="racePath()">{{race.lifecycle==='awaiting-decisions'?'Open first race window':'Open race display and controls'}}</a></nav>
+  <p>{{race.paused?'Play paused · waiting for host resume':race.lifecycle==='awaiting-decisions'?'First decisions are open from the recorded opening state.':'The first decision clock starts after the server presentation completes.'}}</p>
+ }}
+</section>

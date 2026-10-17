@@ -29,7 +29,8 @@ public sealed partial class SessionCoordinator
   }finally{mutations.Release();}
  } private void OpenHouseholdWindow(Session session)
  {
-  session.Phase++;session.Revision++;session.WindowRevision=session.Revision;session.Lifecycle="awaiting-decisions";
+  if(!IsOpeningPresentation(session))session.Phase++;
+  session.Revision++;session.WindowRevision=session.Revision;session.Lifecycle="awaiting-decisions";
   session.ConfirmedPlan=null;session.Locks.Clear();session.HumanDecisions.Clear();
   session.FrozenOpponents=OpponentScript.Freeze(session.Engine,session.Drivers.Select(driver=>driver.Team).Distinct().Where(team=>!session.RequiredTeams.Contains(team)),session.Configuration.Laps,session.ScriptVersion);
   session.WindowTimestamp=System.Diagnostics.Stopwatch.GetTimestamp();

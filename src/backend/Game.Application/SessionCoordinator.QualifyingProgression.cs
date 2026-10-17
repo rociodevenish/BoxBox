@@ -97,5 +97,7 @@ public sealed partial class SessionCoordinator
             open=lobby.Input.Mode=="Competitive"?[]:teams.Where(t=>lobby.Assignments[t.TeamId].Approved&&lobby.Assignments[t.TeamId].Control=="Open").ToArray();
         }
         try{await notifications.PublishQualifying(display,teams,open);}catch(Exception){/* Recovery snapshot is authoritative. */}
+        Session? race;lock(gate)race=lobbies.GetValueOrDefault(id)?.Race;
+        if(race is not null)await PublishRace(race,Public(id),ProjectTeam(race));
     }
 }

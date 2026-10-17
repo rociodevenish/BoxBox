@@ -4,7 +4,7 @@
 
 **Blocked by:** 02: Complete Q2, Q3 and the final grid; weekend-preparation 01.
 
-**Status:** ready-for-agent
+**Status:** in-progress (codex/s08-04)
 
 ## Acceptance criteria
 

@@ -27,9 +27,9 @@ const sourceCardIds = [
   "driver-lance-stroll"
 ];
 /** Fixture IDs map to source race cards in published sort order; display only, never physics. */
-export function raceDriverCard(id:string):DriverCardViewModel {
+export function raceDriverCard(id:string,identity?:{name:string;slug:string;teamId:string}):DriverCardViewModel {
  const index=Number(id.slice(-2))-1;
- const card=source.drivers.find(d=>d.id===sourceCardIds[index]);
+ const card=source.drivers.find(d=>identity?d.slug===identity.slug:d.id===sourceCardIds[index]);
  const asset=portraits.portraits.find(p=>p.driverId===card?.slug);
- return {id,firstName:'Driver',surname:String(index+1),portrait:asset?{url:asset.runtimeUrl,position:asset.objectPosition}:null,ownership:{name:'Team '+String(Math.floor(index/2)+1).padStart(2,'0'),accent:'#ff685b'},attributes:{Pace:headline(card?.ratings.headline.pace??0),Racecraft:headline(card?.ratings.headline.racecraft??0),Tyres:headline(card?.ratings.headline.tyres??0),Consistency:headline(card?.ratings.headline.consistency??0),Technical:headline(card?.ratings.headline.technical??0)},details:card?Object.entries(card.ratings.detailed).map(([key,value])=>({label:key.replace(/([A-Z])/g,' $1').replace(/^./,s=>s.toUpperCase()),rating:null,displayValue:value,scale:100})):[],preferences:card?.preferences.map(p=>p.label)??[],priceLabel:card?card.economy.cost+' credits':undefined};
+ return {id,firstName:identity?identity.name.split(' ').slice(0,-1).join(' '):'Driver',surname:identity?identity.name.split(' ').slice(-1)[0]:String(index+1),portrait:asset?{url:asset.runtimeUrl,position:asset.objectPosition}:null,ownership:{name:identity?.teamId??'Team '+String(Math.floor(index/2)+1).padStart(2,'0'),accent:'#ff685b'},attributes:{Pace:headline(card?.ratings.headline.pace??0),Racecraft:headline(card?.ratings.headline.racecraft??0),Tyres:headline(card?.ratings.headline.tyres??0),Consistency:headline(card?.ratings.headline.consistency??0),Technical:headline(card?.ratings.headline.technical??0)},details:card?Object.entries(card.ratings.detailed).map(([key,value])=>({label:key.replace(/([A-Z])/g,' $1').replace(/^./,s=>s.toUpperCase()),rating:null,displayValue:value,scale:100})):[],preferences:card?.preferences.map(p=>p.label)??[],priceLabel:card?card.economy.cost+' credits':undefined};
 }

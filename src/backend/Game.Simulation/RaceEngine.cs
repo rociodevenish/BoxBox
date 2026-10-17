@@ -9,6 +9,7 @@ public sealed class RaceEngine
         public Driver Driver { get; } = driver;
         public int Laps { get; set; }
         public int SegmentIndex { get; set; }
+        public bool StandingTrajectory { get; set; }
         public double LapPenalty { get; set; }
         public double RaceFormSeconds { get; set; }
         public double LapVariationSeconds { get; set; }
@@ -53,7 +54,7 @@ public sealed class RaceEngine
     private double SegmentStart(Car car) => Segments?.Take(car.SegmentIndex).Sum(s => s.Length) / TrackLength ?? 0;
     private double SegmentShare(Car car) => Segments is { } layout ? layout[car.SegmentIndex].Length / TrackLength : 1;
     private double LocalProgress(Car car) => car.FinishTime is not null || car.PitExit is not null ? 0
-        : Math.Clamp((time - car.LapStart) / (car.LapEnd - car.LapStart), 0, 1);
+        : Math.Clamp((time - car.LapStart) / (car.LapEnd - car.LapStart), car.StandingTrajectory ? double.MinValue : 0, 1);
     private TyreTuning Tyres => configuration.Tyres ?? new TyreTuning();
     private TrafficTuning Traffic => configuration.Traffic ?? new TrafficTuning();
 
@@ -138,6 +139,27 @@ public sealed class RaceEngine
         }
     }
 
+    internal static AutomaticStartResult CreateStandingStart(RaceConfiguration configuration, Driver[] drivers, int seed,
+        (double Offset,double Loss)[] launches)
+    {
+        var engine=new RaceEngine(configuration,drivers,seed);
+        for(var i=0;i<engine.cars.Count;i++)
+        {
+            var car=engine.cars[i];var (offset,loss)=launches[i];
+            var duration=car.FreeDuration+loss/(1+offset);
+            car.StandingTrajectory=true;
+            car.LapStart=offset*duration;
+            car.LapEnd=(1+offset)*duration;
+            car.FreeDuration=duration;
+            car.ContactOrder=i;
+            car.Trace.Clear();car.Trace.Add((0,engine.Distance(car)));
+        }
+        var grid=engine.Snapshot();
+        engine.UpdateTraffic();
+        engine.AdvanceToLeaderLap(1);
+        return new(engine,engine.Snapshot(),grid);
+    }
+
     public PhaseResult ResolvePhase(IReadOnlyDictionary<string, DriverDecision>? decisions = null)
     {
         if (decisions is not null)
@@ -176,7 +198,13 @@ public sealed class RaceEngine
             car.LapEnd = car.LapStart + duration;
         }
         UpdateTraffic();
-        var target = Math.Min(configuration.Laps, cars.Max(c => c.Laps) + 5);
+        AdvanceToLeaderLap(Math.Min(configuration.Laps, cars.Max(c => c.Laps) + 5));
+        phaseIndex++;
+        return Snapshot();
+    }
+
+    private void AdvanceToLeaderLap(int target)
+    {
         while (cars.Any(c => c.FinishTime is null))
         {
             var car = cars.Where(c => c.FinishTime is null).OrderBy(NextEvent)
@@ -217,6 +245,7 @@ public sealed class RaceEngine
                 UpdateTraffic();
                 continue;
             }
+            car.StandingTrajectory = false;
             if (Segments is { } layout)
             {
                 ConsumeTyres(car, SegmentStart(car) + SegmentShare(car));
@@ -297,8 +326,6 @@ public sealed class RaceEngine
             UpdateTraffic();
         }
         foreach (var car in cars.Where(c => c.FinishTime is null)) ConsumeTyres(car, Progress(car));
-        phaseIndex++;
-        return Snapshot();
     }
 
     public PhaseResult ResolvePhase(StrategyPlan plan)
