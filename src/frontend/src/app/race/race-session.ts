@@ -7,6 +7,7 @@ import { HubConnection, HubConnectionBuilder } from '@microsoft/signalr';
 import { PublicGap, TyreCompound } from '../ui/timing/public-classification.model';
 import { Pace, Battle } from '../ui/controller/controller.model';
 export interface PublicState {
+    opening?:import("../opening/opening-handoff").OpeningOutcome|null;
     controlStatus?:TeamControlStatus[];
     paused?:boolean;
     decisionDeadlineUtc?:string|null;

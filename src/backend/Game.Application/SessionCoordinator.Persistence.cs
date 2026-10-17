@@ -21,7 +21,7 @@ public sealed partial class SessionCoordinator
         Dictionary<string,DriverDecision>[] Plans,RecordedReplayPhase[] Outcomes,
         SavedCommand[] Commands,TeamCommand? ConfirmedPlan,PublicEvent[] Events,PublicPresentation? Presentation,
         int EngineEventCursor,Dictionary<string,int> PresentationPhases,
-        Dictionary<string,DriverDecision>? PendingPlan,TeamCommand? PendingCommand,string? PendingFingerprint,RecordedAutomaticPlan[]? AutomaticPlans=null,string AutomaticSource="unclaimed-ai",SavedWindow? Window=null);
+        Dictionary<string,DriverDecision>? PendingPlan,TeamCommand? PendingCommand,string? PendingFingerprint,RecordedAutomaticPlan[]? AutomaticPlans=null,string AutomaticSource="unclaimed-ai",SavedWindow? Window=null,AutomaticStartReplay? Opening=null);
     private sealed record SavedLobby(string Id,string Code,string Host,CreateLobbyInput Input,long Revision,
         Player[] Players,Device[] Devices,Dictionary<string,Assignment> Assignments,string Lifecycle,
         string[] RequiredTeams,string[] ScriptedTeams,SavedRace? Race,Dictionary<string,string>? ModuleState=null);
@@ -33,7 +33,7 @@ public sealed partial class SessionCoordinator
         session.AcceptedPlans.Select(p=>p.ToDictionary()).ToArray(),session.RecordedPhases.ToArray(),
         session.AcceptedCommands.Select(p=>new SavedCommand(p.Key,p.Value.Fingerprint,p.Value.Ack)).ToArray(),
         session.ConfirmedPlan,session.Events.ToArray(),session.Presentation,session.EngineEventCursor,session.PresentationPhases,
-        session.PendingPlan,session.PendingCommand,session.PendingFingerprint,session.AutomaticPlans.ToArray(),Window:new(session.DecisionDeadlineUtc,session.PausedRemainingSeconds,session.TimingPolicy,session.FrozenTimeoutDecisions,session.TimeoutSources,session.LastDecisionSources.ToArray(),session.DeferNextWindow,session.ModuleState));
+        session.PendingPlan,session.PendingCommand,session.PendingFingerprint,session.AutomaticPlans.ToArray(),Window:new(session.DecisionDeadlineUtc,session.PausedRemainingSeconds,session.TimingPolicy,session.FrozenTimeoutDecisions,session.TimeoutSources,session.LastDecisionSources.ToArray(),session.DeferNextWindow,session.ModuleState),Opening:session.OpeningReplay);
     private string Capture(string id)
     {
         var lobby=lobbies.GetValueOrDefault(id);var race=lobby?.Race ?? (active?.Id==id?active:null);
@@ -117,7 +117,10 @@ public sealed partial class SessionCoordinator
             if(race is null)return null;
             if(race.Plans.Length!=race.Outcomes.Length)throw new SessionFault(SessionFailure.Conflict,"Saved race is missing a committed replay outcome. Preserve its recovery record.");
             var replayWatch=Stopwatch.StartNew();
-            var session=new Session(race.Id,race.Player,race.Device,race.GrantHash,race.Configuration,race.Drivers,race.Input.Seed!.Value,race.Input);
+            Game.Simulation.RaceEngine? restoredEngine;
+            try{restoredEngine=race.Opening is null?null:Game.Simulation.SimulationReplay.CreateEngine(new(Game.Simulation.SimulationReplay.Model(race.Configuration),Game.Simulation.SimulationReplay.Randomness(race.Configuration),race.Configuration,race.Drivers,new([],[]),race.Input.Seed!.Value,race.Opening));}
+            catch(ArgumentException){throw new SessionFault(SessionFailure.Conflict,"Saved opening inputs or outcome are incompatible. Preserve the frozen preparation and deploy its compatible version.");}
+            var session=new Session(race.Id,race.Player,race.Device,race.GrantHash,race.Configuration,race.Drivers,race.Input.Seed!.Value,race.Input,restoredEngine){OpeningReplay=race.Opening};
             foreach(var (plan,index) in race.Plans.Select((plan,index)=>(plan,index)))
             {
                 var outcome=session.Engine.ResolvePhase(plan);

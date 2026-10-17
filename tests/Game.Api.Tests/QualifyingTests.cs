@@ -11,7 +11,7 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using Xunit;
 namespace Game.Api.Tests;
 
-public sealed class QualifyingTests
+public sealed partial class QualifyingTests
 {
     [Fact]
     public async Task Guided_plans_survive_settings_changes_restart_and_expiry_without_replacing_human_locks()
@@ -169,7 +169,7 @@ public sealed class QualifyingTests
         Assert.Equal(results[1].GetProperty("ranking").EnumerateArray().Skip(10).Select(r=>r.GetProperty("entryId").GetString()),grid.Skip(10).Take(6).Select(r=>r.GetProperty("entryId").GetString()));
         Assert.Equal(results[2].GetProperty("ranking").EnumerateArray().Select(r=>r.GetProperty("entryId").GetString()),grid.Take(10).Select(r=>r.GetProperty("entryId").GetString()));
         await using var restarted=Server(store,clock);using var recovered=restarted.CreateClient();Assert.Equal(final.GetRawText(),await recovered.GetStringAsync(root));
-        clock.Advance(100);Assert.Equal(0,await restarted.Services.GetRequiredService<SessionCoordinator>().SweepWakeups());
+        Assert.Equal(1,(await recovered.GetFromJsonAsync<PublicSnapshot>($"/api/sessions/{id}"))!.LeaderLap);
     }
     [Theory]
     [InlineData(false)]

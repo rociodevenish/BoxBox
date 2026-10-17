@@ -1,7 +1,7 @@
 namespace Game.Domain;
 
 public record RaceReplay(string ModelVersion, string RandomnessVersion, RaceConfiguration Configuration,
-    Driver[] Drivers, StrategyPlan Plan, int Seed);
+    Driver[] Drivers, StrategyPlan Plan, int Seed,AutomaticStartReplay? Opening=null);
 public record RandomChannelMetadata(string Name, double Magnitude, string Units, string Distribution, string Scope);
 public record ReplayMetadata(string ModelVersion, string RandomnessVersion,
     IReadOnlyList<RandomChannelMetadata> Channels, string TimeUnit = "seconds", string DistanceUnit = "metres");

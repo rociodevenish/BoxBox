@@ -1,0 +1,333 @@
+{
+  "integrationBase": "f51641186fe46456c9763d2773a0709ac067e7c1",
+  "implementationCheckpoint": "e5e11ce",
+  "runtime": {
+    "node": "24.19.0",
+    "dotnet": "10.0.401",
+    "java": "21.0.12.1+1",
+    "browserCache": "C:/Projects/F1Game/.tools/playwright"
+  },
+  "ports": {
+    "ui": 4514,
+    "api": 4614,
+    "auth": 19359,
+    "firestore": 19350,
+    "hub": 19570,
+    "logging": 19620,
+    "websocket": 9159
+  },
+  "emulatorConfig": {
+    "emulators": {
+      "auth": {
+        "host": "127.0.0.1",
+        "port": 19359
+      },
+      "firestore": {
+        "host": "127.0.0.1",
+        "port": 19350,
+        "websocketPort": 9159
+      },
+      "hub": {
+        "host": "127.0.0.1",
+        "port": 19570
+      },
+      "logging": {
+        "host": "127.0.0.1",
+        "port": 19620
+      },
+      "ui": {
+        "enabled": false
+      },
+      "singleProjectMode": true
+    },
+    "firestore": {
+      "rules": "firestore.rules"
+    }
+  },
+  "commands": [
+    {
+      "command": "node",
+      "args": [
+        "tools/auth-emulator/node_modules/firebase-tools/lib/bin/firebase.js",
+        "emulators:exec",
+        "--only",
+        "auth,firestore",
+        "--project",
+        "demo-f1game",
+        "--config",
+        ".tools/s08-emulators.json",
+        "--non-interactive",
+        "dotnet test tests/Game.Api.Tests --filter FullyQualifiedName~Opening_commits_once -p:NuGetAudit=false -m:1 -p:BuildInParallel=false"
+      ],
+      "cwd": "C:\\Projects\\F1Game\\.worktrees\\s08-04",
+      "pid": 28128,
+      "startedAt": "2026-10-17T05:45:13.800Z",
+      "status": "failed",
+      "exitCode": 1,
+      "elapsedMs": 2476
+    },
+    {
+      "command": "node",
+      "args": [
+        "tools/auth-emulator/node_modules/firebase-tools/lib/bin/firebase.js",
+        "emulators:exec",
+        "--only",
+        "auth,firestore",
+        "--project",
+        "demo-f1game",
+        "--config",
+        ".tools/s08-emulators.json",
+        "--non-interactive",
+        "dotnet test tests/Game.Api.Tests --filter FullyQualifiedName~Opening_commits_once -p:NuGetAudit=false -m:1 -p:BuildInParallel=false"
+      ],
+      "cwd": "C:\\Projects\\F1Game\\.worktrees\\s08-04",
+      "pid": 23080,
+      "startedAt": "2026-10-17T05:45:25.550Z",
+      "status": "failed",
+      "exitCode": 1,
+      "elapsedMs": 32743
+    },
+    {
+      "command": "node",
+      "args": [
+        "tools/auth-emulator/node_modules/firebase-tools/lib/bin/firebase.js",
+        "emulators:exec",
+        "--only",
+        "auth,firestore",
+        "--project",
+        "demo-f1game",
+        "--config",
+        ".tools/s08-emulators.json",
+        "--non-interactive",
+        "dotnet test tests/Game.Api.Tests --filter FullyQualifiedName~Opening_commits_once -p:NuGetAudit=false -m:1 -p:BuildInParallel=false"
+      ],
+      "cwd": "C:\\Projects\\F1Game\\.worktrees\\s08-04",
+      "pid": 27776,
+      "startedAt": "2026-10-17T05:46:43.113Z",
+      "status": "passed",
+      "exitCode": 0,
+      "elapsedMs": 26092
+    },
+    {
+      "command": "node",
+      "args": [
+        "tools/auth-emulator/node_modules/firebase-tools/lib/bin/firebase.js",
+        "emulators:exec",
+        "--only",
+        "auth,firestore",
+        "--project",
+        "demo-f1game",
+        "--config",
+        ".tools/s08-emulators.json",
+        "--non-interactive",
+        "dotnet test tests/Game.Api.Tests --filter FullyQualifiedName~QualifyingTests -p:NuGetAudit=false -m:1 -p:BuildInParallel=false"
+      ],
+      "cwd": "C:\\Projects\\F1Game\\.worktrees\\s08-04",
+      "pid": 21992,
+      "startedAt": "2026-10-17T05:48:37.036Z",
+      "status": "passed",
+      "exitCode": 0,
+      "elapsedMs": 41225
+    },
+    {
+      "command": "node",
+      "args": [
+        "tools/auth-emulator/node_modules/firebase-tools/lib/bin/firebase.js",
+        "emulators:exec",
+        "--only",
+        "auth,firestore",
+        "--project",
+        "demo-f1game",
+        "--config",
+        ".tools/s08-emulators.json",
+        "--non-interactive",
+        "dotnet test tests/Game.Api.Tests --filter FullyQualifiedName~QualifyingTests -p:NuGetAudit=false -m:1 -p:BuildInParallel=false"
+      ],
+      "cwd": "C:\\Projects\\F1Game\\.worktrees\\s08-04",
+      "pid": 25728,
+      "startedAt": "2026-10-17T05:52:08.771Z",
+      "status": "passed",
+      "exitCode": 0,
+      "elapsedMs": 37801
+    },
+    {
+      "command": "dotnet",
+      "args": [
+        "test",
+        "tests/Game.Simulation.Tests",
+        "--filter",
+        "FullyQualifiedName~AutomaticRaceStartTests|FullyQualifiedName~SegmentTests|FullyQualifiedName~SegmentTrafficTests|FullyQualifiedName~ReplayTests|FullyQualifiedName~SegmentPassingTests|FullyQualifiedName~TimingObservationTests",
+        "--no-restore",
+        "-p:NuGetAudit=false",
+        "-m:1",
+        "-p:BuildInParallel=false"
+      ],
+      "cwd": "C:\\Projects\\F1Game\\.worktrees\\s08-04",
+      "pid": 12160,
+      "startedAt": "2026-10-17T05:49:41.797Z",
+      "status": "passed",
+      "exitCode": 0,
+      "elapsedMs": 3328
+    },
+    {
+      "command": "dotnet",
+      "args": [
+        "test",
+        "tests/Game.Simulation.Tests",
+        "--filter",
+        "FullyQualifiedName~AutomaticRaceStartTests|FullyQualifiedName~SegmentTests|FullyQualifiedName~SegmentTrafficTests|FullyQualifiedName~ReplayTests|FullyQualifiedName~SegmentPassingTests|FullyQualifiedName~TimingObservationTests",
+        "--no-restore",
+        "-p:NuGetAudit=false",
+        "-m:1",
+        "-p:BuildInParallel=false"
+      ],
+      "cwd": "C:\\Projects\\F1Game\\.worktrees\\s08-04",
+      "pid": 20528,
+      "startedAt": "2026-10-17T05:56:11.254Z",
+      "status": "passed",
+      "exitCode": 0,
+      "elapsedMs": 5023
+    },
+    {
+      "command": "dotnet",
+      "args": [
+        "test",
+        "tests/Game.Simulation.Tests",
+        "--filter",
+        "FullyQualifiedName~AutomaticRaceStartTests",
+        "--no-restore",
+        "-p:NuGetAudit=false",
+        "-m:1",
+        "-p:BuildInParallel=false"
+      ],
+      "cwd": "C:\\Projects\\F1Game\\.worktrees\\s08-04",
+      "pid": 14832,
+      "startedAt": "2026-10-17T05:57:07.633Z",
+      "status": "passed",
+      "exitCode": 0,
+      "elapsedMs": 3642
+    },
+    {
+      "command": "node",
+      "args": [
+        "node_modules/@playwright/test/cli.js",
+        "test",
+        "-c",
+        "playwright.shared.config.ts",
+        "opening.spec.ts"
+      ],
+      "cwd": "C:\\Projects\\F1Game\\.worktrees\\s08-04\\src\\frontend",
+      "pid": 31236,
+      "startedAt": "2026-10-17T05:53:04.761Z",
+      "status": "failed",
+      "exitCode": 1,
+      "elapsedMs": 31285
+    },
+    {
+      "command": "node",
+      "args": [
+        "node_modules/@playwright/test/cli.js",
+        "test",
+        "-c",
+        "playwright.shared.config.ts",
+        "opening.spec.ts"
+      ],
+      "cwd": "C:\\Projects\\F1Game\\.worktrees\\s08-04\\src\\frontend",
+      "pid": 19260,
+      "startedAt": "2026-10-17T05:54:07.109Z",
+      "status": "failed",
+      "exitCode": 1,
+      "elapsedMs": 44977
+    },
+    {
+      "command": "node",
+      "args": [
+        "node_modules/@playwright/test/cli.js",
+        "test",
+        "-c",
+        "playwright.shared.config.ts",
+        "opening.spec.ts",
+        "qualifying.spec.ts",
+        "qualifying-guidance.spec.ts"
+      ],
+      "cwd": "C:\\Projects\\F1Game\\.worktrees\\s08-04\\src\\frontend",
+      "pid": 20164,
+      "startedAt": "2026-10-17T05:55:49.537Z",
+      "status": "passed",
+      "exitCode": 0,
+      "elapsedMs": 56169
+    },
+    {
+      "command": "node",
+      "args": [
+        "node_modules/@angular/cli/bin/ng.js",
+        "build",
+        "--configuration",
+        "production"
+      ],
+      "cwd": "C:\\Projects\\F1Game\\.worktrees\\s08-04\\src\\frontend",
+      "pid": 31140,
+      "startedAt": "2026-10-17T05:57:04.866Z",
+      "status": "passed",
+      "exitCode": 0,
+      "elapsedMs": 8642
+    }
+  ],
+  "results": {
+    "publicApi": {
+      "passed": 12,
+      "scope": "QualifyingTests including three opening recovery/presentation tests"
+    },
+    "focusedSimulation": {
+      "passed": 39,
+      "finalOpeningOnlyRerun": 5
+    },
+    "focusedBrowser": {
+      "passed": 3,
+      "specs": [
+        "opening.spec.ts",
+        "qualifying.spec.ts",
+        "qualifying-guidance.spec.ts"
+      ]
+    },
+    "productionFrontendBuild": "passed; existing bundle/CommonJS warnings"
+  },
+  "reviewedCaptures": [
+    {
+      "file": "phone-opening.png",
+      "viewport": "360x800",
+      "assessment": "Readable identities, grid/position changes and navigation; vertical scrolling without horizontal overflow."
+    },
+    {
+      "file": "public-opening.png",
+      "viewport": "1920x1080",
+      "assessment": "All 22 opening rows readable in two columns; normal motion skip reconciles exact result."
+    },
+    {
+      "file": "phone-first-window.png",
+      "viewport": "360x800",
+      "assessment": "Both named driver portraits, legal choices and Approve Plan remain readable; vertical scrolling."
+    },
+    {
+      "file": "public-first-window.png",
+      "viewport": "1920x1080",
+      "assessment": "All 22 names, trace-backed intervals, leader lap 1 and first deadline fit the public display."
+    }
+  ],
+  "limitations": [
+    "Existing SignalR 10.0.12 audit finding: NuGetAudit=false scoped to behavioral checks; no remediation claimed.",
+    "No hosted acceptance or human timing/comprehension measurements claimed.",
+    "Opening browser seed retained its grid order; public simulation also verifies legal position gains."
+  ],
+  "failuresCorrected": [
+    "Initial public start API compile red before implementation.",
+    "Local emulator rules path moved within its project directory.",
+    "Committed Q3 receipt retry clears recovered storage-error after confirmed durable commit.",
+    "Public collection comparisons use serialized value equality rather than record collection reference equality.",
+    "Desktop qualifying results were 1.5px past1080; overview padding reduced, all22 assertion retained.",
+    "Browser review action is Approve Plan; Confirm plan belongs to its confirmation dialog.",
+    "Node24 PATH and quoted MSBuild -m:1 arguments used after local invocation errors."
+  ],
+  "cleanup": "Owned test commands completed; custom ports checked free before handoff. Cached dependency junctions removed only after verification.",
+  "verifiedSourceSha256": "06b8487116c0ac4b1f02d9de42bb6e1d5927d84e0bb60411c7835872b41bdb6c"
+}

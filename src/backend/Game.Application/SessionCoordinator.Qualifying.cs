@@ -78,7 +78,12 @@ public sealed partial class SessionCoordinator
             var key=ValidatePreparationCommand(command.CommandId,command.Revision,command.AssignmentRevision,access.Assignment.Revision);
             var choices=command.Choices.OrderBy(c=>c.EntryId,StringComparer.Ordinal).ToImmutableArray();
             var fingerprint=JsonSerializer.Serialize(new{Operation="qualifying-lock",id,teamId,command.Session,command.Revision,command.AssignmentRevision,Choices=choices,Version=QualifyingModule});
-            if(state.Commands.TryGetValue(key,out var accepted))return accepted.Fingerprint==fingerprint?accepted.Ack:throw new SessionFault(SessionFailure.Conflict,"Command identity was already used differently.");
+            if(state.Commands.TryGetValue(key,out var accepted))
+            {
+                if(accepted.Fingerprint!=fingerprint)throw new SessionFault(SessionFailure.Conflict,"Command identity was already used differently.");
+                if(lobby.Race is {} committed)committed.StorageError=false;
+                return accepted.Ack;
+            }
             if(state.Starts.ContainsKey(key)||state.ContinueCommands?.ContainsKey(key)==true||ReadPreparation(lobby).Teams.Values.Any(t=>t.Commands.ContainsKey(key)))throw new SessionFault(SessionFailure.Conflict,"Command identity already belongs to another operation.");
             var eligible=QualifyingDrivers(state).Where(c=>c.TeamId==teamId).Select(c=>c.EntryId).Order(StringComparer.Ordinal).ToArray();
             if(eligible.Length==0||!choices.Select(c=>c.EntryId).SequenceEqual(eligible)||choices.Any(c=>c.Approach is not ("Safe" or "Push" or "All-Out")))
@@ -99,6 +104,7 @@ public sealed partial class SessionCoordinator
         var result=Qualifying.Resolve(input);var results=(state.Results??[]).Append(result).ToArray();
         var due=clock.GetUtcNow().AddSeconds(PresentationSeconds);
         var grid=state.Session=="Q3"?Qualifying.Grid(results):null;
+        if(grid is not null)CreateOpening(lobby,state,grid);
         return state with{Input=input,Result=result,Results=results,Attempts=(state.Attempts??[]).Append(input).ToArray(),Grid=grid,
             Lifecycle=grid is null?"session-result":"grid-ready",Deadline=grid is null&&!state.Paused?due:null,
             Wakeup=grid is null&&!state.Paused?new(lobby.Id,Guid.NewGuid().ToString("N"),"qualifying-presentation",Stage(state),state.WindowRevision,due):null};

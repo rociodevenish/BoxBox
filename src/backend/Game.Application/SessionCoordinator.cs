@@ -6,7 +6,7 @@ namespace Game.Application;
 public sealed partial class SessionCoordinator(ISessionNotifications notifications,IRacePresets presets, ISessionStore? store = null, TimeProvider? timeProvider = null,IScheduledWakeups? scheduledWakeups=null)
 {
     private sealed partial class Session(string id, string player, string device, byte[] grantHash,
-        RaceConfiguration configuration, Driver[] drivers, int seed, CreateSessionInput input)
+        RaceConfiguration configuration, Driver[] drivers, int seed, CreateSessionInput input, RaceEngine? openingEngine=null)
     {
         public long StartedTimestamp { get; } = Stopwatch.GetTimestamp();
         public long WindowTimestamp { get; set; }
@@ -22,7 +22,9 @@ public sealed partial class SessionCoordinator(ISessionNotifications notificatio
         public byte[] GrantHash { get; } = grantHash;
         public RaceConfiguration Configuration { get; } = configuration;
         public Driver[] Drivers { get; } = drivers;
-        public RaceEngine Engine { get; } = new(configuration, drivers, seed);
+        public RaceEngine Engine { get; } = openingEngine ?? new(configuration, drivers, seed);
+        public AutomaticStartReplay? OpeningReplay {get;set;}
+        public PublicOpening? OpeningSummary {get;set;}
         public IReadOnlyDictionary<string, DriverDecision> FrozenOpponents { get; set; } = new Dictionary<string, DriverDecision>();
         public List<IReadOnlyDictionary<string, DriverDecision>> AcceptedPlans { get; } = [];
         public List<RecordedReplayPhase> RecordedPhases { get; } = [];
@@ -95,7 +97,7 @@ public sealed partial class SessionCoordinator(ISessionNotifications notificatio
             var scheduled = session.AcceptedPlans.SelectMany((plan, phase) => plan.OrderBy(pair => pair.Key, StringComparer.Ordinal)
                 .Select(pair => new ScheduledDecision(phase, pair.Key, pair.Value))).ToArray();
             return new(BrowserReplay.FormatVersion, id, session.Input.Preset, "team-01", session.ScriptVersion,
-                SimulationReplay.Capture(session.Configuration, session.Drivers, new StrategyPlan(scheduled, []), session.Input.Seed!.Value),
+                SimulationReplay.Capture(session.Configuration, session.Drivers, new StrategyPlan(scheduled, []), session.Input.Seed!.Value) with{Opening=session.OpeningReplay},
                 Array.AsReadOnly(session.RecordedPhases.ToArray()), session.RecordedPhases.LastOrDefault()?.Finished ?? false,
                 new(session.TotalToFinishMilliseconds ?? Stopwatch.GetElapsedTime(session.StartedTimestamp).TotalMilliseconds,
                     session.TotalToFinishMilliseconds, Array.AsReadOnly(session.PhaseTimings.ToArray()),
@@ -153,7 +155,8 @@ public sealed partial class SessionCoordinator(ISessionNotifications notificatio
             var ahead = index == 0 ? new PublicGap("unavailable") : state.Time == 0
                 ? new PublicGap("time", driver.Gap - drivers[ordered[index - 1].DriverId].Gap)
                 : ProjectGap(timing[entry.DriverId].ToAhead);
-            return new PublicCar(entry.DriverId, "Driver " + entry.DriverId[^2..], driver.Team,
+            var name=session.OpeningReplay?.Input.Weekends.SelectMany(w=>w.Cars).FirstOrDefault(c=>c.Source.EntryId==entry.DriverId)?.Source.Driver.Name ?? "Driver " + entry.DriverId[^2..];
+            return new PublicCar(entry.DriverId, name, driver.Team,
                 index + 1, entry.Laps, entry.Progress, gap, ahead, tyre.Compound.ToString(), tyre.Age,
                 tyre.InPits ? "in-pit-lane" : "on-track", state.Finished ? state.Eligibility[entry.DriverId] : null,
                 Array.AsReadOnly(lapTimes.Where(lap => lap.DriverId == entry.DriverId).TakeLast(5)
@@ -164,7 +167,7 @@ public sealed partial class SessionCoordinator(ISessionNotifications notificatio
         return new(session.Id, session.Phase, session.Revision, session.StorageError ? "storage-error" : session.Lifecycle, state.LeaderLap,
             session.Configuration.Laps, state.Time, Array.AsReadOnly(rows), session.Events, session.Presentation,
             state.Finished ? 0 : Math.Min(5, session.Configuration.Laps - state.LeaderLap),
-            Array.AsReadOnly(session.RequiredTeams.Select(team => new TeamReadiness(team, session.Locks.ContainsKey(team))).ToArray()),session.Paused || session.StorageError, session.DecisionDeadlineUtc, session.PausedRemainingSeconds, session.TimingPolicy, clock.GetUtcNow(), session.LastDecisionSources,PublicControl(session),Progress(session).PresentationDeadline,Progress(session).PresentationRemaining,session.WindowRevision);
+            Array.AsReadOnly(session.RequiredTeams.Select(team => new TeamReadiness(team, session.Locks.ContainsKey(team))).ToArray()),session.Paused || session.StorageError, session.DecisionDeadlineUtc, session.PausedRemainingSeconds, session.TimingPolicy, clock.GetUtcNow(), session.LastDecisionSources,PublicControl(session),Progress(session).PresentationDeadline,Progress(session).PresentationRemaining,session.WindowRevision,ProjectOpening(session));
     }
     private static PublicGap ProjectGap(TimingGap gap) => gap.Laps > 0 ? new("laps", Laps: gap.Laps)
         : gap.Seconds is { } seconds ? new("time", seconds) : new("unavailable");
