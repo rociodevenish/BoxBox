@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 namespace Game.Domain;
 
 public enum TyreCompound { Soft, Medium, Hard }
@@ -24,7 +25,7 @@ public record EstimatedTyreState(string DriverId, TyreCompound Compound, int Age
     double EstimatedCondition, bool InPits, bool StopQueued, IReadOnlyList<TyreCompound>? UsedCompounds = null, TyreCompound? PendingCompound = null);
 public record TeamObservation(double Time, int LeaderLap, IReadOnlyList<ClassificationEntry> Classification,
     IReadOnlyList<EstimatedTyreState> TeamTyres,
-    IReadOnlyDictionary<string, IReadOnlyList<BattleInstruction>> BattleOptions);
+    IReadOnlyDictionary<string, IReadOnlyList<BattleInstruction>> BattleOptions, [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] IReadOnlyList<TeamConditionEstimate>? Conditions = null);
 public record DecisionRecord(int Phase, double Time, string DriverId, DriverDecision Decision,
     double EstimatedCondition, string Source);
 public record TyreTuning(double DegradationPerLap = .025, double WarmupPenalty = .8,
@@ -36,7 +37,7 @@ public record TyreTuning(double DegradationPerLap = .025, double WarmupPenalty =
 public record Driver(string Id, string Team, double Speed = 0, double Cornering = 0,
     double Pace = 0, double Gap = 0, TyreCompound StartingCompound = TyreCompound.Medium,
     double TyrePreservation = 0, double TyreManagement = 0, double Racecraft = 0,
-    double TyreWarmupMultiplier = 1);
+    double TyreWarmupMultiplier = 1, [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] IncidentProfile? IncidentProfile = null);
 
 // Length is metres; BaselineTime is seconds. Demands are independent fractions.
 public record TrackSegment(string Id, double Length, double BaselineTime,
@@ -64,7 +65,7 @@ public record TrafficTuning(bool Enabled = true, double FollowingLoss = .3, doub
 
 public record RaceConfiguration(int Laps, Track Track, double AttributeSeconds = 1,
     double LapVariation = 0, TyreTuning? Tyres = null, double StopVariation = .6,
-    TrafficTuning? Traffic = null, double EstimateError = .04, double RaceFormVariation = 0, double PassingVariation = 1)
+    TrafficTuning? Traffic = null, double EstimateError = .04, double RaceFormVariation = 0, double PassingVariation = 1, [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] IncidentTuning? Incidents = null)
 {
     public RaceConfiguration WithExplicitTuning() => this with { Tyres = Tyres ?? new(), Traffic = Traffic ?? new(),
         Track = Track with { Segments = Track.Segments is null ? null : Array.AsReadOnly(Track.Segments.ToArray()) } };
@@ -74,14 +75,14 @@ public record TyreState(string DriverId, TyreCompound Compound, int Age, double 
     PaceInstruction Pace, bool InPits = false);
 
 public enum RaceEventKind { LapCompleted, TyreCondition, PitEntry, PitService, PitExit,
-    TyreChanged, Overtake, TrafficLoss, BlueFlag, BattleDecision, BattleWear, SegmentExited, PassingAttempt }
+    TyreChanged, Overtake, TrafficLoss, BlueFlag, BattleDecision, BattleWear, SegmentExited, PassingAttempt, LockUp, Spin, Contact, MechanicalFailure, Retirement }
 
 // Value is seconds for time-loss/service events and a fraction for TyreCondition.
 public record RaceEvent(double Time, string DriverId, int Lap, RaceEventKind Kind, double Value = 0,
     string? OtherDriverId = null, TyreCompound? Compound = null, string? SegmentId = null, double? DistanceMetres = null, string? EncounterId = null);
 
 public record ClassificationEntry(string DriverId, int Position, int Laps, double Progress,
-    double GapSeconds, int GapLaps, double? FinishTime);
+    double GapSeconds, int GapLaps, double? FinishTime, [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] double? RetirementTime = null);
 
 // Nullable seconds distinguish missing timing evidence from a genuine zero gap.
 public record TimingGap(double? Seconds, int Laps = 0);
@@ -91,4 +92,4 @@ public record PhaseResult(int LeaderLap, double Time, bool Finished,
     IReadOnlyList<ClassificationEntry> Classification, IReadOnlyList<RaceEvent> Events,
     IReadOnlyList<TyreState> Tyres, IReadOnlyDictionary<string, bool> Eligibility,
     IReadOnlyDictionary<string, IReadOnlyList<BattleInstruction>> BattleOptions,
-    IReadOnlyList<DecisionRecord> Decisions);
+    IReadOnlyList<DecisionRecord> Decisions, [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] IReadOnlyList<CarCondition>? CarConditions = null);

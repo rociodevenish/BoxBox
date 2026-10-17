@@ -60,7 +60,7 @@ internal sealed class StrategyEvaluator
         foreach (var tyre in observation.TeamTyres)
         {
             var classification = observation.Classification.Single(c => c.DriverId == tyre.DriverId);
-            if (classification.FinishTime is not null) continue;
+            if (classification.FinishTime is not null || classification.RetirementTime is not null) continue;
             var decision = new DriverDecision(plan.DriverPaces?.GetValueOrDefault(tyre.DriverId, plan.DefaultPace) ?? plan.DefaultPace);
             var source = "default";
             var scheduled = plan.Scheduled.SingleOrDefault(s => s.Phase == phase && s.DriverId == tyre.DriverId);

@@ -23,7 +23,7 @@ public static class StrategyComparison
             || string.IsNullOrWhiteSpace(replay.ModelVersion) || string.IsNullOrWhiteSpace(replay.RandomnessVersion))
             throw new ArgumentException("Replay requires explicit contract versions.");
         SimulationReplay.RequireVersion(replay.Configuration, replay.ModelVersion, replay.RandomnessVersion);
-        if(replay.Opening is null)return Run(replay.Configuration, replay.Drivers, replay.Plan, replay.Seed);
+        if(replay.Opening is null && replay.DiagnosticScenario is null)return Run(replay.Configuration, replay.Drivers, replay.Plan, replay.Seed);
         var engine=SimulationReplay.CreateEngine(replay);var phases=new List<PhaseResult>();var result=engine.GetState();
         while(!result.Finished){result=engine.ResolvePhase(replay.Plan);phases.Add(result);}
         return new(replay.Seed,phases,result,replay,SimulationReplay.Metadata(replay.Configuration),engine.GetDesignerDiagnostics());
