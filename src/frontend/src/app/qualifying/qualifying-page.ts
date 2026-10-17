@@ -5,10 +5,12 @@ import {apiUrl} from '../api-url';
 
 interface Driver {entryId:string;driverId:string;name:string;slug:string;teamId:string}
 interface Choice {entryId:string;approach:string}
+interface AdviceCar {choice:Choice;reasons:string[];uncertainty:string;legalApproaches:string[]}
+interface Assistance {helpLevel:string;autoAcceptRecommendation:boolean;session:string;windowRevision:number;policyVersion:string;cars:AdviceCar[]|null}
 interface Rank {position:number;entryId:string;driverId:string;teamId:string;status:string;timeMilliseconds:number|null;advances:boolean}
 interface Result {session:string;ranking:Rank[]}
 interface PublicSnapshot {sessionId:string;revision:number;session:string;lifecycle:string;paused:boolean;circuitId:string;circuitName:string;circuitSlug:string;drivers:Driver[];teams:{teamId:string;locked:boolean;source:string|null}[];result:{session:string;ranking:Rank[]}|null;decisionDeadlineUtc:string|null;timingPolicy:{effectiveSeconds:number;timeoutPolicy:string};rulesVersion:string;retain:number;baselinePolicy:string;results:Result[];grid:Rank[];windowRevision:number;presentationDeadlineUtc:string|null}
-interface TeamSnapshot {sessionId:string;teamId:string;revision:number;assignmentRevision:number;session:string;lifecycle:string;locked:boolean;eligibleDrivers:Driver[];choices:Choice[]|null}
+interface TeamSnapshot {sessionId:string;teamId:string;revision:number;assignmentRevision:number;session:string;lifecycle:string;locked:boolean;eligibleDrivers:Driver[];choices:Choice[]|null;assistance?:Assistance}
 interface Assignment {teamId:string;constructorName:string;control:string;assignmentRevision:number}
 interface Command {commandId:string;session:string;revision:number;assignmentRevision:number;choices:Choice[]}
 class Failure extends Error {constructor(readonly status:number,message:string){super(message);}}
@@ -48,6 +50,8 @@ export class QualifyingPage {
  resultTitle(){return this.shown()?this.shown()+" recorded results":this.publicState()?.grid.length?"Final grid · all 22 drivers":this.publicState()?.result?.session+" results · "+this.publicState()?.retain+" advance";}
  editable(){return !!this.team()&&!this.openTeam&&!this.team()!.locked&&!this.publicState()?.paused&&!this.publicState()?.result&&!this.busy()&&!this.pending();}
  choose(entry:string,approach:string){if(this.editable())this.draft.update(draft=>({...draft,[entry]:approach}));}
+ advice(entry:string){return this.team()?.assistance?.cars?.find(car=>car.choice.entryId===entry);}
+ useAdvice(entry:string){const advice=this.advice(entry);if(advice&&this.editable()&&!this.draft()[entry])this.choose(entry,advice.choice.approach);}
  complete(){const team=this.team();return !!team&&team.eligibleDrivers.length>0&&team.eligibleDrivers.every(driver=>this.approaches.some(approach=>approach.name===this.draft()[driver.entryId]));}
  async lock(){const team=this.team();if(!team||this.openTeam||team.locked||this.busy()||this.publicState()?.paused||(!this.pending()&&!this.complete()))return;const command=this.pending()??{commandId:crypto.randomUUID(),session:team.session,revision:team.revision,assignmentRevision:team.assignmentRevision,choices:team.eligibleDrivers.map(driver=>({entryId:driver.entryId,approach:this.draft()[driver.entryId]}))};this.pending.set(command);this.busy.set(true);this.error.set('');const generation=this.generation;try{await this.request(this.root()+'/teams/'+encodeURIComponent(team.teamId)+'/choices?deviceId='+encodeURIComponent(this.device),command,true);if(generation!==this.generation)return;this.accept(await this.request<TeamSnapshot>(this.teamPath(),undefined,true),generation);if(this.shared){await this.pass();this.status.set('Team choices locked. Private view cleared. Hand over the tablet.');}else this.status.set('Team choices locked. Waiting for the other teams.');}catch(error){if(generation!==this.generation)return;if(error instanceof Failure&&error.status<500){this.pending.set(null);if(error.status===403)this.clear();else if(error.status===409)await this.refresh();this.error.set(error.message);}else this.error.set('Confirmation unavailable. Refresh to check your lock, then retry the same submission.');}finally{if(generation===this.generation)this.busy.set(false);}}
  driver(entryId:string){return this.publicState()?.drivers.find(driver=>driver.entryId===entryId);}

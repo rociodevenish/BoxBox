@@ -1,4 +1,5 @@
 using Game.Domain;
+using System.Text.Json.Serialization;
 namespace Game.Application;
 
 public sealed record StartQualifyingCommand(string CommandId,long? Revision);
@@ -12,4 +13,5 @@ public sealed record QualifyingPublicSnapshot(string SessionId,long Revision,str
     IReadOnlyList<QualifyingTeamStatus> Teams,QualifyingResult? Result,DateTimeOffset? DecisionDeadlineUtc,
     DecisionTimingPolicy TimingPolicy,string RulesVersion,int Retain,string BaselinePolicy,IReadOnlyList<QualifyingResult> Results,IReadOnlyList<QualifyingRank> Grid,long WindowRevision,DateTimeOffset? PresentationDeadlineUtc);
 public sealed record QualifyingTeamSnapshot(string SessionId,string TeamId,long Revision,long AssignmentRevision,string Session,
-    string Lifecycle,bool Locked,IReadOnlyList<QualifyingDriver> EligibleDrivers,IReadOnlyList<QualifyingChoice>? Choices);
+    string Lifecycle,bool Locked,IReadOnlyList<QualifyingDriver> EligibleDrivers,IReadOnlyList<QualifyingChoice>? Choices,QualifyingAssistance? Assistance=null,string? Source=null,string? PolicyVersion=null);
+public sealed record QualifyingAssistance(string HelpLevel,bool AutoAcceptRecommendation,string Session,long WindowRevision,string PolicyVersion,[property:JsonIgnore(Condition=JsonIgnoreCondition.WhenWritingNull)] IReadOnlyList<QualifyingPolicyCar>? Cars);

@@ -52,7 +52,7 @@ public sealed partial class SessionCoordinator
             await PublishQualifying(id);return snapshot;
         }finally{mutations.Release();}
     }
-    // Stage-entry seam: freeze automatic choices here before accepting any human lock (ticket 03).
+    // Freeze automatic choices and per-player help before accepting a human lock.
     private QualifyingState OpenQualifyingStage(Lobby lobby,QualifyingState state)
     {
         if(state.Result is null||state.Session=="Q3")throw new SessionFault(SessionFailure.Conflict,"No next qualifying stage.");
@@ -63,8 +63,7 @@ public sealed partial class SessionCoordinator
         state=state with{Session=session,Input=input,Revision=revision,WindowRevision=revision,Result=null,Locks=[],TimeoutLocks=[],Lifecycle="awaiting-decisions",Remaining=null};
         var required=RequiredQualifyingTeams(lobby,state);
         var timing=BuildTimingPolicy(lobby,required) with{TimeoutPolicy=state.TimingPolicy.TimeoutPolicy};
-        foreach(var team in lobby.ScriptedTeams.Where(team=>QualifyingDrivers(state).Any(d=>d.TeamId==team)))state.Locks[team]=SafeQualifyingLock(input,team,"unclaimed-baseline");
-        foreach(var team in required)state.TimeoutLocks[team]=SafeQualifyingLock(input,team,"timeout-baseline");
+        state=FreezeQualifyingPolicies(lobby,state);
         var due=clock.GetUtcNow().AddSeconds(timing.EffectiveSeconds);
         state=state with{TimingPolicy=timing,Deadline=due,Wakeup=new(lobby.Id,Guid.NewGuid().ToString("N"),"qualifying-decision",Stage(state),revision,due)};
         return required.Length==0?ResolveQualifying(lobby,state):state;

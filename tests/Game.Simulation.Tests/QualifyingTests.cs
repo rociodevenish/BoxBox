@@ -5,6 +5,23 @@ namespace Game.Simulation.Tests;
 public sealed class QualifyingTests
 {
     [Fact]
+    public void Policy_rejects_missing_driver_observations_before_issuing_choices()
+    {
+        Assert.Throws<ArgumentException>(()=>QualifyingDecisionPolicy.Evaluate(new("Q1","team",null!)));
+        Assert.Throws<ArgumentException>(()=>QualifyingDecisionPolicy.Evaluate(new("Q2","team",[new("same","Comfortable","High"),new("same","Comfortable","High")])));
+    }
+    [Fact]
+    public void Advice_uses_each_eligible_drivers_disclosed_fit_and_keeps_all_approaches()
+    {
+        var observation=new QualifyingPolicyObservation("Q2","team-01",[
+            new("entry-a","Comfortable","High"),new("entry-b","Preference mismatch","Moderate")]);
+        var plan=QualifyingDecisionPolicy.Evaluate(observation);
+        Assert.Equal(new[]{"Push","Safe"},plan.Cars.Select(c=>c.Choice.Approach));
+        Assert.Equal(new[]{"entry-a","entry-b"},plan.Cars.Select(c=>c.Choice.EntryId));
+        Assert.All(plan.Cars,car=>{Assert.Equal(new[]{"Safe","Push","All-Out"},car.LegalApproaches);Assert.Contains("uncertain",car.Uncertainty);});
+        Assert.Equal(System.Text.Json.JsonSerializer.Serialize(plan),System.Text.Json.JsonSerializer.Serialize(QualifyingDecisionPolicy.Evaluate(observation)));
+    }
+    [Fact]
     public void Grid_preserves_each_elimination_group_even_with_ties_and_no_times()
     {
         var order=Enumerable.Range(1,22).Select(i=>$"entry-{i:00}").ToArray();

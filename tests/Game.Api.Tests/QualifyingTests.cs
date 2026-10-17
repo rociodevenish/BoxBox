@@ -13,6 +13,42 @@ namespace Game.Api.Tests;
 
 public sealed class QualifyingTests
 {
+    [Fact]
+    public async Task Guided_plans_survive_settings_changes_restart_and_expiry_without_replacing_human_locks()
+    {
+        var store=Store();var clock=new Clock();var token=await LobbyTests.Identity(false);
+        await using var server=Server(store,clock);using var client=server.CreateClient();var(id,device)=await Ready(client,token,true);
+        var lobby=await client.GetFromJsonAsync<JsonElement>($"/api/lobbies/{id}");
+        var players=lobby.GetProperty("teams").EnumerateArray().Where(t=>t.GetProperty("teamId").GetString() is "team-01" or "team-02").Select(t=>t.GetProperty("playerId").GetString()).ToArray();
+        foreach(var player in players)(await client.PostAsJsonAsync($"/api/lobbies/{id}/players/{player}/assistance",new{helpLevel="Guided",autoAcceptRecommendation=true})).EnsureSuccessStatusCode();
+        (await client.PostAsJsonAsync($"/api/lobbies/{id}/qualifying",await StartCommand(client,id))).EnsureSuccessStatusCode();
+        var ownUri=$"/api/lobbies/{id}/qualifying/teams/team-01?deviceId={device}";
+        var otherUri=$"/api/lobbies/{id}/qualifying/teams/team-02?deviceId={device}";
+        var own=await client.GetFromJsonAsync<JsonElement>(ownUri);var other=await client.GetFromJsonAsync<JsonElement>(otherUri);
+        var advice=other.GetProperty("assistance").GetRawText();Assert.Equal(2,other.GetProperty("assistance").GetProperty("cars").GetArrayLength());
+        (await client.PostAsJsonAsync(ownUri.Replace("?","/choices?"),Choice(own,"All-Out","Safe"))).EnsureSuccessStatusCode();
+        var accepted=(await client.GetFromJsonAsync<JsonElement>(ownUri)).GetProperty("choices").GetRawText();
+        foreach(var player in players)(await client.PostAsJsonAsync($"/api/lobbies/{id}/players/{player}/assistance",new{helpLevel="Standard",autoAcceptRecommendation=false})).EnsureSuccessStatusCode();
+        Assert.Equal(advice,(await client.GetFromJsonAsync<JsonElement>(otherUri)).GetProperty("assistance").GetRawText());
+        await using var restarted=Server(store,clock);using var recovered=restarted.CreateClient();recovered.DefaultRequestHeaders.Authorization=new("Bearer",token);
+        Assert.Equal(advice,(await recovered.GetFromJsonAsync<JsonElement>(otherUri)).GetProperty("assistance").GetRawText());
+        clock.Advance(40);(await recovered.PostAsJsonAsync($"/api/lobbies/{id}/pause",new{})).EnsureSuccessStatusCode();
+        var automatic=await recovered.GetFromJsonAsync<JsonElement>(otherUri);
+        Assert.Equal("recommendation-timeout",automatic.GetProperty("source").GetString());Assert.Equal("qualifying-observation-v1",automatic.GetProperty("policyVersion").GetString());
+        Assert.Equal(other.GetProperty("assistance").GetProperty("cars").EnumerateArray().Select(c=>c.GetProperty("choice").GetRawText()),automatic.GetProperty("choices").EnumerateArray().Select(c=>c.GetRawText()));
+        Assert.Equal(accepted,(await recovered.GetFromJsonAsync<JsonElement>(ownUri)).GetProperty("choices").GetRawText());
+        PublicOnly(await recovered.GetFromJsonAsync<JsonElement>($"/api/lobbies/{id}/qualifying"));
+        (await recovered.PostAsJsonAsync($"/api/lobbies/{id}/resume",new{})).EnsureSuccessStatusCode();
+        var finished=await recovered.GetFromJsonAsync<JsonElement>($"/api/lobbies/{id}/qualifying");
+        (await recovered.PostAsJsonAsync($"/api/lobbies/{id}/qualifying/continue",new{commandId=Guid.NewGuid().ToString(),phase=1,windowRevision=finished.GetProperty("windowRevision").GetInt64()})).EnsureSuccessStatusCode();
+        foreach(var uri in new[]{ownUri,otherUri})
+        {
+            var next=await recovered.GetFromJsonAsync<JsonElement>(uri);
+            if(next.GetProperty("eligibleDrivers").GetArrayLength()==0)continue;
+            Assert.Equal("Standard",next.GetProperty("assistance").GetProperty("helpLevel").GetString());
+            Assert.False(next.GetProperty("assistance").TryGetProperty("cars",out _));
+        }
+    }
     private sealed class Clock:TimeProvider
     {
         private DateTimeOffset now=DateTimeOffset.Parse("2026-10-17T00:00:00Z");
@@ -204,7 +240,7 @@ public sealed class QualifyingTests
         var resumed=await recovered.GetFromJsonAsync<JsonElement>($"/api/lobbies/{id}/qualifying");Assert.Equal(clock.GetUtcNow().AddSeconds(30),resumed.GetProperty("decisionDeadlineUtc").GetDateTimeOffset());
         clock.Advance(30);Assert.Equal(1,await restarted.Services.GetRequiredService<SessionCoordinator>().SweepWakeups());
         var result=await recovered.GetFromJsonAsync<JsonElement>($"/api/lobbies/{id}/qualifying");Assert.Equal("session-result",result.GetProperty("lifecycle").GetString());
-        Assert.Equal("human",result.GetProperty("teams")[0].GetProperty("source").GetString());Assert.Equal("timeout-baseline",result.GetProperty("teams")[1].GetProperty("source").GetString());
+        Assert.Equal("human",result.GetProperty("teams")[0].GetProperty("source").GetString());Assert.Equal("timeout-ai",result.GetProperty("teams")[1].GetProperty("source").GetString());
         Assert.Equal("All-Out",(await recovered.GetFromJsonAsync<JsonElement>(ownUri)).GetProperty("choices")[1].GetProperty("approach").GetString());
         Assert.Equal(0,await restarted.Services.GetRequiredService<SessionCoordinator>().SweepWakeups());Assert.Equal(result.GetRawText(),(await recovered.GetFromJsonAsync<JsonElement>($"/api/lobbies/{id}/qualifying")).GetRawText());
     }
