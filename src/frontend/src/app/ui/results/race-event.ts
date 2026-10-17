@@ -79,7 +79,7 @@ export class RaceEvent {
   readonly failedUrl = signal<string | null>(null);
   label() {
     const kind = this.event().kind;
-    return kind === "overtake"
+    return kind === "incident" ? "Incident" : kind === "overtake"
       ? "Overtake"
       : kind === "pit-entry"
         ? "Pit entry"

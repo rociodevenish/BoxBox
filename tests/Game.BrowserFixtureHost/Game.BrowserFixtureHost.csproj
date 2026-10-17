@@ -4,5 +4,5 @@
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="10.0.12" />
     <ProjectReference Include="../../src/backend/Game.Api/Game.Api.csproj" />
     <Compile Include="../Fixtures/BoundaryRacePresets.cs" Link="BoundaryRacePresets.cs" />
-  </ItemGroup>
+  <Compile Include="../Fixtures/SafetyCarWindowPresets.cs" Link="SafetyCarWindowPresets.cs" /></ItemGroup>
 </Project>

@@ -10,17 +10,24 @@ public sealed partial class SessionCoordinator
     {
         ApplyControlBoundary(session);
         session.FrozenOpponents=OpponentScript.Freeze(session.Engine,session.Drivers.Select(driver=>driver.Team).Distinct().Where(team=>!session.RequiredTeams.Contains(team)),session.Configuration.Laps,session.ScriptVersion);
+        if(session.WindowKind=="SafetyCar")
+        {
+            session.RequiredTeams=session.RequiredTeams.Where(team=>ExpectedCommandDrivers(session,team).Length>0).ToArray();
+            session.FrozenOpponents=FreezeSafetyCar(session,session.Drivers.Select(driver=>driver.Team).Distinct().Where(team=>!session.RequiredTeams.Contains(team)));
+        }
         session.TimingPolicy=BuildTimingPolicy(lobby,session.RequiredTeams);
         session.DecisionDeadlineUtc=clock.GetUtcNow().AddSeconds(session.TimingPolicy.EffectiveSeconds);
         session.PausedRemainingSeconds=null;
         session.FrozenTimeoutDecisions=OpponentScript.Freeze(session.Engine,session.RequiredTeams,session.Configuration.Laps,session.ScriptVersion).ToDictionary();
+        if(session.WindowKind=="SafetyCar")session.FrozenTimeoutDecisions=FreezeSafetyCar(session,session.RequiredTeams).ToDictionary();
         session.TimeoutSources=session.RequiredTeams.ToDictionary(team=>team,_=>"timeout-ai");
         foreach(var team in session.RequiredTeams)
         {
-            var decisions=session.Drivers.Where(driver=>driver.Team==team).ToDictionary(driver=>driver.Id,driver=>session.FrozenTimeoutDecisions[driver.Id]);
-            var source=session.TimeoutSources[team];ConfigureTimeoutPlan(session,team,ref decisions,ref source);
+            var decisions=ExpectedCommandDrivers(session,team).ToDictionary(id=>id,id=>session.FrozenTimeoutDecisions[id]);
+            var source=session.TimeoutSources[team];if(session.WindowKind!="SafetyCar")ConfigureTimeoutPlan(session,team,ref decisions,ref source);
             foreach(var pair in decisions)session.FrozenTimeoutDecisions[pair.Key]=pair.Value;session.TimeoutSources[team]=source;
         }
+        if(session.WindowKind=="SafetyCar"&&session.RequiredTeams.Length==0)session.DecisionDeadlineUtc=clock.GetUtcNow();
         WindowOpened(session);
     }
     private static DecisionTimingPolicy BuildTimingPolicy(Lobby lobby,IReadOnlyCollection<string> teams)
@@ -66,7 +73,7 @@ public sealed partial class SessionCoordinator
             foreach(var team in session.RequiredTeams)
             {
                 if(session.Locks.ContainsKey(team)){sources.Add(new(team,"human"));continue;}
-                var plan=session.Drivers.Where(driver=>driver.Team==team).ToDictionary(driver=>driver.Id,driver=>session.FrozenTimeoutDecisions[driver.Id]);
+                var plan=ExpectedCommandDrivers(session,team).ToDictionary(id=>id,id=>session.FrozenTimeoutDecisions[id]);
                 foreach(var decision in plan)complete.Add(decision.Key,decision.Value);
                 var source=session.TimeoutSources[team];sources.Add(new(team,source));
                 session.AutomaticPlans.Add(new(session.Phase,session.ModuleState.GetValueOrDefault("automatic-policy:"+team,session.ScriptVersion),source,plan));

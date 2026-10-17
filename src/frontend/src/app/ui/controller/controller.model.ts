@@ -33,6 +33,7 @@ export interface PrivateCarViewModel {
   readonly selected: CarInstruction;
 }
 export interface PrivateControllerViewModel {
+  readonly safetyCar?:boolean;
   readonly assistance?:TeamAssistance;
   readonly privacyLabel?: string;
   readonly teamName: string;

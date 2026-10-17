@@ -1,7 +1,7 @@
 <section aria-labelledby="controller-title" class="controller">
   <header>
     <p class="eyebrow">{{model().teamName}} · {{model().privacyLabel ?? 'Private team controller'}}</p>
-    <p id="controller-title" class="decision-summary">{{model().decisionLaps===0 ? 'Final instructions' : model().decisionLaps === undefined ? 'Phase '+model().phase+' instructions' : 'Decisions for the next '+model().decisionLaps+' '+(model().decisionLaps===1?'lap':'laps')}}</p>
+    <p id="controller-title" class="decision-summary">{{model().safetyCar ? 'Safety Car pit window' : model().decisionLaps===0 ? 'Final instructions' : model().decisionLaps === undefined ? 'Phase '+model().phase+' instructions' : 'Decisions for the next '+model().decisionLaps+' '+(model().decisionLaps===1?'lap':'laps')}}</p>
 
   </header>
   @if(model().state!=='selected'){<div
@@ -39,7 +39,7 @@
         </section>
       </div>
       @if(choices()[i]; as choice){
-      <fieldset [disabled]="!editable()">
+      @if(!model().safetyCar){<fieldset [disabled]="!editable()">
         <legend>Pace</legend>
         <div class="options">
           @for(pace of paces; track pace){<button
@@ -55,6 +55,7 @@
           balances both.
         </p>
       </fieldset>
+      }
       <fieldset [disabled]="!editable() || !!car.pendingStop">
         <legend>Pit instruction</legend>
         <div class="options">
@@ -80,7 +81,7 @@
       </fieldset>
       @if(car.pendingStop){
       <p class="notice">{{car.pendingStop}}</p>
-      } @if(car.battleOptions.length>1){
+      } @if(!model().safetyCar && car.battleOptions.length>1){
       <fieldset [disabled]="!editable()">
         <legend>Battle approach</legend>
         <div class="options">
@@ -98,7 +99,7 @@
         </p>
       </fieldset>
       }
-      @if(car.battleExplanation){<p class="explanation">{{car.battleExplanation}}</p>}
+      @if(!model().safetyCar && car.battleExplanation){<p class="explanation">{{car.battleExplanation}}</p>}
 
       }
     </section>
@@ -124,7 +125,7 @@
     <div class="confirmed">
       <h3>{{car.name}}</h3>
       @if(choices()[i]; as choice){
-      <p>{{summary(choice)}}</p>
+      <p>{{model().safetyCar ? car.pendingStop || (choice.stop + (choice.stop==='Pit' ? '  -  '+choice.compound : '')) : summary(choice)}}</p>
       }
     </div>
     }

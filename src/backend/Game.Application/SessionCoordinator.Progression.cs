@@ -26,8 +26,8 @@ public sealed partial class SessionCoordinator
         session.DeferNextWindow=true;
         var deadline=clock.GetUtcNow().AddSeconds(PresentationSeconds);
         SaveProgress(session,Progress(session) with{
-            Wakeup=session.Paused||session.Lifecycle=="finished"?null:NewWakeup(session,"presentation",deadline),
-            PresentationDeadline=session.Paused||session.Lifecycle=="finished"?null:deadline,
+            Wakeup=session.Paused||session.Lifecycle!="phase-result"?null:NewWakeup(session,"presentation",deadline),
+            PresentationDeadline=session.Paused||session.Lifecycle!="phase-result"?null:deadline,
             PresentationRemaining=null});
     }
     private void PauseProgression(Session session)
