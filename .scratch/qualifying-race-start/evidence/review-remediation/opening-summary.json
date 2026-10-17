@@ -1,0 +1,59 @@
+{
+  "runs": 400,
+  "movedRuns": 282,
+  "maxPositionsGained": 7,
+  "changedOpening": 400,
+  "qualifyingUnchanged": true,
+  "models": [
+    "automatic-standing-start-v2"
+  ],
+  "paces": [
+    "Standard"
+  ],
+  "files": [
+    {
+      "file": "control-track-monaco-aero--2.json.gz",
+      "sha256": "02a5f28f474f9254e5be1c2b3b399fb281550e78377be0aa7317de152f379fc8",
+      "runs": 4
+    },
+    {
+      "file": "control-track-monaco-aero-2.json.gz",
+      "sha256": "7ff9342dc346aa9eb7dab872bf8a4900bbc991488371c09bd2c194145ad4b28d",
+      "runs": 4
+    },
+    {
+      "file": "control-track-monza-aero--2.json.gz",
+      "sha256": "fb6fa4b59614af4bf2303d878365d7635cfef7c27cb2add40779b5aa1c2c4c56",
+      "runs": 4
+    },
+    {
+      "file": "control-track-monza-aero-2.json.gz",
+      "sha256": "1084b64452a578cba7c43eb1c21bcd2b03e591266e52132ca19a360eff7faf79",
+      "runs": 4
+    },
+    {
+      "file": "track-monaco-equal.json.gz",
+      "sha256": "9abd629c5046f529dbd9e34b3b06fbaf0595fc68235c1a3934a44c0ae30dadba",
+      "runs": 96
+    },
+    {
+      "file": "track-monaco-mixed.json.gz",
+      "sha256": "fd03086a116db6dd4edfcb2880fe7db83960d4e4073a913c34f435839c342aac",
+      "runs": 96
+    },
+    {
+      "file": "track-monza-equal.json.gz",
+      "sha256": "2ed1789113747f2adf9f42741e909d8b535141a64e41d6e7ef15b0d1a477eae5",
+      "runs": 96
+    },
+    {
+      "file": "track-monza-mixed.json.gz",
+      "sha256": "c3be13f428f3c55eba68abea606e5506467cb4daf076b04594ced651811bf1cc",
+      "runs": 96
+    }
+  ],
+  "meanOpeningTimeDeltaSeconds": -0.799856569957774,
+  "meanOpeningConditionDelta": -0.008376504305189549,
+  "riskSummaryByteIdentical": true,
+  "controlsByteIdentical": true
+}

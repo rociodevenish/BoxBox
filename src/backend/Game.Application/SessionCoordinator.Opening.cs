@@ -16,7 +16,7 @@ public sealed partial class SessionCoordinator
         var grid=replay.Input.Grid.ToDictionary(g=>g.EntryId,g=>g.Position);
         // The opening is immutable. Later race windows must not silently rewrite its gains/losses.
         var opening=AutomaticRaceStart.Replay(replay).Opening;
-        return session.OpeningSummary=new(AutomaticRaceStart.ModelVersion,"Leader lap 1 crossing",opening.Classification.Select(c=>new OpeningCar(c.DriverId,
+        return session.OpeningSummary=new(replay.Input.ModelVersion,"Leader lap 1 crossing",opening.Classification.Select(c=>new OpeningCar(c.DriverId,
             source[c.DriverId].Source.Driver.Name,source[c.DriverId].Source.Driver.Slug,source[c.DriverId].Source.TeamId,
             grid[c.DriverId],c.Position,grid[c.DriverId]-c.Position)).ToArray());
     }

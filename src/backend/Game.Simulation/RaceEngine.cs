@@ -59,6 +59,9 @@ public sealed class RaceEngine
     private TrafficTuning Traffic => configuration.Traffic ?? new TrafficTuning();
 
     public RaceEngine(RaceConfiguration configuration, IReadOnlyList<Driver> drivers, int seed)
+        : this(configuration,drivers,seed,PaceInstruction.Conserve) { }
+
+    private RaceEngine(RaceConfiguration configuration,IReadOnlyList<Driver> drivers,int seed,PaceInstruction initialPace)
     {
         if (configuration is null || configuration.Track is null || drivers is null
             || string.IsNullOrWhiteSpace(configuration.Track.Name) || drivers.Any(d => d is null))
@@ -124,7 +127,7 @@ public sealed class RaceEngine
         this.configuration = configuration;
         this.seed = seed;
         ValidateDerivedConfiguration(drivers);
-        cars = drivers.Select(d => new Car(d)).ToList();
+        cars = drivers.Select(d => new Car(d){Pace=initialPace,Battle=BattleInstruction.Neutral}).ToList();
         var ordered = cars.OrderBy(c => c.Driver.Gap).ThenBy(c => c.Driver.Id, StringComparer.Ordinal).ToArray();
         for (var i = 0; i < ordered.Length; i++) ordered[i].ContactOrder = i;
         foreach (var car in cars)
@@ -140,9 +143,9 @@ public sealed class RaceEngine
     }
 
     internal static AutomaticStartResult CreateStandingStart(RaceConfiguration configuration, Driver[] drivers, int seed,
-        (double Offset,double Loss)[] launches)
+        (double Offset,double Loss)[] launches,PaceInstruction openingPace)
     {
-        var engine=new RaceEngine(configuration,drivers,seed);
+        var engine=new RaceEngine(configuration,drivers,seed,openingPace);
         for(var i=0;i<engine.cars.Count;i++)
         {
             var car=engine.cars[i];var (offset,loss)=launches[i];

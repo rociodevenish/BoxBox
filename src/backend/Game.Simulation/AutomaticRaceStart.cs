@@ -11,7 +11,8 @@ public sealed record AutomaticStartResult(RaceEngine Engine,PhaseResult Opening,
 /// <summary>Creates one standing start; returns the same live engine at the common leader-lap-one crossing.</summary>
 public static class AutomaticRaceStart
 {
-    public const string ModelVersion="automatic-standing-start-v1";
+    public const string ModelVersion="automatic-standing-start-v2";
+    public const string LegacyModelVersion="automatic-standing-start-v1";
     public const string RandomnessVersion="opening-keyed-v1";
     public static string OutcomeHash(PhaseResult result)=>Convert.ToHexString(SHA256.HashData(JsonSerializer.SerializeToUtf8Bytes(result)));
     public static AutomaticStartResult Replay(AutomaticStartReplay replay)
@@ -24,7 +25,7 @@ public static class AutomaticRaceStart
     public static AutomaticStartResult Create(AutomaticStartInput input)
     {
         ArgumentNullException.ThrowIfNull(input);
-        if(input.ModelVersion!=ModelVersion||input.RandomnessVersion!=RandomnessVersion||input.Configuration is null
+        if((input.ModelVersion!=ModelVersion&&input.ModelVersion!=LegacyModelVersion)||input.RandomnessVersion!=RandomnessVersion||input.Configuration is null
             ||input.Weekends is null||input.Grid is null||input.Tuning is null||input.Weekends.Count==0)
             throw new ArgumentException("Explicit compatible opening inputs are required.");
         var tuning=input.Tuning;
@@ -66,8 +67,10 @@ public static class AutomaticRaceStart
                 +tuning.ErrorSeconds*(1-ratings["errorControl"]/100)*Unit(input,car.Source.Driver.Id,"error");
             return (Offset:(g.Position-1)*tuning.GridSpacingMetres/firstLength,Loss:loss);
         }).ToArray();
-        return RaceEngine.CreateStandingStart(input.Configuration,drivers,input.Seed,launches);
+        return RaceEngine.CreateStandingStart(input.Configuration,drivers,input.Seed,launches,ResolveOpeningPace(input.ModelVersion));
     }
+    // V1 retains its historical Conserve opening for exact saved-input replay.
+    private static PaceInstruction ResolveOpeningPace(string model)=>model==LegacyModelVersion?PaceInstruction.Conserve:PaceInstruction.Standard;
     private static double Unit(AutomaticStartInput input,string driver,string eventId)=>
         BinaryPrimitives.ReadUInt32LittleEndian(SHA256.HashData(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(new object[]{RandomnessVersion,input.Seed,driver,"opening",eventId}))))/(double)uint.MaxValue;
 }
