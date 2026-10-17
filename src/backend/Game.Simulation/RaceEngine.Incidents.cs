@@ -101,6 +101,8 @@ public sealed partial class RaceEngine
     private void ApplyIncident(Car car, IncidentKind kind, string identity, Car? other = null)
     {
         if (!Active(car)) return;
+        if (configuration.Incidents is { InterruptMajorIncidents: true } && kind != IncidentKind.LockUp && !chequered)
+            interruption ??= new($"local-incidents-v1:{Uri.EscapeDataString(car.Driver.Id)}:{identity}", time, car.Driver.Id, kind);
         ConsumeTyres(car, Progress(car));
         car.Trace.Add((time, Distance(car)));
         var loss = kind switch { IncidentKind.LockUp => 2d, IncidentKind.Spin => 8, IncidentKind.Contact => 5, _ => 0 };

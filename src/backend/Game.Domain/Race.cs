@@ -65,7 +65,8 @@ public record TrafficTuning(bool Enabled = true, double FollowingLoss = .3, doub
 
 public record RaceConfiguration(int Laps, Track Track, double AttributeSeconds = 1,
     double LapVariation = 0, TyreTuning? Tyres = null, double StopVariation = .6,
-    TrafficTuning? Traffic = null, double EstimateError = .04, double RaceFormVariation = 0, double PassingVariation = 1, [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] IncidentTuning? Incidents = null)
+    TrafficTuning? Traffic = null, double EstimateError = .04, double RaceFormVariation = 0, double PassingVariation = 1, [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] IncidentTuning? Incidents = null,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] double? NormalPhaseLaps = null)
 {
     public RaceConfiguration WithExplicitTuning() => this with { Tyres = Tyres ?? new(), Traffic = Traffic ?? new(),
         Track = Track with { Segments = Track.Segments is null ? null : Array.AsReadOnly(Track.Segments.ToArray()) } };
@@ -92,4 +93,7 @@ public record PhaseResult(int LeaderLap, double Time, bool Finished,
     IReadOnlyList<ClassificationEntry> Classification, IReadOnlyList<RaceEvent> Events,
     IReadOnlyList<TyreState> Tyres, IReadOnlyDictionary<string, bool> Eligibility,
     IReadOnlyDictionary<string, IReadOnlyList<BattleInstruction>> BattleOptions,
-    IReadOnlyList<DecisionRecord> Decisions, [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] IReadOnlyList<CarCondition>? CarConditions = null);
+    IReadOnlyList<DecisionRecord> Decisions, [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] IReadOnlyList<CarCondition>? CarConditions = null,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] PhaseCompletionReason? CompletionReason = null,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] RaceInterruption? Interruption = null,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] double? NormalTargetDistance = null);

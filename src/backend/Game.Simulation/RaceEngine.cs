@@ -49,6 +49,8 @@ public sealed partial class RaceEngine
     private int phaseIndex;
     private double time;
     private bool chequered;
+    private RaceInterruption? interruption;
+    private double? normalTargetDistance;
     private IReadOnlyList<TrackSegment>? Segments => configuration.Track.Segments;
     private double TrackLength => Segments?.Sum(s => s.Length) ?? 1;
     private double SegmentStart(Car car) => Segments?.Take(car.SegmentIndex).Sum(s => s.Length) / TrackLength ?? 0;
@@ -70,7 +72,8 @@ public sealed partial class RaceEngine
         var tyreValues = new[] { tyres.DegradationPerLap, tyres.WarmupPenalty, tyres.DegradationPenalty,
             tyres.ExhaustionPenalty, tyres.PushGain, tyres.PushWear, tyres.ConserveLoss, tyres.ConserveWear,
             tyres.SoftGain, tyres.SoftWear, tyres.HardLoss, tyres.HardWear, tyres.SoftWarmup, tyres.HardWarmup };
-        if (configuration.Laps < 1 || !double.IsFinite(configuration.Track.BaseLapTime)
+        if (configuration.Laps < 1 || configuration.NormalPhaseLaps is { } span && (!double.IsFinite(span) || span <= 0)
+            || !double.IsFinite(configuration.Track.BaseLapTime)
             || configuration.Track.BaseLapTime <= 0 || !double.IsFinite(configuration.Track.SpeedWeight)
             || configuration.Track.SpeedWeight is < 0 or > 1
             || !double.IsFinite(configuration.AttributeSeconds) || configuration.AttributeSeconds < 0
@@ -203,21 +206,29 @@ public sealed partial class RaceEngine
             car.LapEnd = car.LapStart + duration;
         }
         UpdateTraffic();
-        AdvanceToLeaderLap(Math.Min(configuration.Laps, cars.Max(c => c.Laps) + 5));
+        AdvanceToLeaderLap(Math.Min(configuration.Laps, cars.Where(Active).Select(c => c.Laps + Progress(c)).DefaultIfEmpty(0).Max()
+            + (configuration.NormalPhaseLaps ?? 5)));
         phaseIndex++;
         return Snapshot();
     }
 
-    private void AdvanceToLeaderLap(int target)
+    private void AdvanceToLeaderLap(double target)
     {
+        interruption = null;
+        normalTargetDistance = target;
         while (cars.Any(c => Active(c)))
         {
             var car = cars.Where(c => Active(c)).OrderBy(NextEvent)
+                .ThenBy(c => NextIncidentTime(c) < OrdinaryNextEvent(c) - 1e-8)
                 .ThenBy(c => Segments is null ? 0 : c.ContactOrder)
                 .ThenBy(c => c.Driver.Id, StringComparer.Ordinal).First();
             // Complete every event at the boundary timestamp before accepting new decisions.
-            if (!chequered && cars.Max(c => c.Laps) >= target && NextEvent(car) > time + 1e-8) break;
-            var nextTime = NextEvent(car);
+            if (!chequered && (interruption is not null || cars.Any(c => Active(c) && c.Laps + Progress(c) >= target - 1e-9))
+                && NextEvent(car) > time + 1e-8) break;
+            var eventTime = NextEvent(car);
+            var targetTime = chequered || interruption is not null ? double.PositiveInfinity
+                : cars.Where(Active).Select(c => TargetTime(c, target)).Min();
+            var nextTime = Math.Min(eventTime, targetTime);
             var incidentDue = NextIncidentTime(car) < OrdinaryNextEvent(car) - 1e-8;
             AdvanceIncidentExposure(nextTime);
             foreach (var current in cars.Where(c => c.Following is not null && Active(c) && c.PitExit is null))
@@ -228,6 +239,7 @@ public sealed partial class RaceEngine
             var starting = Segments is not null && car.Laps == 0 && time < car.Driver.Gap && nextTime == car.Driver.Gap;
             time = nextTime;
             foreach (var current in cars) current.Trace.Add((time, Distance(current)));
+            if (nextTime < eventTime - 1e-8) continue;
             if (starting) { UpdateTraffic(); continue; }
             if (incidentDue) { ResolveIncident(car); UpdateTraffic(); continue; }
             if (car.PassTime == time)
@@ -610,6 +622,16 @@ public sealed partial class RaceEngine
     }
 
     private double NextEvent(Car car) => Math.Min(NextIncidentTime(car), OrdinaryNextEvent(car));
+    private double TargetTime(Car car, double target)
+    {
+        // Integer targets already have an exact lap-crossing event. Preserve its historical
+        // floating-point timestamp rather than reconstructing it from segment geometry.
+        if (car.PitExit is not null || target >= configuration.Laps || target == Math.Floor(target))
+            return double.PositiveInfinity;
+        var localTarget = (target - car.Laps - SegmentStart(car)) / SegmentShare(car);
+        if (localTarget < 0 || localTarget > 1) return double.PositiveInfinity;
+        return Math.Max(time, car.LapStart + localTarget * (car.LapEnd - car.LapStart));
+    }
     private double OrdinaryNextEvent(Car car) => Segments is not null && car.Laps == 0 && time < car.Driver.Gap
         ? car.Driver.Gap : Math.Min(car.PassTime ?? double.PositiveInfinity, car.PitExit ?? car.LapEnd);
 
@@ -824,6 +846,9 @@ public sealed partial class RaceEngine
             history.ToArray(), cars.Select(c => new TyreState(c.Driver.Id, c.Compound, c.TyreAge,
                 c.Condition, c.Pace, c.PitExit is not null)).ToArray(),
             cars.ToDictionary(c => c.Driver.Id, c => c.UsedCompounds.Count >= 2),
-            cars.ToDictionary(c => c.Driver.Id, AvailableBattles), decisionHistory.ToArray(), Conditions());
+            cars.ToDictionary(c => c.Driver.Id, AvailableBattles), decisionHistory.ToArray(), Conditions(),
+            configuration.Incidents is null ? null : cars.All(c => !Active(c)) ? PhaseCompletionReason.Finish
+                : interruption is not null && !chequered ? PhaseCompletionReason.SafetyCar : PhaseCompletionReason.NormalBoundary,
+            chequered || cars.All(c => !Active(c)) ? null : interruption, configuration.Incidents is null ? null : normalTargetDistance);
     }
 }
