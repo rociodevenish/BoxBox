@@ -8,7 +8,8 @@ export type TyreCompound = "Soft" | "Medium" | "Hard";
 export type PublicStopStatus =
   | "on-track"
   | "announced-stop-pending"
-  | "in-pit-lane";
+  | "in-pit-lane"
+  | "retired";
 export interface PublicDriverIdentity {
   readonly id: string;
   readonly code: string;

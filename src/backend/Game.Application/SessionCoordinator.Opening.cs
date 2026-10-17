@@ -7,7 +7,7 @@ public sealed record PublicOpening(string Version,string Boundary,IReadOnlyList<
 
 public sealed partial class SessionCoordinator
 {
-    private static bool IsOpeningPresentation(Session session)=>session.OpeningReplay is not null&&session.AcceptedPlans.Count==0&&session.Lifecycle=="phase-result";
+    private static bool IsOpeningPresentation(Session session)=>session.OpeningReplay is not null&&session.Presentation?.Cursor==session.ModuleState.GetValueOrDefault("opening-presentation")&&session.Lifecycle=="phase-result";
     private static PublicOpening? ProjectOpening(Session session)
     {
         if(session.OpeningReplay is not {} replay)return null;
@@ -40,6 +40,7 @@ public sealed partial class SessionCoordinator
         session.Presentation=new(Guid.NewGuid().ToString(),0,changes,0,0,0,0,0,
             $"Automatic standing start · {changes} cars changed position. Exact order at the leader's lap 1 crossing.");
         session.PresentationPhases[session.Presentation.Cursor]=0;
+        session.ModuleState["opening-presentation"]=session.Presentation.Cursor;
         lobby.Race=session;lobby.Lifecycle="started";
         PhaseCommitted(session);
         if(session.Paused)SaveProgress(session,Progress(session) with{PresentationRemaining=PresentationSeconds});

@@ -21,6 +21,7 @@ public static class LobbyEndpoints
   });
   app.MapPost("/api/lobbies/{id}/teams/{teamId}/controllers",async(string id,string teamId,ControllerGrantInput input,HttpRequest request,FirebaseIdentity auth,SessionCoordinator sessions,IHubContext<RaceHub> hub)=>{var state=sessions.GrantController(id,await auth.Verify(Token(request)),teamId,input.DeviceId);await Notify(hub,state,app.Logger);return state;});
   app.MapGet("/api/lobbies/{id}/teams/{teamId}",async(string id,string teamId,string deviceId,HttpRequest request,FirebaseIdentity auth,SessionCoordinator sessions)=>sessions.HouseholdTeam(id,await auth.Verify(Token(request)),deviceId,teamId));
+  app.MapPost("/api/lobbies/{id}/teams/{teamId}/safety-car-plans",async(string id,string teamId,string deviceId,SafetyCarTeamCommand input,HttpRequest request,FirebaseIdentity auth,SessionCoordinator sessions)=>await sessions.SubmitHouseholdSafetyCar(id,await auth.Verify(Token(request)),deviceId,teamId,input));
   app.MapPost("/api/lobbies/{id}/teams/{teamId}/plans",async(string id,string teamId,string deviceId,TeamCommand input,HttpRequest request,FirebaseIdentity auth,SessionCoordinator sessions)=>await sessions.SubmitHousehold(id,await auth.Verify(Token(request)),deviceId,teamId,input));
   app.MapGet("/api/lobbies/{id}",(string id,SessionCoordinator sessions)=>sessions.LobbyPublic(id));
   app.MapGet("/api/lobbies/{id}/open/{teamId}",(string id,string teamId,SessionCoordinator sessions)=>sessions.OpenTeam(id,teamId));

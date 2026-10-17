@@ -14,7 +14,7 @@ public static class EntryPoint
             :Path.Combine(repositoryRoot,"src","backend","Game.Api");
         await using var factory=new WebApplicationFactory<global::Program>().WithWebHostBuilder(builder=>
             builder.UseContentRoot(contentRoot).UseUrls($"http://127.0.0.1:{port}")
-                .ConfigureServices(services=>{services.AddSingleton<IRacePresets>(new StopBoundaryPresets());if(Environment.GetEnvironmentVariable("F1_CONTROLLED_CLOCK")=="1"){services.AddSingleton<BrowserClock>();services.AddSingleton<TimeProvider>(sp=>sp.GetRequiredService<BrowserClock>());services.AddSingleton<IStartupFilter,ClockControlFilter>();}}));
+                .ConfigureServices(services=>{services.AddSingleton<IRacePresets>(Environment.GetEnvironmentVariable("F1_SAFETY_CAR_FIXTURE")=="1"?new SafetyCarWindowPresets():new StopBoundaryPresets());if(Environment.GetEnvironmentVariable("F1_CONTROLLED_CLOCK")=="1"){services.AddSingleton<BrowserClock>();services.AddSingleton<TimeProvider>(sp=>sp.GetRequiredService<BrowserClock>());services.AddSingleton<IStartupFilter,ClockControlFilter>();}}));
         factory.UseKestrel(port);
         using var client=factory.CreateClient();
         Console.WriteLine($"Real fixture API running at {client.BaseAddress}");

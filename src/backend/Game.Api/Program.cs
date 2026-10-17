@@ -58,6 +58,7 @@ app.MapControlEndpoints();
 app.MapPost("/api/sessions", (CreateSessionInput input, SessionCoordinator sessions) => sessions.Create(input));
 app.MapGet("/api/sessions/{id}", (string id, SessionCoordinator sessions) => sessions.Public(id));
 app.MapGet("/api/sessions/{id}/team", (string id, HttpRequest request, SessionCoordinator sessions) => sessions.Team(id, Capability(request)));
+app.MapPost("/api/sessions/{id}/safety-car-plans", (string id, SafetyCarTeamCommand command, HttpRequest request, SessionCoordinator sessions) => sessions.SubmitSafetyCar(id, Capability(request), command));
 app.MapPost("/api/sessions/{id}/plans", (string id, TeamCommand command, HttpRequest request, SessionCoordinator sessions) => sessions.Submit(id, Capability(request), command));
 app.MapPost("/api/sessions/{id}/restart", (string id, HttpRequest request, SessionCoordinator sessions) => sessions.Restart(id, Capability(request)));
 app.MapPost("/api/sessions/{id}/presentation-timing", (string id, PresentationTimingInput input, SessionCoordinator sessions) =>

@@ -8,7 +8,8 @@ namespace Game.Application;
 public record RecordedAutomaticPlan(int Phase,string PolicyVersion,string Source,IReadOnlyDictionary<string,DriverDecision> Decisions);
 public record RecordedReplayPhase(int Phase, int LeaderLap, double RaceTime, bool Finished, string OutcomeHash);
 public record BrowserReplayRecord(string FormatVersion, string SessionId, string Preset, string ControlledTeamId,
-    string OpponentScriptVersion, RaceReplay Replay, IReadOnlyList<RecordedReplayPhase> Phases, bool Finished, BrowserSessionTiming? Timing = null, IReadOnlyList<RecordedAutomaticPlan>? AutomaticPlans = null, IReadOnlyList<RecordedAssistance>? AssistanceHistory = null);
+    string OpponentScriptVersion, RaceReplay Replay, IReadOnlyList<RecordedReplayPhase> Phases, bool Finished, BrowserSessionTiming? Timing = null, IReadOnlyList<RecordedAutomaticPlan>? AutomaticPlans = null, IReadOnlyList<RecordedAssistance>? AssistanceHistory = null,
+    [property:JsonIgnore(Condition=JsonIgnoreCondition.WhenWritingNull)] IReadOnlyList<string>? OperationKinds=null);
 public record BrowserPhaseTiming(int Phase, double DecisionMilliseconds, double ResolutionMilliseconds,
     double? ReadyWaitMilliseconds, string Source = "server-monotonic-window-clock");
 public record PresentationTimingInput(string SampleId, string DeviceId, string Cursor, double? DurationMilliseconds,
@@ -25,6 +26,7 @@ public record BrowserReplayVerification(bool Matches, bool Finished, IReadOnlyLi
 public static class BrowserReplay
 {
     public const string FormatVersion = "browser-dry-race-replay-v1";
+    public const string DisruptionFormatVersion = "browser-disruption-replay-v1";
     public static JsonSerializerOptions JsonOptions { get; } = CreateJsonOptions();
     private static JsonSerializerOptions CreateJsonOptions()
     {
@@ -56,13 +58,14 @@ public static class BrowserReplay
     }
     public static BrowserReplayVerification Verify(BrowserReplayRecord record)
     {
-        if (record is null || record.FormatVersion != FormatVersion || string.IsNullOrWhiteSpace(record.OpponentScriptVersion)
+        if (record is null || record.FormatVersion is not (FormatVersion or DisruptionFormatVersion) || string.IsNullOrWhiteSpace(record.OpponentScriptVersion)
             || record.Replay is null || record.Replay.Configuration is null || record.Replay.Configuration.Track is null || record.Replay.Configuration.Tyres is null
             || record.Replay.Configuration.Traffic is null || record.Replay.Drivers is null || record.Replay.Plan is null
             || record.Replay.Plan.Scheduled is null || record.Replay.Plan.Conditional is null || record.Replay.Plan.Conditional.Length != 0
             || record.Phases is null || string.IsNullOrWhiteSpace(record.Replay.ModelVersion) || string.IsNullOrWhiteSpace(record.Replay.RandomnessVersion))
             throw new ArgumentException("Browser replay requires its version, explicit inputs and accepted complete phase plans.");
         SimulationReplay.RequireVersion(record.Replay.Configuration, record.Replay.ModelVersion, record.Replay.RandomnessVersion);
+        if(record.FormatVersion==DisruptionFormatVersion)return VerifyOperations(record);
         var replay = SimulationReplay.Capture(record.Replay.Configuration, record.Replay.Drivers, record.Replay.Plan, record.Replay.Seed);
         if (replay.Plan.Scheduled.Any(entry => entry is null || entry.Phase < 0 || entry.Phase >= record.Phases.Count)
             || replay.Plan.Scheduled.Length != record.Phases.Count * replay.Drivers.Length)
@@ -85,5 +88,23 @@ public static class BrowserReplay
         }
         var finished = engine.GetState().Finished;
         return new(verified.All(phase => phase.Matches) && finished == record.Finished, finished, Array.AsReadOnly(verified.ToArray()));
+    }
+    internal static PhaseResult ResolveOperation(RaceEngine engine,string kind,IReadOnlyDictionary<string,DriverDecision> plan)=>kind switch
+    {
+        "Normal"=>engine.ResolvePhase(plan),
+        "SafetyCar"=>engine.CommitSafetyCarChoices(plan.ToDictionary(pair=>pair.Key,pair=>new SafetyCarDecision(pair.Value.PitCompound))),
+        _=>throw new ArgumentException("Unknown persisted race operation.")
+    };
+    private static BrowserReplayVerification VerifyOperations(BrowserReplayRecord record)
+    {
+        if(record.OperationKinds is null||record.OperationKinds.Count!=record.Phases.Count)throw new ArgumentException("Typed replay requires one kind per operation.");
+        var engine=SimulationReplay.CreateEngine(record.Replay);var verified=new List<VerifiedReplayPhase>();
+        for(var index=0;index<record.Phases.Count;index++)
+        {
+            var expected=record.Phases[index];var plan=record.Replay.Plan.Scheduled.Where(entry=>entry.Phase==index).ToDictionary(entry=>entry.DriverId,entry=>entry.Decision);
+            var result=ResolveOperation(engine,record.OperationKinds[index],plan);var hash=OutcomeHash(result);
+            verified.Add(new(expected.Phase,hash==expected.OutcomeHash&&result.Time==expected.RaceTime&&result.Finished==expected.Finished&&result.LeaderLap==expected.LeaderLap,result.LeaderLap,result.Time,result.Finished,hash));
+        }
+        return new(verified.All(operation=>operation.Matches)&&engine.GetState().Finished==record.Finished,engine.GetState().Finished,verified);
     }
 }

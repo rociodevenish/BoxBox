@@ -28,7 +28,7 @@ import { PublicStopStatus } from "./public-classification.model";
 export class StopStatus {
   readonly status = input.required<PublicStopStatus>();
   label(): string {
-    return this.status() === "announced-stop-pending"
+    return this.status() === "retired" ? "Retired" : this.status() === "announced-stop-pending"
       ? "Stop pending"
       : this.status() === "in-pit-lane"
         ? "In pit lane"

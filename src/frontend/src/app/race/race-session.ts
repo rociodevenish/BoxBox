@@ -7,6 +7,7 @@ import { HubConnection, HubConnectionBuilder } from '@microsoft/signalr';
 import { PublicGap, TyreCompound } from '../ui/timing/public-classification.model';
 import { Pace, Battle } from '../ui/controller/controller.model';
 export interface PublicState {
+    safetyCar?:{identity:string;time:number;driverId:string;incident:string;policy:string}|null;
     opening?:import("../opening/opening-handoff").OpeningOutcome|null;
     controlStatus?:TeamControlStatus[];
     paused?:boolean;
@@ -62,6 +63,7 @@ interface Command {
     }[];
 }
 interface TeamState {
+    windowKind?:string|null;
     assistance?:TeamAssistance;
     controlStatus?:TeamControlStatus|null;
     teamId:string; assignmentRevision:number; commandRevision:number;
@@ -78,6 +80,7 @@ interface TeamState {
         inPits: boolean;
         stopQueued: boolean;
         battleOptions: Battle[];
+        safetyCar?:{driverId:string;status:string;committedCompound:string|null;canPit:boolean}|null;
     }[];
 }
 interface Acknowledgement {
@@ -253,7 +256,7 @@ export class RaceSession {
             this.choices.set(state.cars.map(car => ({ driverId: car.driverId, pace: 'Standard', pit: 'StayOut', compound: 'Hard', battle: 'Neutral' })));
         }
         if (state.confirmedPlan) {
-            this.choices.set(state.confirmedPlan.cars.map(car => ({ ...car, pit: car.pit === 'Pit' ? 'Pit' : 'StayOut', compound: car.compound ?? 'Hard' })));
+            this.choices.set(state.cars.map(owned => {const car=state.confirmedPlan!.cars.find(item=>item.driverId===owned.driverId);return car?{...car,pit:car.pit==='Pit'?'Pit':'StayOut',compound:car.compound??'Hard'}:{driverId:owned.driverId,pace:'Standard',pit:'StayOut',compound:'Hard',battle:'Neutral'};}));
             this.pending.set(null);
         }
         else if (!this.team())
@@ -274,14 +277,17 @@ export class RaceSession {
         const team = this.team();
         if (!team || !this.canSubmit())
             return;
-        const command = this.pending() ?? { commandId: commandId(), phase: team.phase, revision: this.householdTeam ? team.commandRevision : team.revision, cars: this.choices().map(car => ({ ...car, pit: car.pit === 'Pit' ? 'Pit' : 'Stay Out', compound: car.pit === 'Pit' ? car.compound : null })) };
+        const command = this.pending() ?? { commandId: commandId(), phase: team.phase, revision: this.householdTeam ? team.commandRevision : team.revision, cars: this.choices().filter(car=>team.windowKind!=='SafetyCar'||team.cars.find(owned=>owned.driverId===car.driverId)?.safetyCar?.status==='available').map(car => ({ ...car, pit: car.pit === 'Pit' ? 'Pit' : 'Stay Out', compound: car.pit === 'Pit' ? car.compound : null })) };
         this.pending.set(command);
         this.busy.set(true);
         this.error.set('');
         const generation=this.privateGeneration;
         const submittedTeam=this.householdTeam;
         try {
-            const ack = await this.request<Acknowledgement>(this.householdTeam ? '/api/lobbies/'+this.id+'/teams/'+this.householdTeam+'/plans?deviceId='+encodeURIComponent(this.householdDevice) : '/api/sessions/' + this.id + '/plans', command, this.householdTeam ? await this.householdUser!.getIdToken() : this.capability);
+            const special=team.windowKind==='SafetyCar';
+            const endpoint=special?'safety-car-plans':'plans';
+            const payload=special?{...command,cars:command.cars.map(car=>({driverId:car.driverId,pit:car.pit,compound:car.compound}))}:command;
+            const ack = await this.request<Acknowledgement>(this.householdTeam ? '/api/lobbies/'+this.id+'/teams/'+this.householdTeam+'/'+endpoint+'?deviceId='+encodeURIComponent(this.householdDevice) : '/api/sessions/' + this.id + '/'+endpoint, payload, this.householdTeam ? await this.householdUser!.getIdToken() : this.capability);
             if(generation!==this.privateGeneration || submittedTeam!==this.householdTeam)return;
             if (this.team()?.phase !== command.phase) return;
             if(this.sharedTablet && ack.sessionId===this.id && ack.commandId===command.commandId){await this.passTablet(false);return;}

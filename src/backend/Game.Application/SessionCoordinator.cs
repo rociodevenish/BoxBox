@@ -49,6 +49,8 @@ public sealed partial class SessionCoordinator(ISessionNotifications notificatio
         public Dictionary<string, DriverDecision>? PendingPlan { get; set; }
         public TeamCommand? PendingCommand { get; set; }
         public string? PendingFingerprint { get; set; }
+        public string? WindowKind { get; set; }
+        public List<string> OperationKinds { get; } = [];
         public int Phase { get; set; }
         public long Revision { get; set; } = 1;
         public long WindowRevision { get; set; } = 1;
@@ -96,12 +98,12 @@ public sealed partial class SessionCoordinator(ISessionNotifications notificatio
             var session = Require(id);
             var scheduled = session.AcceptedPlans.SelectMany((plan, phase) => plan.OrderBy(pair => pair.Key, StringComparer.Ordinal)
                 .Select(pair => new ScheduledDecision(phase, pair.Key, pair.Value))).ToArray();
-            return new(BrowserReplay.FormatVersion, id, session.Input.Preset, "team-01", session.ScriptVersion,
+            return new(session.OperationKinds.Contains("SafetyCar")?BrowserReplay.DisruptionFormatVersion:BrowserReplay.FormatVersion, id, session.Input.Preset, "team-01", session.ScriptVersion,
                 SimulationReplay.Capture(session.Configuration, session.Drivers, new StrategyPlan(scheduled, []), session.Input.Seed!.Value) with{Opening=session.OpeningReplay},
                 Array.AsReadOnly(session.RecordedPhases.ToArray()), session.RecordedPhases.LastOrDefault()?.Finished ?? false,
                 new(session.TotalToFinishMilliseconds ?? Stopwatch.GetElapsedTime(session.StartedTimestamp).TotalMilliseconds,
                     session.TotalToFinishMilliseconds, Array.AsReadOnly(session.PhaseTimings.ToArray()),
-                    Array.AsReadOnly(session.PresentationSamples.Values.Select(value => value.Sample).ToArray()), session.RecoveryReplayMilliseconds),Array.AsReadOnly(session.AutomaticPlans.ToArray()),AssistanceHistory(session));
+                    Array.AsReadOnly(session.PresentationSamples.Values.Select(value => value.Sample).ToArray()), session.RecoveryReplayMilliseconds),Array.AsReadOnly(session.AutomaticPlans.ToArray()),AssistanceHistory(session),session.OperationKinds.Contains("SafetyCar")?session.OperationKinds.ToArray():null);
         }
     }
     private Session Require(string id,bool scheduled=false) { EnsureRecovered(id,scheduled); return active is { } session && session.Id == id ? session
@@ -158,7 +160,7 @@ public sealed partial class SessionCoordinator(ISessionNotifications notificatio
             var name=session.OpeningReplay?.Input.Weekends.SelectMany(w=>w.Cars).FirstOrDefault(c=>c.Source.EntryId==entry.DriverId)?.Source.Driver.Name ?? "Driver " + entry.DriverId[^2..];
             return new PublicCar(entry.DriverId, name, driver.Team,
                 index + 1, entry.Laps, entry.Progress, gap, ahead, tyre.Compound.ToString(), tyre.Age,
-                tyre.InPits ? "in-pit-lane" : "on-track", state.Finished ? state.Eligibility[entry.DriverId] : null,
+                entry.RetirementTime is not null ? "retired" : tyre.InPits ? "in-pit-lane" : "on-track", state.Finished ? state.Eligibility[entry.DriverId] : null,
                 Array.AsReadOnly(lapTimes.Where(lap => lap.DriverId == entry.DriverId).TakeLast(5)
                     .Select(lap => new PublicLapTime(lap.Lap, lap.Seconds)).ToArray()),
                 state.Events.Count(item => item.DriverId == entry.DriverId && item.Kind == RaceEventKind.PitExit),
@@ -167,7 +169,7 @@ public sealed partial class SessionCoordinator(ISessionNotifications notificatio
         return new(session.Id, session.Phase, session.Revision, session.StorageError ? "storage-error" : session.Lifecycle, state.LeaderLap,
             session.Configuration.Laps, state.Time, Array.AsReadOnly(rows), session.Events, session.Presentation,
             state.Finished ? 0 : Math.Min(5, session.Configuration.Laps - state.LeaderLap),
-            Array.AsReadOnly(session.RequiredTeams.Select(team => new TeamReadiness(team, session.Locks.ContainsKey(team))).ToArray()),session.Paused || session.StorageError, session.DecisionDeadlineUtc, session.PausedRemainingSeconds, session.TimingPolicy, clock.GetUtcNow(), session.LastDecisionSources,PublicControl(session),Progress(session).PresentationDeadline,Progress(session).PresentationRemaining,session.WindowRevision,ProjectOpening(session));
+            Array.AsReadOnly(session.RequiredTeams.Select(team => new TeamReadiness(team, session.Locks.ContainsKey(team))).ToArray()),session.Paused || session.StorageError, session.DecisionDeadlineUtc, session.PausedRemainingSeconds, session.TimingPolicy, clock.GetUtcNow(), session.LastDecisionSources,PublicControl(session),Progress(session).PresentationDeadline,Progress(session).PresentationRemaining,session.WindowRevision,ProjectOpening(session),ProjectSafetyCar(session));
     }
     private static PublicGap ProjectGap(TimingGap gap) => gap.Laps > 0 ? new("laps", Laps: gap.Laps)
         : gap.Seconds is { } seconds ? new("time", seconds) : new("unavailable");
@@ -187,9 +189,9 @@ public sealed partial class SessionCoordinator(ISessionNotifications notificatio
         var observation = session.Engine.GetTeamObservation(teamId);
         var own = observation.TeamTyres.Select(tyre => new PrivateCar(tyre.DriverId, tyre.Compound.ToString(),
             tyre.Age, tyre.EstimatedCondition, tyre.InPits, tyre.StopQueued,
-            Array.AsReadOnly(observation.BattleOptions[tyre.DriverId].Select(option => option.ToString()).ToArray()))).ToArray();
+            Array.AsReadOnly(observation.BattleOptions[tyre.DriverId].Select(option => option.ToString()).ToArray()),session.WindowKind=="SafetyCar"?session.Engine.GetSafetyCarOptions().Single(option=>option.DriverId==tyre.DriverId):null)).ToArray();
         return new(session.Id, session.Phase, session.Revision, session.StorageError ? "storage-error" : session.Lifecycle, assignment?.PlayerId ?? session.Player, teamId,
-            assignment?.DeviceId ?? session.Device, Array.AsReadOnly(own), assignment is null ? session.ConfirmedPlan : session.Locks.GetValueOrDefault(teamId), assignment?.Revision ?? 0, session.WindowRevision,ProjectAssistance(session,teamId),assignment is null?null:ControlStatus(session,teamId));
+            assignment?.DeviceId ?? session.Device, Array.AsReadOnly(own), assignment is null ? session.ConfirmedPlan : session.Locks.GetValueOrDefault(teamId), assignment?.Revision ?? 0, session.WindowRevision,ProjectAssistance(session,teamId),assignment is null?null:ControlStatus(session,teamId),session.WindowKind);
     }
     public async Task<SubmissionAck> Submit(string id, string? capability, TeamCommand? command)
     {
@@ -206,8 +208,7 @@ public sealed partial class SessionCoordinator(ISessionNotifications notificatio
         lock (gate)
         {
             session = identity is null ? Authorise(id, capability) : AuthoriseHousehold(id, identity, deviceId!, teamId).Session;
-            if (command is null || !Guid.TryParse(command.CommandId, out commandId) || command.Cars is null || command.Cars.Count != 2
-                || !command.Cars.Select(car => car?.DriverId).Order().SequenceEqual(session.Drivers.Where(driver => driver.Team == teamId).Select(driver => driver.Id).Order()))
+            if (command is null || !Guid.TryParse(command.CommandId, out commandId) || command.Cars is null || command.Cars.Any(car=>car is null))
                 throw new SessionFault(SessionFailure.InvalidInput, "Submit exactly both owned cars with a command identity.");
             command = command with { Cars = Array.AsReadOnly(command.Cars.OrderBy(car => car.DriverId).ToArray()) };
             fingerprint = System.Text.Json.JsonSerializer.Serialize(command with { CommandId = commandId.ToString() });
@@ -215,10 +216,13 @@ public sealed partial class SessionCoordinator(ISessionNotifications notificatio
                 return accepted.Fingerprint == fingerprint ? accepted.Ack
                     : throw new SessionFault(SessionFailure.Conflict, "This command identity was already accepted with different choices.");
         }
+        if(command.Cars.Count != ExpectedCommandDrivers(session,teamId).Length || !command.Cars.Select(car=>car.DriverId).Order().SequenceEqual(ExpectedCommandDrivers(session,teamId).Order()))
+            throw new SessionFault(SessionFailure.InvalidInput,"Submit exactly the cars requiring choices in this window.");
         if(identity is not null&&CurrentControl(session,teamId)!=ControlMode.Human)throw new SessionFault(SessionFailure.Conflict,"AI is responsible for this phase. Request reclaim for the next boundary.",Project(session));
         if(IsDecisionDue(session)){await CloseExpiredSerially(session,false);lock(gate)throw new SessionFault(SessionFailure.Conflict,"The decision deadline passed. Refresh the current phase; accepted locks were preserved.",Project(Require(id)));}
         lock(gate)
         {
+            if(command.WindowKind!=session.WindowKind)throw new SessionFault(SessionFailure.Conflict,"This command belongs to a different window kind.");
             if (session.Lifecycle != "awaiting-decisions" || command.Phase != session.Phase || command.Revision != (identity is null ? session.Revision : session.WindowRevision))
                 throw new SessionFault(SessionFailure.Conflict, "This decision window is not editable. Refresh the current phase.");
             if (session.Locks.ContainsKey(teamId)) throw new SessionFault(SessionFailure.Conflict, "This team already locked its final plan for this phase.");
@@ -231,6 +235,7 @@ public sealed partial class SessionCoordinator(ISessionNotifications notificatio
                     || car.Pit == "Pit" && !TryChoice<TyreCompound>(car.Compound, out _))
                     throw new SessionFault(SessionFailure.InvalidInput, "Each car needs explicit valid pace, pit and battle choices.");
                 var tyre = observation.TeamTyres.Single(tyre => tyre.DriverId == car.DriverId);
+                if (session.WindowKind=="SafetyCar" && (pace!=PaceInstruction.Standard||battle!=BattleInstruction.Neutral))throw new SessionFault(SessionFailure.InvalidInput,"Safety Car choices contain only pit instructions.");
                 if (!observation.BattleOptions[car.DriverId].Contains(battle)
                     || car.Pit == "Pit" && (tyre.InPits || tyre.StopQueued))
                     throw new SessionFault(SessionFailure.InvalidInput, "A battle or pit instruction is unavailable. Review both cars.");
@@ -286,7 +291,9 @@ public sealed partial class SessionCoordinator(ISessionNotifications notificatio
     }    private void CompleteResolution(Session session, IReadOnlyDictionary<string, DriverDecision> complete, double decisionMilliseconds)
     {
             var resolutionStarted = Stopwatch.GetTimestamp();
-            var result = session.Engine.ResolvePhase(complete);
+            var operation=session.WindowKind??"Normal";
+            var result = ResolveOperation(session.Engine,operation,complete);
+            session.OperationKinds.Add(operation);
             var resolutionMilliseconds = Stopwatch.GetElapsedTime(resolutionStarted).TotalMilliseconds;
             if (result.Finished) session.TotalToFinishMilliseconds = Stopwatch.GetElapsedTime(session.StartedTimestamp).TotalMilliseconds;
             session.PhaseTimings.Add(new(session.Phase, decisionMilliseconds, resolutionMilliseconds, null));
@@ -294,9 +301,9 @@ public sealed partial class SessionCoordinator(ISessionNotifications notificatio
             RecordAutomaticResponsibility(session);
             session.AcceptedPlans.Add(new System.Collections.ObjectModel.ReadOnlyDictionary<string, DriverDecision>(complete.ToDictionary()));
             var fresh = result.Events.Skip(session.EngineEventCursor).Select((item, index) => (item, index))
-                .Where(pair => pair.item.Kind is RaceEventKind.Overtake or RaceEventKind.PitEntry or RaceEventKind.PitExit or RaceEventKind.TyreChanged).ToArray();
+                .Where(pair => pair.item.Kind is RaceEventKind.Overtake or RaceEventKind.PitEntry or RaceEventKind.PitExit or RaceEventKind.TyreChanged or RaceEventKind.Spin or RaceEventKind.Contact or RaceEventKind.MechanicalFailure or RaceEventKind.Retirement or RaceEventKind.LockUp).ToArray();
             session.EngineEventCursor = result.Events.Count;
-            var selected = fresh.OrderBy(pair => pair.item.Kind == RaceEventKind.Overtake ? 0 : 1)
+            var selected = fresh.OrderBy(pair => pair.item.Kind is RaceEventKind.Spin or RaceEventKind.Contact or RaceEventKind.MechanicalFailure or RaceEventKind.Retirement ? 0 : pair.item.Kind == RaceEventKind.Overtake ? 1 : 2)
                 .ThenBy(pair => pair.index).Take(12).OrderBy(pair => pair.index).ToArray();
             session.Events = Array.AsReadOnly(selected.Select(pair => new PublicEvent(Guid.NewGuid().ToString(),
                 pair.item.Kind.ToString(), pair.item.Time, pair.item.Lap, pair.item.DriverId, pair.item.OtherDriverId,
@@ -309,7 +316,9 @@ public sealed partial class SessionCoordinator(ISessionNotifications notificatio
                 fresh.Length - selected.Length, fresh.Length == 0 ? "Quiet phase: no overtakes or pit events recorded."
                 : $"{overtakes} overtakes · {entries} pit entries · {exits} pit exits · {changes} tyre changes."
                     + (fresh.Length > selected.Length ? $" Showing {selected.Length} highlights of {fresh.Length} recorded events." : ""));
-            session.Lifecycle = result.Finished ? "finished" : "phase-result"; session.Revision++;
+            if(operation=="SafetyCar")session.Presentation=session.Presentation with{Summary="Safety Car choices locked. Committed stops remain queued or ongoing."};
+            else if(result.Interruption is {} disruption)session.Presentation=session.Presentation with{Summary=$"Safety Car deployed: {disruption.Kind} observed at {disruption.Time:F1}s. Choose legal pit instructions."};
+            session.Lifecycle = result.Finished ? "finished" : operation=="SafetyCar" ? "safety-car-ready" : "phase-result"; session.Revision++;
             session.PresentationPhases.Add(session.Presentation.Cursor, session.Phase);
     }
     private async Task PublishSafely(PublicSnapshot display, TeamSnapshot team)
