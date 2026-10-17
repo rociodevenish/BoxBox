@@ -1,6 +1,6 @@
 # S08 — Qualifying and automatic race start
 
-Status: ready-for-agent
+Status: ready-for-human (local implementation, verification and review complete; household and hosted acceptance pending)
 Blocked by: weekend preparation and effective attributes; durable shared-session contracts.
 
 ## Problem Statement

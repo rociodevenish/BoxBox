@@ -11,3 +11,5 @@ Integration branch: `codex/qualifying-race-start`, based on committed S07 at `cd
 | [05 — Complete experience evidence](issues/05-qualifying-start-evidence.md) | resolved — local engineering; human/external acceptance pending | [400 frozen full-field replays, paired risk and current browser evidence](evidence/05/README.md) |
 
 See [integration scope and verification](evidence/integration.md). Household timing, readability and actual hosted acceptance remain separate from local deterministic and rendered checks.
+
+All five local engineering tickets are resolved. [Final verification, independent reviews and acceptance limits](evidence/final/README.md) pin integrated code at `2df420f5ba4e486395f3fe88b77c9ed968079dcc`. New openings use v2 Standard/Neutral; saved v1 openings retain explicit replay support. The spec is ready for human acceptance.
