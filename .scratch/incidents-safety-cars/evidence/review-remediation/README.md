@@ -27,3 +27,7 @@ Owned emulator ports: Auth **19419**, Firestore **19420**, hub **19610**, loggin
 The advice browser test lives in `src/frontend/tests/browser-safety-car/advice.spec.ts` and opts in with `F1_SAFETY_CAR_ADVICE_AUTH=1`. Use `playwright.safety-car.config.ts`, the above isolated Auth/Firestore settings, `Firebase__ProjectId=demo-f1game`, `Firebase__EmulatorUrl=http://127.0.0.1:19419`, `F1_CONTROLLED_CLOCK=1` and `Wakeups__Mode=manual`. Normal Safety Car browser runs skip this auth-dependent slice. Dependencies use Node 24, Java 21 and existing cached Chromium; no cloud login is needed.
 
 Household timing/comprehension and hosted human acceptance remain outstanding as recorded by ticket 06; this remediation makes no new calibration or human-playtest claim. Root owns the subsequent affected backend and remaining named verification stages.
+
+## Final gallery discovery correction
+
+At integrated baseline `82d8a67`, the root affected backend rerun passed 171 simulation and 146 API tests. The default gallery configuration still discovered the new `browser-safety-car` and `browser-opening-disruption` folders, whose tests require their dedicated fixture configurations. Added those two folders to the existing default-gallery `testIgnore` list. Their dedicated configurations remain unchanged. This configuration-only fix was isolated in `.worktrees/s09-review-final`; no services or tests were rerun by the remediation worker. `git diff --check` passed; root owns the affected gallery rerun and remaining named stages.
