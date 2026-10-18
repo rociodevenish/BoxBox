@@ -77,7 +77,8 @@ public record RaceConfiguration(int Laps, Track Track, double AttributeSeconds =
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] SafetyCarTuning? SafetyCar = null,
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] string? DisruptionPolicyVersion = null,
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] WeatherTuning? Weather = null,
-    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] WetTyreTuning? WetTyres = null)
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] WetTyreTuning? WetTyres = null,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] WeatherReactionTuning? WeatherReactions = null)
 {
     public RaceConfiguration WithExplicitTuning() => this with { Tyres = Tyres ?? new(), Traffic = Traffic ?? new(),
         Track = Track with { Segments = Track.Segments is null ? null : Array.AsReadOnly(Track.Segments.ToArray()) } };
@@ -108,4 +109,5 @@ public record PhaseResult(int LeaderLap, double Time, bool Finished,
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] PhaseCompletionReason? CompletionReason = null,
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] RaceInterruption? Interruption = null,
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] double? NormalTargetDistance = null,
-    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] CurrentWeather? Weather = null);
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] CurrentWeather? Weather = null,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] WeatherReaction? WeatherReaction = null);

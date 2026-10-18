@@ -1,0 +1,23 @@
+# Ticket 03 evidence
+
+Implemented on `codex/s10-03` from integration `1709841becdf94b45a724b8cb3c446eb83d4f570`. The final commit contains this record. See [runtime contract](../../../docs/weather-reactions.md) for thresholds, exact clock integration, timestamp precedence, complete commands, neutralisation preservation and replay compatibility.
+
+Approved seams: public RaceEngine operations, real authenticated HTTP/SignalR session projections, real Firestore/Auth restart and rendered browser. No new private-method testing seam or future weather access was introduced.
+
+Unique final checks:
+
+- **41 simulation tests passed**: WeatherReactionTests, WeatherTests, WetTyreTests, NeutralisedRunningTests and matching interruption cases. `.tools/reports/s10-03/simulation-final.json`, dotnet PID **22904**, 5.673 seconds. Includes mid-segment onset at 22s, lower-edge drying, noise inside hysteresis, minimum separation, immutable queued and ongoing stops, coincident incident/weather, repeated weather while neutralised with original deadline, weather exactly at Safety Car end, and finish at the same crossing timestamp.
+- **35 API tests passed**: precisely filtered weather reaction, SafetyCarWindow, weather/wet-tyre and recovery classes. `.tools/reports/s10-03/api-final.json`, dotnet PID **26368**, 27.926 seconds. Public/authenticated SignalR sees the same observed trigger; HTTP complete reactions retain Pace/Pit/Battle, retry acknowledgements and typed designer replay. New household check reconstructs an accepted partial lock from real Firestore, retains the 120-second shared-device deadline, fills only the missing team and rejects duplicate due advancement. Common recovery checks cover commit-before-broadcast and failed write behavior. Owned emulator invocation `.tools/reports/s10-03/emulator-final.json`, Firebase PID **27576**, 38.493 seconds; saved custom configuration `.tools/reports/s10-03/firebase.json`.
+- **2 focused real browser flows passed**, wet and drying. `.tools/reports/s10-03/browser-final.json`, Playwright PID **8024**, 25.952 seconds. Dedicated browser-weather-reactions folder is excluded from default gallery; only explicit `playwright.weather-reactions.config.ts` enables the server fixture. UI **4533**, API **4633**; Auth **19459**, Firestore **19450**, hub **19640**, logging **19690**, websocket **9167**. Reserved ports were checked before use and all absent after owned cleanup. No generic process kill or existing listener reuse.
+- Angular typecheck passed; browser development compilation passed. No production build or broad/root verification was run. Node24.19.0, pinned .NET10 SDK, Java21 and Chromium1234 used existing locked dependency caches. `NuGetAudit=false` was command-only; existing SignalR advisory remains unchanged.
+
+Red/green: the first public onset test failed compilation for missing tuning/result/operation contracts, then passed with exact 22s onset. The API test exposed an independently calculated threshold expectation typo (72s, not 73s) and incorrect designer route; both corrected against the public contract. Its durable household test passed on isolated actual emulators. Final focused regression sets passed. Phone/display review revealed the inherited large-display rule hid the new weather heading; the heading is now visible and both browser flows reran successfully.
+
+Reviewed captures:
+
+- [Complete 360×800 phone controller](s10-03-controller-360.png), full page, reduced motion. Both car identities, Pace, complete five-compound labels, contextual Battle and approval remain readable, with no horizontal overflow. Observed conditions and uncertain predictions remain separately labelled. Full height is 4293px; this is not evidence of human pacing.
+- [1920×1080 public display](s10-03-display-1920.png), full page, reduced motion. Weather heading/observed clock and all 22 exact classification rows are readable; no team forecast is present. Existing development facts footer extends beyond viewport. No human mixed-trigger comprehension or balance claim is made.
+
+Current supplied asset inspection counted 51 original driver/track files. Existing manifests, portraits, runtime variants, live labels and fallback text are reused unchanged. Driver/track/car source versions and supported detailed mappings remain those in circuit-weather.md/wet-tyres.md; reaction thresholds are authored tuning, never headline stars.
+
+Limits: this slice freezes a minimal legal current-observation fallback. Full weather advice/recommendations and broader recovery scenarios remain ticket 05. Live weather stays disabled pending complete flow/evidence gates. Automated timing and visual inspection do not substitute for real household playtests or weather balance experiments.

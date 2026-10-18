@@ -12,7 +12,7 @@ public sealed partial class SessionCoordinator
         if(configuration.Weather is null&&configuration.WetTyres is null)return effective;
         return effective with{Configuration=effective.Configuration with{
             Weather=configuration.Weather is {} weather?WeekendPresetCatalog.WeatherInputs(effective,weather):null,
-            WetTyres=configuration.WetTyres}};
+            WetTyres=configuration.WetTyres,WeatherReactions=configuration.WeatherReactions}};
     }
     private const string PreparationModule = "weekend-preparation-v1";
     private sealed record AcceptedSetup(string Fingerprint, SetupAck Ack);

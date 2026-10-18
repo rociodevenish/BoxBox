@@ -30,7 +30,7 @@ public sealed partial class SessionCoordinator
  } private void OpenHouseholdWindow(Session session)
  {
   var opening=IsOpeningPresentation(session);
-  session.WindowKind=session.Engine.GetState().Interruption is not null?"SafetyCar":null;
+  session.WindowKind=session.Engine.GetState().WeatherReaction is not null?"Weather":session.Engine.GetState().Interruption is not null?"SafetyCar":null;
   if(!lobbies.ContainsKey(session.Id))session.RequiredTeams=["team-01"];
   if(!opening)session.Phase++;
   session.RequiredTeams=session.RequiredTeams.Where(team=>ExpectedCommandDrivers(session,team).Length>0).ToArray();
@@ -38,6 +38,7 @@ public sealed partial class SessionCoordinator
   session.ConfirmedPlan=null;session.Locks.Clear();session.HumanDecisions.Clear();
   session.FrozenOpponents=OpponentScript.Freeze(session.Engine,session.Drivers.Select(driver=>driver.Team).Distinct().Where(team=>!session.RequiredTeams.Contains(team)),session.Configuration.Laps,session.ScriptVersion);
   if(session.WindowKind=="SafetyCar")session.FrozenOpponents=FreezeSafetyCar(session,session.Drivers.Select(driver=>driver.Team).Distinct().Where(team=>!session.RequiredTeams.Contains(team)));
+  if(session.WindowKind=="Weather")session.FrozenOpponents=FreezeWeather(session,session.Drivers.Select(driver=>driver.Team).Distinct().Where(team=>!session.RequiredTeams.Contains(team)));
   session.WindowTimestamp=System.Diagnostics.Stopwatch.GetTimestamp();
   if(lobbies.TryGetValue(session.Id,out var lobby))InitializeDecisionWindow(session,lobby);
  }

@@ -1,7 +1,7 @@
 namespace Game.Domain;
 
 public enum IncidentKind { LockUp, Spin, Contact, MechanicalFailure }
-public enum PhaseCompletionReason { NormalBoundary, SafetyCar, Finish }
+public enum PhaseCompletionReason { NormalBoundary, SafetyCar, Finish, Weather }
 public sealed record RaceInterruption(string Identity, double Time, string DriverId, IncidentKind Kind);
 // Rates are hazards per running second; contact is probability per actual encounter.
 public sealed record IncidentTuning(double ErrorRate = 0, double ContactProbability = 0,
