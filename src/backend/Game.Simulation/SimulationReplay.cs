@@ -13,7 +13,7 @@ public static class SimulationReplay
         if(opening.Input.Seed!=replay.Seed||System.Text.Json.JsonSerializer.Serialize(opening.Input.Configuration.WithExplicitTuning())!=System.Text.Json.JsonSerializer.Serialize(replay.Configuration.WithExplicitTuning()))
             throw new ArgumentException("Opening replay must match the race configuration and seed.");
         var result=AutomaticRaceStart.Replay(opening);
-        var field=opening.Input.Grid.OrderBy(g=>g.Position).Select(g=>opening.Input.Weekends.SelectMany(w=>w.Cars).Single(c=>c.Source.EntryId==g.EntryId).RaceDriver with{Gap=0});
+        var field=AutomaticRaceStart.StartingDrivers(opening.Input);
         if(!field.SequenceEqual(replay.Drivers))throw new ArgumentException("Opening replay field does not match the race.");
         return result.Engine;
     }

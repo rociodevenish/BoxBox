@@ -3,7 +3,7 @@ using Game.Simulation;
 using System.Security.Cryptography;
 using System.Diagnostics;
 namespace Game.Application;
-public sealed partial class SessionCoordinator(ISessionNotifications notifications,IRacePresets presets, ISessionStore? store = null, TimeProvider? timeProvider = null,IScheduledWakeups? scheduledWakeups=null)
+public sealed partial class SessionCoordinator(ISessionNotifications notifications,IRacePresets presets, ISessionStore? store = null, TimeProvider? timeProvider = null,IScheduledWakeups? scheduledWakeups=null,IOpeningDisruptionPolicy? openingDisruptions=null)
 {
     private sealed partial class Session(string id, string player, string device, byte[] grantHash,
         RaceConfiguration configuration, Driver[] drivers, int seed, CreateSessionInput input, RaceEngine? openingEngine=null)
@@ -164,7 +164,7 @@ public sealed partial class SessionCoordinator(ISessionNotifications notificatio
                 Array.AsReadOnly(lapTimes.Where(lap => lap.DriverId == entry.DriverId).TakeLast(5)
                     .Select(lap => new PublicLapTime(lap.Lap, lap.Seconds)).ToArray()),
                 state.Events.Count(item => item.DriverId == entry.DriverId && item.Kind == RaceEventKind.PitExit),
-                fastest == entry.DriverId);
+                fastest == entry.DriverId,state.CarConditions?.Single(condition=>condition.DriverId==entry.DriverId).DamageSecondsPerLap);
         }).ToArray();
         return new(session.Id, session.Phase, session.Revision, session.StorageError ? "storage-error" : session.Lifecycle, state.LeaderLap,
             session.Configuration.Laps, state.Time, Array.AsReadOnly(rows), session.Events, session.Presentation,
@@ -306,9 +306,10 @@ public sealed partial class SessionCoordinator(ISessionNotifications notificatio
             session.EngineEventCursor = result.Events.Count;
             var selected = fresh.OrderBy(pair => pair.item.Kind is RaceEventKind.Spin or RaceEventKind.Contact or RaceEventKind.MechanicalFailure or RaceEventKind.Retirement ? 0 : pair.item.Kind == RaceEventKind.Overtake ? 1 : 2)
                 .ThenBy(pair => pair.index).Take(12).OrderBy(pair => pair.index).ToArray();
-            session.Events = Array.AsReadOnly(selected.Select(pair => new PublicEvent(Guid.NewGuid().ToString(),
+            var precedingIncidents=operation=="SafetyCar"?session.Events.Where(item=>item.Kind is "Spin" or "Contact" or "MechanicalFailure" or "Retirement").ToArray():[];
+            session.Events = Array.AsReadOnly(precedingIncidents.Concat(selected.Select(pair => new PublicEvent(Guid.NewGuid().ToString(),
                 pair.item.Kind.ToString(), pair.item.Time, pair.item.Lap, pair.item.DriverId, pair.item.OtherDriverId,
-                pair.item.Compound?.ToString())).ToArray());
+                pair.item.Compound?.ToString()))).Take(12).ToArray());
             var overtakes = fresh.Count(pair => pair.item.Kind == RaceEventKind.Overtake);
             var entries = fresh.Count(pair => pair.item.Kind == RaceEventKind.PitEntry);
             var exits = fresh.Count(pair => pair.item.Kind == RaceEventKind.PitExit);

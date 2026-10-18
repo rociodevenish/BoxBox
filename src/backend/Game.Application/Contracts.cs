@@ -9,7 +9,8 @@ public record PublicLapTime(int Lap, double Seconds);
 public record PublicCar(string DriverId, string Name, string TeamId, int Position, int CompletedLaps,
     double Progress, PublicGap GapToLeader, PublicGap GapToAhead, string Compound, int TyreAge,
     string PitState, bool? EligibleAtFinish, IReadOnlyList<PublicLapTime> RecentLapTimes,
-    int CompletedPitStops, bool IsFastestLap);
+    int CompletedPitStops, bool IsFastestLap,
+    [property:JsonIgnore(Condition=JsonIgnoreCondition.WhenWritingNull)] double? ObservedDamageSecondsPerLap=null);
 public record PublicEvent(string Id, string Kind, double Time, int Lap, string DriverId,
     string? OtherDriverId, string? Compound);
 public record PublicSnapshot(string SessionId, int Phase, long Revision, string Lifecycle,

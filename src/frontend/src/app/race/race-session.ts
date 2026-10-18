@@ -34,6 +34,7 @@ export interface PublicState {
         tyreAge: number;
         compound: TyreCompound;
         pitState: string;
+        observedDamageSecondsPerLap?: number;
         completedLaps: number;
         eligibleAtFinish: boolean | null;
         recentLapTimes: {lap:number;seconds:number}[];
@@ -265,7 +266,7 @@ export class RaceSession {
         const newlyLocked = previous && !previous.confirmedPlan && (state.confirmedPlan || state.phase!==previous.phase);
         if(this.sharedTablet && (newlyLocked || submitted && state.phase!==submitted.phase))void this.passTablet(false);
     }
-    private canSubmit() { return (!this.team()?.controlStatus || this.team()?.controlStatus?.mode==='Human') && (!!this.pending() || this.remainingDecisionSeconds()!==0) && !this.busy() && !this.acknowledged() && this.connectionState() === 'connected' && this.team()?.lifecycle === 'awaiting-decisions' && !this.team()?.confirmedPlan; }
+    private canSubmit() { return this.team()?.cars.some(car=>!['retired','finished'].includes(car.safetyCar?.status??'')) && (!this.team()?.controlStatus || this.team()?.controlStatus?.mode==='Human') && (!!this.pending() || this.remainingDecisionSeconds()!==0) && !this.busy() && !this.acknowledged() && this.connectionState() === 'connected' && this.team()?.lifecycle === 'awaiting-decisions' && !this.team()?.confirmedPlan; }
     editable() { return this.canSubmit() && !this.pending(); }
     canRetry() { return this.canSubmit() && !!this.pending(); }
     async restart() {

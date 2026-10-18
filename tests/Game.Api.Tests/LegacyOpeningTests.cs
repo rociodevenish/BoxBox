@@ -56,6 +56,8 @@ public sealed partial class QualifyingTests
                 var input=replay.Input with{ModelVersion=AutomaticRaceStart.LegacyModelVersion};
                 Opening=AutomaticRaceStart.Create(input);
                 race["opening"]=JsonSerializer.SerializeToNode(replay with{Input=input,OutcomeHash=AutomaticRaceStart.OutcomeHash(Opening.Opening)},BrowserReplay.JsonOptions);
+                // Historical opening saves predate the explicit presentation cursor.
+                race["window"]?["moduleState"]?.AsObject().Remove("opening-presentation");
                 payload=document.ToJsonString();
             }
             return inner.Write(id,expected,payload,code,wakeup);

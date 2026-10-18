@@ -4,7 +4,7 @@ import { PublicStopStatus } from "./public-classification.model";
   selector: "app-stop-status",
   template: `<span
     class="status"
-    [class.pending]="status() === 'announced-stop-pending'"
+    [class.pending]="status() === 'announced-stop-pending' || status() === 'damaged'"
     [class.pitting]="status() === 'in-pit-lane'"
     >{{ label() }}</span
   >`,
@@ -28,7 +28,7 @@ import { PublicStopStatus } from "./public-classification.model";
 export class StopStatus {
   readonly status = input.required<PublicStopStatus>();
   label(): string {
-    return this.status() === "retired" ? "Retired" : this.status() === "announced-stop-pending"
+    return this.status() === "damaged" ? "Damaged" : this.status() === "retired" ? "Retired" : this.status() === "announced-stop-pending"
       ? "Stop pending"
       : this.status() === "in-pit-lane"
         ? "In pit lane"
