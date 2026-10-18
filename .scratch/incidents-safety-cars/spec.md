@@ -1,6 +1,6 @@
 # S09 — Incidents, reliability and Safety Cars
 
-Status: ready-for-agent
+Status: ready-for-human
 Blocked by: weekend preparation and effective attributes; qualifying and automatic race start; durable session timing and recovery.
 
 ## Problem Statement

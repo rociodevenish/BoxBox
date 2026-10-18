@@ -65,6 +65,27 @@ public sealed class NeutralisedRunningTests
         Assert.Equal(41,after.Events.Single(e=>e.DriverId=="b"&&e.Kind==RaceEventKind.PitEntry).Value);
         Assert.True(after.Classification.Single(c=>c.DriverId=="b").GapSeconds<racing.Classification.Single(c=>c.DriverId=="b").GapSeconds);
     }
+    [Theory]
+    [InlineData(.2,38,23,8.6)]
+    [InlineData(.15,32,21.5,10.7)]
+    public void Authored_routes_reduce_matched_distance_loss_without_changing_service(double fraction,double transit,double greenLoss,double neutralLoss)
+    {
+        double Crossing(bool neutral,bool pit)
+        {
+            var race=new RaceEngine(new(20,new("Lab",PitRoute:new(fraction,transit)),AttributeSeconds:0,
+                Tyres:new(DegradationPerLap:0,WarmupPenalty:0,HardWarmup:0,HardLoss:0),StopVariation:0,
+                Traffic:new(Enabled:false),SafetyCar:new(DurationSeconds:600),Incidents:new(ComponentWearPerSecond:0,InterruptMajorIncidents:true)),
+                [new("trigger","A",Gap:100),new("target","B",StartingCompound:TyreCompound.Hard)],1,
+                new IncidentScenario([new("trigger",IncidentKind.MechanicalFailure,36)]));
+            race.ResolvePhase();var choices=new Dictionary<string,SafetyCarDecision>{["target"]=new(pit?TyreCompound.Hard:null)};
+            PhaseResult result;
+            if(neutral)result=race.ResolveSafetyCar(choices);
+            else{race.CommitSafetyCarChoices(choices);result=race.ResolvePhase();}
+            return result.Events.First(e=>e.DriverId=="target"&&e.Kind==RaceEventKind.LapCompleted&&e.Lap==2).Time;
+        }
+        Assert.Equal(greenLoss,Crossing(false,true)-Crossing(false,false),7);
+        Assert.Equal(neutralLoss,Crossing(true,true)-Crossing(true,false),7);
+    }
     [Fact]
     public void Neutralised_running_compresses_real_gaps_without_passes_and_restart_uses_current_progress()
     {

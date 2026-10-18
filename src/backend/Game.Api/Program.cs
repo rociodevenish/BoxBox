@@ -12,6 +12,11 @@ builder.Services.AddSingleton<FirebaseIdentity>();
 builder.Services.AddSingleton<HouseholdSubscriptions>();
 builder.Services.AddSingleton<ISessionNotifications, SessionNotifications>();
 builder.Services.AddSingleton<IRacePresets,DryRacePresets>();
+if(builder.Configuration["Disruptions:Policy"] is {Length:>0} disruptionPolicy)
+{
+    if(disruptionPolicy!=AuthoredDisruptionPolicy.ContentVersion)throw new InvalidOperationException("Unknown Disruptions:Policy version.");
+    builder.Services.AddSingleton<IOpeningDisruptionPolicy,AuthoredDisruptionPolicy>();
+}
 builder.Services.AddSingleton<ISessionStore>(_ => builder.Configuration["Persistence:ProjectId"] is { Length: > 0 } project
     ? new FirestoreSessionStore(project, builder.Configuration["Persistence:EmulatorHost"] ?? Environment.GetEnvironmentVariable("FIRESTORE_EMULATOR_HOST"))
     : new VolatileSessionStore());

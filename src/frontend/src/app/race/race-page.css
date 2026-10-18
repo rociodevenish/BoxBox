@@ -69,3 +69,10 @@ ol { padding-left:20px; }
 @media(min-width:1200px){.public-screen .decision-window[aria-label='Safety Car status'] h2{display:block;color:var(--color-driver);}}
 
 app-two-car-controller + button { margin-top: 16px; }
+
+@media(min-width:1200px){
+ .public-screen .connection a {min-height:32px;padding:6px 12px;}
+ .public-screen .display-controls {gap:8px;}
+ .public-screen .team-readiness {margin:4px 0;font-size:13px;}
+ .public-screen .decision-window {padding:4px 0;}
+}

@@ -1,0 +1,19 @@
+{
+  "command": "dotnet",
+  "args": [
+    "run",
+    "--project",
+    "tools/DisruptionEvidence",
+    "-p:",
+    "NuGetAudit=false",
+    "--",
+    "--replay",
+    ".scratch/incidents-safety-cars/evidence/06-data/frozen.json.gz"
+  ],
+  "cwd": "C:\\Projects\\F1Game\\.worktrees\\s09-06",
+  "pid": 33440,
+  "startedAt": "2026-10-18T03:31:23.793Z",
+  "status": "passed",
+  "exitCode": 0,
+  "elapsedMs": 6706
+}
