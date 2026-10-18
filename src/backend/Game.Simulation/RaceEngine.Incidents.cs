@@ -43,7 +43,7 @@ public sealed partial class RaceEngine
     private double Demand(Car car) => car.Pace switch { PaceInstruction.Push => 1.8, PaceInstruction.Conserve => .55, _ => 1 };
     // Inputs are sampled at lap entry: splitting equivalent geometry cannot create opportunities or change rates.
     private double ErrorRate(Car car) => !neutralised && configuration.Incidents is { } t ? t.ErrorRate * Demand(car)
-        * (2 - (car.Driver.IncidentProfile?.ErrorControl ?? 82) / 100) * (2 - car.LapTyreCondition) : 0;
+        * (2 - (car.Driver.IncidentProfile?.ErrorControl ?? 82) / 100) * (2 - car.LapTyreCondition) * WetError(car) : 0;
     private double FailureRate(Car car) => configuration.Incidents is { } t ? t.FailureRate * Demand(car)
         * t.MechanicalStress * (2 - (car.Driver.IncidentProfile?.Reliability ?? 82) / 100)
         * (2 - car.LapComponentCondition) : 0;

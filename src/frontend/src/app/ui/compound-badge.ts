@@ -4,9 +4,12 @@ import { TyreCompound } from "./timing/public-classification.model";
   selector: "app-compound-badge",
   template: `<span
     class="badge"
+    [class.full-name]="fullName()"
     [class.soft]="compound() === 'Soft'"
     [class.medium]="compound() === 'Medium'"
     [class.hard]="compound() === 'Hard'"
+    [class.intermediate]="compound() === 'Intermediate'"
+    [class.wet]="compound() === 'Wet'"
     [attr.aria-label]="
       compound() ? 'Tyre compound ' + compound() : 'Tyre compound unknown'
     "
@@ -22,6 +25,8 @@ import { TyreCompound } from "./timing/public-classification.model";
     .compound-code { display: none; }
     @media (max-width: 600px) { .compound-code { display: inline; } .compound-name { display: none; } }
     @container timing (max-width: 600px) { .compound-code { display: inline; } .compound-name { display: none; } }
+    .full-name .compound-code { display: none; }
+    .full-name .compound-name { display: inline; }
     .badge {
       display: inline-block;
       border: 1px solid currentColor;
@@ -41,8 +46,11 @@ import { TyreCompound } from "./timing/public-classification.model";
     .hard {
       color: var(--color-tyre-hard);
     }
+    .intermediate { color: #71d98a; }
+    .wet { color: #77baff; }
   `,
 })
 export class CompoundBadge {
   readonly compound = input.required<TyreCompound | null>();
+  readonly fullName = input(false);
 }

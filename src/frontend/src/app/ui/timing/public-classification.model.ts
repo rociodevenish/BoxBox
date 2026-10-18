@@ -4,7 +4,7 @@ export type PublicGap =
   | { readonly kind: "time"; readonly seconds: number }
   | { readonly kind: "laps"; readonly laps: number }
   | { readonly kind: "unavailable" };
-export type TyreCompound = "Soft" | "Medium" | "Hard";
+export type TyreCompound = "Soft" | "Medium" | "Hard" | "Intermediate" | "Wet";
 export type PublicStopStatus =
   | "on-track"
   | "announced-stop-pending"

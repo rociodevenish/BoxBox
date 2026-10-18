@@ -9,6 +9,7 @@ import { Pace, Battle } from '../ui/controller/controller.model';
 export interface CurrentWeather {version:string;time:number;intervalIdentity:string;rainIntensity:number;wetness:number;dryingPerSecond:number}
 export interface WeatherForecast {version:string;observationIdentity:string;observedAt:number;refreshAt:number;confidence:string;horizons:{fromSeconds:number;toSeconds:number;rainProbability:number;rainLower:number;rainUpper:number}[];explanation:string}
 export interface PublicState {
+    wetTyresEnabled?:boolean|null;
     weather?:CurrentWeather|null;
     safetyCar?:{identity:string;time:number;driverId:string;incident:string;policy:string}|null;
     opening?:import("../opening/opening-handoff").OpeningOutcome|null;
@@ -67,6 +68,7 @@ interface Command {
     }[];
 }
 interface TeamState {
+    wetTyresEnabled?:boolean|null;
     forecast?:WeatherForecast|null;
     windowKind?:string|null;
     assistance?:TeamAssistance;

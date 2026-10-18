@@ -4,14 +4,22 @@
 
 **Blocked by:** 01: Observe evolving weather and stable forecasts; incidents-safety-cars 01.
 
-**Status:** ready-for-agent
+**Status:** resolved
 
 ## Acceptance criteria
 
-- [ ] Add Intermediate/Wet suitability, warm-up and degradation with bounded wrong-condition consequences; retain unlimited sets and existing service semantics.
-- [ ] Map supported Wet-Weather Skill, Tyre Temperature Management and traction/error effects through the effective model; avoid duplicate accident rolls.
-- [ ] Exempt a driver from two-dry-compound eligibility only when Intermediate/Wet is actually used in the race; forecast or qualifying use alone does not qualify.
-- [ ] Verify this slice through the parent spec-approved public API/SignalR or public domain/simulation boundary as appropriate, with focused browser coverage for user interaction and persistence/retry checks for durable transitions.
+- [x] Add Intermediate/Wet suitability, warm-up and degradation with bounded wrong-condition consequences; retain unlimited sets and existing service semantics.
+- [x] Map supported Wet-Weather Skill, Tyre Temperature Management and traction/error effects through the effective model; avoid duplicate accident rolls.
+- [x] Exempt a driver from two-dry-compound eligibility only when Intermediate/Wet is actually used in the race; forecast or qualifying use alone does not qualify.
+- [x] Verify this slice through the parent spec-approved public API/SignalR or public domain/simulation boundary as appropriate, with focused browser coverage for user interaction and persistence/retry checks for durable transitions.
+
+## Claim
+
+Implemented by the ticket 02 worker on `codex/s10-02`, based on integration `bc07d73`.
+
+## Answer
+
+Explicit versioned wet tyre tuning adds continuous bounded suitability, base wear/warm-up and wrong-condition costs, supported detailed effective attributes and one existing integrated error channel. Absolute-time semantic cells preserve equivalent subdivision and actual process identity. Eligibility requires actual wet race use, including excluding a fitted set still in service. Nullable capability projections unlock full labelled compound controls only when supported. Live weather presets remain disabled. See [model/units/mappings](../../../docs/wet-tyres.md) and [verification and captures](../evidence/02-wet-tyres.md).
 
 ## Spec and supplied content
 

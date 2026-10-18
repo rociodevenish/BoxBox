@@ -4,6 +4,7 @@
     <p id="controller-title" class="decision-summary">{{model().safetyCar ? 'Safety Car pit window' : model().decisionLaps===0 ? 'Final instructions' : model().decisionLaps === undefined ? 'Phase '+model().phase+' instructions' : 'Decisions for the next '+model().decisionLaps+' '+(model().decisionLaps===1?'lap':'laps')}}</p>
 
   </header>
+  @if(model().wetTyresEnabled){<p>Intermediate suits damp conditions; Wet suits heavy wetness. Wrong-condition tyres lose pace and wear faster. Sets are unlimited; pit service is unchanged.</p>}
   @if(model().state!=='selected'){<div
     [attr.role]="model().state === 'rejected' ? 'alert' : 'status'"
     [attr.aria-live]="model().state === 'rejected' ? 'assertive' : 'polite'"
@@ -74,7 +75,7 @@
             Pit
           </button>
         </div>
-        @if(choice.stop === 'Pit'){<fieldset><legend>New compound</legend><div class="options">@for(tyre of compounds;track tyre){<button type="button" [attr.aria-label]="'New compound '+tyre" [attr.aria-pressed]="choice.compound===tyre" (click)="choose(i,{compound:tyre})"><app-compound-badge [compound]="tyre" /></button>}</div></fieldset>}
+        @if(choice.stop === 'Pit'){<fieldset><legend>New compound</legend><div class="options">@for(tyre of compounds;track tyre){<button type="button" [attr.aria-label]="'New compound '+tyre" [attr.aria-pressed]="choice.compound===tyre" (click)="choose(i,{compound:tyre})"><app-compound-badge [compound]="tyre" [fullName]="true" /></button>}</div></fieldset>}
         <p class="explanation">
           Stay Out keeps track position. Pit requests a stop at the next lap
           end.

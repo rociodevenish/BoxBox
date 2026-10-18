@@ -15,7 +15,7 @@ A driver's Conserve, Standard or Push choice, applying throughout a Race Phase, 
 A driver's choice to stay out or pit for a selected tyre compound. A pit choice takes effect at that driver's next lap-end after the Race Phase begins.
 
 **Tyre Compound**:
-A tyre category with distinct pace, warm-up and degradation characteristics. Dry compounds are Soft, Medium and Hard.
+A tyre category with distinct pace, warm-up and degradation characteristics. Dry compounds are Soft, Medium and Hard; Intermediate and Wet suit wetter conditions.
 
 **Battle Instruction**:
 A driver's Neutral, Attack or Defend choice for nearby battles during a Race Phase.
