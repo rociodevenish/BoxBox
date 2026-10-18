@@ -16,7 +16,7 @@ public sealed class DisruptionRecoveryTests
     [InlineData(false)] [InlineData(true)]
     public async Task Unversioned_staging_session_migrates_once_then_second_restart_replays_typed_history_exactly(bool committedBeforeMigrationFailure)
     {
-        var durable=new FirestoreSessionStore("demo-f1game",Environment.GetEnvironmentVariable("F1_RECOVERY_HOST"));var legacy=new LegacyStaging(durable);
+        using var durable=new FirestoreSessionStore("demo-f1game",Environment.GetEnvironmentVariable("F1_RECOVERY_HOST")??Environment.GetEnvironmentVariable("FIRESTORE_EMULATOR_HOST")??"127.0.0.1:19100");var legacy=new LegacyStaging(durable);
         WebApplicationFactory<Program> Host(ISessionStore store)=>DurableRecoveryTests.Server().WithWebHostBuilder(builder=>builder.ConfigureServices(services=>{services.AddSingleton<IRacePresets>(new Game.TestFixtures.SafetyCarWindowPresets());services.AddSingleton(store);}));
         await using var server=Host(legacy);using var client=server.CreateClient();
         var created=(await(await client.PostAsJsonAsync("/api/sessions",new CreateSessionInput("open-equal",10,123))).Content.ReadFromJsonAsync<SessionCreated>())!;
@@ -62,7 +62,7 @@ public sealed class DisruptionRecoveryTests
     [InlineData("neutralised",false)] [InlineData("neutralised",true)]
     public async Task Failed_disruption_write_and_duplicate_retry_preserve_one_incident_stop_and_neutralised_result(string boundary,bool committedFirst)
     {
-        var durable=new FirestoreSessionStore("demo-f1game",Environment.GetEnvironmentVariable("F1_RECOVERY_HOST"));
+        using var durable=new FirestoreSessionStore("demo-f1game",Environment.GetEnvironmentVariable("F1_RECOVERY_HOST")??Environment.GetEnvironmentVariable("FIRESTORE_EMULATOR_HOST")??"127.0.0.1:19100");
         var failures=new FailedBoundary(durable,boundary,committedFirst);
         var delivery=new ObservedDelivery();
         WebApplicationFactory<Program> Host(ISessionStore store)=>DurableRecoveryTests.Server().WithWebHostBuilder(builder=>builder.ConfigureServices(services=>{

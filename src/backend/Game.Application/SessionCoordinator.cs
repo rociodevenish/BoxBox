@@ -190,7 +190,8 @@ public sealed partial class SessionCoordinator(ISessionNotifications notificatio
         var observation = session.Engine.GetTeamObservation(teamId);
         var own = observation.TeamTyres.Select(tyre => new PrivateCar(tyre.DriverId, tyre.Compound.ToString(),
             tyre.Age, tyre.EstimatedCondition, tyre.InPits, tyre.StopQueued,
-            Array.AsReadOnly(observation.BattleOptions[tyre.DriverId].Select(option => option.ToString()).ToArray()),session.Configuration.Incidents is not null?session.Engine.GetSafetyCarOptions().Single(option=>option.DriverId==tyre.DriverId):null)).ToArray();
+            Array.AsReadOnly(observation.BattleOptions[tyre.DriverId].Select(option => option.ToString()).ToArray()),session.Configuration.Incidents is not null?session.Engine.GetSafetyCarOptions().Single(option=>option.DriverId==tyre.DriverId):null,
+            observation.Conditions?.Single(condition=>condition.DriverId==tyre.DriverId))).ToArray();
         return new(session.Id, session.Phase, session.Revision, session.StorageError ? "storage-error" : session.Lifecycle, assignment?.PlayerId ?? session.Player, teamId,
             assignment?.DeviceId ?? session.Device, Array.AsReadOnly(own), assignment is null ? session.ConfirmedPlan : session.Locks.GetValueOrDefault(teamId), assignment?.Revision ?? 0, session.WindowRevision,ProjectAssistance(session,teamId),assignment is null?null:ControlStatus(session,teamId),session.WindowKind);
     }
@@ -216,6 +217,7 @@ public sealed partial class SessionCoordinator(ISessionNotifications notificatio
             if (session.AcceptedCommands.TryGetValue(commandId, out var accepted))
                 return accepted.Fingerprint == fingerprint ? accepted.Ack
                     : throw new SessionFault(SessionFailure.Conflict, "This command identity was already accepted with different choices.");
+            if(session.Lifecycle!="awaiting-decisions")throw new SessionFault(SessionFailure.Conflict,"This decision window is not editable. Refresh the current phase.");
         }
         if(command.Cars.Count != ExpectedCommandDrivers(session,teamId).Length || !command.Cars.Select(car=>car.DriverId).Order().SequenceEqual(ExpectedCommandDrivers(session,teamId).Order()))
             throw new SessionFault(SessionFailure.InvalidInput,"Submit exactly the cars requiring choices in this window.");

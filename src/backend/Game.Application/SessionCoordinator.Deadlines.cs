@@ -25,7 +25,7 @@ public sealed partial class SessionCoordinator
         foreach(var team in session.RequiredTeams)
         {
             var decisions=ExpectedCommandDrivers(session,team).ToDictionary(id=>id,id=>session.FrozenTimeoutDecisions[id]);
-            var source=session.TimeoutSources[team];if(session.WindowKind!="SafetyCar")ConfigureTimeoutPlan(session,team,ref decisions,ref source);
+            var source=session.TimeoutSources[team];if(session.WindowKind=="SafetyCar")ConfigureSafetyCarAdvice(session,team,ref source);else ConfigureTimeoutPlan(session,team,ref decisions,ref source);
             foreach(var pair in decisions)session.FrozenTimeoutDecisions[pair.Key]=pair.Value;session.TimeoutSources[team]=source;
         }
         if(session.WindowKind=="SafetyCar"&&session.RequiredTeams.Length==0)session.DecisionDeadlineUtc=clock.GetUtcNow();
