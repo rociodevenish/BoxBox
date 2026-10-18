@@ -25,6 +25,7 @@ export interface PrivateCarViewModel {
   readonly recentLaps?: readonly {lap:number;seconds:number}[];
   readonly name: string;
   readonly tyreEstimate: string;
+  readonly conditionEstimate?:string;
   readonly currentCompound: Compound;
   readonly battleOptions: readonly Battle[];
   readonly tyreAge?: number;

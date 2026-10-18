@@ -78,6 +78,7 @@ interface TeamState {
         compound: TyreCompound;
         tyreAge: number;
         estimatedTyreCondition: number;
+        condition?:{componentCondition:string;risk:string;observedDamageSecondsPerLap:number;retired:boolean};
         inPits: boolean;
         stopQueued: boolean;
         battleOptions: Battle[];

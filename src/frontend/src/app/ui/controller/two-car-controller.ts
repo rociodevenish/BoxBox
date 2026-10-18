@@ -73,6 +73,7 @@ export class TwoCarController {
   }
   useRecommendation(){
     const advice=this.model().assistance?.recommendation;if(!this.editable()||!advice||advice.phase+1!==this.model().phase)return;
+    if(this.model().safetyCar){this.choices.update(choices=>choices.map((choice,index)=>{const suggestion=advice.safetyCarCars?.find(car=>car.driverId===this.model().cars[index].id)?.suggested;return suggestion?{...choice,stop:suggestion.pit as "Pit"|"Stay Out",compound:suggestion.compound??choice.compound}:choice;}));return;}
     this.choices.update(choices=>choices.map((choice,index)=>{const suggestion=advice.cars.find(car=>car.driverId===this.model().cars[index].id)?.suggested;return suggestion?{pace:suggestion.pace,stop:suggestion.pit as "Pit"|"Stay Out",compound:suggestion.compound??choice.compound,battle:suggestion.battle}:choice;}));
   }
   compound(index: number, event: Event) {

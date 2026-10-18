@@ -7,6 +7,7 @@ import type {TeamAssistance} from './assistance.model';
  @if(help.recommendation;as advice){
  <p class="freshness">Saved for Phase {{advice.phase+1}} · race observation {{advice.observationTime.toFixed(0)}} seconds. Refreshing does not change this advice.</p>
  <h3>Suggested two-car plan</h3>
+ @for(car of advice.safetyCarCars??[];track car.driverId){<div class="suggestion"><h4>Driver {{number(car.driverId)}}</h4><p class="plan">{{car.suggested.pit}}{{car.suggested.compound?' · '+car.suggested.compound:''}}</p><ul>@for(reason of car.reasons;track reason){<li>{{reason}}</li>}</ul><p class="uncertainty">{{car.uncertainty}}</p></div>}
  @for(car of advice.cars;track car.driverId){<div class="suggestion"><h4>Driver {{number(car.driverId)}}</h4><p class="plan">{{car.suggested.pace}} · {{car.suggested.pit}}{{car.suggested.compound?' · '+car.suggested.compound:''}} · {{car.suggested.battle}}</p><ul>@for(reason of car.reasons;track reason){<li>{{reason}}</li>}</ul><p class="uncertainty">{{car.uncertainty}}</p>@if(car.battleOptions.length===1){<p>Neutral is the only legal battle choice.</p>}@if(car.pitOptions.length===1){<p>Stay Out is the only new pit choice while the accepted stop completes.</p>}</div>}
  @if(help.helpLevel==='Guided'){<p>{{advice.choiceExplanation}}</p>}
  @if(showAction()){<button type="button" [disabled]="!editable()" (click)="usePlan.emit()">Use suggested two-car plan</button>}

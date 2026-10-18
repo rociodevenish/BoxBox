@@ -76,7 +76,7 @@ public sealed partial class SessionCoordinator
             if(loaded is not null)RecoverLegacySafetyCar(loaded);
             if(loaded?.ScheduledRecovery==true&&!scheduled){loaded.ScheduledRecovery=false;if(loaded.PendingPlan is not null)RecoverPending(loaded);else{RecoverExpiredDecision(loaded);RecoverPresentation(loaded);}}
             else if(loaded?.StorageError==true&&loaded.PendingPlan is not null&&!scheduled)RecoverPending(loaded);
-            else if(loaded?.StorageError==true&&!scheduled)Persist(id);
+            else if(loaded?.StorageError==true&&!scheduled&&loaded.ModuleState.Remove("retry-legacy-migration-save"))Persist(id);
             return;
         }
         StoredSession? record;try{record=persistence.Read(id);}catch(Exception error) when(error is not SessionFault){throw new SessionFault(SessionFailure.StorageUnavailable,"Saved session is temporarily unavailable. Retry recovery when storage returns.");}if(record is null)return;
@@ -95,7 +95,8 @@ public sealed partial class SessionCoordinator
         session.WindowKind="SafetyCar";
         var continuation=session.Engine.GetSafetyCarOptions().Where(option=>option.Status=="available")
             .ToDictionary(option=>option.DriverId,_=>new DriverDecision());
-        CompleteResolution(session,continuation,0);CommitResolvedPhase(session,null,null,resumeStandalone:true);
+        try{CompleteResolution(session,continuation,0);CommitResolvedPhase(session,null,null,resumeStandalone:true);}
+        catch{var recovered=lobbies.GetValueOrDefault(session.Id)?.Race??active;if(recovered?.Id==session.Id)recovered.ModuleState["retry-legacy-migration-save"]="true";throw;}
     }
     private void RecoverPending(Session session)
     {

@@ -9,9 +9,30 @@ using System.Text.Json;
 using System.Net;
 using System.Net.Http.Json;
 using Xunit;
+using Microsoft.AspNetCore.SignalR.Client;
 namespace Game.Api.Tests;
 public sealed class SafetyCarWindowTests
 {
+    [Fact]
+    public async Task Own_condition_bands_are_private_and_match_authenticated_signalr_observations()
+    {
+        await using var server=new WebApplicationFactory<Program>().WithWebHostBuilder(builder=>builder.ConfigureServices(services=>services.AddSingleton<IRacePresets>(new Game.TestFixtures.SafetyCarWindowPresets())));
+        using var client=server.CreateClient();var created=(await(await client.PostAsJsonAsync("/api/sessions",new CreateSessionInput("open-equal",10,123))).Content.ReadFromJsonAsync<SessionCreated>())!;
+        client.DefaultRequestHeaders.Authorization=new("Bearer",created.ControllerCapability);var route="/api/sessions/"+created.SessionId;
+        var own=await client.GetFromJsonAsync<JsonElement>(route+"/team");
+        foreach(var car in own.GetProperty("cars").EnumerateArray())
+        {
+            var condition=car.GetProperty("condition");Assert.Equal("Good",condition.GetProperty("componentCondition").GetString());Assert.Equal("Low",condition.GetProperty("risk").GetString());
+            Assert.Equal(car.GetProperty("driverId").GetString(),condition.GetProperty("driverId").GetString());
+            Assert.Equal(new[]{"driverId","componentCondition","risk","observedDamageSecondsPerLap","retired"},condition.EnumerateObject().Select(property=>property.Name));
+        }
+        await using var hub=new Microsoft.AspNetCore.SignalR.Client.HubConnectionBuilder().WithUrl("http://localhost/hubs/race",options=>{options.Transports=Microsoft.AspNetCore.Http.Connections.HttpTransportType.LongPolling;options.HttpMessageHandlerFactory=_=>server.Server.CreateHandler();}).Build();
+        await hub.StartAsync();var subscribed=await Microsoft.AspNetCore.SignalR.Client.HubConnectionExtensions.InvokeAsync<JsonElement>(hub,"SubscribeTeam",created.SessionId,created.ControllerCapability);
+        Assert.Equal(own.GetProperty("cars").GetRawText(),subscribed.GetProperty("cars").GetRawText());
+        var display=await Microsoft.AspNetCore.SignalR.Client.HubConnectionExtensions.InvokeAsync<JsonElement>(hub,"SubscribePublic",created.SessionId);
+        Assert.DoesNotContain("componentCondition",display.GetRawText());Assert.DoesNotContain("componentCondition",await client.GetStringAsync(route));
+        Assert.DoesNotContain("exposure",own.GetRawText(),StringComparison.OrdinalIgnoreCase);Assert.DoesNotContain("threshold",own.GetRawText(),StringComparison.OrdinalIgnoreCase);
+    }
     [Fact]
     public void Legacy_staging_designer_replay_retains_commit_only_safety_car_semantics()
     {
@@ -60,6 +81,9 @@ public sealed class SafetyCarWindowTests
             services.AddSingleton<IRacePresets>(new Game.TestFixtures.SafetyCarWindowPresets());services.AddSingleton<ISessionStore>(store);
         }));
         await using var server=Server();using var client=server.CreateClient();var(id,device)=await DeadlineTests.StartShared(client);var route="/api/lobbies/"+id;
+        var lobby=(await client.GetFromJsonAsync<LobbySnapshot>(route))!;
+        foreach(var team in lobby.Teams.Where(team=>team.TeamId is "team-01" or "team-02"))
+            (await client.PostAsJsonAsync($"{route}/players/{team.PlayerId}/assistance",new PlayerAssistanceInput("Assisted",true))).EnsureSuccessStatusCode();
         foreach(var team in new[]{"team-01","team-02"})
         {
             var own=(await client.GetFromJsonAsync<TeamSnapshot>($"{route}/teams/{team}?deviceId={device}"))!;
@@ -69,16 +93,22 @@ public sealed class SafetyCarWindowTests
         var interrupted=(await client.GetFromJsonAsync<PublicSnapshot>("/api/sessions/"+id))!;
         Assert.NotNull(interrupted.SafetyCar);Assert.Equal(120,interrupted.TimingPolicy!.EffectiveSeconds);Assert.Equal(1,interrupted.TimingPolicy.AdditionalSharedTeams);
         var first=(await client.GetFromJsonAsync<TeamSnapshot>($"{route}/teams/team-01?deviceId={device}"))!;
+        Assert.NotNull(first.Assistance!.Recommendation);Assert.Empty(first.Assistance.Recommendation.Cars);
+        var adviceJson=JsonSerializer.Serialize(first.Assistance.Recommendation,BrowserReplay.JsonOptions);
+        Assert.Equal(2,JsonDocument.Parse(adviceJson).RootElement.GetProperty("safetyCarCars").GetArrayLength());
+        Assert.DoesNotContain("pace",adviceJson,StringComparison.OrdinalIgnoreCase);Assert.DoesNotContain("battle",adviceJson,StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain("recommendation",await client.GetStringAsync("/api/sessions/"+id),StringComparison.OrdinalIgnoreCase);
         var command=new SafetyCarTeamCommand(Guid.NewGuid().ToString(),first.Phase,first.CommandRevision,[new("driver-01","Pit","Hard"),new("driver-02","Stay Out",null)]);
         var accepted=await client.PostAsJsonAsync($"{route}/teams/team-01/safety-car-plans?deviceId={device}",command);accepted.EnsureSuccessStatusCode();
         await using var recovered=Server();using var restored=recovered.CreateClient();restored.DefaultRequestHeaders.Authorization=client.DefaultRequestHeaders.Authorization;
         var saved=(await restored.GetFromJsonAsync<TeamSnapshot>($"{route}/teams/team-01?deviceId={device}"))!;Assert.NotNull(saved.ConfirmedPlan);
+        Assert.Equal(adviceJson,JsonSerializer.Serialize(saved.Assistance!.Recommendation,BrowserReplay.JsonOptions));
         var before=(await restored.GetFromJsonAsync<PublicSnapshot>("/api/sessions/"+id))!;Assert.Equal(interrupted.DecisionDeadlineUtc,before.DecisionDeadlineUtc);
         Assert.Contains(before.Readiness!,team=>team.TeamId=="team-01"&&team.Locked);
         clock.Advance(TimeSpan.FromSeconds(120));var due=new DueTransitionInput(Guid.NewGuid().ToString(),before.Phase,before.WindowRevision);
         var closed=await restored.PostAsJsonAsync(route+"/advance-due",due);closed.EnsureSuccessStatusCode();var staged=(await closed.Content.ReadFromJsonAsync<PublicSnapshot>())!;
         Assert.Equal("phase-result",staged.Lifecycle);Assert.Equal(before.RaceTime+180,staged.RaceTime,7);
-        Assert.Contains(staged.DecisionSources!,source=>source.TeamId=="team-01"&&source.Source=="human");Assert.Contains(staged.DecisionSources!,source=>source.TeamId=="team-02"&&source.Source=="timeout-ai");
+        Assert.Contains(staged.DecisionSources!,source=>source.TeamId=="team-01"&&source.Source=="human");Assert.Contains(staged.DecisionSources!,source=>source.TeamId=="team-02"&&source.Source=="recommendation-timeout");
         var ownAfter=(await restored.GetFromJsonAsync<TeamSnapshot>($"{route}/teams/team-01?deviceId={device}"))!;Assert.Equal("Hard",ownAfter.Cars[0].Compound);
         var retry=await restored.PostAsJsonAsync($"{route}/teams/team-01/safety-car-plans?deviceId={device}",command);retry.EnsureSuccessStatusCode();Assert.Equal(await accepted.Content.ReadAsStringAsync(),await retry.Content.ReadAsStringAsync());
         var repeated=(await(await restored.PostAsJsonAsync(route+"/advance-due",due)).Content.ReadFromJsonAsync<PublicSnapshot>())!;Assert.Equal(staged.Revision,repeated.Revision);

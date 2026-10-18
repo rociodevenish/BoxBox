@@ -35,6 +35,7 @@
           <h3>Tyre condition</h3>
           <app-compound-badge [compound]="car.currentCompound" />
           <p>Condition estimate: <strong>{{car.tyreEstimate}}</strong></p>
+          @if(car.conditionEstimate){<p class="component-estimate">{{car.conditionEstimate}}</p>}
           @if(car.tyreAge!==undefined){<p>Age: {{car.tyreAge}} {{car.tyreAge===1?'lap':'laps'}}</p>}
         </section>
       </div>
