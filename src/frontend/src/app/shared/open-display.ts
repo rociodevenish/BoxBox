@@ -12,7 +12,8 @@ import {raceDriverCard} from '../race/race-driver-card';
 interface OpenTeam {
  assistance?:TeamAssistance;
  sessionId:string;teamId:string;phase:number;revision:number;assignmentRevision:number;lifecycle:string;
- cars:{driverId:string;compound:'Soft'|'Medium'|'Hard';tyreAge:number;estimatedTyreCondition:number;inPits:boolean;stopQueued:boolean;battleOptions:string[]}[];
+ wetTyresEnabled?:boolean|null;
+ cars:{driverId:string;compound:'Soft'|'Medium'|'Hard'|'Intermediate'|'Wet';tyreAge:number;estimatedTyreCondition:number;inPits:boolean;stopQueued:boolean;battleOptions:string[]}[];
  confirmedPlan:{cars:{driverId:string;pace:string;pit:string;compound:string|null;battle:string}[]}|null;
 }
 interface Lobby {sessionId:string;mode:string;teams:{teamId:string;constructorName:string;control:string;playerId:string|null;approved:boolean;assignmentRevision:number}[];players:{playerId:string;name:string}[]}

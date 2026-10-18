@@ -6,6 +6,16 @@ namespace Game.Simulation;
 /// <summary>Public immutable preparation seam. Does not persist or advance a session.</summary>
 public static class WeekendPreparation
 {
+    public static WetWeatherAttributes EffectiveWetWeather(WeekendCar source, WeekendSetup? setup = null)
+    {
+        ArgumentNullException.ThrowIfNull(source);
+        setup?.Validate();
+        Validate(source.Driver.Ratings, DriverKeys);
+        Validate(source.Car.Ratings, CarKeys);
+        var car = setup is null ? source.Car.Ratings : WeekendSetupTuning.Apply(source.Car.Ratings, setup);
+        return new(source.Driver.Ratings["wetWeatherSkill"], car["tyreTemperature"], car["traction"],
+            $"wet-effective-v1/{source.Driver.Version}/{source.Car.Version}/{(setup is null ? "neutral-setup-v1" : WeekendSetup.Version)}");
+    }
     public const string PracticeModelVersion = "practice-assessment-v1";
 
     public static PracticeAssessment Assess(WeekendPreset preset, int laps, WeekendSetup setup, int seed)
@@ -58,7 +68,8 @@ public static class WeekendPreparation
         if (weekend.SetupModelVersion is not ("neutral-setup-v1" or WeekendSetup.Version))
             throw new ArgumentException("Unsupported saved setup model.");
         weekend.Setup?.Validate();
-        return new(weekend.Configuration, weekend.Cars.Select(c => c.RaceDriver).ToArray(), seed);
+        return new(weekend.Configuration, weekend.Cars.Select(c => weekend.Configuration.WetTyres is null ? c.RaceDriver
+            : c.RaceDriver with { WetWeather = EffectiveWetWeather(c.Source, weekend.Setup) }).ToArray(), seed);
     }
 
     public static EffectiveWeekend Prepare(WeekendPreset preset, int laps, WeekendSetup? setup = null)

@@ -10,3 +10,11 @@ public sealed class WeatherRacePresets : IRacePresets
             Weather = new(MeanRain: .6, InitialWetness: .25, SourceVersion: "weather-browser-v1") } };
     }
 }
+public sealed class WetTyreRacePresets : IRacePresets
+{
+    public RacePreset Get(string name, int laps)
+    {
+        var weather = new WeatherRacePresets().Get(name, laps);
+        return weather with { Configuration = weather.Configuration with { WetTyres = new() } };
+    }
+}

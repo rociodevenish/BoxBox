@@ -65,6 +65,8 @@ public sealed partial class RaceEngine
         if(choices is null||!choices.Keys.Order().SequenceEqual(required))throw new ArgumentException("Choose exactly the active cars without committed stops.");
         foreach(var choice in choices.Values)
             if(choice is null||choice.PitCompound is {} compound&&!Enum.IsDefined(compound))throw new ArgumentException("Choose Stay Out or a valid pit compound.");
+        if(!WetEffects && choices.Values.Any(choice=>choice.PitCompound is TyreCompound.Intermediate or TyreCompound.Wet))
+            throw new ArgumentException("Wet compounds require explicit wet tyre tuning.");
         foreach(var car in cars)
             if(choices.TryGetValue(car.Driver.Id,out var choice))car.PendingPit=choice.PitCompound;
         return Snapshot();

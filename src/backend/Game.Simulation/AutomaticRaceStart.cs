@@ -75,6 +75,10 @@ public static class AutomaticRaceStart
             IncidentProfile=new(car.Source.Driver.Ratings["errorControl"],car.Source.Car.Ratings["reliability"],
                 SourceVersion:$"local-profile-v1/{car.Source.Driver.Version}/{car.Source.Car.Version}/{weekend.Source.Circuit.Version}")
         })).ToDictionary(driver=>driver.Id);
+        if(input.Configuration.WetTyres is not null)
+            foreach(var weekend in input.Weekends)
+                foreach(var car in weekend.Cars)
+                    drivers[car.Source.EntryId]=drivers[car.Source.EntryId] with { WetWeather=WeekendPreparation.EffectiveWetWeather(car.Source,weekend.Setup) };
         return input.Grid.OrderBy(slot=>slot.Position).Select(slot=>drivers[slot.EntryId] with{Gap=0}).ToArray();
     }
     // V1 retains its historical Conserve opening for exact saved-input replay.

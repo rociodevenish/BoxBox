@@ -170,7 +170,7 @@ public sealed partial class SessionCoordinator(ISessionNotifications notificatio
             session.Configuration.Laps, state.Time, Array.AsReadOnly(rows), session.Events, session.Presentation,
             state.Finished ? 0 : session.Configuration.Incidents is null ? Math.Min(5, session.Configuration.Laps - state.LeaderLap)
                 : Math.Round(Math.Min(session.Configuration.NormalPhaseLaps??5,Math.Max(0,session.Configuration.Laps-state.Classification.Where(row=>row.RetirementTime is null&&row.FinishTime is null).Select(row=>row.Laps+row.Progress).DefaultIfEmpty(session.Configuration.Laps).Max())),3),
-            Array.AsReadOnly(session.RequiredTeams.Select(team => new TeamReadiness(team, session.Locks.ContainsKey(team))).ToArray()),session.Paused || session.StorageError, session.DecisionDeadlineUtc, session.PausedRemainingSeconds, session.TimingPolicy, clock.GetUtcNow(), session.LastDecisionSources,PublicControl(session),Progress(session).PresentationDeadline,Progress(session).PresentationRemaining,session.WindowRevision,ProjectOpening(session),ProjectSafetyCar(session),state.Weather);
+            Array.AsReadOnly(session.RequiredTeams.Select(team => new TeamReadiness(team, session.Locks.ContainsKey(team))).ToArray()),session.Paused || session.StorageError, session.DecisionDeadlineUtc, session.PausedRemainingSeconds, session.TimingPolicy, clock.GetUtcNow(), session.LastDecisionSources,PublicControl(session),Progress(session).PresentationDeadline,Progress(session).PresentationRemaining,session.WindowRevision,ProjectOpening(session),ProjectSafetyCar(session),state.Weather,session.Configuration.WetTyres is null?null:true);
     }
     private static PublicGap ProjectGap(TimingGap gap) => gap.Laps > 0 ? new("laps", Laps: gap.Laps)
         : gap.Seconds is { } seconds ? new("time", seconds) : new("unavailable");
@@ -193,7 +193,7 @@ public sealed partial class SessionCoordinator(ISessionNotifications notificatio
             Array.AsReadOnly(observation.BattleOptions[tyre.DriverId].Select(option => option.ToString()).ToArray()),session.Configuration.Incidents is not null?session.Engine.GetSafetyCarOptions().Single(option=>option.DriverId==tyre.DriverId):null,
             observation.Conditions?.Single(condition=>condition.DriverId==tyre.DriverId))).ToArray();
         return new(session.Id, session.Phase, session.Revision, session.StorageError ? "storage-error" : session.Lifecycle, assignment?.PlayerId ?? session.Player, teamId,
-            assignment?.DeviceId ?? session.Device, Array.AsReadOnly(own), assignment is null ? session.ConfirmedPlan : session.Locks.GetValueOrDefault(teamId), assignment?.Revision ?? 0, session.WindowRevision,ProjectAssistance(session,teamId),assignment is null?null:ControlStatus(session,teamId),session.WindowKind,observation.Forecast);
+            assignment?.DeviceId ?? session.Device, Array.AsReadOnly(own), assignment is null ? session.ConfirmedPlan : session.Locks.GetValueOrDefault(teamId), assignment?.Revision ?? 0, session.WindowRevision,ProjectAssistance(session,teamId),assignment is null?null:ControlStatus(session,teamId),session.WindowKind,observation.Forecast,session.Configuration.WetTyres is null?null:true);
     }
     public async Task<SubmissionAck> Submit(string id, string? capability, TeamCommand? command)
     {
@@ -235,7 +235,8 @@ public sealed partial class SessionCoordinator(ISessionNotifications notificatio
             {
                 if (!TryChoice<PaceInstruction>(car.Pace, out var pace) || !TryChoice<BattleInstruction>(car.Battle, out var battle)
                     || car.Pit is not ("Stay Out" or "Pit") || car.Pit == "Stay Out" && car.Compound is not null
-                    || car.Pit == "Pit" && !TryChoice<TyreCompound>(car.Compound, out _))
+                    || car.Pit == "Pit" && !TryChoice<TyreCompound>(car.Compound, out _)
+                    || session.Configuration.WetTyres is null && car.Compound is "Intermediate" or "Wet")
                     throw new SessionFault(SessionFailure.InvalidInput, "Each car needs explicit valid pace, pit and battle choices.");
                 var tyre = observation.TeamTyres.Single(tyre => tyre.DriverId == car.DriverId);
                 if (session.WindowKind=="SafetyCar" && (pace!=PaceInstruction.Standard||battle!=BattleInstruction.Neutral))throw new SessionFault(SessionFailure.InvalidInput,"Safety Car choices contain only pit instructions.");

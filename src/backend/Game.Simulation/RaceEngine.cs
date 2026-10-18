@@ -32,8 +32,11 @@ public sealed partial class RaceEngine
         public double PitTravelStart { get; set; }
         public double PitRouteProgress { get; set; }
         public HashSet<TyreCompound> UsedCompounds { get; } = [driver.StartingCompound];
+        public bool ActualWetUse { get; set; }
         public Car? Following { get; set; }
         public double FreeDuration { get; set; }
+        public double WetBaseDuration { get; set; }
+        public double WetBaseDamage { get; set; }
         public SegmentProjection? FreeProjection { get; set; }
         public double? PassTime { get; set; }
         public string? PassTarget { get; set; }
@@ -132,8 +135,14 @@ public sealed partial class RaceEngine
                 { Segments = Array.AsReadOnly(segments.ToArray()) } };
         }
         configuration.Weather?.Validate();
+        configuration.WetTyres?.Validate();
+        foreach (var driver in drivers) driver.WetWeather?.Validate();
+        if (configuration.WetTyres is null && drivers.Any(d => d.StartingCompound is TyreCompound.Intermediate or TyreCompound.Wet))
+            throw new ArgumentException("Wet compounds require explicit wet tyre tuning.");
         this.configuration = configuration;
         this.seed = seed;
+        conditionWetness = configuration.Weather is {} weather
+            ? CircuitWeather.Observe(weather, seed, weather.TimeOriginSeconds).Wetness : 0;
         var safety=configuration.SafetyCar??new();
         if(new[]{safety.DurationSeconds,safety.LeaderLapMultiplier,safety.CatchUpLapMultiplier,safety.FollowingSeconds}.Any(v=>!double.IsFinite(v))
             || safety.DurationSeconds is <=0 or >600 || safety.CatchUpLapMultiplier<1 || safety.LeaderLapMultiplier<safety.CatchUpLapMultiplier
@@ -184,6 +193,8 @@ public sealed partial class RaceEngine
             {
                 if (cars.All(c => c.Driver.Id != id) || decision is null) throw new ArgumentException("Invalid driver decision.");
                 decision.Validate();
+                if (!WetEffects && decision.PitCompound is TyreCompound.Intermediate or TyreCompound.Wet)
+                    throw new ArgumentException("Wet compounds require explicit wet tyre tuning.");
             }
         foreach (var car in cars)
         {
@@ -238,9 +249,19 @@ public sealed partial class RaceEngine
             var eventTime = NextEvent(car);
             var targetTime = chequered || interruption is not null ? double.PositiveInfinity
                 : cars.Where(Active).Select(c => TargetTime(c, target)).Min();
-            var nextTime = Math.Min(Math.Min(eventTime, targetTime),chequered?double.PositiveInfinity:neutralisedUntil);
+            var conditionTime = NextWetConditionTime();
+            var nextTime = Math.Min(Math.Min(Math.Min(eventTime, targetTime), conditionTime),chequered?double.PositiveInfinity:neutralisedUntil);
             var incidentDue = NextIncidentTime(car) < OrdinaryNextEvent(car) - 1e-8;
             AdvanceIncidentExposure(nextTime);
+            if (WetEffects)
+                foreach (var current in cars.Where(c => Active(c) && c.PitExit is null))
+                {
+                    var at = time;
+                    time = nextTime;
+                    var fraction = Progress(current);
+                    time = at;
+                    ConsumeTyres(current, fraction);
+                }
             foreach (var current in cars.Where(c => c.Following is not null && Active(c) && c.PitExit is null))
             {
                 var loss = (nextTime - time) * Math.Max(0, 1 - current.FreeDuration / (current.LapEnd - current.LapStart));
@@ -249,6 +270,7 @@ public sealed partial class RaceEngine
             var starting = Segments is not null && car.Laps == 0 && time < car.Driver.Gap && nextTime == car.Driver.Gap;
             time = nextTime;
             foreach (var current in cars) current.Trace.Add((time, Distance(current)));
+            if (Math.Abs(time - conditionTime) < 1e-8) UpdateWetConditions();
             if (nextTime < eventTime - 1e-8) continue;
             if (starting) { UpdateTraffic(); continue; }
             if (incidentDue) { ResolveIncident(car); UpdateTraffic(); continue; }
@@ -674,15 +696,19 @@ public sealed partial class RaceEngine
     private double LapTime(Car car)
     {
         var d = car.Driver;
+        car.WetBaseDamage = car.Damage;
         if (Segments is { } layout)
         {
             car.FreeProjection = SegmentSimulation.Project(layout[car.SegmentIndex], new SegmentInputs(
                 layout.Sum(s => s.BaselineTime), d.Speed, d.Cornering, d.Pace,
-                configuration.AttributeSeconds, car.LapPenalty,
+                configuration.AttributeSeconds, car.LapPenalty + WetPenalty(car),
                 car.LapVariationSeconds, car.RaceFormSeconds + car.Damage));
+            car.WetBaseDuration = car.FreeProjection.TravelSeconds;
             return car.FreeProjection.TravelSeconds;
         }
-        return AggregateLapTime(d, TyrePenalty(car), car.LapVariationSeconds, car.RaceFormSeconds + car.Damage);
+        var duration = AggregateLapTime(d, (WetEffects ? car.LapPenalty : TyrePenalty(car)) + WetPenalty(car), car.LapVariationSeconds, car.RaceFormSeconds + car.Damage);
+        car.WetBaseDuration = duration;
+        return duration;
     }
 
     private double AggregateLapTime(Driver driver, double tyrePenalty, double lapVariation, double raceForm)
@@ -738,11 +764,12 @@ public sealed partial class RaceEngine
         }
     }
 
-    private double Wear(Car car) => Wear(car.Driver, car.Compound, car.Pace);
+    private double Wear(Car car) => Wear(car.Driver, car.Compound, car.Pace) * WetWear(car);
     private double Wear(Driver driver, TyreCompound tyreCompound, PaceInstruction pace)
     {
         var compound = tyreCompound switch { TyreCompound.Soft => Tyres.SoftWear,
-            TyreCompound.Hard => Tyres.HardWear, _ => 1 };
+            TyreCompound.Hard => Tyres.HardWear, TyreCompound.Intermediate => configuration.WetTyres?.IntermediateWear ?? 1,
+            TyreCompound.Wet => configuration.WetTyres?.WetWear ?? 1, _ => 1 };
         var instruction = pace switch { PaceInstruction.Push => Tyres.PushWear,
             PaceInstruction.Conserve => Tyres.ConserveWear, _ => 1 };
         var preservation = 1 + (driver.TyrePreservation + driver.TyreManagement) * .05;
@@ -755,6 +782,8 @@ public sealed partial class RaceEngine
 
     private void ConsumeTyres(Car car, double fraction)
     {
+        if (WetEffects && fraction > car.WearProgress + 1e-12 && car.PitExit is null
+            && car.Compound is TyreCompound.Intermediate or TyreCompound.Wet) car.ActualWetUse = true;
         var wear = Wear(car) * Math.Max(0, fraction - car.WearProgress)
             * (Segments is { } layout ? layout[car.SegmentIndex].TyreDemand : 1);
         car.Condition = Math.Max(0, car.Condition - wear);
@@ -827,7 +856,8 @@ public sealed partial class RaceEngine
         var instruction = pace switch { PaceInstruction.Push => -Tyres.PushGain,
             PaceInstruction.Conserve => Tyres.ConserveLoss, _ => 0 };
         var warmup = tyreCompound switch { TyreCompound.Soft => Tyres.SoftWarmup,
-            TyreCompound.Hard => Tyres.HardWarmup, _ => 1 };
+            TyreCompound.Hard => Tyres.HardWarmup, TyreCompound.Intermediate => configuration.WetTyres?.IntermediateWarmup ?? 1,
+            TyreCompound.Wet => configuration.WetTyres?.WetWarmup ?? 1, _ => 1 };
         return compound + instruction + (tyreAge == 0 ? Tyres.WarmupPenalty * warmup * readiness : 0)
             + Math.Pow(1 - condition, 2) * Tyres.DegradationPenalty
             + (condition <= 0 ? Tyres.ExhaustionPenalty : 0);
@@ -884,7 +914,7 @@ public sealed partial class RaceEngine
         return new PhaseResult(leader.Laps, time, cars.All(c => !Active(c)), classification,
             history.ToArray(), cars.Select(c => new TyreState(c.Driver.Id, c.Compound, c.TyreAge,
                 c.Condition, c.Pace, c.PitExit is not null)).ToArray(),
-            cars.ToDictionary(c => c.Driver.Id, c => c.UsedCompounds.Count >= 2),
+            cars.ToDictionary(c => c.Driver.Id, c => c.ActualWetUse || c.UsedCompounds.Count(x => x is TyreCompound.Soft or TyreCompound.Medium or TyreCompound.Hard) >= 2),
             cars.ToDictionary(c => c.Driver.Id, AvailableBattles), decisionHistory.ToArray(), Conditions(),
             configuration.Incidents is null ? null : cars.All(c => !Active(c)) ? PhaseCompletionReason.Finish
                 : interruption is not null && !chequered ? PhaseCompletionReason.SafetyCar : PhaseCompletionReason.NormalBoundary,

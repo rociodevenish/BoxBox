@@ -44,7 +44,7 @@ export class TwoCarController {
   readonly choices = signal<readonly CarInstruction[]>([]);
   readonly confirmation =
     viewChild.required<ElementRef<HTMLDialogElement>>("confirmation");
-  readonly compounds: readonly Compound[] = ['Soft','Medium','Hard'];
+  get compounds(): readonly Compound[] { return this.model().wetTyresEnabled ? ['Soft','Medium','Hard','Intermediate','Wet'] : ['Soft','Medium','Hard']; }
   readonly paces: readonly Pace[] = ["Conserve", "Standard", "Push"];
   private draftPhase: number | undefined;
   private confirmedRevision: number | undefined;
@@ -78,7 +78,7 @@ export class TwoCarController {
   }
   compound(index: number, event: Event) {
     const value = (event.target as HTMLSelectElement).value;
-    if (value === "Soft" || value === "Medium" || value === "Hard")
+    if (value === "Soft" || value === "Medium" || value === "Hard" || this.model().wetTyresEnabled && (value === "Intermediate" || value === "Wet"))
       this.choose(index, { compound: value as Compound });
   }
   summary(choice: CarInstruction) {

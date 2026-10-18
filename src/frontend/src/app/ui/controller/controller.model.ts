@@ -10,7 +10,7 @@ export type ControllerState =
   | "rejected";
 export type Pace = "Conserve" | "Standard" | "Push";
 export type Battle = "Neutral" | "Attack" | "Defend";
-export type Compound = "Soft" | "Medium" | "Hard";
+export type Compound = "Soft" | "Medium" | "Hard" | "Intermediate" | "Wet";
 export interface CarInstruction {
   readonly pace: Pace;
   readonly stop: "Stay Out" | "Pit";
@@ -35,6 +35,7 @@ export interface PrivateCarViewModel {
   readonly selected: CarInstruction;
 }
 export interface PrivateControllerViewModel {
+  readonly wetTyresEnabled?:boolean;
   readonly safetyCar?:boolean;
   readonly assistance?:TeamAssistance;
   readonly privacyLabel?: string;

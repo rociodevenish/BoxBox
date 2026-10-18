@@ -1,7 +1,7 @@
 using System.Text.Json.Serialization;
 namespace Game.Domain;
 
-public enum TyreCompound { Soft, Medium, Hard }
+public enum TyreCompound { Soft, Medium, Hard, Intermediate, Wet }
 public enum PaceInstruction { Conserve, Standard, Push }
 public enum BattleInstruction { Neutral, Attack, Defend }
 public record DriverDecision(PaceInstruction Pace = PaceInstruction.Standard, TyreCompound? PitCompound = null,
@@ -39,7 +39,8 @@ public record TyreTuning(double DegradationPerLap = .025, double WarmupPenalty =
 public record Driver(string Id, string Team, double Speed = 0, double Cornering = 0,
     double Pace = 0, double Gap = 0, TyreCompound StartingCompound = TyreCompound.Medium,
     double TyrePreservation = 0, double TyreManagement = 0, double Racecraft = 0,
-    double TyreWarmupMultiplier = 1, [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] IncidentProfile? IncidentProfile = null);
+    double TyreWarmupMultiplier = 1, [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] IncidentProfile? IncidentProfile = null,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] WetWeatherAttributes? WetWeather = null);
 
 // Length is metres; BaselineTime is seconds. Demands are independent fractions.
 public record TrackSegment(string Id, double Length, double BaselineTime,
@@ -75,7 +76,8 @@ public record RaceConfiguration(int Laps, Track Track, double AttributeSeconds =
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] double? NormalPhaseLaps = null,
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] SafetyCarTuning? SafetyCar = null,
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] string? DisruptionPolicyVersion = null,
-    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] WeatherTuning? Weather = null)
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] WeatherTuning? Weather = null,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] WetTyreTuning? WetTyres = null)
 {
     public RaceConfiguration WithExplicitTuning() => this with { Tyres = Tyres ?? new(), Traffic = Traffic ?? new(),
         Track = Track with { Segments = Track.Segments is null ? null : Array.AsReadOnly(Track.Segments.ToArray()) } };
