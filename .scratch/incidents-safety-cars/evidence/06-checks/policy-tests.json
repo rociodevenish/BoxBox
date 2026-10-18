@@ -1,0 +1,20 @@
+{
+  "command": "dotnet",
+  "args": [
+    "test",
+    "tests/Game.Api.Tests",
+    "--no-build",
+    "--filter",
+    "FullyQualifiedName~LiveDisruptionPolicyTests|FullyQualifiedName~LegacyOpeningTests",
+    "-p:",
+    "NuGetAudit=false",
+    "--verbosity",
+    "minimal"
+  ],
+  "cwd": "C:\\Projects\\F1Game\\.worktrees\\s09-06",
+  "pid": 27356,
+  "startedAt": "2026-10-18T03:31:08.089Z",
+  "status": "passed",
+  "exitCode": 0,
+  "elapsedMs": 1153
+}

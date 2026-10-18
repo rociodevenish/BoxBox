@@ -71,7 +71,8 @@ public record RaceConfiguration(int Laps, Track Track, double AttributeSeconds =
     double LapVariation = 0, TyreTuning? Tyres = null, double StopVariation = .6,
     TrafficTuning? Traffic = null, double EstimateError = .04, double RaceFormVariation = 0, double PassingVariation = 1, [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] IncidentTuning? Incidents = null,
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] double? NormalPhaseLaps = null,
-    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] SafetyCarTuning? SafetyCar = null)
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] SafetyCarTuning? SafetyCar = null,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] string? DisruptionPolicyVersion = null)
 {
     public RaceConfiguration WithExplicitTuning() => this with { Tyres = Tyres ?? new(), Traffic = Traffic ?? new(),
         Track = Track with { Segments = Track.Segments is null ? null : Array.AsReadOnly(Track.Segments.ToArray()) } };

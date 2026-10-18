@@ -1,0 +1,17 @@
+{
+  "command": "dotnet",
+  "args": [
+    "run",
+    "--project",
+    "tools/DisruptionEvidence",
+    "--no-build",
+    "--",
+    ".scratch/incidents-safety-cars/evidence/06-data"
+  ],
+  "cwd": "C:\\Projects\\F1Game\\.worktrees\\s09-06",
+  "pid": 29888,
+  "startedAt": "2026-10-18T03:29:35.696Z",
+  "status": "passed",
+  "exitCode": 0,
+  "elapsedMs": 3416
+}

@@ -183,3 +183,7 @@
 .board-lap { font-size: clamp(30px, 4vw, 48px); font-weight: 800; margin: 0 0 20px; }
 .board .events { border: 0; border-radius: 0; background: transparent; padding: 0; }
 .board .development-facts { margin-top: 32px; }
+
+@media(min-width:1200px){
+ .board.compact .board-lap {font-size:36px;line-height:1.15;margin:0 0 8px;}
+}
