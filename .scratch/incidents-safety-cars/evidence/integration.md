@@ -1,5 +1,7 @@
 # S09 integration scope
 
+Completed implementation and verification: [final record](final/README.md). The scope and sequencing below describe the original integration plan; live activation is now available through the explicitly versioned Monza/Monaco opt-in policy.
+
 The user requested implementing S09 after S08. The root working tree was clean at `285277d715c938b656b36c5adb0a99a8970b86d9`; integration starts there on `codex/incidents-safety-cars`. Prior local engineering and review are complete. Actual hosted/household acceptance and the pre-existing SignalR dependency advisory remain separately recorded, not claimed completed prerequisites.
 
 The dependency chain is 01 risks/consequences → 02 exact interruption → 03 simultaneous special window → 04 neutralised travel/restart → 05 durable opening integration → 06 evidence. Each ticket uses an isolated worktree and independent merger. Simulation risks and interrupted-state rule evidence must be established before live incidents are enabled. Until the reaction/continuation path exists, existing live races retain zero-risk compatibility. Diagnostic forced scenarios belong to public laboratory/fixture seams and must not become player commands.

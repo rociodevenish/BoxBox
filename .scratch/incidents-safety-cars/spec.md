@@ -3,6 +3,8 @@
 Status: ready-for-human
 Blocked by: weekend preparation and effective attributes; qualifying and automatic race start; durable session timing and recovery.
 
+Implementation and independent review are complete. See [final integration evidence](evidence/final/README.md), including verification, opt-in track coverage and outstanding household/hosted acceptance.
+
 ## Problem Statement
 
 Races currently run uninterrupted and Push has only pace/tyre consequences. Players cannot respond to mistakes, damage, failures or Safety Cars, and the server cannot stop a Race Phase at a strategically important event without risking incorrect progress, repeated decisions or lost replay consistency.
