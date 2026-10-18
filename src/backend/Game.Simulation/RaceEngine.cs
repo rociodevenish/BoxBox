@@ -131,6 +131,7 @@ public sealed partial class RaceEngine
             configuration = configuration with { Track = configuration.Track with
                 { Segments = Array.AsReadOnly(segments.ToArray()) } };
         }
+        configuration.Weather?.Validate();
         this.configuration = configuration;
         this.seed = seed;
         var safety=configuration.SafetyCar??new();
@@ -397,7 +398,7 @@ public sealed partial class RaceEngine
             state.BattleOptions.Where(kv => own.Any(t => t.DriverId == kv.Key)).ToDictionary(),
             configuration.Incidents is null ? null : cars.Where(c => c.Driver.Team == team).Select(c => new TeamConditionEstimate(c.Driver.Id,
                 c.ComponentCondition > .8 ? "Good" : c.ComponentCondition > .5 ? "Worn" : "Poor",
-                c.ComponentCondition > .8 ? "Low" : c.ComponentCondition > .5 ? "Elevated" : "High", c.Damage, c.RetirementTime is not null)).ToArray());
+                c.ComponentCondition > .8 ? "Low" : c.ComponentCondition > .5 ? "Elevated" : "High", c.Damage, c.RetirementTime is not null)).ToArray(), GetCurrentWeather(), GetWeatherForecast(team));
     }
 
     private void UpdateTraffic()
@@ -781,6 +782,19 @@ public sealed partial class RaceEngine
 
     public PhaseResult GetState() => Snapshot();
 
+    public CurrentWeather? GetCurrentWeather() => configuration.Weather is {} tuning
+        ? CircuitWeather.Observe(tuning, seed, tuning.TimeOriginSeconds + time) : null;
+
+    public TeamWeatherForecast? GetWeatherForecast(string team)
+    {
+        if (cars.All(c => c.Driver.Team != team)) throw new ArgumentException("Unknown team.");
+        if (configuration.Weather is not {} tuning) return null;
+        var now = tuning.TimeOriginSeconds + time;
+        var observedAt = Math.Floor(now / tuning.ForecastRefreshSeconds) * tuning.ForecastRefreshSeconds;
+        return CircuitWeather.Forecast(CircuitWeather.Observe(tuning, seed, observedAt), team,
+            tuning.InformationQuality, tuning.ForecastRefreshSeconds);
+    }
+
     private IReadOnlyList<BattleInstruction> AvailableBattles(Car car)
     {
         if (car.RetirementTime is not null) return Array.Empty<BattleInstruction>();
@@ -874,6 +888,6 @@ public sealed partial class RaceEngine
             cars.ToDictionary(c => c.Driver.Id, AvailableBattles), decisionHistory.ToArray(), Conditions(),
             configuration.Incidents is null ? null : cars.All(c => !Active(c)) ? PhaseCompletionReason.Finish
                 : interruption is not null && !chequered ? PhaseCompletionReason.SafetyCar : PhaseCompletionReason.NormalBoundary,
-            chequered || cars.All(c => !Active(c)) ? null : interruption, configuration.Incidents is null ? null : normalTargetDistance);
+            chequered || cars.All(c => !Active(c)) ? null : interruption, configuration.Incidents is null ? null : normalTargetDistance, GetCurrentWeather());
     }
 }

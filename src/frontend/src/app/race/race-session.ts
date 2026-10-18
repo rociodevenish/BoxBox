@@ -6,7 +6,10 @@ import { commandId } from './command-id';
 import { HubConnection, HubConnectionBuilder } from '@microsoft/signalr';
 import { PublicGap, TyreCompound } from '../ui/timing/public-classification.model';
 import { Pace, Battle } from '../ui/controller/controller.model';
+export interface CurrentWeather {version:string;time:number;intervalIdentity:string;rainIntensity:number;wetness:number;dryingPerSecond:number}
+export interface WeatherForecast {version:string;observationIdentity:string;observedAt:number;refreshAt:number;confidence:string;horizons:{fromSeconds:number;toSeconds:number;rainProbability:number;rainLower:number;rainUpper:number}[];explanation:string}
 export interface PublicState {
+    weather?:CurrentWeather|null;
     safetyCar?:{identity:string;time:number;driverId:string;incident:string;policy:string}|null;
     opening?:import("../opening/opening-handoff").OpeningOutcome|null;
     controlStatus?:TeamControlStatus[];
@@ -64,6 +67,7 @@ interface Command {
     }[];
 }
 interface TeamState {
+    forecast?:WeatherForecast|null;
     windowKind?:string|null;
     assistance?:TeamAssistance;
     controlStatus?:TeamControlStatus|null;

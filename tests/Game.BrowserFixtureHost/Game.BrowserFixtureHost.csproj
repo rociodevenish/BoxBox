@@ -5,4 +5,4 @@
     <ProjectReference Include="../../src/backend/Game.Api/Game.Api.csproj" />
     <Compile Include="../Fixtures/BoundaryRacePresets.cs" Link="BoundaryRacePresets.cs" />
   <Compile Include="../Fixtures/SafetyCarWindowPresets.cs" Link="SafetyCarWindowPresets.cs" /></ItemGroup>
-</Project>
+<ItemGroup><Compile Include="../Fixtures/WeatherRacePresets.cs" Link="WeatherRacePresets.cs" /></ItemGroup></Project>
