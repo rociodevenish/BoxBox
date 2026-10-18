@@ -21,6 +21,18 @@ public static class WeekendPresetCatalog
                 SourceVersion: $"local-profile-v1/{car.Source.Driver.Version}/{car.Source.Car.Version}/{Version(tracks)}")
         }).ToArray());
     }
+    public static WeatherTuning WeatherInputs(EffectiveWeekend weekend, WeatherTuning tuning)
+    {
+        using var tracks = Read("weekend.tracks.json");
+        var track = Find(tracks.RootElement.GetProperty("tracks"), weekend.Source.Circuit.Id);
+        var ordinal = track.GetProperty("raceCharacteristics").GetProperty("weatherVolatility").GetInt32();
+        // Explicit authored map for the supplied race characteristic, never headline stars.
+        var volatility = ordinal switch { 1 => .08, 2 => .16, 3 => .24, 4 => .32, 5 => .40,
+            _ => throw new ArgumentException("Weather Volatility must be an authored 1–5 ordinal.") };
+        var result = tuning with { Volatility = volatility, SourceVersion = $"weather-track-v1/{Version(tracks)}/{weekend.Source.Circuit.Id}" };
+        result.Validate();
+        return result;
+    }
     public static WeekendPreset Open(string circuitId, string firstDriverId = "driver-max-verstappen",
         string secondDriverId = "driver-george-russell")
     {
