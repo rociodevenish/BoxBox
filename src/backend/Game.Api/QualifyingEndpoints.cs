@@ -24,6 +24,11 @@ public static class QualifyingEndpoints
         app.MapGet("/api/lobbies/{id}/qualifying/teams/{teamId}",async(string id,string teamId,string deviceId,HttpRequest request,FirebaseIdentity auth,SessionCoordinator sessions)=>
             sessions.HouseholdQualifying(id,await auth.Verify(LobbyEndpoints.Token(request)),deviceId,teamId));
         app.MapGet("/api/lobbies/{id}/qualifying/open/{teamId}",(string id,string teamId,SessionCoordinator sessions)=>sessions.OpenQualifying(id,teamId));
+        app.MapPost("/api/lobbies/{id}/qualifying/teams/{teamId}/starting-tyres",async(string id,string teamId,string deviceId,StartingTyresCommand input,HttpRequest request,FirebaseIdentity auth,SessionCoordinator sessions)=>
+        {
+            var ack=sessions.SubmitStartingTyres(id,await auth.Verify(LobbyEndpoints.Token(request)),deviceId,teamId,input);
+            await sessions.PublishQualifying(id);return ack;
+        });
         app.MapPost("/api/lobbies/{id}/qualifying/teams/{teamId}/choices",async(string id,string teamId,string deviceId,QualifyingCommand input,HttpRequest request,FirebaseIdentity auth,SessionCoordinator sessions)=>
         {
             var ack=sessions.SubmitQualifying(id,await auth.Verify(LobbyEndpoints.Token(request)),deviceId,teamId,input);

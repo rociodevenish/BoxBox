@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using Game.Domain;
 using Game.Simulation;
 namespace Game.Application;
@@ -30,7 +31,11 @@ public sealed partial class SessionCoordinator
             weekends=weekends.Select(weekend=>weekend with{Configuration=WeekendPresetCatalog.IncidentInputs(weekend,enabled.Incidents).Configuration with{Track=weekend.Configuration.Track with{PitRoute=enabled.Route},DisruptionPolicyVersion=enabled.SourceVersion}}).ToArray();
         }
         var configuration=weekends[0].Configuration.WithExplicitTuning();
-        var input=new AutomaticStartInput(configuration,weekends,grid.Select(g=>new StartGridSlot(g.Position,g.EntryId)).ToArray(),lobby.Input.Seed!.Value,new());
+        if(qualifying.StartingTyres is not null)
+            configuration=configuration with{Weather=configuration.Weather! with{TimeOriginSeconds=qualifying.StartingTyres.Observed.Time}};
+        var compounds=qualifying.StartingTyres?.Locks.Values.SelectMany(plan=>plan.Choices).ToImmutableDictionary(c=>c.EntryId,c=>Enum.Parse<TyreCompound>(c.Compound));
+        var input=new AutomaticStartInput(configuration,weekends,grid.Select(g=>new StartGridSlot(g.Position,g.EntryId)).ToArray(),lobby.Input.Seed!.Value,new(),
+            ModelVersion:compounds is null?AutomaticRaceStart.ModelVersion:AutomaticRaceStart.WetModelVersion,StartingCompounds:compounds);
         var start=AutomaticRaceStart.Create(input);
         var drivers=AutomaticRaceStart.StartingDrivers(input);
         var session=new Session(lobby.Id,lobby.Players.Single(p=>p.Uid==lobby.Host).Id,lobby.Devices.First(d=>d.Uid==lobby.Host).Id,

@@ -9,14 +9,32 @@ namespace Game.Simulation;
 public static class Qualifying
 {
     public const string ModelVersion="qualifying-attempt-v1";
+    public const string WetModelVersion="qualifying-attempt-v2";
     public const string RandomnessVersion="qualifying-keyed-v1";
     public const string RulesVersion="qualifying-format-v1";
+    // Authored game abstraction: three consecutive 180s intervals, all attempts at the midpoint.
+    public static QualifyingConditions SessionConditions(RaceConfiguration configuration,int seed,string session)
+    {
+        if(configuration.Weather is null||configuration.WetTyres is null||session is not ("Q1" or "Q2" or "Q3"))throw new ArgumentException("Explicit wet weekend and valid session required.");
+        var from=configuration.Weather.TimeOriginSeconds+(session[1]-'1')*180;
+        return new("qualifying-common-interval-v1",from,from+180,CircuitWeather.Observe(configuration.Weather,seed,from+90));
+    }
     public static QualifyingResult Resolve(QualifyingAttemptInput input)
     {
         ArgumentNullException.ThrowIfNull(input);
-        if(input.ModelVersion!=ModelVersion||input.RandomnessVersion!=RandomnessVersion||input.Rules?.Version!=RulesVersion
+        if((input.ModelVersion!=ModelVersion&&input.ModelVersion!=WetModelVersion)||input.RandomnessVersion!=RandomnessVersion||input.Rules?.Version!=RulesVersion
             ||input.Session is not ("Q1" or "Q2" or "Q3")||input.Attempt!=1||input.Weekends is null||input.Choices is null||input.PreSessionOrder is null)
             throw new ArgumentException("Unsupported qualifying attempt, rules or replay version.");
+        if(input.ModelVersion==WetModelVersion)
+        {
+            if(input.Weekends.Count==0||input.Weekends.Any(w=>w.Configuration.Weather is null||w.Configuration.WetTyres is null)
+                ||input.Conditions!=SessionConditions(input.Weekends[0].Configuration,input.Seed,input.Session))
+                throw new ArgumentException("Qualifying requires its exact common authoritative session conditions.");
+            var first=input.Weekends[0].Configuration;
+            if(input.Weekends.Any(w=>w.Configuration.Weather!=first.Weather||w.Configuration.WetTyres!=first.WetTyres))
+                throw new ArgumentException("Qualifying field must share weather and wet tyre tuning.");
+        }
+        else if(input.Conditions is not null)throw new ArgumentException("Weather conditions require qualifying v2.");
         var cars=new Dictionary<string,(EffectiveWeekend Weekend,EffectiveWeekendCar Car)>();
         foreach(var weekend in input.Weekends)
         {
@@ -44,13 +62,18 @@ public static class Qualifying
             var compatibility=weekend.DriverFits.FirstOrDefault(f=>f.DriverId==car.Source.Driver.Id)?.Compatibility??100;
             var (gain,spread,exposure)=choice.Approach switch{"Safe"=>(-.3,.25,.015),"Push"=>(.1,.65,.055),_=>(.35,1.15,.14)};
             var mistakeChance=exposure*(1+(82-car.Source.Driver.Ratings["errorControl"])/100);
+            var wetness=input.Conditions?.Observed.Wetness??0;
+            var wet=WeekendPreparation.EffectiveWetWeather(car.Source,weekend.Setup);
+            // One existing abstract error opportunity, scaled once; no extra weather roll.
+            if(input.Conditions is not null)mistakeChance*=1+wetness*((100-wet.WetWeatherSkill)+(100-wet.Traction))/198;
             var noTime=Unit(input,car.Source.Driver.Id,"error")<mistakeChance;
-            var seconds=weekend.Configuration.Track.BaseLapTime-pace-fit+(100-compatibility)*.002-gain
+            var wetLoss=input.Conditions is null?0:wetness*(6+weekend.Configuration.WetTyres!.WetSkillSeconds*((100-wet.WetWeatherSkill)+(100-wet.Traction))/198);
+            var seconds=wetLoss+weekend.Configuration.Track.BaseLapTime-pace-fit+(100-compatibility)*.002-gain
                 +(Unit(input,car.Source.Driver.Id,"pace")*2-1)*spread;
             return new QualifyingTime(choice.EntryId,car.Source.Driver.Id,car.Source.TeamId,noTime?"no-time":"valid",
                 noTime?null:(int)Math.Max(1,Math.Round(seconds*1000,MidpointRounding.AwayFromZero)));
         }).ToArray();
-        return new(input.Session,input.Attempt,ModelVersion,RandomnessVersion,RulesVersion,Rank(times,order,input.Rules));
+        return new(input.Session,input.Attempt,input.ModelVersion,RandomnessVersion,RulesVersion,Rank(times,order,input.Rules));
     }
     /// <summary>Valid before no-time; equal times and no-times retain the fixed pre-session order.</summary>
     public static IReadOnlyList<QualifyingRank> Rank(IReadOnlyList<QualifyingTime> times,IReadOnlyList<string> preSessionOrder,QualifyingRules rules)
@@ -69,7 +92,7 @@ public static class Qualifying
     {
         if(results is null||results.Count!=3||!results.Select(r=>r.Session).SequenceEqual(new[]{"Q1","Q2","Q3"})
             ||results[0].Ranking.Count!=22||results[1].Ranking.Count!=16||results[2].Ranking.Count!=10
-            ||results.Any(r=>r.ModelVersion!=ModelVersion||r.RandomnessVersion!=RandomnessVersion||r.RulesVersion!=RulesVersion)
+            ||results.Any(r=>(r.ModelVersion!=ModelVersion&&r.ModelVersion!=WetModelVersion)||r.RandomnessVersion!=RandomnessVersion||r.RulesVersion!=RulesVersion)
             ||!results[0].Ranking.Take(16).Select(r=>r.EntryId).Order().SequenceEqual(results[1].Ranking.Select(r=>r.EntryId).Order())
             ||!results[1].Ranking.Take(10).Select(r=>r.EntryId).Order().SequenceEqual(results[2].Ranking.Select(r=>r.EntryId).Order()))
             throw new ArgumentException("Supply complete consecutive Q1/Q2/Q3 results with unchanged eligible identities.");

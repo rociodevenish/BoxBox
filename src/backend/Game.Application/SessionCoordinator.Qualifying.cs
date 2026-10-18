@@ -1,5 +1,6 @@
 using System.Collections.Immutable;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using Game.Domain;
 using Game.Simulation;
 namespace Game.Application;
@@ -14,7 +15,8 @@ public sealed partial class SessionCoordinator
         FrozenPreparationContext Preparation,QualifyingAttemptInput Input,Dictionary<string,QualifyingLock> Locks,Dictionary<string,QualifyingLock> TimeoutLocks,
         Dictionary<string,AcceptedQualifying> Commands,Dictionary<string,AcceptedQualifyingStart> Starts,
         DecisionTimingPolicy TimingPolicy,DateTimeOffset? Deadline,ScheduledWakeup? Wakeup,
-        string Lifecycle="awaiting-decisions",bool Paused=false,double? Remaining=null,QualifyingResult? Result=null,QualifyingAttemptInput[]? Attempts=null,QualifyingResult[]? Results=null,QualifyingRank[]? Grid=null,Dictionary<string,DueTransitionInput>? ContinueCommands=null,Dictionary<string,RecordedQualifyingAdvice>? Assistance=null);
+        string Lifecycle="awaiting-decisions",bool Paused=false,double? Remaining=null,QualifyingResult? Result=null,QualifyingAttemptInput[]? Attempts=null,QualifyingResult[]? Results=null,QualifyingRank[]? Grid=null,Dictionary<string,DueTransitionInput>? ContinueCommands=null,Dictionary<string,RecordedQualifyingAdvice>? Assistance=null,
+        [property:JsonIgnore(Condition=JsonIgnoreCondition.WhenWritingNull)] StartingTyreState? StartingTyres=null);
 
     public StartQualifyingAck StartQualifying(string id,AuthIdentity identity,StartQualifyingCommand command)
     {
@@ -47,6 +49,8 @@ public sealed partial class SessionCoordinator
                     t.Value.Source,t.Value.Preset,t.Value.Setup,t.Value.Effective,t.Value.AutomaticChoices)).ToImmutableArray());
             var order=frozen.Teams.SelectMany(t=>t.Effective.Cars.Select(c=>c.Source.EntryId)).ToArray();
             var input=new QualifyingAttemptInput("Q1",1,lobby.Input.Seed!.Value,frozen.Teams.Select(t=>t.Effective).ToArray(),[],order,new());
+            if(input.Weekends[0].Configuration is {Weather:not null,WetTyres:not null} wetConfiguration)
+                input=input with{ModelVersion=Qualifying.WetModelVersion,Conditions=Qualifying.SessionConditions(wetConfiguration,input.Seed,"Q1")};
             var timing=BuildTimingPolicy(lobby,lobby.RequiredTeams) with{TimeoutPolicy=QualifyingTimeoutDisclosure};
             var deadline=clock.GetUtcNow().AddSeconds(timing.EffectiveSeconds);var revision=lobby.Revision+1;
             var locks=new Dictionary<string,QualifyingLock>();
@@ -104,7 +108,12 @@ public sealed partial class SessionCoordinator
         var result=Qualifying.Resolve(input);var results=(state.Results??[]).Append(result).ToArray();
         var due=clock.GetUtcNow().AddSeconds(PresentationSeconds);
         var grid=state.Session=="Q3"?Qualifying.Grid(results):null;
-        if(grid is not null)CreateOpening(lobby,state,grid);
+        if(grid is not null&&input.Conditions is not null)
+            {
+                var complete=state with{Input=input,Result=result,Results=results,Attempts=(state.Attempts??[]).Append(input).ToArray(),Grid=grid};
+                return OpenStartingTyres(lobby,complete);
+            }
+            if(grid is not null)CreateOpening(lobby,state,grid);
         return state with{Input=input,Result=result,Results=results,Attempts=(state.Attempts??[]).Append(input).ToArray(),Grid=grid,
             Lifecycle=grid is null?"session-result":"grid-ready",Deadline=grid is null&&!state.Paused?due:null,
             Wakeup=grid is null&&!state.Paused?new(lobby.Id,Guid.NewGuid().ToString("N"),"qualifying-presentation",Stage(state),state.WindowRevision,due):null};
@@ -113,7 +122,7 @@ public sealed partial class SessionCoordinator
     {
         if(!lobby.ModuleState.TryGetValue(QualifyingModule,out var json))throw new SessionFault(SessionFailure.Conflict,"Begin qualifying first.");
         var state=JsonSerializer.Deserialize<QualifyingState>(json,BrowserReplay.JsonOptions)!;
-        if(state.Version!=QualifyingModule||state.Input.ModelVersion!=Qualifying.ModelVersion||state.Input.RandomnessVersion!=Qualifying.RandomnessVersion||state.Input.Rules.Version!=Qualifying.RulesVersion||state.Input.Weekends.Any(w=>w.ModelVersion!=WeekendPreparation.ModelVersion||w.SetupModelVersion!=WeekendSetup.Version))
+        if(state.Version!=QualifyingModule||(state.Input.ModelVersion!=Qualifying.ModelVersion&&state.Input.ModelVersion!=Qualifying.WetModelVersion)||state.Input.RandomnessVersion!=Qualifying.RandomnessVersion||state.Input.Rules.Version!=Qualifying.RulesVersion||state.Input.Weekends.Any(w=>w.ModelVersion!=WeekendPreparation.ModelVersion||w.SetupModelVersion!=WeekendSetup.Version))
             throw new SessionFault(SessionFailure.Conflict,"Saved qualifying needs its compatible deployment; inputs are preserved.");
         if(state.Result is not null)
         {
@@ -131,7 +140,7 @@ public sealed partial class SessionCoordinator
         {
             if(attempts.Length!=results.Length)throw new SessionFault(SessionFailure.Conflict,"Recorded qualifying history is incomplete.");
             for(var i=0;i<attempts.Length;i++)
-                if(!Qualifying.Resolve(attempts[i]).Ranking.SequenceEqual(results[i].Ranking))throw new SessionFault(SessionFailure.Conflict,"Recorded qualifying history is incompatible.");
+                if(Qualifying.Resolve(attempts[i]) is {} recorded&&(recorded.ModelVersion!=results[i].ModelVersion||recorded.RandomnessVersion!=results[i].RandomnessVersion||recorded.RulesVersion!=results[i].RulesVersion||!recorded.Ranking.SequenceEqual(results[i].Ranking)))throw new SessionFault(SessionFailure.Conflict,"Recorded qualifying history is incompatible.");
             if(state.Grid is {} grid&&!grid.SequenceEqual(Qualifying.Grid(results)))throw new SessionFault(SessionFailure.Conflict,"Recorded grid is incompatible.");
         }
         return state;
@@ -147,11 +156,13 @@ public sealed partial class SessionCoordinator
     {
         var circuit=state.Input.Weekends[0].Source.Circuit;
         return new(lobby.Id,state.Revision,state.Session,state.Lifecycle,state.Paused,circuit.Id,circuit.Name,circuit.Slug,AllQualifyingDrivers(state),
-            state.Input.Weekends.Select(w=>w.Cars[0].Source.TeamId).Where(team=>QualifyingDrivers(state).Any(d=>d.TeamId==team)).Select(team=>new QualifyingTeamStatus(team,state.Locks.ContainsKey(team),state.Locks.GetValueOrDefault(team)?.Source)).ToArray(),
-            state.Result,state.Lifecycle=="awaiting-decisions"?state.Deadline:null,state.TimingPolicy,state.Input.Rules.Version,state.Input.Rules.Retain,state.TimingPolicy.TimeoutPolicy,state.Results??[],state.Grid??[],state.WindowRevision,state.Lifecycle=="session-result"?state.Deadline:null);
+            state.Input.Weekends.Select(w=>w.Cars[0].Source.TeamId).Where(team=>state.StartingTyres is not null||QualifyingDrivers(state).Any(d=>d.TeamId==team)).Select(team=>new QualifyingTeamStatus(team,state.StartingTyres is {} tyres?tyres.Locks.ContainsKey(team):state.Locks.ContainsKey(team),state.StartingTyres is {} start?start.Locks.GetValueOrDefault(team)?.Source:state.Locks.GetValueOrDefault(team)?.Source)).ToArray(),
+            state.Result,state.Lifecycle is "awaiting-decisions" or "starting-tyres"?state.Deadline:null,state.TimingPolicy,state.Input.Rules.Version,state.Input.Rules.Retain,state.StartingTyres is null?state.TimingPolicy.TimeoutPolicy:StartingTyreDisclosure,state.Results??[],state.Grid??[],state.WindowRevision,state.Lifecycle=="session-result"?state.Deadline:null,
+            state.StartingTyres?.Observed??state.Input.Conditions?.Observed,state.Input.Conditions,state.StartingTyres is null?null:true,
+            state.StartingTyres is null?null:Enum.GetNames<TyreCompound>(),state.StartingTyres?.Observed is {} observed?StartingSuitability(observed):null);
     }
-    private static QualifyingTeamSnapshot ProjectQualifyingTeam(Lobby lobby,QualifyingState state,string team,Assignment assignment)=>new(lobby.Id,team,state.WindowRevision,assignment.Revision,state.Session,
-        state.Lifecycle,state.Locks.ContainsKey(team),QualifyingDrivers(state).Where(c=>c.TeamId==team).ToArray(),state.Locks.GetValueOrDefault(team)?.Choices,ProjectQualifyingAdvice(state,team),state.Locks.GetValueOrDefault(team)?.Source,state.Locks.GetValueOrDefault(team)?.PolicyVersion);
+    private static QualifyingTeamSnapshot ProjectQualifyingTeam(Lobby lobby,QualifyingState state,string team,Assignment assignment)=>state.StartingTyres is not null?ProjectStartingTyreTeam(lobby,state,team,assignment):new(lobby.Id,team,state.WindowRevision,assignment.Revision,state.Session,
+        state.Lifecycle,state.Locks.ContainsKey(team),QualifyingDrivers(state).Where(c=>c.TeamId==team).ToArray(),state.Locks.GetValueOrDefault(team)?.Choices,ProjectQualifyingAdvice(state,team),state.Locks.GetValueOrDefault(team)?.Source,state.Locks.GetValueOrDefault(team)?.PolicyVersion,Forecast:QualifyingForecast(state,team));
     public IReadOnlyList<QualifyingTeamSnapshot> QualifyingControllerUpdates(string id)
     {lock(gate){var lobby=RequireLobby(id);var state=ReadQualifying(lobby);return lobby.Assignments.Select(p=>ProjectQualifyingTeam(lobby,state,p.Key,p.Value)).ToArray();}}
 }

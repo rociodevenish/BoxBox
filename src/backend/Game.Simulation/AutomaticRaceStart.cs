@@ -12,6 +12,7 @@ public sealed record AutomaticStartResult(RaceEngine Engine,PhaseResult Opening,
 public static class AutomaticRaceStart
 {
     public const string ModelVersion="automatic-standing-start-v2";
+    public const string WetModelVersion="automatic-standing-start-v3";
     public const string LegacyModelVersion="automatic-standing-start-v1";
     public const string RandomnessVersion="opening-keyed-v1";
     public static string OutcomeHash(PhaseResult result)=>Convert.ToHexString(SHA256.HashData(JsonSerializer.SerializeToUtf8Bytes(result)));
@@ -25,9 +26,16 @@ public static class AutomaticRaceStart
     public static AutomaticStartResult Create(AutomaticStartInput input)
     {
         ArgumentNullException.ThrowIfNull(input);
-        if((input.ModelVersion!=ModelVersion&&input.ModelVersion!=LegacyModelVersion)||input.RandomnessVersion!=RandomnessVersion||input.Configuration is null
+        if((input.ModelVersion!=ModelVersion&&input.ModelVersion!=LegacyModelVersion&&input.ModelVersion!=WetModelVersion)||input.RandomnessVersion!=RandomnessVersion||input.Configuration is null
             ||input.Weekends is null||input.Grid is null||input.Tuning is null||input.Weekends.Count==0)
             throw new ArgumentException("Explicit compatible opening inputs are required.");
+        if(input.ModelVersion==WetModelVersion)
+        {
+            if(input.Configuration.Weather is null||input.Configuration.WetTyres is null||input.StartingCompounds is null
+                ||input.StartingCompounds.Count!=input.Grid.Count||input.Grid.Any(g=>!input.StartingCompounds.TryGetValue(g.EntryId,out var compound)||!Enum.IsDefined(compound)))
+                throw new ArgumentException("Wet opening requires complete explicit starting compounds and shared weather tuning.");
+        }
+        else if(input.StartingCompounds is not null)throw new ArgumentException("Starting compound selections require opening v3.");
         var tuning=input.Tuning;
         if(new[]{tuning.GridSpacingMetres,tuning.BaseLaunchLossSeconds,tuning.AbilitySeconds,tuning.VariationSeconds,tuning.ErrorSeconds}.Any(v=>!double.IsFinite(v)||v<0||v>100)
             ||!double.IsFinite(tuning.AggregateLengthMetres)||tuning.AggregateLengthMetres is <100 or >20000)
@@ -62,7 +70,10 @@ public static class AutomaticRaceStart
             var launchFit=(adjusted["traction"]*demands["traction"]+adjusted["accelerationDeployment"]*demands["accelerationDeployment"])
                 /Math.Max(1,demands["traction"]+demands["accelerationDeployment"]);
             var ability=(ratings["starts"]+ratings["overtaking"]+ratings["defending"]+launchFit)/400;
-            var loss=tuning.BaseLaunchLossSeconds+tuning.AbilitySeconds*(1-ability)
+            var wetness=input.ModelVersion==WetModelVersion?CircuitWeather.Observe(input.Configuration.Weather!,input.Seed,input.Configuration.Weather!.TimeOriginSeconds).Wetness:0;
+            // Bounded launch grip loss, no additional incident opportunity/random channel.
+            var wetLaunchLoss=wetness*tuning.AbilitySeconds*(1-ratings["wetWeatherSkill"]/100);
+            var loss=wetLaunchLoss+tuning.BaseLaunchLossSeconds+tuning.AbilitySeconds*(1-ability)
                 +tuning.VariationSeconds*Unit(input,car.Source.Driver.Id,"launch")
                 +tuning.ErrorSeconds*(1-ratings["errorControl"]/100)*Unit(input,car.Source.Driver.Id,"error");
             return (Offset:(g.Position-1)*tuning.GridSpacingMetres/firstLength,Loss:loss);
@@ -79,7 +90,7 @@ public static class AutomaticRaceStart
             foreach(var weekend in input.Weekends)
                 foreach(var car in weekend.Cars)
                     drivers[car.Source.EntryId]=drivers[car.Source.EntryId] with { WetWeather=WeekendPreparation.EffectiveWetWeather(car.Source,weekend.Setup) };
-        return input.Grid.OrderBy(slot=>slot.Position).Select(slot=>drivers[slot.EntryId] with{Gap=0}).ToArray();
+        return input.Grid.OrderBy(slot=>slot.Position).Select(slot=>drivers[slot.EntryId] with{Gap=0,StartingCompound=input.StartingCompounds?.GetValueOrDefault(slot.EntryId)??drivers[slot.EntryId].StartingCompound}).ToArray();
     }
     // V1 retains its historical Conserve opening for exact saved-input replay.
     private static PaceInstruction ResolveOpeningPace(string model)=>model==LegacyModelVersion?PaceInstruction.Conserve:PaceInstruction.Standard;
