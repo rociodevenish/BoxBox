@@ -21,7 +21,7 @@ public sealed partial class SessionCoordinator
         Dictionary<string,DriverDecision>[] Plans,RecordedReplayPhase[] Outcomes,
         SavedCommand[] Commands,TeamCommand? ConfirmedPlan,PublicEvent[] Events,PublicPresentation? Presentation,
         int EngineEventCursor,Dictionary<string,int> PresentationPhases,
-        Dictionary<string,DriverDecision>? PendingPlan,TeamCommand? PendingCommand,string? PendingFingerprint,RecordedAutomaticPlan[]? AutomaticPlans=null,string AutomaticSource="unclaimed-ai",SavedWindow? Window=null,AutomaticStartReplay? Opening=null,string? WindowKind=null,string[]? OperationKinds=null);
+        Dictionary<string,DriverDecision>? PendingPlan,TeamCommand? PendingCommand,string? PendingFingerprint,RecordedAutomaticPlan[]? AutomaticPlans=null,string AutomaticSource="unclaimed-ai",SavedWindow? Window=null,AutomaticStartReplay? Opening=null,string? WindowKind=null,string[]? OperationKinds=null,string? OperationVersion=null);
     private sealed record SavedLobby(string Id,string Code,string Host,CreateLobbyInput Input,long Revision,
         Player[] Players,Device[] Devices,Dictionary<string,Assignment> Assignments,string Lifecycle,
         string[] RequiredTeams,string[] ScriptedTeams,SavedRace? Race,Dictionary<string,string>? ModuleState=null);
@@ -33,7 +33,7 @@ public sealed partial class SessionCoordinator
         session.AcceptedPlans.Select(p=>p.ToDictionary()).ToArray(),session.RecordedPhases.ToArray(),
         session.AcceptedCommands.Select(p=>new SavedCommand(p.Key,p.Value.Fingerprint,p.Value.Ack)).ToArray(),
         session.ConfirmedPlan,session.Events.ToArray(),session.Presentation,session.EngineEventCursor,session.PresentationPhases,
-        session.PendingPlan,session.PendingCommand,session.PendingFingerprint,session.AutomaticPlans.ToArray(),Window:new(session.DecisionDeadlineUtc,session.PausedRemainingSeconds,session.TimingPolicy,session.FrozenTimeoutDecisions,session.TimeoutSources,session.LastDecisionSources.ToArray(),session.DeferNextWindow,session.ModuleState),Opening:session.OpeningReplay,WindowKind:session.WindowKind,OperationKinds:session.OperationKinds.ToArray());
+        session.PendingPlan,session.PendingCommand,session.PendingFingerprint,session.AutomaticPlans.ToArray(),Window:new(session.DecisionDeadlineUtc,session.PausedRemainingSeconds,session.TimingPolicy,session.FrozenTimeoutDecisions,session.TimeoutSources,session.LastDecisionSources.ToArray(),session.DeferNextWindow,session.ModuleState),Opening:session.OpeningReplay,WindowKind:session.WindowKind,OperationKinds:session.OperationKinds.ToArray(),OperationVersion:"race-operations-v2");
     private string Capture(string id)
     {
         var lobby=lobbies.GetValueOrDefault(id);var race=lobby?.Race ?? (active?.Id==id?active:null);
@@ -73,16 +73,29 @@ public sealed partial class SessionCoordinator
         if(lobbies.ContainsKey(id)||active?.Id==id)
         {
             var loaded=lobbies.GetValueOrDefault(id)?.Race ?? active;
+            if(loaded is not null)RecoverLegacySafetyCar(loaded);
             if(loaded?.ScheduledRecovery==true&&!scheduled){loaded.ScheduledRecovery=false;if(loaded.PendingPlan is not null)RecoverPending(loaded);else{RecoverExpiredDecision(loaded);RecoverPresentation(loaded);}}
             else if(loaded?.StorageError==true&&loaded.PendingPlan is not null&&!scheduled)RecoverPending(loaded);
+            else if(loaded?.StorageError==true&&!scheduled)Persist(id);
             return;
         }
         StoredSession? record;try{record=persistence.Read(id);}catch(Exception error) when(error is not SessionFault){throw new SessionFault(SessionFailure.StorageUnavailable,"Saved session is temporarily unavailable. Retry recovery when storage returns.");}if(record is null)return;
         Restore(id,record);
         var session=lobbies.GetValueOrDefault(id)?.Race ?? (active?.Id==id?active:null);
+        if(session is not null)RecoverLegacySafetyCar(session);
         if(scheduled){if(session is not null)session.ScheduledRecovery=true;return;}
         if(session?.PendingPlan is not null)RecoverPending(session);
         else if(session is not null){RecoverExpiredDecision(session);if(!scheduled)RecoverPresentation(session);}
+    }
+    private void RecoverLegacySafetyCar(Session session)
+    {
+        if(!session.ModuleState.Remove("legacy-safety-car-staging"))return;
+        // V1 already committed its pit choices at zero time. Continue those commitments through
+        // one real neutralised operation; free cars explicitly stay out, never choose again.
+        session.WindowKind="SafetyCar";
+        var continuation=session.Engine.GetSafetyCarOptions().Where(option=>option.Status=="available")
+            .ToDictionary(option=>option.DriverId,_=>new DriverDecision());
+        CompleteResolution(session,continuation,0);CommitResolvedPhase(session,null,null,resumeStandalone:true);
     }
     private void RecoverPending(Session session)
     {
@@ -90,7 +103,7 @@ public sealed partial class SessionCoordinator
         session.Paused=true;
         CommitResolvedPhase(session,session.PendingCommand,session.PendingFingerprint);
     }
-    private SubmissionAck? CommitResolvedPhase(Session session,TeamCommand? command,string? fingerprint)
+    private SubmissionAck? CommitResolvedPhase(Session session,TeamCommand? command,string? fingerprint,bool resumeStandalone=false)
     {
         SubmissionAck? acknowledgement=null;
         if(command is not null)
@@ -111,6 +124,7 @@ public sealed partial class SessionCoordinator
                 CommitResolvedPhase(session,null,null);
             }
         }
+        if(resumeStandalone&&!lobbies.ContainsKey(session.Id)&&!session.Paused&&session.Lifecycle=="phase-result")OpenHouseholdWindow(session);
         Persist(session.Id);
         return acknowledgement;
     }
@@ -126,6 +140,7 @@ public sealed partial class SessionCoordinator
         Session? RestoreRace(SavedRace? race)
         {
             if(race is null)return null;
+            if(race.OperationVersion is not (null or "race-operations-v2"))throw new SessionFault(SessionFailure.Conflict,"Saved race uses an incompatible operation version. Preserve its recovery record.");
             if(race.Plans.Length!=race.Outcomes.Length||race.OperationKinds is not null&&race.OperationKinds.Length!=race.Plans.Length)throw new SessionFault(SessionFailure.Conflict,"Saved race is missing a committed replay outcome. Preserve its recovery record.");
             var replayWatch=Stopwatch.StartNew();
             Game.Simulation.RaceEngine? restoredEngine;
@@ -135,6 +150,7 @@ public sealed partial class SessionCoordinator
             foreach(var (plan,index) in race.Plans.Select((plan,index)=>(plan,index)))
             {
                 var kind=race.OperationKinds is null?"Normal":race.OperationKinds[index];
+                if(race.OperationVersion is null&&kind=="SafetyCar")kind="SafetyCarStaging";
                 var outcome=ResolveOperation(session.Engine,kind,plan);
                 session.OperationKinds.Add(kind);
                 if(index>=race.Outcomes.Length||BrowserReplay.OutcomeHash(outcome)!=race.Outcomes[index].OutcomeHash)
@@ -154,6 +170,11 @@ public sealed partial class SessionCoordinator
             foreach(var pair in race.PresentationPhases)session.PresentationPhases.Add(pair.Key,pair.Value);
             session.PendingPlan=race.PendingPlan;session.PendingCommand=race.PendingCommand;session.PendingFingerprint=race.PendingFingerprint;
             if(race.Window is {} window){session.DecisionDeadlineUtc=window.Deadline;session.PausedRemainingSeconds=window.PausedRemaining;session.TimingPolicy=window.TimingPolicy;session.FrozenTimeoutDecisions=window.FrozenTimeoutDecisions;session.TimeoutSources=window.TimeoutSources;session.LastDecisionSources=window.LastDecisionSources;session.DeferNextWindow=window.DeferNextWindow;session.ModuleState=window.ModuleState;}
+            // Only the historical lifecycle identifies a staging continuation. An incompatible
+            // travel hash is rejected above rather than guessed from plan counts or replay results.
+            if(race.OperationVersion is null&&race.Lifecycle=="safety-car-ready")session.ModuleState["legacy-safety-car-staging"]="v1";
+            if(race.Opening is not null&&race.Lifecycle=="phase-result"&&race.Presentation?.ResolvedPhase==0&&race.Presentation.Summary.StartsWith("Automatic standing start",StringComparison.Ordinal)
+                &&!session.ModuleState.ContainsKey("opening-presentation"))session.ModuleState["opening-presentation"]=race.Presentation.Cursor;
             session.WindowTimestamp=Stopwatch.GetTimestamp();return session;
         }
         if(saved.Lobby is {} lobby)

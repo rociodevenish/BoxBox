@@ -39,7 +39,7 @@
         </section>
       </div>
       @if(choices()[i]; as choice){
-      @if(!model().safetyCar){<fieldset [disabled]="!editable()">
+      @if(!model().safetyCar){<fieldset [disabled]="!editable() || car.unavailable">
         <legend>Pace</legend>
         <div class="options">
           @for(pace of paces; track pace){<button
@@ -82,7 +82,7 @@
       @if(car.pendingStop){
       <p class="notice">{{car.pendingStop}}</p>
       } @if(!model().safetyCar && car.battleOptions.length>1){
-      <fieldset [disabled]="!editable()">
+      <fieldset [disabled]="!editable() || car.unavailable">
         <legend>Battle approach</legend>
         <div class="options">
           @for(battle of car.battleOptions; track battle){<button

@@ -67,3 +67,5 @@ ol { padding-left:20px; }
 .control-status {padding:12px;border:1px solid var(--color-border);border-radius:var(--radius-panel);margin:12px 0;}.control-status h2 {font-size:18px;}.public-control {font-size:13px;margin:4px 0;}
 
 @media(min-width:1200px){.public-screen .decision-window[aria-label='Safety Car status'] h2{display:block;color:var(--color-driver);}}
+
+app-two-car-controller + button { margin-top: 16px; }

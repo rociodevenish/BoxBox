@@ -1,7 +1,7 @@
 import {Component,input,signal,OnInit,OnDestroy} from '@angular/core';
 import {apiUrl} from '../api-url';
 export interface OpeningOutcome {version:string;boundary:string;cars:{entryId:string;name:string;slug:string;teamId:string;gridPosition:number;position:number;positionsGained:number}[]}
-interface OpeningState {phase:number;windowRevision:number;lifecycle:string;paused:boolean;opening:OpeningOutcome|null}
+interface OpeningState {safetyCar?:unknown;phase:number;windowRevision:number;lifecycle:string;paused:boolean;opening:OpeningOutcome|null}
 
 @Component({selector:'app-opening-handoff',templateUrl:'./opening-handoff.html',styleUrl:'./opening-handoff.css'})
 export class OpeningHandoff implements OnInit,OnDestroy {

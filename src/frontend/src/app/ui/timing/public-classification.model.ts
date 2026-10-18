@@ -9,7 +9,8 @@ export type PublicStopStatus =
   | "on-track"
   | "announced-stop-pending"
   | "in-pit-lane"
-  | "retired";
+  | "retired"
+  | "damaged";
 export interface PublicDriverIdentity {
   readonly id: string;
   readonly code: string;

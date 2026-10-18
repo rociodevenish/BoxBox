@@ -51,7 +51,7 @@ public static class AutomaticRaceStart
             ||!input.Grid.Select(g=>g.Position).Order().SequenceEqual(Enumerable.Range(1,field.Count)))
             throw new ArgumentException("A complete unique contiguous grid and frozen field are required.");
         var ordered=input.Grid.OrderBy(g=>g.Position).ToArray();
-        var drivers=ordered.Select(g=>field[g.EntryId].Car.RaceDriver with{Gap=0}).ToArray();
+        var drivers=StartingDrivers(input);
         var length=input.Configuration.Track.Segments?.Sum(s=>s.Length)??tuning.AggregateLengthMetres;
         var firstLength=input.Configuration.Track.Segments?[0].Length??length;
         var launches=ordered.Select(g=>
@@ -68,6 +68,14 @@ public static class AutomaticRaceStart
             return (Offset:(g.Position-1)*tuning.GridSpacingMetres/firstLength,Loss:loss);
         }).ToArray();
         return RaceEngine.CreateStandingStart(input.Configuration,drivers,input.Seed,launches,ResolveOpeningPace(input.ModelVersion));
+    }
+    public static Driver[] StartingDrivers(AutomaticStartInput input)
+    {
+        var drivers=input.Weekends.SelectMany(weekend=>weekend.Cars.Select(car=>input.Configuration.Incidents is null?car.RaceDriver:car.RaceDriver with{
+            IncidentProfile=new(car.Source.Driver.Ratings["errorControl"],car.Source.Car.Ratings["reliability"],
+                SourceVersion:$"local-profile-v1/{car.Source.Driver.Version}/{car.Source.Car.Version}/{weekend.Source.Circuit.Version}")
+        })).ToDictionary(driver=>driver.Id);
+        return input.Grid.OrderBy(slot=>slot.Position).Select(slot=>drivers[slot.EntryId] with{Gap=0}).ToArray();
     }
     // V1 retains its historical Conserve opening for exact saved-input replay.
     private static PaceInstruction ResolveOpeningPace(string model)=>model==LegacyModelVersion?PaceInstruction.Conserve:PaceInstruction.Standard;

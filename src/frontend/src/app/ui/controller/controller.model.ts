@@ -30,6 +30,7 @@ export interface PrivateCarViewModel {
   readonly tyreAge?: number;
   readonly battleExplanation: string;
   readonly pendingStop: string | null;
+  readonly unavailable?: boolean;
   readonly selected: CarInstruction;
 }
 export interface PrivateControllerViewModel {
