@@ -136,6 +136,9 @@ public sealed partial class RaceEngine
         }
         configuration.Weather?.Validate();
         configuration.WetTyres?.Validate();
+        configuration.WeatherReactions?.Validate();
+        if(configuration.WeatherReactions is not null && (configuration.Weather is null || configuration.WetTyres is null))
+            throw new ArgumentException("Weather reactions require weather and wet tyres.");
         foreach (var driver in drivers) driver.WetWeather?.Validate();
         if (configuration.WetTyres is null && drivers.Any(d => d.StartingCompound is TyreCompound.Intermediate or TyreCompound.Wet))
             throw new ArgumentException("Wet compounds require explicit wet tyre tuning.");
@@ -143,6 +146,7 @@ public sealed partial class RaceEngine
         this.seed = seed;
         conditionWetness = configuration.Weather is {} weather
             ? CircuitWeather.Observe(weather, seed, weather.TimeOriginSeconds).Wetness : 0;
+        weatherBand = InitialWeatherBand(conditionWetness);
         var safety=configuration.SafetyCar??new();
         if(new[]{safety.DurationSeconds,safety.LeaderLapMultiplier,safety.CatchUpLapMultiplier,safety.FollowingSeconds}.Any(v=>!double.IsFinite(v))
             || safety.DurationSeconds is <=0 or >600 || safety.CatchUpLapMultiplier<1 || safety.LeaderLapMultiplier<safety.CatchUpLapMultiplier
@@ -187,6 +191,9 @@ public sealed partial class RaceEngine
     }
 
     public PhaseResult ResolvePhase(IReadOnlyDictionary<string, DriverDecision>? decisions = null)
+        => ResolvePhaseCore(decisions, false);
+
+    private PhaseResult ResolvePhaseCore(IReadOnlyDictionary<string, DriverDecision>? decisions, bool deploySafetyCar)
     {
         if (decisions is not null)
             foreach (var (id, decision) in decisions)
@@ -203,10 +210,13 @@ public sealed partial class RaceEngine
             if (decision is null) continue;
             if (!AvailableBattles(car).Contains(decision.Battle))
                 throw new ArgumentException($"Battle instruction is unavailable for {car.Driver.Id}.");
+            if ((neutralised || deploySafetyCar) && (decision.Pace != PaceInstruction.Conserve || decision.Battle != BattleInstruction.Neutral))
+                throw new ArgumentException("Safety Car control requires Conserve and Neutral until racing resumes.");
             if (decision.PitCompound is not null && (car.PitExit is not null
                 || car.PendingPit is not null && car.PendingPit != decision.PitCompound))
                 throw new ArgumentException("A queued or ongoing stop cannot be replaced.");
         }
+        if(deploySafetyCar) { neutralised=true; neutralisedUntil=time+Neutralisation.DurationSeconds; }
         foreach (var car in cars.Where(c => Active(c)))
         {
             var fraction = Progress(car);
@@ -227,8 +237,9 @@ public sealed partial class RaceEngine
             car.LapEnd = car.LapStart + duration;
         }
         UpdateTraffic();
-        AdvanceToLeaderLap(Math.Min(configuration.Laps, cars.Where(Active).Select(c => c.Laps + Progress(c)).DefaultIfEmpty(0).Max()
+        AdvanceToLeaderLap(neutralised ? configuration.Laps : Math.Min(configuration.Laps, cars.Where(Active).Select(c => c.Laps + Progress(c)).DefaultIfEmpty(0).Max()
             + (configuration.NormalPhaseLaps ?? 5)));
+        if(neutralised && (weatherReaction is null || time>=neutralisedUntil-1e-8)) { neutralised=false; neutralisedUntil=double.PositiveInfinity; normalTargetDistance=null; }
         phaseIndex++;
         return Snapshot();
     }
@@ -236,6 +247,7 @@ public sealed partial class RaceEngine
     private void AdvanceToLeaderLap(double target)
     {
         interruption = null;
+        weatherReaction = null;
         normalTargetDistance = target;
         while (cars.Any(c => Active(c)))
         {
@@ -244,13 +256,14 @@ public sealed partial class RaceEngine
                 .ThenBy(c => Segments is null ? 0 : c.ContactOrder)
                 .ThenBy(c => c.Driver.Id, StringComparer.Ordinal).First();
             // Complete every event at the boundary timestamp before accepting new decisions.
-            if (!chequered && (neutralised && time>=neutralisedUntil-1e-8 || !neutralised && interruption is not null || cars.Any(c => Active(c) && c.Laps + Progress(c) >= target - 1e-9))
+            if (!chequered && (weatherReaction is not null || neutralised && time>=neutralisedUntil-1e-8 || !neutralised && interruption is not null || cars.Any(c => Active(c) && c.Laps + Progress(c) >= target - 1e-9))
                 && NextEvent(car) > time + 1e-8) break;
             var eventTime = NextEvent(car);
             var targetTime = chequered || interruption is not null ? double.PositiveInfinity
                 : cars.Where(Active).Select(c => TargetTime(c, target)).Min();
             var conditionTime = NextWetConditionTime();
-            var nextTime = Math.Min(Math.Min(Math.Min(eventTime, targetTime), conditionTime),chequered?double.PositiveInfinity:neutralisedUntil);
+            var reactionTime = NextWeatherReactionTime();
+            var nextTime = Math.Min(reactionTime,Math.Min(Math.Min(Math.Min(eventTime, targetTime), conditionTime),chequered?double.PositiveInfinity:neutralisedUntil));
             var incidentDue = NextIncidentTime(car) < OrdinaryNextEvent(car) - 1e-8;
             AdvanceIncidentExposure(nextTime);
             if (WetEffects)
@@ -269,6 +282,7 @@ public sealed partial class RaceEngine
             }
             var starting = Segments is not null && car.Laps == 0 && time < car.Driver.Gap && nextTime == car.Driver.Gap;
             time = nextTime;
+            if(Math.Abs(time-reactionTime)<1e-8)OpenWeatherReaction();
             foreach (var current in cars) current.Trace.Add((time, Distance(current)));
             if (Math.Abs(time - conditionTime) < 1e-8) UpdateWetConditions();
             if (nextTime < eventTime - 1e-8) continue;
@@ -828,7 +842,7 @@ public sealed partial class RaceEngine
     {
         if (car.RetirementTime is not null) return Array.Empty<BattleInstruction>();
         var options = new List<BattleInstruction> { BattleInstruction.Neutral };
-        if (!Traffic.Enabled || car.PitExit is not null || !Active(car)) return options;
+        if (neutralised || weatherReaction is not null && interruption is not null || !Traffic.Enabled || car.PitExit is not null || !Active(car)) return options;
         foreach (var other in cars.Where(c => c != car && c.PitExit is null && Active(c)))
         {
             var gap = (Distance(other) - Distance(car)) / TrackLength;
@@ -916,8 +930,13 @@ public sealed partial class RaceEngine
                 c.Condition, c.Pace, c.PitExit is not null)).ToArray(),
             cars.ToDictionary(c => c.Driver.Id, c => c.ActualWetUse || c.UsedCompounds.Count(x => x is TyreCompound.Soft or TyreCompound.Medium or TyreCompound.Hard) >= 2),
             cars.ToDictionary(c => c.Driver.Id, AvailableBattles), decisionHistory.ToArray(), Conditions(),
-            configuration.Incidents is null ? null : cars.All(c => !Active(c)) ? PhaseCompletionReason.Finish
+            configuration.Incidents is null && configuration.WeatherReactions is null ? null : cars.All(c => !Active(c)) ? PhaseCompletionReason.Finish
+                : weatherReaction is not null && !chequered ? PhaseCompletionReason.Weather
                 : interruption is not null && !chequered ? PhaseCompletionReason.SafetyCar : PhaseCompletionReason.NormalBoundary,
-            chequered || cars.All(c => !Active(c)) ? null : interruption, configuration.Incidents is null ? null : normalTargetDistance, GetCurrentWeather());
+            chequered || cars.All(c => !Active(c)) ? null : interruption, configuration.Incidents is null && configuration.WeatherReactions is null ? null : normalTargetDistance, GetCurrentWeather(),
+            chequered || cars.All(c => !Active(c)) ? null : weatherReaction is {} reaction
+                ? reaction with { SafetyCarActive=neutralised||interruption is not null,
+                    SafetyCarUntil=neutralised?neutralisedUntil:null,
+                    Causes=neutralised||interruption is not null ? ["Weather","SafetyCar"] : ["Weather"] } : null);
     }
 }

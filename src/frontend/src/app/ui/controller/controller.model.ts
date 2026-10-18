@@ -37,6 +37,7 @@ export interface PrivateCarViewModel {
 export interface PrivateControllerViewModel {
   readonly wetTyresEnabled?:boolean;
   readonly safetyCar?:boolean;
+  readonly neutralisedWeather?:boolean;
   readonly assistance?:TeamAssistance;
   readonly privacyLabel?: string;
   readonly teamName: string;

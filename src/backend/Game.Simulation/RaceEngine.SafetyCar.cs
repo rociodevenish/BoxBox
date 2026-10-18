@@ -18,7 +18,7 @@ public sealed partial class RaceEngine
         }
         UpdateTraffic();
         AdvanceToLeaderLap(configuration.Laps);
-        neutralised=false;neutralisedUntil=double.PositiveInfinity;interruption=null;normalTargetDistance=null;
+        if(weatherReaction is null || time>=neutralisedUntil-1e-8) { neutralised=false;neutralisedUntil=double.PositiveInfinity;interruption=null;normalTargetDistance=null; }
         return Snapshot();
     }
 

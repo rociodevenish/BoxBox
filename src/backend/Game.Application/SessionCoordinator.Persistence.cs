@@ -115,8 +115,8 @@ public sealed partial class SessionCoordinator
         session.PendingPlan=null;session.PendingCommand=null;session.PendingFingerprint=null;
         session.DecisionDeadlineUtc=null;session.PausedRemainingSeconds=null;
         PhaseCommitted(session);
-        if(session.WindowKind=="SafetyCar"&&!lobbies.ContainsKey(session.Id))session.DeferNextWindow=false;
-        if(session.WindowKind!="SafetyCar"&&session.Engine.GetState().Interruption is not null&&session.Lifecycle!="finished")
+        if(session.WindowKind is "SafetyCar" or "Weather"&&!lobbies.ContainsKey(session.Id))session.DeferNextWindow=false;
+        if((session.Engine.GetState().WeatherReaction is not null || session.WindowKind!="SafetyCar"&&session.Engine.GetState().Interruption is not null)&&session.Lifecycle!="finished")
         {
             OpenHouseholdWindow(session);session.DeferNextWindow=true;
             if(session.RequiredTeams.Length==0)

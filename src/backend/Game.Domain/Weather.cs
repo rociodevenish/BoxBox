@@ -21,6 +21,23 @@ public sealed record WeatherTuning(double MeanRain = .3, double Volatility = .2,
 }
 public sealed record CurrentWeather(string Version, double Time, string IntervalIdentity,
     double RainIntensity, double Wetness, double DryingPerSecond);
+
+public sealed record WeatherReactionTuning(double DryBoundary = .25, double WetBoundary = .7,
+    double Hysteresis = .03, double MinimumSeparationSeconds = 30)
+{
+    public const string Version = "weather-reactions-v1";
+    public void Validate()
+    {
+        if (new[] { DryBoundary, WetBoundary, Hysteresis, MinimumSeparationSeconds }.Any(x => !double.IsFinite(x))
+            || DryBoundary <= 0 || WetBoundary >= 1 || DryBoundary >= WetBoundary
+            || Hysteresis < 0 || Hysteresis >= Math.Min(DryBoundary, Math.Min(1-WetBoundary, (WetBoundary-DryBoundary)/2))
+            || MinimumSeparationSeconds is < 0 or > 3600)
+            throw new ArgumentException("Invalid weather reaction bands.");
+    }
+}
+public sealed record WeatherReaction(string Identity, double Time, string Band, CurrentWeather Observed,
+    bool SafetyCarActive, double? SafetyCarUntil, IReadOnlyList<string> Causes,
+    string Policy = "Complete Pace, Pit and contextual Battle choices for both active cars. New stops occur at the next lap end; committed stops remain locked. Under Safety Car control only Conserve and Neutral are legal.");
 public sealed record ForecastHorizon(double FromSeconds, double ToSeconds, double RainProbability,
     double RainLower, double RainUpper);
 public sealed record TeamWeatherForecast(string Version, string ObservationIdentity, double ObservedAt,

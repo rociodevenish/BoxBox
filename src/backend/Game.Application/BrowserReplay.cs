@@ -93,6 +93,7 @@ public static class BrowserReplay
     internal static PhaseResult ResolveOperation(RaceEngine engine,string kind,IReadOnlyDictionary<string,DriverDecision> plan,bool legacyStaging=false)=>kind switch
     {
         "Normal"=>engine.ResolvePhase(plan),
+        "Weather"=>engine.ResolveWeatherReaction(plan),
         "SafetyCarStaging"=>engine.CommitSafetyCarChoices(plan.ToDictionary(pair=>pair.Key,pair=>new SafetyCarDecision(pair.Value.PitCompound))),
         "SafetyCar" when legacyStaging=>engine.CommitSafetyCarChoices(plan.ToDictionary(pair=>pair.Key,pair=>new SafetyCarDecision(pair.Value.PitCompound))),
         "SafetyCar"=>engine.ResolveSafetyCar(plan.ToDictionary(pair=>pair.Key,pair=>new SafetyCarDecision(pair.Value.PitCompound))),

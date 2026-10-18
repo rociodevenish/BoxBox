@@ -9,6 +9,7 @@ import { Pace, Battle } from '../ui/controller/controller.model';
 export interface CurrentWeather {version:string;time:number;intervalIdentity:string;rainIntensity:number;wetness:number;dryingPerSecond:number}
 export interface WeatherForecast {version:string;observationIdentity:string;observedAt:number;refreshAt:number;confidence:string;horizons:{fromSeconds:number;toSeconds:number;rainProbability:number;rainLower:number;rainUpper:number}[];explanation:string}
 export interface PublicState {
+    weatherReaction?:{identity:string;time:number;band:string;observed:CurrentWeather;safetyCarActive:boolean;safetyCarUntil:number|null;causes:string[];policy:string}|null;
     wetTyresEnabled?:boolean|null;
     weather?:CurrentWeather|null;
     safetyCar?:{identity:string;time:number;driverId:string;incident:string;policy:string}|null;
@@ -261,14 +262,14 @@ export class RaceSession {
             this.acknowledged.set(null);
             this.pending.set(null);
             this.busy.set(false);
-            this.choices.set(state.cars.map(car => ({ driverId: car.driverId, pace: 'Standard', pit: 'StayOut', compound: 'Hard', battle: 'Neutral' })));
+            this.choices.set(state.cars.map(car => ({ driverId: car.driverId, pace: state.windowKind==='Weather'&&this.publicState()?.weatherReaction?.safetyCarActive?'Conserve':'Standard', pit: 'StayOut', compound: 'Hard', battle: 'Neutral' })));
         }
         if (state.confirmedPlan) {
             this.choices.set(state.cars.map(owned => {const car=state.confirmedPlan!.cars.find(item=>item.driverId===owned.driverId);return car?{...car,pit:car.pit==='Pit'?'Pit':'StayOut',compound:car.compound??'Hard'}:{driverId:owned.driverId,pace:'Standard',pit:'StayOut',compound:'Hard',battle:'Neutral'};}));
             this.pending.set(null);
         }
         else if (!this.team())
-            this.choices.set(state.cars.map(car => ({ driverId: car.driverId, pace: 'Standard', pit: 'StayOut', compound: 'Hard', battle: 'Neutral' })));
+            this.choices.set(state.cars.map(car => ({ driverId: car.driverId, pace: state.windowKind==='Weather'&&this.publicState()?.weatherReaction?.safetyCarActive?'Conserve':'Standard', pit: 'StayOut', compound: 'Hard', battle: 'Neutral' })));
         this.team.set(state);
         const newlyLocked = previous && !previous.confirmedPlan && (state.confirmedPlan || state.phase!==previous.phase);
         if(this.sharedTablet && (newlyLocked || submitted && state.phase!==submitted.phase))void this.passTablet(false);
@@ -285,7 +286,7 @@ export class RaceSession {
         const team = this.team();
         if (!team || !this.canSubmit())
             return;
-        const command = this.pending() ?? { commandId: commandId(), phase: team.phase, revision: this.householdTeam ? team.commandRevision : team.revision, cars: this.choices().filter(car=>{const owned=team.cars.find(owned=>owned.driverId===car.driverId);return team.windowKind==='SafetyCar'?owned?.safetyCar?.status==='available':!['retired','finished'].includes(owned?.safetyCar?.status??'');}).map(car => ({ ...car, pit: car.pit === 'Pit' ? 'Pit' : 'Stay Out', compound: car.pit === 'Pit' ? car.compound : null })) };
+        const command = this.pending() ?? { commandId: commandId(), phase: team.phase, revision: this.householdTeam ? team.commandRevision : team.revision, windowKind:team.windowKind, cars: this.choices().filter(car=>{const owned=team.cars.find(owned=>owned.driverId===car.driverId);return team.windowKind==='SafetyCar'?owned?.safetyCar?.status==='available':!['retired','finished'].includes(owned?.safetyCar?.status??'');}).map(car => ({ ...car, pit: car.pit === 'Pit' ? 'Pit' : 'Stay Out', compound: car.pit === 'Pit' ? car.compound : null })) };
         this.pending.set(command);
         this.busy.set(true);
         this.error.set('');

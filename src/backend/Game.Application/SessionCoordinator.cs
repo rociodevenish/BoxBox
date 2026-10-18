@@ -98,12 +98,12 @@ public sealed partial class SessionCoordinator(ISessionNotifications notificatio
             var session = Require(id);
             var scheduled = session.AcceptedPlans.SelectMany((plan, phase) => plan.OrderBy(pair => pair.Key, StringComparer.Ordinal)
                 .Select(pair => new ScheduledDecision(phase, pair.Key, pair.Value))).ToArray();
-            return new(session.OperationKinds.Contains("SafetyCar")?BrowserReplay.DisruptionFormatVersion:BrowserReplay.FormatVersion, id, session.Input.Preset, "team-01", session.ScriptVersion,
+            return new(session.OperationKinds.Any(kind=>kind is "SafetyCar" or "Weather")?BrowserReplay.DisruptionFormatVersion:BrowserReplay.FormatVersion, id, session.Input.Preset, "team-01", session.ScriptVersion,
                 SimulationReplay.Capture(session.Configuration, session.Drivers, new StrategyPlan(scheduled, []), session.Input.Seed!.Value) with{Opening=session.OpeningReplay},
                 Array.AsReadOnly(session.RecordedPhases.ToArray()), session.RecordedPhases.LastOrDefault()?.Finished ?? false,
                 new(session.TotalToFinishMilliseconds ?? Stopwatch.GetElapsedTime(session.StartedTimestamp).TotalMilliseconds,
                     session.TotalToFinishMilliseconds, Array.AsReadOnly(session.PhaseTimings.ToArray()),
-                    Array.AsReadOnly(session.PresentationSamples.Values.Select(value => value.Sample).ToArray()), session.RecoveryReplayMilliseconds),Array.AsReadOnly(session.AutomaticPlans.ToArray()),AssistanceHistory(session),session.OperationKinds.Contains("SafetyCar")?session.OperationKinds.ToArray():null);
+                    Array.AsReadOnly(session.PresentationSamples.Values.Select(value => value.Sample).ToArray()), session.RecoveryReplayMilliseconds),Array.AsReadOnly(session.AutomaticPlans.ToArray()),AssistanceHistory(session),session.OperationKinds.Any(kind=>kind is "SafetyCar" or "Weather")?session.OperationKinds.ToArray():null);
         }
     }
     private Session Require(string id,bool scheduled=false) { EnsureRecovered(id,scheduled); return active is { } session && session.Id == id ? session
@@ -170,7 +170,7 @@ public sealed partial class SessionCoordinator(ISessionNotifications notificatio
             session.Configuration.Laps, state.Time, Array.AsReadOnly(rows), session.Events, session.Presentation,
             state.Finished ? 0 : session.Configuration.Incidents is null ? Math.Min(5, session.Configuration.Laps - state.LeaderLap)
                 : Math.Round(Math.Min(session.Configuration.NormalPhaseLaps??5,Math.Max(0,session.Configuration.Laps-state.Classification.Where(row=>row.RetirementTime is null&&row.FinishTime is null).Select(row=>row.Laps+row.Progress).DefaultIfEmpty(session.Configuration.Laps).Max())),3),
-            Array.AsReadOnly(session.RequiredTeams.Select(team => new TeamReadiness(team, session.Locks.ContainsKey(team))).ToArray()),session.Paused || session.StorageError, session.DecisionDeadlineUtc, session.PausedRemainingSeconds, session.TimingPolicy, clock.GetUtcNow(), session.LastDecisionSources,PublicControl(session),Progress(session).PresentationDeadline,Progress(session).PresentationRemaining,session.WindowRevision,ProjectOpening(session),ProjectSafetyCar(session),state.Weather,session.Configuration.WetTyres is null?null:true);
+            Array.AsReadOnly(session.RequiredTeams.Select(team => new TeamReadiness(team, session.Locks.ContainsKey(team))).ToArray()),session.Paused || session.StorageError, session.DecisionDeadlineUtc, session.PausedRemainingSeconds, session.TimingPolicy, clock.GetUtcNow(), session.LastDecisionSources,PublicControl(session),Progress(session).PresentationDeadline,Progress(session).PresentationRemaining,session.WindowRevision,ProjectOpening(session),ProjectSafetyCar(session),state.Weather,session.Configuration.WetTyres is null?null:true,state.WeatherReaction);
     }
     private static PublicGap ProjectGap(TimingGap gap) => gap.Laps > 0 ? new("laps", Laps: gap.Laps)
         : gap.Seconds is { } seconds ? new("time", seconds) : new("unavailable");
@@ -190,7 +190,7 @@ public sealed partial class SessionCoordinator(ISessionNotifications notificatio
         var observation = session.Engine.GetTeamObservation(teamId);
         var own = observation.TeamTyres.Select(tyre => new PrivateCar(tyre.DriverId, tyre.Compound.ToString(),
             tyre.Age, tyre.EstimatedCondition, tyre.InPits, tyre.StopQueued,
-            Array.AsReadOnly(observation.BattleOptions[tyre.DriverId].Select(option => option.ToString()).ToArray()),session.Configuration.Incidents is not null?session.Engine.GetSafetyCarOptions().Single(option=>option.DriverId==tyre.DriverId):null,
+            Array.AsReadOnly(observation.BattleOptions[tyre.DriverId].Select(option => option.ToString()).ToArray()),session.Configuration.Incidents is not null||session.Configuration.WeatherReactions is not null?session.Engine.GetSafetyCarOptions().Single(option=>option.DriverId==tyre.DriverId):null,
             observation.Conditions?.Single(condition=>condition.DriverId==tyre.DriverId))).ToArray();
         return new(session.Id, session.Phase, session.Revision, session.StorageError ? "storage-error" : session.Lifecycle, assignment?.PlayerId ?? session.Player, teamId,
             assignment?.DeviceId ?? session.Device, Array.AsReadOnly(own), assignment is null ? session.ConfirmedPlan : session.Locks.GetValueOrDefault(teamId), assignment?.Revision ?? 0, session.WindowRevision,ProjectAssistance(session,teamId),assignment is null?null:ControlStatus(session,teamId),session.WindowKind,observation.Forecast,session.Configuration.WetTyres is null?null:true);
@@ -240,6 +240,7 @@ public sealed partial class SessionCoordinator(ISessionNotifications notificatio
                     throw new SessionFault(SessionFailure.InvalidInput, "Each car needs explicit valid pace, pit and battle choices.");
                 var tyre = observation.TeamTyres.Single(tyre => tyre.DriverId == car.DriverId);
                 if (session.WindowKind=="SafetyCar" && (pace!=PaceInstruction.Standard||battle!=BattleInstruction.Neutral))throw new SessionFault(SessionFailure.InvalidInput,"Safety Car choices contain only pit instructions.");
+                if(session.WindowKind=="Weather"&&WeatherSafetyCarActive(session)&&(pace!=PaceInstruction.Conserve||battle!=BattleInstruction.Neutral))throw new SessionFault(SessionFailure.InvalidInput,"Safety Car control requires Conserve and Neutral until racing resumes.");
                 if (!observation.BattleOptions[car.DriverId].Contains(battle)
                     || car.Pit == "Pit" && (tyre.InPits || tyre.StopQueued))
                     throw new SessionFault(SessionFailure.InvalidInput, "A battle or pit instruction is unavailable. Review both cars.");
@@ -321,7 +322,8 @@ public sealed partial class SessionCoordinator(ISessionNotifications notificatio
                 fresh.Length - selected.Length, fresh.Length == 0 ? "Quiet phase: no overtakes or pit events recorded."
                 : $"{overtakes} overtakes · {entries} pit entries · {exits} pit exits · {changes} tyre changes."
                     + (fresh.Length > selected.Length ? $" Showing {selected.Length} highlights of {fresh.Length} recorded events." : ""));
-            if(operation=="SafetyCar")session.Presentation=session.Presentation with{Summary="Safety Car running complete. Racing resumes from current positions with a fresh normal decision window."};
+            if(result.WeatherReaction is {} reaction)session.Presentation=session.Presentation with{Summary=$"Observed conditions changed to {reaction.Band} at {reaction.Time:F1}s. Choose complete instructions for both active cars. Committed stops remain locked."};
+            else if(operation=="SafetyCar")session.Presentation=session.Presentation with{Summary="Safety Car running complete. Racing resumes from current positions with a fresh normal decision window."};
             else if(result.Interruption is {} disruption)session.Presentation=session.Presentation with{Summary=$"Safety Car deployed: {disruption.Kind} observed at {disruption.Time:F1}s. Choose legal pit instructions."};
             session.Lifecycle = result.Finished ? "finished" : "phase-result"; session.Revision++;
             session.PresentationPhases.Add(session.Presentation.Cursor, session.Phase);

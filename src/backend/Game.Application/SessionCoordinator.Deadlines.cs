@@ -21,11 +21,16 @@ public sealed partial class SessionCoordinator
         session.PausedRemainingSeconds=null;
         session.FrozenTimeoutDecisions=OpponentScript.Freeze(session.Engine,session.RequiredTeams,session.Configuration.Laps,session.ScriptVersion).ToDictionary();
         if(session.WindowKind=="SafetyCar")session.FrozenTimeoutDecisions=FreezeSafetyCar(session,session.RequiredTeams).ToDictionary();
+        if(session.WindowKind=="Weather")
+        {
+            session.FrozenOpponents=FreezeWeather(session,session.Drivers.Select(driver=>driver.Team).Distinct().Where(team=>!session.RequiredTeams.Contains(team)));
+            session.FrozenTimeoutDecisions=FreezeWeather(session,session.RequiredTeams).ToDictionary();
+        }
         session.TimeoutSources=session.RequiredTeams.ToDictionary(team=>team,_=>"timeout-ai");
         foreach(var team in session.RequiredTeams)
         {
             var decisions=ExpectedCommandDrivers(session,team).ToDictionary(id=>id,id=>session.FrozenTimeoutDecisions[id]);
-            var source=session.TimeoutSources[team];if(session.WindowKind=="SafetyCar")ConfigureSafetyCarAdvice(session,team,ref source);else ConfigureTimeoutPlan(session,team,ref decisions,ref source);
+            var source=session.TimeoutSources[team];if(session.WindowKind=="SafetyCar")ConfigureSafetyCarAdvice(session,team,ref source);else if(session.WindowKind!="Weather")ConfigureTimeoutPlan(session,team,ref decisions,ref source);
             foreach(var pair in decisions)session.FrozenTimeoutDecisions[pair.Key]=pair.Value;session.TimeoutSources[team]=source;
         }
         if(session.WindowKind=="SafetyCar"&&session.RequiredTeams.Length==0)session.DecisionDeadlineUtc=clock.GetUtcNow();

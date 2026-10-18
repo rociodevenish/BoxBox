@@ -44,7 +44,7 @@
       @if(!model().safetyCar){<fieldset [disabled]="!editable() || car.unavailable">
         <legend>Pace</legend>
         <div class="options">
-          @for(pace of paces; track pace){<button
+          @for(pace of model().neutralisedWeather ? [paces[0]] : paces; track pace){<button
             type="button"
             [attr.aria-pressed]="choice.pace === pace"
             (click)="choose(i, {pace})"
@@ -53,8 +53,8 @@
           >}
         </div>
         <p class="explanation">
-          Conserve protects tyres; Push trades tyre life for pace. Standard
-          balances both.
+          @if(model().neutralisedWeather){Safety Car control requires Conserve and Neutral until racing resumes.}
+          @else{Conserve protects tyres; Push trades tyre life for pace. Standard balances both.}
         </p>
       </fieldset>
       }

@@ -18,3 +18,14 @@ public sealed class WetTyreRacePresets : IRacePresets
         return weather with { Configuration = weather.Configuration with { WetTyres = new() } };
     }
 }
+public sealed class WeatherReactionRacePresets : IRacePresets
+{
+    public RacePreset Get(string name,int laps)
+    {
+        var preset=new WetTyreRacePresets().Get(name,laps);
+        return preset with{Configuration=preset.Configuration with{
+            Weather=name=="restricted-equal"?new(MeanRain:0,Volatility:0,InitialWetness:.8,DryingPerSecond:.01,SourceVersion:"weather-reaction-drying-browser-v1")
+                :new(MeanRain:1,Volatility:0,WettingPerSecond:.01,SourceVersion:"weather-reaction-browser-v1"),
+            WeatherReactions=new(DryBoundary:.2,Hysteresis:.02)}};
+    }
+}
