@@ -14,6 +14,17 @@ public sealed class WetWeekendStartTests
   Assert.Equal(first.Ranking,Qualifying.Resolve(input with{Choices=input.Choices.Reverse().ToArray()}).Ranking);
   Assert.Throws<ArgumentException>(()=>Qualifying.Resolve(input with{Conditions=input.Conditions with{Observed=input.Conditions.Observed with{Wetness=0}}}));
  }
+ [Fact] public void Wet_opening_uses_the_shared_earliest_weather_reaction_boundary()
+ {
+  var weekend=WeekendPreparation.Prepare(WeekendPresetCatalog.Open("track-monza"),6,new(0,0,0));
+  var config=weekend.Configuration with{Weather=new(MeanRain:1,Volatility:0,InitialWetness:0,WettingPerSecond:.01,DryingPerSecond:0),WetTyres=new(),WeatherReactions=new()};
+  var grid=weekend.Cars.Select((c,i)=>new StartGridSlot(i+1,c.Source.EntryId)).ToArray();
+  var input=new AutomaticStartInput(config,[weekend],grid,17,new(),ModelVersion:AutomaticRaceStart.WetModelVersion,StartingCompounds:grid.ToDictionary(g=>g.EntryId,g=>TyreCompound.Intermediate));
+  var opening=AutomaticRaceStart.Create(input);
+  Assert.NotNull(opening.Opening.WeatherReaction);Assert.Null(opening.Opening.Interruption);
+  Assert.Equal(28,opening.Opening.Time,6);Assert.Equal(0,opening.Opening.LeaderLap);
+  Assert.Equal(AutomaticRaceStart.OutcomeHash(opening.Opening),AutomaticRaceStart.OutcomeHash(AutomaticRaceStart.Replay(new(input,AutomaticRaceStart.OutcomeHash(opening.Opening),"frozen")).Opening));
+ }
  [Fact] public void Starting_compounds_are_separate_immutable_inputs_and_survive_opening_replay()
  {
   var weekend=WeekendPreparation.Prepare(WeekendPresetCatalog.Open("track-monza"),6,new(0,0,0));
