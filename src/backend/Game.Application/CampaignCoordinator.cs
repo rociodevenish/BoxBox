@@ -5,7 +5,7 @@ using Game.Domain;
 namespace Game.Application;
 
 /// <summary>Durable campaign orchestration over the public household weekend operations.</summary>
-public sealed class CampaignCoordinator(SessionCoordinator weekends,ICampaignStore store)
+public sealed partial class CampaignCoordinator(SessionCoordinator weekends,ICampaignStore store)
 {
     public const string Schema="campaign-record-v1";
     public const string ContentVersion="preset-campaign-v1/provisional-2026.10.08";
@@ -17,6 +17,7 @@ public sealed class CampaignCoordinator(SessionCoordinator weekends,ICampaignSto
         if(input is null||!Guid.TryParse(input.CommandId,out var command)||command==Guid.Empty||string.IsNullOrWhiteSpace(input.Name)||input.Name.Trim().Length>40
             ||input.Calendar!="short"||input.Mode is not("Competitive" or "Family" or "Mixed")||input.Laps is not(6 or 10 or 20 or 40 or 50))
             throw new SessionFault(SessionFailure.InvalidInput,"Choose the short fixture calendar, a player name, supported distance and privacy mode. Full calendar awaits an approved manifest.");
+        try{_=ChampionshipScoring.Score(input.Points??ChampionshipScoring.Default,[],[]);}catch(ArgumentException){throw new SessionFault(SessionFailure.InvalidInput,"Supply a named nonnegative points table.");}
         var id=Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(identity.Uid+"/"+command.ToString("D"))))[..32].ToLowerInvariant();
         var fingerprint=JsonSerializer.Serialize(input with{CommandId=command.ToString("D"),Name=input.Name.Trim()});
         lock(gate)
@@ -25,7 +26,7 @@ public sealed class CampaignCoordinator(SessionCoordinator weekends,ICampaignSto
             if(saved is null)
             {
                 var content=weekends.FreezeCampaignContent(id,input.Laps);
-                var record=new CampaignRecord(Schema,id,identity.Uid,fingerprint,input,1,"created",ContentVersion,CalendarVersion,content.Calendar,content.Teams,content.Presets,content.Conditions);
+                var record=new CampaignRecord(Schema,id,identity.Uid,fingerprint,input,1,"created",ContentVersion,CalendarVersion,content.Calendar,content.Teams,content.Presets,content.Conditions,Points:input.Points??ChampionshipScoring.Default);
                 try{Write(id,null,record);}catch(SessionFault fault) when(fault.Failure==SessionFailure.Conflict){ }
                 saved=Require(id);
             }
@@ -37,7 +38,7 @@ public sealed class CampaignCoordinator(SessionCoordinator weekends,ICampaignSto
     }
     public CampaignSnapshot Snapshot(string id,AuthIdentity identity,string deviceId)
     {
-        lock(gate){var saved=Require(id);_=weekends.LobbyMembership(saved.Record.Calendar[saved.Record.EventIndex].SessionId,identity,deviceId);return Project(saved.Record);}
+        lock(gate){var saved=Require(id);_=weekends.LobbyMembership(saved.Record.Calendar[saved.Record.EventIndex].SessionId,identity,deviceId);return Project(CommitFinished(saved).Record);}
     }
     public CampaignSnapshot Prepare(string id,AuthIdentity identity)
     {
@@ -57,6 +58,7 @@ public sealed class CampaignCoordinator(SessionCoordinator weekends,ICampaignSto
         lock(gate)
         {
             var saved=RequireHost(id,identity);var record=saved.Record;var current=record.Calendar[record.EventIndex];
+            if((record.Contributions??[]).Any(c=>c.EventId==current.EventId))return Project(record);
             // Commit the stable operation identity before calling the weekend. A lost acknowledgement or restart retries this same operation/session.
             if(record.StartCommandId is null)
             {
@@ -79,7 +81,7 @@ public sealed class CampaignCoordinator(SessionCoordinator weekends,ICampaignSto
         IReadOnlyList<PreparationReadiness> readiness=lobby.Lifecycle=="lobby"?[]:weekends.PreparationPublic(current.SessionId).Readiness;
         var lifecycle=CampaignRules.Lifecycle(record.Lifecycle,lobby.Lifecycle);
         return new(record.CampaignId,record.Revision,lifecycle,record.ContentVersion,record.CalendarVersion,record.Input.Mode,record.Calendar,record.Teams,
-            record.EventIndex,current.SessionId,readiness,CampaignRules.CanStart(lifecycle,readiness.Select(t=>t.FinalReady).ToArray()));
+            record.EventIndex,current.SessionId,readiness,CampaignRules.CanStart(lifecycle,readiness.Select(t=>t.FinalReady).ToArray()),Points:record.Points??ChampionshipScoring.Default,Standings:ChampionshipScoring.Rebuild(Entrants(record), (record.Contributions??[]).Select(c=>(IReadOnlyList<ChampionshipAward>)c.Awards)),Results:record.Contributions??[]);
     }
     private StoredCampaign RequireHost(string id,AuthIdentity identity){var saved=Require(id);if(saved.Record.HostUid!=identity.Uid)throw new SessionFault(SessionFailure.Forbidden,"Only this campaign's host can begin an event.");return saved;}
     private StoredCampaign Require(string id)=>ReadOptional(id)??throw new SessionFault(SessionFailure.Unavailable,"Campaign unavailable.");

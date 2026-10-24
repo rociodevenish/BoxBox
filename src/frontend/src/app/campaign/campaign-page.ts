@@ -5,10 +5,15 @@ import type {User} from 'firebase/auth';
 import {apiUrl} from '../api-url';
 interface Event {eventId:string;order:number;trackId:string;trackName:string;trackSlug:string}
 interface Team {teamId:string;constructorName:string;drivers:{personId:string;name:string;slug:string}[]}
-interface Campaign {campaignId:string;lifecycle:string;contentVersion:string;calendarVersion:string;mode:string;calendar:Event[];teams:Team[];eventIndex:number;weekendId:string;canStart:boolean;readiness:{teamId:string;finalReady:boolean}[]}
+interface Standing {id:string;position:number;points:number}
+interface Result {eventId:string;result:{hash:string;classification:{personId:string;position:number;status:string;laps:number;eligible:boolean}[]};awards:{personId:string;points:number}[]}
+interface Campaign {campaignId:string;lifecycle:string;contentVersion:string;calendarVersion:string;mode:string;calendar:Event[];teams:Team[];eventIndex:number;weekendId:string;canStart:boolean;readiness:{teamId:string;finalReady:boolean}[];points:{version:string;byPosition:number[]};standings:{drivers:Standing[];constructors:Standing[]};results:Result[]}
 interface Joined {campaign:Campaign;weekend:{lobby:{sessionId:string};membership:{deviceId:string}}}
 @Component({selector:'app-campaign-page',templateUrl:'./campaign-page.html',styleUrl:'./campaign-page.css'})
 export class CampaignPage {
+ driverName(id:string){return this.campaign()?.teams.flatMap(t=>t.drivers).find(d=>d.personId===id)?.name??id;}
+ teamName(id:string){return this.campaign()?.teams.find(t=>t.teamId===id)?.constructorName??id;}
+ awarded(result:Result,id:string){return result.awards.find(a=>a.personId===id)?.points??0;}
  trackImage(id:string){return tracks.tracks.find(track=>track.id===id)?.url??'';}
  portrait(id:string){const asset=portraits.portraits.find(driver=>'driver-'+driver.driverId===id);return asset?'/'+asset.runtimeUrl:'';}
  readonly campaign=signal<Campaign|null>(null);readonly user=signal<User|null>(null);readonly error=signal('');readonly busy=signal(false);readonly ready=signal(false);
@@ -38,4 +43,3 @@ export class CampaignPage {
  async begin(){await this.change('/start',{commandId:this.start});}
  private async change(path:string,input:unknown){await this.run(async()=>{this.campaign.set(await this.request<Campaign>('/api/campaigns/'+this.campaign()!.campaignId+path,input));});}
 }
-
