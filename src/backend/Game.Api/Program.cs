@@ -11,7 +11,18 @@ builder.Services.AddSignalR();
 builder.Services.AddSingleton<FirebaseIdentity>();
 builder.Services.AddSingleton<HouseholdSubscriptions>();
 builder.Services.AddSingleton<ISessionNotifications, SessionNotifications>();
-builder.Services.AddSingleton<IRacePresets,DryRacePresets>();
+if(builder.Configuration["Weather:Policy"] is {Length:>0} weatherPolicy)
+{
+    if(weatherPolicy!=WeatherWeekendPresets.ContentVersion)throw new InvalidOperationException("Unknown Weather:Policy version.");
+    var weatherProfile=builder.Configuration["Weather:Profile"];
+    if(string.IsNullOrWhiteSpace(weatherProfile))throw new InvalidOperationException("Weather:Profile is required for the configured Weather:Policy.");
+    builder.Services.AddSingleton<IRacePresets>(new WeatherWeekendPresets(weatherProfile));
+}
+else
+{
+    if(builder.Configuration["Weather:Profile"] is {Length:>0})throw new InvalidOperationException("Weather:Profile requires Weather:Policy.");
+    builder.Services.AddSingleton<IRacePresets,DryRacePresets>();
+}
 if(builder.Configuration["Disruptions:Policy"] is {Length:>0} disruptionPolicy)
 {
     if(disruptionPolicy!=AuthoredDisruptionPolicy.ContentVersion)throw new InvalidOperationException("Unknown Disruptions:Policy version.");
@@ -101,3 +112,4 @@ static void RequireDesigner(HttpContext context, IConfiguration configuration)
         throw new SessionFault(SessionFailure.Forbidden, "Designer diagnostics are disabled or not authorized on this host.");
 }
 public partial class Program;
+
