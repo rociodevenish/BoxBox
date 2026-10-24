@@ -46,3 +46,21 @@ _Avoid_: Rating, Aggression
 
 **Effective Attributes**:
 The supported performance inputs resulting from a car, driver and selected weekend context. Player-facing Simple groups summarize attributes separately.
+
+**Campaign**:
+A season of ordered Grand Prix weekends with continuing team ownership, driver identities and championship results.
+
+**Campaign Calendar**:
+The fixed ordered set of circuit events chosen for a campaign.
+
+**Campaign Event**:
+One scheduled Grand Prix weekend in a campaign, including its preparation and completed race result.
+
+**Event Contribution**:
+One completed campaign event's awarded points and eligible finishing results used in the championship standings.
+
+**Constructors' Championship**:
+The primary campaign competition, combining both drivers' awarded points for each constructor with the defined finishing-position tie-breaks.
+
+**Drivers' Championship**:
+The secondary campaign competition, accumulating awarded points and finishing-position tie-breaks for each driver across events.
