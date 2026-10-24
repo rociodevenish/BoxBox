@@ -8,6 +8,7 @@ public sealed partial class SessionCoordinator
 {
     private EffectiveWeekend ApplyWeekendConditions(Lobby lobby,EffectiveWeekend effective)
     {
+        if(lobby.CampaignConditions is {} frozen)return effective with{Configuration=effective.Configuration with{Weather=frozen.Weather,WetTyres=frozen.WetTyres,WeatherReactions=frozen.WeatherReactions}};
         var configuration=presets.Get(lobby.Input.Preset!,lobby.Input.Laps!.Value).Configuration;
         if(configuration.Weather is null&&configuration.WetTyres is null)return effective;
         return effective with{Configuration=effective.Configuration with{
@@ -29,11 +30,19 @@ public sealed partial class SessionCoordinator
         FrozenPreparationContext? Frozen = null, Dictionary<string, AcceptedFreeze>? FreezeCommands = null);
 
     public PreparationPublicSnapshot BeginPreparation(string id, AuthIdentity identity, BeginPreparationInput input)
+        =>BeginPreparationCore(id,identity,input,null);
+
+    private PreparationPublicSnapshot BeginPreparationCore(string id, AuthIdentity identity, BeginPreparationInput input,IReadOnlyList<WeekendPreset>? frozen)
     {
         mutations.Wait();
         try { lock (gate)
         {
             var lobby = RequireLobby(id); RequireHost(lobby, identity);
+            if(lobby.CampaignPresets is {} campaignPresets)
+            {
+                if(input.CircuitId!=campaignPresets[0].Circuit.Id)throw new SessionFault(SessionFailure.Conflict,"Campaign event circuit is frozen.");
+                frozen=campaignPresets;
+            }
             if (lobby.ModuleState.ContainsKey(PreparationModule))
             {
                 var existing = ReadPreparation(lobby);
@@ -50,7 +59,7 @@ public sealed partial class SessionCoordinator
                 foreach (var (teamId, index) in ConstructorCatalogue.Select((t,i)=>(t.TeamId,i)))
                 {
                     var pair = PreparationDrivers[index];
-                    var opened = WeekendPresetCatalog.Open(input.CircuitId, pair.First, pair.Second);
+                    var opened = frozen is null?WeekendPresetCatalog.Open(input.CircuitId, pair.First, pair.Second):frozen[index];
                     var preset = opened with { Cars = opened.Cars.Select((car,i) => car with
                         { TeamId=teamId, EntryId=$"{teamId}-car-{i+1}" }).ToImmutableArray() };
                     var setup = new WeekendSetup();

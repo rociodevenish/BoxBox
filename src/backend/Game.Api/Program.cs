@@ -42,6 +42,8 @@ else if(builder.Environment.IsDevelopment()&&builder.Configuration["Wakeups:Mode
     builder.Services.AddHostedService<LocalWakeupDelivery>();
 }
 builder.Services.AddSingleton<SessionCoordinator>();
+builder.Services.AddSingleton<ICampaignStore,CampaignStore>();
+builder.Services.AddSingleton<CampaignCoordinator>();
 builder.Services.ConfigureHttpJsonOptions(options => options.SerializerOptions.Converters.Add(new JsonStringEnumConverter()));
 var app = builder.Build();
 app.Use(async(context,next)=>{
@@ -55,7 +57,7 @@ app.UseCors("frontend");
 app.Use(async (context, next) =>
 {
     // Private observations and controller authority must never enter browser/offline caches.
-    if(context.Request.Path.StartsWithSegments("/api/lobbies") || context.Request.Path.StartsWithSegments("/hubs/race") || context.Request.Path.Value?.EndsWith("/team",StringComparison.Ordinal)==true)
+    if(context.Request.Path.StartsWithSegments("/api/campaigns") || context.Request.Path.StartsWithSegments("/api/lobbies") || context.Request.Path.StartsWithSegments("/hubs/race") || context.Request.Path.Value?.EndsWith("/team",StringComparison.Ordinal)==true)
         context.Response.Headers.CacheControl="no-store";
     try { await next(context); }
     catch (SessionFault fault)
@@ -66,6 +68,7 @@ app.Use(async (context, next) =>
     }
 });
 app.MapLobbyEndpoints();
+app.MapCampaignEndpoints();
 app.MapPreparationEndpoints();
 app.MapQualifyingEndpoints();
 app.MapAssistanceEndpoints();
@@ -112,4 +115,3 @@ static void RequireDesigner(HttpContext context, IConfiguration configuration)
         throw new SessionFault(SessionFailure.Forbidden, "Designer diagnostics are disabled or not authorized on this host.");
 }
 public partial class Program;
-
