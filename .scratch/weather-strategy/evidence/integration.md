@@ -1,5 +1,7 @@
 # S10 integration scope
 
+Completed engineering, verification and review: [final record](final/README.md). The sequencing below is the original integration plan; real household measurements remain pending.
+
 Implement S10 from completed S09 on `codex/weather-strategy`. The public session API/SignalR, existing preparation/qualifying/start/Race Phase operations and focused rendered browser are the testing boundaries explicitly approved in the parent spec. Use isolated ticket worktrees, TDD vertical slices and independent merges; 03 and 04 become independently ready after 02, then join at 05.
 
 Weather is one deterministic authoritative simulation-time process. Stable exogenous time identities, bounded wetness/drying, named forecast observations and versioned source inputs must survive strategy changes, subdivision, reads, waiting and recovery. Public current conditions, private uncertain forecasts and hidden future weather/diagnostics have separate allowlisted projections. Keep weather off/null paths byte-compatible with prior dry and S09 replay contracts; no silent reinterpretation of historical versions.

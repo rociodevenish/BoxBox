@@ -12,3 +12,5 @@ Integration branch: `codex/weather-strategy`, based on completed S09 `51c18a5e8d
 | [06 — Weekend and crossover evidence](issues/06-wet-weekend-evidence.md) | ready-for-human ([automated answer/evidence](evidence/06-weekend-evidence.md)); household measurements pending | 05 |
 
 See [integration scope](evidence/integration.md). Individual ticket files are authoritative for their dependency and claim state.
+
+All implementation tickets are integrated. See [final verification and independent reviews](evidence/final/README.md). Live weather is explicitly opt-in; actual household understanding, timing and mixed-trigger clarity remain pending.

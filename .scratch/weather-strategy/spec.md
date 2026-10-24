@@ -1,7 +1,9 @@
 # S10 — Weather strategy
 
-Status: ready-for-agent
+Status: ready-for-human
 Blocked by: incidents, reliability and Safety Cars and its interrupted-phase evidence; weekend preparation and effective attributes; qualifying and automatic race start.
+
+Implementation and independent review are complete. See [final integration evidence](evidence/final/README.md) for passing verification, activation and the outstanding household/hosted acceptance measures.
 
 ## Problem Statement
 
