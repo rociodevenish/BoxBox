@@ -20,6 +20,7 @@ public sealed partial class SessionCoordinator
                 if(state.Paused||wakeup is null||wakeup.Generation!=input.Generation||wakeup.Phase!=input.Phase
                     ||wakeup.WindowRevision!=input.WindowRevision||clock.GetUtcNow()<wakeup.DueUtc)return ProjectQualifying(lobby,state);
                 if(state.Lifecycle=="session-result")state=OpenQualifyingStage(lobby,state);
+                else if(state.Lifecycle=="starting-tyres")state=SettleStartingTyres(lobby,state);
                 else if(state.Lifecycle=="awaiting-decisions")
                 {
                     state=SettleExpiredQualifying(lobby,state) with{Revision=state.Revision+1};
@@ -58,6 +59,7 @@ public sealed partial class SessionCoordinator
         var session=state.Session=="Q1"?"Q2":"Q3";var retain=session=="Q2"?10:0;
         var order=state.Result.Ranking.Where(r=>r.Advances).Select(r=>r.EntryId).ToArray();
         var input=state.Input with{Session=session,Choices=[],PreSessionOrder=order,Rules=new(retain)};
+        if(input.Conditions is not null)input=input with{Conditions=Game.Simulation.Qualifying.SessionConditions(input.Weekends[0].Configuration,input.Seed,session)};
         var revision=state.Revision+1;
         state=state with{Session=session,Input=input,Revision=revision,WindowRevision=revision,Result=null,Locks=[],TimeoutLocks=[],Lifecycle="awaiting-decisions",Remaining=null};
         var required=RequiredQualifyingTeams(lobby,state);
@@ -72,13 +74,13 @@ public sealed partial class SessionCoordinator
         var state=ReadQualifying(lobby);
         if(state.Paused==paused)return ProjectLobby(lobby);
         // Expired choices settle before the pause; accepted locks remain untouched.
-        if(paused&&state.Lifecycle=="awaiting-decisions"&&state.Deadline is {} due&&clock.GetUtcNow()>=due)
+        if(paused&&state.Lifecycle is "awaiting-decisions" or "starting-tyres"&&state.Deadline is {} due&&clock.GetUtcNow()>=due)
         {
-            state=SettleExpiredQualifying(lobby,state);
+            state=state.Lifecycle=="starting-tyres"?SettleStartingTyres(lobby,state):SettleExpiredQualifying(lobby,state);
         }
         var remaining=state.Deadline is {} deadline?Math.Max(0,(deadline-clock.GetUtcNow()).TotalSeconds):state.Remaining;
         state=state with{Paused=paused,Revision=state.Revision+1,Remaining=paused?remaining:null,Deadline=null,Wakeup=null};
-        if(!paused&&state.Lifecycle is "awaiting-decisions" or "session-result")
+        if(!paused&&state.Lifecycle is "awaiting-decisions" or "session-result" or "starting-tyres")
         {
             var next=clock.GetUtcNow().AddSeconds(remaining??(state.Lifecycle=="session-result"?PresentationSeconds:state.TimingPolicy.EffectiveSeconds));
             state=state with{Deadline=next,Wakeup=new(lobby.Id,Guid.NewGuid().ToString("N"),state.Lifecycle=="session-result"?"qualifying-presentation":"qualifying-decision",Stage(state),state.WindowRevision,next)};

@@ -11,7 +11,19 @@ public sealed record QualifyingTeamStatus(string TeamId,bool Locked,string? Sour
 public sealed record QualifyingPublicSnapshot(string SessionId,long Revision,string Session,string Lifecycle,bool Paused,
     string CircuitId,string CircuitName,string CircuitSlug,IReadOnlyList<QualifyingDriver> Drivers,
     IReadOnlyList<QualifyingTeamStatus> Teams,QualifyingResult? Result,DateTimeOffset? DecisionDeadlineUtc,
-    DecisionTimingPolicy TimingPolicy,string RulesVersion,int Retain,string BaselinePolicy,IReadOnlyList<QualifyingResult> Results,IReadOnlyList<QualifyingRank> Grid,long WindowRevision,DateTimeOffset? PresentationDeadlineUtc);
+    DecisionTimingPolicy TimingPolicy,string RulesVersion,int Retain,string BaselinePolicy,IReadOnlyList<QualifyingResult> Results,IReadOnlyList<QualifyingRank> Grid,long WindowRevision,DateTimeOffset? PresentationDeadlineUtc,
+    [property:JsonIgnore(Condition=JsonIgnoreCondition.WhenWritingNull)] CurrentWeather? Weather=null,
+    [property:JsonIgnore(Condition=JsonIgnoreCondition.WhenWritingNull)] QualifyingConditions? Conditions=null,
+    [property:JsonIgnore(Condition=JsonIgnoreCondition.WhenWritingNull)] bool? WetTyresEnabled=null,
+    [property:JsonIgnore(Condition=JsonIgnoreCondition.WhenWritingNull)] IReadOnlyList<string>? Compounds=null,
+    [property:JsonIgnore(Condition=JsonIgnoreCondition.WhenWritingNull)] IReadOnlyList<StartingCompoundSuitability>? Suitability=null);
 public sealed record QualifyingTeamSnapshot(string SessionId,string TeamId,long Revision,long AssignmentRevision,string Session,
-    string Lifecycle,bool Locked,IReadOnlyList<QualifyingDriver> EligibleDrivers,IReadOnlyList<QualifyingChoice>? Choices,QualifyingAssistance? Assistance=null,string? Source=null,string? PolicyVersion=null);
+    string Lifecycle,bool Locked,IReadOnlyList<QualifyingDriver> EligibleDrivers,IReadOnlyList<QualifyingChoice>? Choices,QualifyingAssistance? Assistance=null,string? Source=null,string? PolicyVersion=null,
+    [property:JsonIgnore(Condition=JsonIgnoreCondition.WhenWritingNull)] TeamWeatherForecast? Forecast=null,
+    [property:JsonIgnore(Condition=JsonIgnoreCondition.WhenWritingNull)] IReadOnlyList<StartingTyreChoice>? StartingCompounds=null,
+    [property:JsonIgnore(Condition=JsonIgnoreCondition.WhenWritingNull)] IReadOnlyList<StartingTyreChoice>? StartingFallback=null);
 public sealed record QualifyingAssistance(string HelpLevel,bool AutoAcceptRecommendation,string Session,long WindowRevision,string PolicyVersion,[property:JsonIgnore(Condition=JsonIgnoreCondition.WhenWritingNull)] IReadOnlyList<QualifyingPolicyCar>? Cars);
+
+public sealed record StartingTyreChoice(string EntryId,string Compound);
+public sealed record StartingTyresCommand(string CommandId,long? Revision,long? AssignmentRevision,IReadOnlyList<StartingTyreChoice>? Choices);
+public sealed record StartingCompoundSuitability(string Compound,string Assessment);

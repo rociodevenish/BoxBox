@@ -6,6 +6,14 @@ namespace Game.Application;
 
 public sealed partial class SessionCoordinator
 {
+    private EffectiveWeekend ApplyWeekendConditions(Lobby lobby,EffectiveWeekend effective)
+    {
+        var configuration=presets.Get(lobby.Input.Preset!,lobby.Input.Laps!.Value).Configuration;
+        if(configuration.Weather is null&&configuration.WetTyres is null)return effective;
+        return effective with{Configuration=effective.Configuration with{
+            Weather=configuration.Weather is {} weather?WeekendPresetCatalog.WeatherInputs(effective,weather):null,
+            WetTyres=configuration.WetTyres,WeatherReactions=configuration.WeatherReactions}};
+    }
     private const string PreparationModule = "weekend-preparation-v1";
     private sealed record AcceptedSetup(string Fingerprint, SetupAck Ack);
     private sealed record PreparedTeam(WeekendPreset Preset, WeekendSetup Setup, EffectiveWeekend Effective,
@@ -43,7 +51,7 @@ public sealed partial class SessionCoordinator
                     var preset = opened with { Cars = opened.Cars.Select((car,i) => car with
                         { TeamId=teamId, EntryId=$"{teamId}-car-{i+1}" }).ToImmutableArray() };
                     var setup = new WeekendSetup();
-                    teams.Add(teamId,new(preset,setup,WeekendPreparation.Prepare(preset,lobby.Input.Laps!.Value,setup),1,"provisional",[]));
+                    teams.Add(teamId,new(preset,setup,ApplyWeekendConditions(lobby,WeekendPreparation.Prepare(preset,lobby.Input.Laps!.Value,setup)),1,"provisional",[]));
                 }
             }
             catch (ArgumentException error) { throw new SessionFault(SessionFailure.InvalidInput,error.Message); }
@@ -88,7 +96,7 @@ public sealed partial class SessionCoordinator
             if(lobby.Lifecycle!="preparing" || team.Lifecycle is not ("provisional" or "assessed"))
                 throw new SessionFault(SessionFailure.Conflict,"Setup is not editable in this lifecycle.");
             if(command.Revision!=team.Revision)throw new SessionFault(SessionFailure.Conflict,"Setup changed. Recover the saved revision before editing.");
-            var effective=WeekendPreparation.Prepare(team.Preset,lobby.Input.Laps!.Value,command.Setup);
+            var effective=ApplyWeekendConditions(lobby,WeekendPreparation.Prepare(team.Preset,lobby.Input.Laps!.Value,command.Setup));
             var next=team with {Setup=command.Setup,Effective=effective,Revision=team.Revision+1};
             var ack=new SetupAck(key,id,teamId,next.Revision,next.Lifecycle);
             next.Commands[key]=new(fingerprint,ack); state.Teams[teamId]=next;
@@ -258,7 +266,7 @@ public sealed partial class SessionCoordinator
             team.Practice is null?null:new(team.Practice.Result.Feedback.ModelVersion,team.Practice.Setup,
                 team.Practice.Result.Feedback.CircuitFeedback,team.Practice.Result.Feedback.Drivers));
 
-    private static PreparedTeam PrepareAutomaticTeam(Lobby lobby,PreparedTeam team)
+    private PreparedTeam PrepareAutomaticTeam(Lobby lobby,PreparedTeam team)
     {
         var provisionalObservation=ObservePreparation(team);
         var provisional=PreparationDecisionPolicy.Evaluate(provisionalObservation);
@@ -266,7 +274,7 @@ public sealed partial class SessionCoordinator
         var assessed=team with{Setup=provisional.Setup,Practice=new(team.Preset,lobby.Input.Laps.Value,provisional.Setup,
             lobby.Input.Seed.Value,WeekendPreparation.PracticeModelVersion,result)};
         var finalObservation=ObservePreparation(assessed);var final=PreparationDecisionPolicy.Evaluate(finalObservation);
-        return assessed with{Setup=final.Setup,Effective=WeekendPreparation.Prepare(team.Preset,lobby.Input.Laps.Value,final.Setup),
+        return assessed with{Setup=final.Setup,Effective=ApplyWeekendConditions(lobby,WeekendPreparation.Prepare(team.Preset,lobby.Input.Laps.Value,final.Setup)),
             Lifecycle="final-ready",Revision=team.Revision+3,Source="unclaimed-ai",
             AutomaticChoices=[new("provisional",provisionalObservation,provisional),new("final",finalObservation,final)]};
     }
