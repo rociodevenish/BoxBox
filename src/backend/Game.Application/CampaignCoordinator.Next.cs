@@ -1,0 +1,67 @@
+namespace Game.Application;
+public sealed partial class CampaignCoordinator
+{
+ public CampaignSnapshot PrepareNext(string id,AuthIdentity identity)
+ {
+  lock(gate)
+  {
+   var saved=CommitFinished(RequireHost(id,identity));var record=saved.Record;
+   if(!(record.Contributions??[]).Any(c=>c.EventId==record.Calendar[record.EventIndex].EventId)||record.EventIndex+1>=record.Calendar.Length)
+    throw new SessionFault(SessionFailure.Conflict,"Commit this event before preparing the next circuit.");
+   if(record.PreparationEventIndex is null)
+   {
+    record=record with{PreparationEventIndex=record.EventIndex+1,Revision=record.Revision+1};
+    try{Write(id,saved.Version,record);}catch(SessionFault fault) when(fault.Failure==SessionFailure.Conflict){}
+    record=RequireHost(id,identity).Record;
+   }
+   EnsureNext(record,identity);return Project(record);
+  }
+ }
+ private void EnsureNext(CampaignRecord record,AuthIdentity identity)
+ {
+  if(record.PreparationEventIndex is not {} index)return;
+  var next=record.Calendar[index];
+  weekends.EnsureNextCampaignLobby(record.Calendar[index-1].SessionId,next.SessionId,identity,
+   record.FrozenPresets[next.EventId],record.EventConditions[next.EventId]);
+  weekends.BeginCampaignPreparation(next.SessionId,identity,record.FrozenPresets[next.EventId]);
+ }
+ public JoinedLobby Return(string id,AuthIdentity identity,CampaignReturnInput input)
+ {
+  lock(gate)
+  {
+   var record=Require(id).Record;
+   var index=input.NextEvent?record.PreparationEventIndex??throw new SessionFault(SessionFailure.Conflict,"Next-event preparation has not opened."):record.EventIndex;
+   return weekends.ReturnCampaignMember(record.Calendar[0].SessionId,record.Calendar[index].SessionId,identity,input.DeviceId);
+  }
+ }
+ public CampaignSnapshot StartNext(string id,AuthIdentity identity,CampaignStartInput input)
+ {
+  if(input is null||!Guid.TryParse(input.CommandId,out var command)||command==Guid.Empty)throw new SessionFault(SessionFailure.InvalidInput,"Supply a start command identity.");
+  lock(gate)
+  {
+   var saved=RequireHost(id,identity);var record=saved.Record;
+   if(record.PreparationEventIndex is {} index)
+   {
+    EnsureNext(record,identity);weekends.RefreshCampaignWeekend(record.Calendar[index].SessionId);var readiness=weekends.PreparationPublic(record.Calendar[index].SessionId);
+    if(!readiness.Readiness.All(t=>t.FinalReady))throw new SessionFault(SessionFailure.Conflict,"Every assigned team must be final-ready before opening the next weekend.");
+    record=record with{EventIndex=index,PreparationEventIndex=null,StartCommandId=null,AdvanceCommandId=command.ToString("D"),Lifecycle="event-preparation",Revision=record.Revision+1};
+    try{Write(id,saved.Version,record);}catch(SessionFault fault) when(fault.Failure==SessionFailure.Conflict){record=RequireHost(id,identity).Record;if(record.EventIndex!=index)throw;}
+   }
+   else if(record.AdvanceCommandId is null)throw new SessionFault(SessionFailure.Conflict,"Open next-event preparation first.");
+   for(var attempt=0;attempt<8;attempt++)
+   {
+    try{weekends.ActivateCampaignWeekend(record.Calendar[record.EventIndex].SessionId,identity);return Start(id,identity,new(record.AdvanceCommandId!));}
+    catch(SessionFault fault) when(fault.Failure==SessionFailure.Conflict&&attempt<7){record=RequireHost(id,identity).Record;weekends.RefreshCampaignWeekend(record.Calendar[record.EventIndex].SessionId);}
+   }
+   throw new SessionFault(SessionFailure.Conflict,"Campaign changed concurrently. Refresh and retry.");
+  }
+ }
+ private CampaignNextPreparation? NextProjection(CampaignRecord record)
+ {
+  if(record.PreparationEventIndex is not {} index)return null;
+  var next=record.Calendar[index];
+  // A reserved intent may outlive an interrupted creation. Host PrepareNext retries it.
+  try{weekends.RefreshCampaignWeekend(next.SessionId);var ready=weekends.PreparationPublic(next.SessionId).Readiness;return new(next.EventId,next.SessionId,next.TrackName,ready,ready.All(t=>t.FinalReady));}
+  catch(SessionFault fault) when(fault.Failure is SessionFailure.Unavailable or SessionFailure.Conflict){return new(next.EventId,next.SessionId,next.TrackName,[],false);}
+ }
+}

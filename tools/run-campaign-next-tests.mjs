@@ -1,0 +1,2 @@
+import {runBounded} from './run-bounded.mjs';
+const r=await runBounded('dotnet',['test','tests/Game.Api.Tests','--filter',process.env.F1_CAMPAIGN_NEXT_FILTER??'FullyQualifiedName~CampaignNextEventTests','--nologo','--no-restore','-p:NuGetAudit=false'],{timeoutMs:240000,report:'.tools/reports/campaign-next/api-tests.json',env:{...process.env,FIREBASE_AUTH_EMULATOR_HOST:'127.0.0.1:19599',FIRESTORE_EMULATOR_HOST:'127.0.0.1:19600',F1_RECOVERY_HOST:'127.0.0.1:19600',Wakeups__Mode:'manual'}});process.exit(r.exitCode);

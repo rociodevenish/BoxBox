@@ -14,6 +14,7 @@ interface Joined {lobby:Lobby;membership:Membership}
 class LobbyFailure extends Error {constructor(readonly status:number,message:string){super(message);}}
 @Component({selector:'app-shared-lobby',imports:[AssistanceSettings],templateUrl:'./shared-lobby.html',styleUrl:'./shared-lobby.css'})
 export class SharedLobby {
+ readonly campaignId=localStorage.getItem('weekend-campaign:'+location.pathname.split('/').at(-1));
  readonly pendingQualifying=signal<{commandId:string;revision:number}|null>(null);
  readonly preparation=signal<{revision:number;readiness:{teamId:string;finalReady:boolean}[]}|null>(null);
  private preparationSubscribed=false;

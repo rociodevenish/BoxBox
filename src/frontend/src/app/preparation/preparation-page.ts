@@ -20,6 +20,7 @@ interface Command {commandId:string;revision:number;assignmentRevision:number;se
 class Failure extends Error {constructor(readonly status:number,message:string){super(message);}}
 @Component({selector:'app-preparation-page',imports:[DriverCard],templateUrl:'./preparation-page.html',styleUrl:'./preparation-page.css'})
 export class PreparationPage {
+ readonly campaignId=localStorage.getItem('weekend-campaign:'+location.pathname.split('/')[2]);
  readonly id=location.pathname.split('/')[2];readonly params=new URL(location.href).searchParams;
  readonly shared=this.params.get('shared')==='1';readonly openTeam=this.params.get('open')??'';readonly display=!this.params.has('team')&&!this.shared;
  readonly publicState=signal<PublicSnapshot|null>(null);readonly team=signal<TeamSnapshot|null>(null);readonly assignments=signal<Assignment[]>([]);readonly selected=signal(this.params.get('team')??'');readonly nextTeam=signal('');readonly draft=signal<Setup|null>(null);readonly error=signal('');readonly status=signal('Connecting');readonly busy=signal(false);readonly imageFailed=signal(false);readonly pending=signal<Command|null>(null);readonly pendingPractice=signal<PracticeCommand|null>(null);readonly pendingFinal=signal<{operation:'confirm'|'reopen';command:PracticeCommand}|null>(null);
