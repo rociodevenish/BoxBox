@@ -12,10 +12,10 @@
   </section>
  }
  @if(campaign();as season){
-  <section><h2>{{season.lifecycle==='active-weekend'?'Weekend active':season.lifecycle==='event-preparation'?'Event preparation':'Campaign created'}}</h2>
+  <section><h2>{{season.lifecycle==='event-result-committed'?'Event result committed':season.lifecycle==='active-weekend'?'Weekend active':season.lifecycle==='event-preparation'?'Event preparation':'Campaign created'}}</h2>
    <p>{{season.mode}} privacy · Preset rosters and neutral cars remain fixed.</p>
    <p class="version">Short fixture · Provisional game content</p>
-   <button (click)="refresh()" [disabled]="busy()">Refresh readiness</button>
+   <button (click)="refresh()" [disabled]="busy()">Refresh campaign</button>
    <a [href]="'/shared/lobby/'+season.weekendId">Household assignments and control</a>
   </section>
   <section><h2>Calendar</h2><div class="calendar">@for(event of season.calendar;track event.eventId){
@@ -37,9 +37,13 @@
    </section>
   }
   @if(season.lifecycle==='active-weekend'){<section><h2>First weekend</h2><a [href]="'/qualifying/'+season.weekendId">Open qualifying</a><a [href]="'/race/display/'+season.weekendId">Public race display</a></section>}
+  @if(season.results.length){
+   <section><h2>Championship standings</h2><p>Game points by raw position: {{season.points.byPosition.join(' / ')}}. No fastest-lap bonus. Retired or ineligible entries score zero; other entries keep their original positions.</p><p>Equal points: counts of higher eligible finishes, then fixed campaign starting order.</p>
+    <h3>Constructors' Championship</h3><ol>@for(row of season.standings.constructors;track row.id){<li>{{row.position}}. {{teamName(row.id)}} · {{row.points}} points</li>}</ol>
+    <h3>Drivers' Championship</h3><ol>@for(row of season.standings.drivers;track row.id){<li>{{row.position}}. {{driverName(row.id)}} · {{row.points}} points</li>}</ol>
+   </section>
+   @for(report of season.results;track report.eventId){<section><h2>Event report</h2><p>Committed result · {{season.points.version}}</p><ol>@for(row of report.result.classification;track row.personId){<li>{{row.position}}. {{driverName(row.personId)}} · {{row.status}} · {{row.laps}} laps · {{awarded(report,row.personId)}} points</li>}</ol></section>}
+  }
   <section><h2>Frozen preset roster</h2><div class="roster">@for(team of season.teams;track team.teamId){<article><h3>{{team.constructorName}}</h3>@for(driver of team.drivers;track driver.personId){<p><img class="portrait" [src]="portrait(driver.personId)" alt="" (error)="$any($event.target).hidden=true">{{driver.name}}</p>}</article>}</div></section>
  }
 </main>
-
-
-
