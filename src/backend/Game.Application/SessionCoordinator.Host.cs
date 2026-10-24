@@ -36,7 +36,7 @@ public sealed partial class SessionCoordinator
   session.RequiredTeams=session.RequiredTeams.Where(team=>ExpectedCommandDrivers(session,team).Length>0).ToArray();
   session.Revision++;session.WindowRevision=session.Revision;session.Lifecycle="awaiting-decisions";
   session.ConfirmedPlan=null;session.Locks.Clear();session.HumanDecisions.Clear();
-  session.FrozenOpponents=OpponentScript.Freeze(session.Engine,session.Drivers.Select(driver=>driver.Team).Distinct().Where(team=>!session.RequiredTeams.Contains(team)),session.Configuration.Laps,session.ScriptVersion);
+  session.FrozenOpponents=OpponentScript.Freeze(session.Engine,session.Drivers.Select(driver=>driver.Team).Distinct().Where(team=>!session.RequiredTeams.Contains(team)),session.Configuration.Laps,session.ScriptVersion,session.Configuration.WetTyres is not null);
   if(session.WindowKind=="SafetyCar")session.FrozenOpponents=FreezeSafetyCar(session,session.Drivers.Select(driver=>driver.Team).Distinct().Where(team=>!session.RequiredTeams.Contains(team)));
   if(session.WindowKind=="Weather")session.FrozenOpponents=FreezeWeather(session,session.Drivers.Select(driver=>driver.Team).Distinct().Where(team=>!session.RequiredTeams.Contains(team)));
   session.WindowTimestamp=System.Diagnostics.Stopwatch.GetTimestamp();

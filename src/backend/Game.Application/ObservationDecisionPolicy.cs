@@ -2,7 +2,7 @@ using Game.Domain;
 namespace Game.Application;
 
 public record ObservationDecisionInput(int Phase, int TotalLaps, TeamObservation Observation,
-    IReadOnlyList<RaceTimingEntry> Timing);
+    IReadOnlyList<RaceTimingEntry> Timing, bool WetTyresEnabled=false, bool SafetyCarActive=false);
 public record CarDecisionAdvice(string DriverId, DriverDecision Decision, IReadOnlyList<string> Reasons,
     string Uncertainty, IReadOnlyList<PaceInstruction> PaceOptions, IReadOnlyList<TyreCompound?> PitOptions,
     IReadOnlyList<BattleInstruction> BattleOptions, bool Confident);
@@ -15,6 +15,7 @@ public static class ObservationDecisionPolicy
     public const string Version="dry-observation-ai-v2";
     public static ObservationDecisionPlan Evaluate(ObservationDecisionInput input)
     {
+        if(input.WetTyresEnabled && input.Observation.Weather is not null)return WeatherDecisionPolicy.Evaluate(input);
         var cars=new List<CarDecisionAdvice>();
         foreach(var tyre in input.Observation.TeamTyres.OrderBy(t=>t.DriverId,StringComparer.Ordinal))
         {
@@ -35,7 +36,7 @@ public static class ObservationDecisionPolicy
             else if(row.FinishTime is null && remaining>0 && (needsDifferent && (row.Laps>=input.TotalLaps/2 || leaderRemaining<=10)
                 || tyre.EstimatedCondition<.38 && remaining>3))
             {
-                pit=Enum.GetValues<TyreCompound>().Where(c=>c!=tyre.Compound)
+                pit=new[]{TyreCompound.Soft,TyreCompound.Medium,TyreCompound.Hard}.Where(c=>c!=tyre.Compound)
                     .OrderBy(c=>needsDifferent && used.Contains(c)?1:0)
                     .ThenBy(c=>remaining<=8?(c==TyreCompound.Soft?0:1):(c==TyreCompound.Hard?0:1)).ThenBy(c=>c).First();
                 reasons.Add(needsDifferent?"Use a different dry compound before the finish to satisfy the race rule.":"Estimated tyre condition is low enough to consider fresh tyres.");
@@ -57,5 +58,3 @@ public static class ObservationDecisionPolicy
         return new(input.Phase,input.Observation.Time,Version,cars.AsReadOnly());
     }
 }
-
-

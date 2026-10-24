@@ -21,7 +21,9 @@ public sealed record QualifyingTeamSnapshot(string SessionId,string TeamId,long 
     string Lifecycle,bool Locked,IReadOnlyList<QualifyingDriver> EligibleDrivers,IReadOnlyList<QualifyingChoice>? Choices,QualifyingAssistance? Assistance=null,string? Source=null,string? PolicyVersion=null,
     [property:JsonIgnore(Condition=JsonIgnoreCondition.WhenWritingNull)] TeamWeatherForecast? Forecast=null,
     [property:JsonIgnore(Condition=JsonIgnoreCondition.WhenWritingNull)] IReadOnlyList<StartingTyreChoice>? StartingCompounds=null,
-    [property:JsonIgnore(Condition=JsonIgnoreCondition.WhenWritingNull)] IReadOnlyList<StartingTyreChoice>? StartingFallback=null);
+    [property:JsonIgnore(Condition=JsonIgnoreCondition.WhenWritingNull)] IReadOnlyList<StartingTyreChoice>? StartingFallback=null,
+    [property:JsonIgnore(Condition=JsonIgnoreCondition.WhenWritingNull)] StartingTyreGuidance? StartingGuidance=null);
+public sealed record StartingTyreGuidance(string HelpLevel,bool AutoAcceptRecommendation,string PolicyVersion,string Explanation,IReadOnlyList<StartingTyreChoice>? Suggested,IReadOnlyList<string> Options);
 public sealed record QualifyingAssistance(string HelpLevel,bool AutoAcceptRecommendation,string Session,long WindowRevision,string PolicyVersion,[property:JsonIgnore(Condition=JsonIgnoreCondition.WhenWritingNull)] IReadOnlyList<QualifyingPolicyCar>? Cars);
 
 public sealed record StartingTyreChoice(string EntryId,string Compound);

@@ -45,7 +45,7 @@
         <h2 id="events-title">Public race events</h2>
         @if(result().state === 'initial'){
         <p>No race events published yet.</p>
-        }@else if(result().state === 'awaiting'){
+        }@else if(result().state === 'awaiting' && result().events.length === 0){
         <p>New decision window open. Waiting for published events.</p>
         }@else if(result().state === 'resolving'){
         <p>Waiting for published race events.</p>

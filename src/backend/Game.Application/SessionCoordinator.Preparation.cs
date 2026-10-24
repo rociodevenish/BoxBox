@@ -18,7 +18,8 @@ public sealed partial class SessionCoordinator
     private sealed record AcceptedSetup(string Fingerprint, SetupAck Ack);
     private sealed record PreparedTeam(WeekendPreset Preset, WeekendSetup Setup, EffectiveWeekend Effective,
         long Revision, string Lifecycle, Dictionary<string, AcceptedSetup> Commands, RecordedPractice? Practice = null,
-        string Source = "human",IReadOnlyList<RecordedPreparationChoice>? AutomaticChoices=null);
+        string Source = "human",IReadOnlyList<RecordedPreparationChoice>? AutomaticChoices=null,
+        CurrentWeather? Observed=null,TeamWeatherForecast? Forecast=null);
     private sealed record RecordedPractice(WeekendPreset Preset, int Laps, WeekendSetup Setup, int Seed,
         string ModelVersion, PracticeAssessment Result);
     private sealed record AcceptedFreeze(string Fingerprint, FreezePreparationAck Ack);
@@ -51,7 +52,11 @@ public sealed partial class SessionCoordinator
                     var preset = opened with { Cars = opened.Cars.Select((car,i) => car with
                         { TeamId=teamId, EntryId=$"{teamId}-car-{i+1}" }).ToImmutableArray() };
                     var setup = new WeekendSetup();
-                    teams.Add(teamId,new(preset,setup,ApplyWeekendConditions(lobby,WeekendPreparation.Prepare(preset,lobby.Input.Laps!.Value,setup)),1,"provisional",[]));
+                    var effective=ApplyWeekendConditions(lobby,WeekendPreparation.Prepare(preset,lobby.Input.Laps!.Value,setup));
+                    var tuning=effective.Configuration.Weather;
+                    var observed=tuning is null?null:CircuitWeather.Observe(tuning,lobby.Input.Seed!.Value,tuning.TimeOriginSeconds);
+                    teams.Add(teamId,new(preset,setup,effective,1,"provisional",[],Observed:observed,
+                        Forecast:observed is null?null:CircuitWeather.Forecast(observed,teamId,tuning!.InformationQuality,tuning.ForecastRefreshSeconds)));
                 }
             }
             catch (ArgumentException error) { throw new SessionFault(SessionFailure.InvalidInput,error.Message); }
@@ -256,7 +261,7 @@ public sealed partial class SessionCoordinator
         lobby.ModuleState[PreparationModule]=JsonSerializer.Serialize(state,BrowserReplay.JsonOptions);
     private static PreparationPublicSnapshot ProjectPreparation(Lobby lobby,PreparedLobby state)=>
         new(lobby.Id,lobby.Revision,lobby.Lifecycle,state.Teams.First().Value.Preset.Circuit,state.Teams.Keys.ToArray(),
-            state.Teams.Select(t=>new PreparationReadiness(t.Key,t.Value.Lifecycle is "final-ready" or "locked",t.Value.Lifecycle=="locked")).ToArray());
+            state.Teams.Select(t=>new PreparationReadiness(t.Key,t.Value.Lifecycle is "final-ready" or "locked",t.Value.Lifecycle=="locked")).ToArray(),state.Teams.First().Value.Observed);
     private static PreparationPolicyObservation ObservePreparation(PreparedTeam team)=>
         new(PreparationDecisionPolicy.ObservationVersion,string.Join("|",team.Preset.Version,team.Preset.Circuit.Version,
             team.Preset.Cars[0].Car.Version,team.Preset.Cars[0].Driver.Version,team.Preset.Cars[1].Driver.Version,team.Preset.Engineer.Version),
@@ -295,7 +300,7 @@ public sealed partial class SessionCoordinator
             team.Effective.Summary,team.Effective.SetupModelVersion,
             team.Practice is null ? null : new PracticeSnapshot(team.Practice.Result.Feedback.ModelVersion,
                 team.Practice.Result.Feedback.Setup,team.Practice.Result.Feedback.CircuitFeedback,
-                team.Practice.Result.Feedback.Compromises,team.Practice.Result.Feedback.Drivers),ProjectPreparationGuidance(lobby,team,assignment));
+                team.Practice.Result.Feedback.Compromises,team.Practice.Result.Feedback.Drivers),ProjectPreparationGuidance(lobby,team,assignment),team.Observed,team.Forecast);
 
     // Explicit preset identity; constructor metadata and illustrative card stars never provide coefficients.
     private static readonly (string First,string Second)[] PreparationDrivers = [

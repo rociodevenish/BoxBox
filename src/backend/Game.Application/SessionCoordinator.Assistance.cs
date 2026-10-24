@@ -44,7 +44,7 @@ public sealed partial class SessionCoordinator
     {
         session.ModuleState.Remove("automatic-policy:"+teamId);
         var lobby=RequireLobby(session.Id);var playerId=lobby.Assignments[teamId].PlayerId;var settings=AssistanceSettings(lobby,playerId);
-        var plan=ObservationDecisionPolicy.Evaluate(new(session.Phase,session.Configuration.Laps,session.Engine.GetTeamObservation(teamId),session.Engine.GetTimingObservation()));
+        var plan=ObservationDecisionPolicy.Evaluate(new(session.Phase,session.Configuration.Laps,session.Engine.GetTeamObservation(teamId),session.Engine.GetTimingObservation(),session.Configuration.WetTyres is not null,WeatherSafetyCarActive(session)));
         var cars=plan.Cars.Select(car=>new AssistanceCar(car.DriverId,new(car.DriverId,car.Decision.Pace.ToString(),car.Decision.PitCompound is null?"Stay Out":"Pit",car.Decision.PitCompound?.ToString(),car.Decision.Battle.ToString()),
             car.Reasons,car.Uncertainty,car.PaceOptions.Select(option=>option.ToString()).ToArray(),car.PitOptions.Select(option=>option?.ToString()).ToArray(),car.BattleOptions.Select(option=>option.ToString()).ToArray(),car.Confident)).ToArray();
         var recommendation=new AssistanceRecommendation(session.Phase,session.WindowRevision,plan.ObservationTime,cars,

@@ -77,3 +77,5 @@ app-two-car-controller + button { margin-top: 16px; }
  .public-screen .team-readiness {margin:4px 0;font-size:13px;}
  .public-screen .decision-window {padding:4px 0;}
 }
+
+@media(min-width:1200px){.public-screen .reaction-policy,.public-screen .reaction-control{display:none;}}

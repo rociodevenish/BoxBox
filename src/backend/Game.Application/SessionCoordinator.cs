@@ -29,7 +29,7 @@ public sealed partial class SessionCoordinator(ISessionNotifications notificatio
         public List<IReadOnlyDictionary<string, DriverDecision>> AcceptedPlans { get; } = [];
         public List<RecordedReplayPhase> RecordedPhases { get; } = [];
         public List<RecordedAutomaticPlan> AutomaticPlans { get; } = [];
-        public string ScriptVersion { get; set; } = OpponentScript.Version;
+        public string ScriptVersion { get; set; } = configuration.WetTyres is not null?WeatherDecisionPolicy.Version:OpponentScript.Version;
         public Dictionary<Guid, (string Fingerprint, SubmissionAck Ack)> AcceptedCommands { get; } = [];
         public TeamCommand? ConfirmedPlan { get; set; }
         public Dictionary<string, TeamCommand> Locks { get; } = [];
@@ -75,7 +75,7 @@ public sealed partial class SessionCoordinator(ISessionNotifications notificatio
         var configuration = preset.Configuration.WithExplicitTuning();
         var session = new Session(id, player, device, SHA256.HashData(System.Text.Encoding.UTF8.GetBytes(capability)),
             configuration, preset.Drivers.ToArray(), input.Seed.Value, input);
-        session.FrozenOpponents = OpponentScript.Freeze(session.Engine, session.Drivers.Select(driver => driver.Team).Distinct().Where(team => team != "team-01"), configuration.Laps);
+        session.FrozenOpponents = OpponentScript.Freeze(session.Engine, session.Drivers.Select(driver => driver.Team).Distinct().Where(team => team != "team-01"), configuration.Laps,wetTyresEnabled:configuration.WetTyres is not null);
         session.WindowTimestamp = Stopwatch.GetTimestamp();
         mutations.Wait();
         try { lock (gate) { active = session; Persist(id); } }
@@ -308,7 +308,7 @@ public sealed partial class SessionCoordinator(ISessionNotifications notificatio
             var fresh = result.Events.Skip(session.EngineEventCursor).Select((item, index) => (item, index))
                 .Where(pair => pair.item.Kind is RaceEventKind.Overtake or RaceEventKind.PitEntry or RaceEventKind.PitExit or RaceEventKind.TyreChanged or RaceEventKind.Spin or RaceEventKind.Contact or RaceEventKind.MechanicalFailure or RaceEventKind.Retirement or RaceEventKind.LockUp).ToArray();
             session.EngineEventCursor = result.Events.Count;
-            var selected = fresh.OrderBy(pair => pair.item.Kind is RaceEventKind.Spin or RaceEventKind.Contact or RaceEventKind.MechanicalFailure or RaceEventKind.Retirement ? 0 : pair.item.Kind == RaceEventKind.Overtake ? 1 : 2)
+            var selected = fresh.OrderBy(pair => pair.item.Kind is RaceEventKind.Spin or RaceEventKind.Contact or RaceEventKind.MechanicalFailure or RaceEventKind.Retirement ? 0 : session.Configuration.WetTyres is not null && pair.item.Kind == RaceEventKind.TyreChanged ? 1 : pair.item.Kind == RaceEventKind.Overtake ? 1 : 2)
                 .ThenBy(pair => pair.index).Take(12).OrderBy(pair => pair.index).ToArray();
             var precedingIncidents=operation=="SafetyCar"?session.Events.Where(item=>item.Kind is "Spin" or "Contact" or "MechanicalFailure" or "Retirement").ToArray():[];
             session.Events = Array.AsReadOnly(precedingIncidents.Concat(selected.Select(pair => new PublicEvent(Guid.NewGuid().ToString(),
@@ -322,7 +322,10 @@ public sealed partial class SessionCoordinator(ISessionNotifications notificatio
                 fresh.Length - selected.Length, fresh.Length == 0 ? "Quiet phase: no overtakes or pit events recorded."
                 : $"{overtakes} overtakes · {entries} pit entries · {exits} pit exits · {changes} tyre changes."
                     + (fresh.Length > selected.Length ? $" Showing {selected.Length} highlights of {fresh.Length} recorded events." : ""));
-            if(result.WeatherReaction is {} reaction)session.Presentation=session.Presentation with{Summary=$"Observed conditions changed to {reaction.Band} at {reaction.Time:F1}s. Choose complete instructions for both active cars. Committed stops remain locked."};
+            if(result.WeatherReaction is {} weather)
+                session.Presentation=session.Presentation with{Summary=$"Observed {weather.Band} conditions at {weather.Time:F1}s; both-car tyre choices open."
+                    +(weather.SafetyCarActive?" Safety Car control continues in the same window.":"")
+                    +$" {entries} pit entries · {changes} tyre changes."};
             else if(operation=="SafetyCar")session.Presentation=session.Presentation with{Summary="Safety Car running complete. Racing resumes from current positions with a fresh normal decision window."};
             else if(result.Interruption is {} disruption)session.Presentation=session.Presentation with{Summary=$"Safety Car deployed: {disruption.Kind} observed at {disruption.Time:F1}s. Choose legal pit instructions."};
             session.Lifecycle = result.Finished ? "finished" : "phase-result"; session.Revision++;

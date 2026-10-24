@@ -1,6 +1,7 @@
 import {Component,signal} from '@angular/core';
 import {HubConnection,HubConnectionBuilder} from '@microsoft/signalr';
 import type {User} from 'firebase/auth';
+import type {CurrentWeather,WeatherForecast} from '../race/race-session';
 import {apiUrl} from '../api-url';
 import {DriverCard} from '../ui/driver-card';
 import type {DriverCardViewModel} from '../ui/driver-card.model';
@@ -11,9 +12,9 @@ interface Car {entryId:string;car:{id:string;ratings:Record<string,number>};driv
 interface Assessment {modelVersion:string;setup:Setup;circuitFeedback:string;compromises:string[];drivers:{driverId:string;name:string;fit:string;confidence:string;uncertainty:string;feedback:string}[]}
 interface PracticeCommand {commandId:string;revision:number;assignmentRevision:number}
 interface SetupAck {commandId:string;sessionId:string;teamId:string;revision:number;lifecycle:string}
-interface PublicSnapshot {sessionId:string;revision:number;lifecycle:string;circuit:Circuit;teamIds:string[];readiness:{teamId:string;finalReady:boolean;locked:boolean}[]}
+interface PublicSnapshot {weather?:CurrentWeather;sessionId:string;revision:number;lifecycle:string;circuit:Circuit;teamIds:string[];readiness:{teamId:string;finalReady:boolean;locked:boolean}[]}
 interface Guidance {helpLevel:'Standard'|'Assisted'|'Guided';autoAcceptRecommendation:boolean;recommendation?:{policyVersion:string;observationVersion:string;setup:Setup;reasons:string[];drivers:{driverId:string;name:string;preference:string;adaptability:number;feedback:string}[];uncertainty:string;choiceExplanation:string}|null}
-interface TeamSnapshot {sessionId:string;teamId:string;revision:number;assignmentRevision:number;lifecycle:string;setup:Setup;preset:{cars:Car[];engineer:{name:string;setup:number};baseCarId:string;packageId:string};summary:string;assessment:Assessment|null;guidance?:Guidance}
+interface TeamSnapshot {forecast?:WeatherForecast;sessionId:string;teamId:string;revision:number;assignmentRevision:number;lifecycle:string;setup:Setup;preset:{cars:Car[];engineer:{name:string;setup:number};baseCarId:string;packageId:string};summary:string;assessment:Assessment|null;guidance?:Guidance}
 interface Assignment {teamId:string;constructorName:string;control:string;assignmentRevision:number}
 interface Command {commandId:string;revision:number;assignmentRevision:number;setup:Setup}
 class Failure extends Error {constructor(readonly status:number,message:string){super(message);}}

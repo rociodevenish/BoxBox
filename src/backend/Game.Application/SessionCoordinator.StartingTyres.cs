@@ -8,10 +8,12 @@ public sealed partial class SessionCoordinator
     private sealed record StartingTyreLock(string Source,IReadOnlyList<StartingTyreChoice> Choices);
     private sealed record AcceptedStartingTyres(string Fingerprint,QualifyingAck Ack);
     private sealed record StartingTyreState(CurrentWeather Observed,Dictionary<string,StartingTyreLock> Locks,
-        Dictionary<string,StartingTyreLock> Fallback,Dictionary<string,AcceptedStartingTyres> Commands);
+        Dictionary<string,StartingTyreLock> Fallback,Dictionary<string,AcceptedStartingTyres> Commands,
+        Dictionary<string,TeamWeatherForecast>? Forecasts=null,Dictionary<string,StartingTyreGuidance>? Guidance=null);
     private static TeamWeatherForecast? QualifyingForecast(QualifyingState state,string team)
     {
         var observed=state.StartingTyres?.Observed??state.Input.Conditions?.Observed;
+        if(state.StartingTyres?.Forecasts?.TryGetValue(team,out var saved)==true)return saved;
         var tuning=state.Input.Weekends[0].Configuration.Weather;
         return observed is null||tuning is null?null:CircuitWeather.Forecast(observed,team,tuning.InformationQuality,tuning.ForecastRefreshSeconds);
     }
@@ -24,13 +26,21 @@ public sealed partial class SessionCoordinator
     {
         var tuning=state.Input.Weekends[0].Configuration.Weather!;
         var observed=CircuitWeather.Observe(tuning,state.Input.Seed,tuning.TimeOriginSeconds+540);
-        var fallbackCompound=observed.Wetness<.25?"Medium":observed.Wetness<.7?"Intermediate":"Wet";
+        var fallbackCompound=WeatherDecisionPolicy.StartingCompound(observed).ToString();
         var fallback=AllQualifyingDrivers(state).GroupBy(d=>d.TeamId).ToDictionary(g=>g.Key,g=>new StartingTyreLock("timeout-observation",g.Select(d=>new StartingTyreChoice(d.EntryId,fallbackCompound)).ToArray()));
         var locks=fallback.Where(p=>lobby.ScriptedTeams.Contains(p.Key)).ToDictionary(p=>p.Key,p=>p.Value with{Source="scripted-observation"});
         var revision=state.Revision+1;
         var timing=BuildTimingPolicy(lobby,lobby.RequiredTeams) with{TimeoutPolicy=StartingTyreDisclosure};
         var due=clock.GetUtcNow().AddSeconds(timing.EffectiveSeconds);
-        return state with{StartingTyres=new(observed,locks,fallback,[]),Lifecycle="starting-tyres",Revision=revision,WindowRevision=revision,
+        var forecasts=fallback.Keys.ToDictionary(team=>team,team=>CircuitWeather.Forecast(observed,team,tuning.InformationQuality,tuning.ForecastRefreshSeconds));
+        var guidance=fallback.Keys.ToDictionary(team=>team,team=>{
+            var assignment=lobby.Assignments.GetValueOrDefault(team);
+            var settings=assignment is null?new PlayerAssistanceSettings():AssistanceSettings(lobby,assignment.PlayerId);
+            return new StartingTyreGuidance(settings.HelpLevel,settings.AutoAcceptRecommendation,WeatherDecisionPolicy.Version,
+                "Frozen from observed track wetness. Medium below 25%, Intermediate below 70%, otherwise Wet. Predicted rain and conditions at launch remain uncertain; all five compounds remain available.",
+                settings.HelpLevel=="Standard"?null:fallback[team].Choices,Enum.GetNames<TyreCompound>());
+        });
+        return state with{StartingTyres=new(observed,locks,fallback,[],forecasts,guidance),Lifecycle="starting-tyres",Revision=revision,WindowRevision=revision,
             TimingPolicy=timing,Deadline=state.Paused?null:due,Remaining=state.Paused?timing.EffectiveSeconds:null,
             Wakeup=state.Paused?null:new(lobby.Id,Guid.NewGuid().ToString("N"),"starting-tyres",3,revision,due)};
     }
@@ -39,7 +49,7 @@ public sealed partial class SessionCoordinator
         var tyres=state.StartingTyres!;var accepted=tyres.Locks.GetValueOrDefault(team);
         return new(lobby.Id,team,state.WindowRevision,assignment.Revision,"StartTyres",state.Lifecycle,accepted is not null,
             AllQualifyingDrivers(state).Where(d=>d.TeamId==team).ToArray(),null,null,accepted?.Source,"starting-tyres-observation-v1",
-            QualifyingForecast(state,team),accepted?.Choices,tyres.Fallback.GetValueOrDefault(team)?.Choices);
+            QualifyingForecast(state,team),accepted?.Choices,tyres.Fallback.GetValueOrDefault(team)?.Choices,tyres.Guidance?.GetValueOrDefault(team));
     }
     private QualifyingState SettleStartingTyres(Lobby lobby,QualifyingState state)
     {

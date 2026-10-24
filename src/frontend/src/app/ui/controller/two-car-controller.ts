@@ -40,6 +40,7 @@ export class TwoCarController {
   analyzeDriver(id:string){const driver=this.model().cars.flatMap(car=>car.nearbyDrivers??[]).find(card=>card.id===id);if(driver){this.analyzedDriver.set(driver);this.analysis().nativeElement.showModal();}}
   lapTime(seconds:number){const ms=Math.round(seconds*1000);return Math.floor(ms/60000)+':'+((ms%60000)/1000).toFixed(3).padStart(6,'0');}
   readonly model = input.required<PrivateControllerViewModel>();
+  assistanceNames(){return Object.fromEntries(this.model().cars.map(car=>[car.id,car.name]));}
   readonly submitPlan = output<TeamPlan>();
   readonly choices = signal<readonly CarInstruction[]>([]);
   readonly confirmation =

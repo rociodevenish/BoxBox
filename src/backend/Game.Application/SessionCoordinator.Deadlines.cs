@@ -10,7 +10,7 @@ public sealed partial class SessionCoordinator
     {
         ApplyControlBoundary(session);
         session.RequiredTeams=session.RequiredTeams.Where(team=>ExpectedCommandDrivers(session,team).Length>0).ToArray();
-        session.FrozenOpponents=OpponentScript.Freeze(session.Engine,session.Drivers.Select(driver=>driver.Team).Distinct().Where(team=>!session.RequiredTeams.Contains(team)),session.Configuration.Laps,session.ScriptVersion);
+        session.FrozenOpponents=OpponentScript.Freeze(session.Engine,session.Drivers.Select(driver=>driver.Team).Distinct().Where(team=>!session.RequiredTeams.Contains(team)),session.Configuration.Laps,session.ScriptVersion,session.Configuration.WetTyres is not null);
         if(session.WindowKind=="SafetyCar")
         {
             session.RequiredTeams=session.RequiredTeams.Where(team=>ExpectedCommandDrivers(session,team).Length>0).ToArray();
@@ -19,7 +19,7 @@ public sealed partial class SessionCoordinator
         session.TimingPolicy=BuildTimingPolicy(lobby,session.RequiredTeams);
         session.DecisionDeadlineUtc=clock.GetUtcNow().AddSeconds(session.TimingPolicy.EffectiveSeconds);
         session.PausedRemainingSeconds=null;
-        session.FrozenTimeoutDecisions=OpponentScript.Freeze(session.Engine,session.RequiredTeams,session.Configuration.Laps,session.ScriptVersion).ToDictionary();
+        session.FrozenTimeoutDecisions=OpponentScript.Freeze(session.Engine,session.RequiredTeams,session.Configuration.Laps,session.ScriptVersion,session.Configuration.WetTyres is not null).ToDictionary();
         if(session.WindowKind=="SafetyCar")session.FrozenTimeoutDecisions=FreezeSafetyCar(session,session.RequiredTeams).ToDictionary();
         if(session.WindowKind=="Weather")
         {
@@ -30,7 +30,7 @@ public sealed partial class SessionCoordinator
         foreach(var team in session.RequiredTeams)
         {
             var decisions=ExpectedCommandDrivers(session,team).ToDictionary(id=>id,id=>session.FrozenTimeoutDecisions[id]);
-            var source=session.TimeoutSources[team];if(session.WindowKind=="SafetyCar")ConfigureSafetyCarAdvice(session,team,ref source);else if(session.WindowKind!="Weather")ConfigureTimeoutPlan(session,team,ref decisions,ref source);
+            var source=session.TimeoutSources[team];if(session.WindowKind=="SafetyCar")ConfigureSafetyCarAdvice(session,team,ref source);else ConfigureTimeoutPlan(session,team,ref decisions,ref source);
             foreach(var pair in decisions)session.FrozenTimeoutDecisions[pair.Key]=pair.Value;session.TimeoutSources[team]=source;
         }
         if(session.WindowKind=="SafetyCar"&&session.RequiredTeams.Length==0)session.DecisionDeadlineUtc=clock.GetUtcNow();

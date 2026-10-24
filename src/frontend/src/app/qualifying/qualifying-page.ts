@@ -5,7 +5,7 @@ import type {User} from 'firebase/auth';
 import {apiUrl} from '../api-url';
 
 interface CurrentWeather {time:number;rainIntensity:number;wetness:number}
-interface TeamWeatherForecast {confidence:string;explanation:string;observedAt:number;refreshAt:number;horizons:{toSeconds:number;fromSeconds:number;rainProbability:number}[]}
+interface TeamWeatherForecast {confidence:string;explanation:string;observedAt:number;refreshAt:number;horizons:{toSeconds:number;fromSeconds:number;rainProbability:number;rainLower:number;rainUpper:number}[]}
 interface Driver {entryId:string;driverId:string;name:string;slug:string;teamId:string}
 interface Choice {entryId:string;approach:string}
 interface AdviceCar {choice:Choice;reasons:string[];uncertainty:string;legalApproaches:string[]}
@@ -13,7 +13,7 @@ interface Assistance {helpLevel:string;autoAcceptRecommendation:boolean;session:
 interface Rank {position:number;entryId:string;driverId:string;teamId:string;status:string;timeMilliseconds:number|null;advances:boolean}
 interface Result {session:string;ranking:Rank[]}
 interface PublicSnapshot {weather?:CurrentWeather;compounds?:string[];suitability?:{compound:string;assessment:string}[];sessionId:string;revision:number;session:string;lifecycle:string;paused:boolean;circuitId:string;circuitName:string;circuitSlug:string;drivers:Driver[];teams:{teamId:string;locked:boolean;source:string|null}[];result:{session:string;ranking:Rank[]}|null;decisionDeadlineUtc:string|null;timingPolicy:{effectiveSeconds:number;timeoutPolicy:string};rulesVersion:string;retain:number;baselinePolicy:string;results:Result[];grid:Rank[];windowRevision:number;presentationDeadlineUtc:string|null}
-interface TeamSnapshot {forecast?:TeamWeatherForecast;startingCompounds?:{entryId:string;compound:string}[];startingFallback?:{entryId:string;compound:string}[];sessionId:string;teamId:string;revision:number;assignmentRevision:number;session:string;lifecycle:string;locked:boolean;eligibleDrivers:Driver[];choices:Choice[]|null;assistance?:Assistance}
+interface TeamSnapshot {startingGuidance?:{helpLevel:string;explanation:string;suggested?:{entryId:string;compound:string}[];options:string[]};forecast?:TeamWeatherForecast;startingCompounds?:{entryId:string;compound:string}[];startingFallback?:{entryId:string;compound:string}[];sessionId:string;teamId:string;revision:number;assignmentRevision:number;session:string;lifecycle:string;locked:boolean;eligibleDrivers:Driver[];choices:Choice[]|null;assistance?:Assistance}
 interface Assignment {teamId:string;constructorName:string;control:string;assignmentRevision:number}
 interface Command {commandId:string;session:string;revision:number;assignmentRevision:number;choices:Choice[]}
 class Failure extends Error {constructor(readonly status:number,message:string){super(message);}}

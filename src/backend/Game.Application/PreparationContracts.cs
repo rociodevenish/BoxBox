@@ -15,8 +15,11 @@ public record PracticeSnapshot(string ModelVersion, WeekendSetup Setup, string C
     IReadOnlyList<string> Compromises, IReadOnlyList<PracticeDriverFeedback> Drivers);
 public record SetupCommand(string CommandId, long? Revision, long? AssignmentRevision, WeekendSetup? Setup);
 public record PreparationPublicSnapshot(string SessionId, long Revision, string Lifecycle, CircuitPreset Circuit,
-    IReadOnlyList<string> TeamIds, IReadOnlyList<PreparationReadiness> Readiness);
+    IReadOnlyList<string> TeamIds, IReadOnlyList<PreparationReadiness> Readiness,
+    [property:System.Text.Json.Serialization.JsonIgnore(Condition=System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)] CurrentWeather? Weather=null);
 public record PreparationTeamSnapshot(string SessionId, string TeamId, long Revision, long AssignmentRevision,
     string Lifecycle, WeekendSetup Setup, WeekendPreset Preset,
-    string Summary, string ModelVersion, PracticeSnapshot? Assessment,PreparationGuidance Guidance);
+    string Summary, string ModelVersion, PracticeSnapshot? Assessment,PreparationGuidance Guidance,
+    [property:System.Text.Json.Serialization.JsonIgnore(Condition=System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)] CurrentWeather? Weather=null,
+    [property:System.Text.Json.Serialization.JsonIgnore(Condition=System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)] TeamWeatherForecast? Forecast=null);
 public record SetupAck(string CommandId, string SessionId, string TeamId, long Revision, string Lifecycle);
