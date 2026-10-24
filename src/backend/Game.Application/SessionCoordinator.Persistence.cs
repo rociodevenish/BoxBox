@@ -24,7 +24,7 @@ public sealed partial class SessionCoordinator
         Dictionary<string,DriverDecision>? PendingPlan,TeamCommand? PendingCommand,string? PendingFingerprint,RecordedAutomaticPlan[]? AutomaticPlans=null,string AutomaticSource="unclaimed-ai",SavedWindow? Window=null,AutomaticStartReplay? Opening=null,string? WindowKind=null,string[]? OperationKinds=null,string? OperationVersion=null);
     private sealed record SavedLobby(string Id,string Code,string Host,CreateLobbyInput Input,long Revision,
         Player[] Players,Device[] Devices,Dictionary<string,Assignment> Assignments,string Lifecycle,
-        string[] RequiredTeams,string[] ScriptedTeams,SavedRace? Race,Dictionary<string,string>? ModuleState=null);
+        string[] RequiredTeams,string[] ScriptedTeams,SavedRace? Race,Dictionary<string,string>? ModuleState=null,WeekendPreset[]? CampaignPresets=null,RaceConfiguration? CampaignConditions=null);
     private sealed record RecoveryRecord(string Schema,string Model,string Randomness,string Content,string Policy,
         SavedLobby? Lobby,SavedRace? Race);
     private static SavedRace CaptureRace(Session session)=>new(session.Id,session.Player,session.Device,session.GrantHash,
@@ -39,7 +39,7 @@ public sealed partial class SessionCoordinator
         var lobby=lobbies.GetValueOrDefault(id);var race=lobby?.Race ?? (active?.Id==id?active:null);
         var savedLobby=lobby is null?null:new SavedLobby(lobby.Id,lobby.Code,lobby.Host,lobby.Input,lobby.Revision,
             lobby.Players.ToArray(),lobby.Devices.ToArray(),lobby.Assignments,lobby.Lifecycle,lobby.RequiredTeams,lobby.ScriptedTeams,
-            race is null?null:CaptureRace(race),lobby.ModuleState);
+            race is null?null:CaptureRace(race),lobby.ModuleState,lobby.CampaignPresets,lobby.CampaignConditions);
         return JsonSerializer.Serialize(new RecoveryRecord(RecoverySchema,SimulationVersions.SegmentedModel,
             SimulationVersions.SegmentedRandomness,ContentVersion,race?.ScriptVersion??OpponentScript.Version,savedLobby,lobby is null&&race is not null?CaptureRace(race):null),BrowserReplay.JsonOptions);
     }
@@ -183,6 +183,8 @@ public sealed partial class SessionCoordinator
             var restored=new Lobby(lobby.Id,lobby.Code,lobby.Host,lobby.Input){Revision=lobby.Revision,Lifecycle=lobby.Lifecycle,RequiredTeams=lobby.RequiredTeams,ScriptedTeams=lobby.ScriptedTeams,Race=RestoreRace(lobby.Race)};
             restored.Players.AddRange(lobby.Players);restored.Devices.AddRange(lobby.Devices);
             restored.ModuleState=lobby.ModuleState??[];
+            restored.CampaignPresets=lobby.CampaignPresets;
+            restored.CampaignConditions=lobby.CampaignConditions;
             foreach(var pair in lobby.Assignments)restored.Assignments.Add(pair.Key,pair.Value);
             lobbies[id]=restored;
         }

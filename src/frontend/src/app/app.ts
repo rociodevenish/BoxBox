@@ -1,3 +1,4 @@
+import {CampaignPage} from './campaign/campaign-page';
 import {PreparationPage} from './preparation/preparation-page';
 import {QualifyingPage} from './qualifying/qualifying-page';
 import { SharedLobby } from './shared/shared-lobby';
@@ -12,11 +13,12 @@ import { DriverCard } from "./ui/driver-card";
 import { max, lewis, unknown } from "./gallery/driver-fixtures";
 @Component({
   selector: "app-root",
-  imports: [QualifyingPage,PreparationPage, DriverCard, TimingTower, ControllerGallery, ResultsGallery, RacePage, SharedLobby,OpenDisplay],
+  imports: [CampaignPage,QualifyingPage,PreparationPage, DriverCard, TimingTower, ControllerGallery, ResultsGallery, RacePage, SharedLobby,OpenDisplay],
   templateUrl: "./app.html",
   styleUrl: "./app.css",
 })
 export class App {
+  readonly campaignView=location.pathname.startsWith('/campaigns');
   readonly qualifyingView=location.pathname.startsWith('/qualifying/');
   readonly preparationView=location.pathname.startsWith('/preparation/');
   readonly openView=location.pathname.startsWith('/shared/open/');

@@ -14,6 +14,8 @@ public sealed partial class SessionCoordinator
   public Dictionary<string,string> ModuleState {get;set;}=[];
   public string[] RequiredTeams {get;set;}=[];
   public string[] ScriptedTeams {get;set;}=[];
+  public Game.Domain.WeekendPreset[]? CampaignPresets {get;set;}
+  public Game.Domain.RaceConfiguration? CampaignConditions {get;set;}
   public Dictionary<string,Assignment> Assignments {get;}=[];
  }
  private readonly Dictionary<string,Lobby> lobbies=[];
@@ -80,6 +82,7 @@ public sealed partial class SessionCoordinator
  {
   mutations.Wait();try{lock(gate){var lobby=RequireLobby(id);RequireHost(lobby,identity);if(lobby.Race is not null)return ProjectLobby(lobby);
    RequireLobbyOpen(lobby);
+   if(lobby.CampaignPresets is not null)throw new SessionFault(SessionFailure.Conflict,"Campaign weekends begin through preparation and qualifying.");
    if(lobby.Assignments.Count==0||lobby.Assignments.Values.Any(a=>!a.Approved))throw new SessionFault(SessionFailure.Conflict,"Claim at least one team and approve all assignments before starting.");
    var preset=presets.Get(lobby.Input.Preset,lobby.Input.Laps!.Value);var config=preset.Configuration.WithExplicitTuning();
    var session=new Session(lobby.Id,lobby.Players.Single(p=>p.Uid==lobby.Host).Id,lobby.Devices.First(d=>d.Uid==lobby.Host).Id,
