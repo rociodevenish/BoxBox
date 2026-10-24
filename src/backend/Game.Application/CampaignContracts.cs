@@ -7,14 +7,16 @@ public record CampaignDriver(string PersonId,string Name,string Slug,string Entr
 public record CampaignTeam(string TeamId,string ConstructorId,string ConstructorName,IReadOnlyList<CampaignDriver> Drivers);
 public record CampaignSnapshot(string CampaignId,long Revision,string Lifecycle,string ContentVersion,string CalendarVersion,
     string Mode,IReadOnlyList<CampaignEvent> Calendar,IReadOnlyList<CampaignTeam> Teams,int EventIndex,string WeekendId,
-    IReadOnlyList<PreparationReadiness> Readiness,bool CanStart,bool FullCalendarAvailable=false,ChampionshipPoints? Points=null,ChampionshipTable? Standings=null,IReadOnlyList<CampaignEventContribution>? Results=null);
+    IReadOnlyList<PreparationReadiness> Readiness,bool CanStart,bool FullCalendarAvailable=false,ChampionshipPoints? Points=null,ChampionshipTable? Standings=null,IReadOnlyList<CampaignEventContribution>? Results=null,CampaignNextPreparation? NextPreparation=null);
 public record CampaignJoined(CampaignSnapshot Campaign,JoinedLobby Weekend);
 public record CampaignStartInput(string CommandId);
+public record CampaignReturnInput(bool NextEvent=false,string? DeviceId=null);
+public record CampaignNextPreparation(string EventId,string SessionId,string TrackName,IReadOnlyList<PreparationReadiness> Readiness,bool CanStart,string MissingTeamPolicy="Unclaimed teams use the recorded automatic preparation policy; assigned teams must confirm Final-Ready.");
 
 // Only typed application contracts cross this persistence boundary. The adapter owns serialization and namespacing.
 public record CampaignRecord(string Schema,string CampaignId,string HostUid,string CreationFingerprint,CreateCampaignInput Input,
     long Revision,string Lifecycle,string ContentVersion,string CalendarVersion,CampaignEvent[] Calendar,CampaignTeam[] Teams,
-    Dictionary<string,WeekendPreset[]> FrozenPresets,Dictionary<string,RaceConfiguration> EventConditions,int EventIndex=0,string? StartCommandId=null,ChampionshipPoints? Points=null,CampaignEventContribution[]? Contributions=null);
+    Dictionary<string,WeekendPreset[]> FrozenPresets,Dictionary<string,RaceConfiguration> EventConditions,int EventIndex=0,string? StartCommandId=null,ChampionshipPoints? Points=null,CampaignEventContribution[]? Contributions=null,int? PreparationEventIndex=null,string? AdvanceCommandId=null);
 public record StoredCampaign(string Version,CampaignRecord Record);
 public interface ICampaignStore
 {

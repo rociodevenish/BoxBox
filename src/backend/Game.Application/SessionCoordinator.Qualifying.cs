@@ -22,7 +22,9 @@ public sealed partial class SessionCoordinator
     {
         mutations.Wait();try{lock(gate)
         {
+            if(RequireLobby(id).CampaignPresets is not null)RefreshCampaignWeekend(id);
             var lobby=RequireLobby(id);RequireHost(lobby,identity);
+            if(lobby.ModuleState.ContainsKey("campaign-standby-v1"))throw new SessionFault(SessionFailure.Conflict,"Start the next weekend from the campaign after readiness is confirmed.");
             if(command is null||!Guid.TryParse(command.CommandId,out var guid)||guid==Guid.Empty||command.Revision is null)
                 throw new SessionFault(SessionFailure.InvalidInput,"Supply command identity and current preparation revision.");
             var key=guid.ToString("D");var fingerprint=JsonSerializer.Serialize(new{Operation="start-qualifying",id,command.Revision,Version=QualifyingModule});

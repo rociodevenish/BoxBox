@@ -2,7 +2,7 @@ namespace Game.Application;
 public sealed partial class SessionCoordinator
 {
  public IReadOnlyList<LobbyTeam> HouseholdControllers(string id,AuthIdentity identity,string deviceId)
- {lock(gate){var lobby=RequireLobby(id);_=LobbyMembership(id,identity,deviceId);
+ {lock(gate){if(RequireLobby(id).CampaignPresets is not null)RefreshCampaignWeekend(id);var lobby=RequireLobby(id);_=LobbyMembership(id,identity,deviceId);
   var teams=ProjectLobby(lobby).Teams;
   return teams.Where(team=>lobby.Assignments.TryGetValue(team.TeamId,out var assignment)&&assignment.Approved&&(assignment.DeviceId==deviceId||(assignment.AdditionalDevices?.Contains(deviceId)??false))).ToArray();}}
  private (Session Session, Assignment Assignment) AuthoriseHousehold(string id,AuthIdentity identity,string deviceId,string teamId)
@@ -12,6 +12,7 @@ public sealed partial class SessionCoordinator
  }
  private (Lobby Lobby, Assignment Assignment) AuthorisePreparationController(string id,AuthIdentity identity,string deviceId,string teamId)
  {
+  if(RequireLobby(id).CampaignPresets is not null)RefreshCampaignWeekend(id);
   var lobby=RequireLobby(id);_ = LobbyMembership(id,identity,deviceId);
   var assignment=lobby.Assignments.GetValueOrDefault(teamId);
   if(assignment is null || !assignment.Approved || assignment.DeviceId!=deviceId && !(assignment.AdditionalDevices?.Contains(deviceId) ?? false))
