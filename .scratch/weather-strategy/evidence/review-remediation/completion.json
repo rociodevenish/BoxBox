@@ -1,0 +1,364 @@
+{
+  "baseCommit": "a2d7097d7ff74fee8aaaae0322eb6a3246bcb608",
+  "uniqueFocusedChecks": 24,
+  "newCases": 7,
+  "savedWeekends": 560,
+  "exactReplayGroups": 10,
+  "replayElapsedMs": 161410.0,
+  "archives": [
+    {
+      "file": "track-monaco-all-dry.json.gz",
+      "sha256": "4B84BE7546FF989FB5102E9B0E43596023B3922AB5C328960A46E3860333A4B1",
+      "weekends": 56
+    },
+    {
+      "file": "track-monaco-changeable.json.gz",
+      "sha256": "0ED6CFB787FA5AEFED806A3D3A9FDF65F9254958028D71667D61F7D3AD88FC3B",
+      "weekends": 56
+    },
+    {
+      "file": "track-monaco-drying.json.gz",
+      "sha256": "84C5B94F974A9470B4F5843954A8BB3CFDC44666FE273197F46370CECDC56C9B",
+      "weekends": 56
+    },
+    {
+      "file": "track-monaco-rain-arrival.json.gz",
+      "sha256": "BEBE4ABFBD9AE0CEAB78F879A6726BB1EA90E0F3ED2DB68388A6FDC81C92BD01",
+      "weekends": 56
+    },
+    {
+      "file": "track-monaco-steady-wet.json.gz",
+      "sha256": "B4A25A7AF59A5DA0E4FC27B38CEAB53884EBC5EDC3377269EB631630C37EBE42",
+      "weekends": 56
+    },
+    {
+      "file": "track-monza-all-dry.json.gz",
+      "sha256": "D1CCEFDF028195A03405E710B487287CAB8EAAC55D043AE54977D15F7AA0F296",
+      "weekends": 56
+    },
+    {
+      "file": "track-monza-changeable.json.gz",
+      "sha256": "85A4649DC885BADB228832D74E79C14450FE2329F1B75C8598DE04A527283888",
+      "weekends": 56
+    },
+    {
+      "file": "track-monza-drying.json.gz",
+      "sha256": "2D686EDCB565A0C4D0B73EE10EFD3E1EA11B1D128ED1668AFFDD9A30BA3E7DEE",
+      "weekends": 56
+    },
+    {
+      "file": "track-monza-rain-arrival.json.gz",
+      "sha256": "F187306135E035B00E71F2E615CE1BC5FC5AB274707895B7F5F1832738BCE4F4",
+      "weekends": 56
+    },
+    {
+      "file": "track-monza-steady-wet.json.gz",
+      "sha256": "87704D8E3251740828F4F19D91062BD62525CB60FE5A0148F94D0F96A15E1D10",
+      "weekends": 56
+    }
+  ],
+  "commands": [
+    {
+      "record": "boundary-final.json",
+      "command": "dotnet",
+      "args": [
+        "test",
+        "tests/Game.Simulation.Tests",
+        "--filter",
+        "FullyQualifiedName~Deferred_crossing_at_ordinary",
+        "-p:",
+        "NuGetAudit=false",
+        "--nologo"
+      ],
+      "pid": 37700,
+      "startedAt": "2026-10-24T14:14:31.24Z",
+      "status": "passed",
+      "exitCode": 0,
+      "elapsedMs": 2604
+    },
+    {
+      "record": "culture-green.json",
+      "command": "dotnet",
+      "args": [
+        "test",
+        "tests/Game.Simulation.Tests",
+        "--filter",
+        "FullyQualifiedName~Fractional_weather_window",
+        "-p:",
+        "NuGetAudit=false",
+        "--nologo"
+      ],
+      "pid": 14040,
+      "startedAt": "2026-10-24T14:12:12.828Z",
+      "status": "passed",
+      "exitCode": 0,
+      "elapsedMs": 2811
+    },
+    {
+      "record": "culture-red-ipc.json",
+      "command": "dotnet",
+      "args": [
+        "test",
+        "tests/Game.Simulation.Tests",
+        "--filter",
+        "FullyQualifiedName~Fractional_weather_window",
+        "-p:",
+        "NuGetAudit=false",
+        "--nologo"
+      ],
+      "pid": 36896,
+      "startedAt": "2026-10-24T14:12:03.298Z",
+      "status": "failed",
+      "exitCode": 1,
+      "elapsedMs": 4156
+    },
+    {
+      "record": "culture-red.json",
+      "command": "dotnet",
+      "args": [
+        "test",
+        "tests/Game.Simulation.Tests",
+        "--filter",
+        "FullyQualifiedName~Fractional_weather_window",
+        "-p:",
+        "NuGetAudit=false",
+        "--nologo"
+      ],
+      "pid": 21800,
+      "startedAt": "2026-10-24T14:11:55.688Z",
+      "status": "failed",
+      "exitCode": 1,
+      "elapsedMs": 2329
+    },
+    {
+      "record": "evidence-build.json",
+      "command": "dotnet",
+      "args": [
+        "build",
+        "tools/WeatherEvidence",
+        "-p:",
+        "NuGetAudit=false",
+        "--nologo"
+      ],
+      "pid": 11580,
+      "startedAt": "2026-10-24T14:13:32.262Z",
+      "status": "passed",
+      "exitCode": 0,
+      "elapsedMs": 2015
+    },
+    {
+      "record": "reactions-green.json",
+      "command": "dotnet",
+      "args": [
+        "test",
+        "tests/Game.Simulation.Tests",
+        "--filter",
+        "FullyQualifiedName~WeatherReactionTests",
+        "-p:",
+        "NuGetAudit=false",
+        "--nologo"
+      ],
+      "pid": 17092,
+      "startedAt": "2026-10-24T14:13:14.883Z",
+      "status": "passed",
+      "exitCode": 0,
+      "elapsedMs": 2730
+    },
+    {
+      "record": "reactions-replay-final.json",
+      "command": "dotnet",
+      "args": [
+        "test",
+        "tests/Game.Simulation.Tests",
+        "--filter",
+        "FullyQualifiedName~WeatherReactionTests|FullyQualifiedName~ReplayTests|FullyQualifiedName~WetWeekendStartTests",
+        "-p:",
+        "NuGetAudit=false",
+        "--nologo"
+      ],
+      "pid": 12660,
+      "startedAt": "2026-10-24T14:14:09.321Z",
+      "status": "passed",
+      "exitCode": 0,
+      "elapsedMs": 2656
+    },
+    {
+      "record": "replay-track-monaco-all-dry.json.json",
+      "command": "dotnet",
+      "args": [
+        "tools/WeatherEvidence/bin/Debug/net10.0/WeatherEvidence.dll",
+        "--replay",
+        "C:\\Projects\\F1Game\\.worktrees\\s10-review-fixes\\.scratch\\weather-strategy\\evidence\\06\\track-monaco-all-dry.json.gz"
+      ],
+      "pid": 20868,
+      "startedAt": "2026-10-24T14:13:43.501Z",
+      "status": "passed",
+      "exitCode": 0,
+      "elapsedMs": 16845
+    },
+    {
+      "record": "replay-track-monaco-changeable.json.json",
+      "command": "dotnet",
+      "args": [
+        "tools/WeatherEvidence/bin/Debug/net10.0/WeatherEvidence.dll",
+        "--replay",
+        "C:\\Projects\\F1Game\\.worktrees\\s10-review-fixes\\.scratch\\weather-strategy\\evidence\\06\\track-monaco-changeable.json.gz"
+      ],
+      "pid": 26892,
+      "startedAt": "2026-10-24T14:14:00.447Z",
+      "status": "passed",
+      "exitCode": 0,
+      "elapsedMs": 15314
+    },
+    {
+      "record": "replay-track-monaco-drying.json.json",
+      "command": "dotnet",
+      "args": [
+        "tools/WeatherEvidence/bin/Debug/net10.0/WeatherEvidence.dll",
+        "--replay",
+        "C:\\Projects\\F1Game\\.worktrees\\s10-review-fixes\\.scratch\\weather-strategy\\evidence\\06\\track-monaco-drying.json.gz"
+      ],
+      "pid": 20824,
+      "startedAt": "2026-10-24T14:14:15.859Z",
+      "status": "passed",
+      "exitCode": 0,
+      "elapsedMs": 16144
+    },
+    {
+      "record": "replay-track-monaco-rain-arrival.json.json",
+      "command": "dotnet",
+      "args": [
+        "tools/WeatherEvidence/bin/Debug/net10.0/WeatherEvidence.dll",
+        "--replay",
+        "C:\\Projects\\F1Game\\.worktrees\\s10-review-fixes\\.scratch\\weather-strategy\\evidence\\06\\track-monaco-rain-arrival.json.gz"
+      ],
+      "pid": 36900,
+      "startedAt": "2026-10-24T14:14:32.105Z",
+      "status": "passed",
+      "exitCode": 0,
+      "elapsedMs": 16835
+    },
+    {
+      "record": "replay-track-monaco-steady-wet.json.json",
+      "command": "dotnet",
+      "args": [
+        "tools/WeatherEvidence/bin/Debug/net10.0/WeatherEvidence.dll",
+        "--replay",
+        "C:\\Projects\\F1Game\\.worktrees\\s10-review-fixes\\.scratch\\weather-strategy\\evidence\\06\\track-monaco-steady-wet.json.gz"
+      ],
+      "pid": 35292,
+      "startedAt": "2026-10-24T14:14:49.042Z",
+      "status": "passed",
+      "exitCode": 0,
+      "elapsedMs": 15734
+    },
+    {
+      "record": "replay-track-monza-all-dry.json.json",
+      "command": "dotnet",
+      "args": [
+        "tools/WeatherEvidence/bin/Debug/net10.0/WeatherEvidence.dll",
+        "--replay",
+        "C:\\Projects\\F1Game\\.worktrees\\s10-review-fixes\\.scratch\\weather-strategy\\evidence\\06\\track-monza-all-dry.json.gz"
+      ],
+      "pid": 27792,
+      "startedAt": "2026-10-24T14:15:04.888Z",
+      "status": "passed",
+      "exitCode": 0,
+      "elapsedMs": 16320
+    },
+    {
+      "record": "replay-track-monza-changeable.json.json",
+      "command": "dotnet",
+      "args": [
+        "tools/WeatherEvidence/bin/Debug/net10.0/WeatherEvidence.dll",
+        "--replay",
+        "C:\\Projects\\F1Game\\.worktrees\\s10-review-fixes\\.scratch\\weather-strategy\\evidence\\06\\track-monza-changeable.json.gz"
+      ],
+      "pid": 25008,
+      "startedAt": "2026-10-24T14:15:21.307Z",
+      "status": "passed",
+      "exitCode": 0,
+      "elapsedMs": 14798
+    },
+    {
+      "record": "replay-track-monza-drying.json.json",
+      "command": "dotnet",
+      "args": [
+        "tools/WeatherEvidence/bin/Debug/net10.0/WeatherEvidence.dll",
+        "--replay",
+        "C:\\Projects\\F1Game\\.worktrees\\s10-review-fixes\\.scratch\\weather-strategy\\evidence\\06\\track-monza-drying.json.gz"
+      ],
+      "pid": 28016,
+      "startedAt": "2026-10-24T14:15:36.207Z",
+      "status": "passed",
+      "exitCode": 0,
+      "elapsedMs": 16488
+    },
+    {
+      "record": "replay-track-monza-rain-arrival.json.json",
+      "command": "dotnet",
+      "args": [
+        "tools/WeatherEvidence/bin/Debug/net10.0/WeatherEvidence.dll",
+        "--replay",
+        "C:\\Projects\\F1Game\\.worktrees\\s10-review-fixes\\.scratch\\weather-strategy\\evidence\\06\\track-monza-rain-arrival.json.gz"
+      ],
+      "pid": 19804,
+      "startedAt": "2026-10-24T14:15:52.799Z",
+      "status": "passed",
+      "exitCode": 0,
+      "elapsedMs": 17083
+    },
+    {
+      "record": "replay-track-monza-steady-wet.json.json",
+      "command": "dotnet",
+      "args": [
+        "tools/WeatherEvidence/bin/Debug/net10.0/WeatherEvidence.dll",
+        "--replay",
+        "C:\\Projects\\F1Game\\.worktrees\\s10-review-fixes\\.scratch\\weather-strategy\\evidence\\06\\track-monza-steady-wet.json.gz"
+      ],
+      "pid": 4020,
+      "startedAt": "2026-10-24T14:16:09.983Z",
+      "status": "passed",
+      "exitCode": 0,
+      "elapsedMs": 15849
+    },
+    {
+      "record": "separation-red-valid.json",
+      "command": "dotnet",
+      "args": [
+        "test",
+        "tests/Game.Simulation.Tests",
+        "--filter",
+        "FullyQualifiedName~Deferred_outward_crossing",
+        "-p:",
+        "NuGetAudit=false",
+        "--nologo"
+      ],
+      "pid": 36616,
+      "startedAt": "2026-10-24T14:12:59.632Z",
+      "status": "failed",
+      "exitCode": 1,
+      "elapsedMs": 2601
+    },
+    {
+      "record": "separation-red.json",
+      "command": "dotnet",
+      "args": [
+        "test",
+        "tests/Game.Simulation.Tests",
+        "--filter",
+        "FullyQualifiedName~Deferred_outward_crossing",
+        "-p:",
+        "NuGetAudit=false",
+        "--nologo"
+      ],
+      "pid": 30276,
+      "startedAt": "2026-10-24T14:12:34.168Z",
+      "status": "failed",
+      "exitCode": 1,
+      "elapsedMs": 2514
+    }
+  ],
+  "ownedNetworkListeners": [],
+  "limits": "Root owns affected backend and remaining named verification stages; household acceptance remains pending."
+}

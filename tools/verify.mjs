@@ -14,7 +14,7 @@ const steps=[
  ['tooling',[ '--test','tools/tests/run-bounded.test.mjs','tools/tests/publish-evidence.test.mjs'],root],
  ['typecheck',[resolve(frontend,'node_modules/@angular/compiler-cli/bundles/src/bin/ngc.js'),'-p','tsconfig.app.json','--noEmit'],frontend],
  ['build',[cli,'build'],frontend],
- ['backend',[firebase,'emulators:exec','--only','auth,firestore','--project','demo-f1game','--config',resolve(root,'tools/auth-emulator/firebase.recovery.json'),'--non-interactive',`"${process.execPath}" tools/run-backend-tests.mjs`],root],
+ ['backend',[firebase,'emulators:exec','--only','auth,firestore','--project','demo-f1game','--config',resolve(root,process.env.F1_BACKEND_EMULATOR_CONFIG??'tools/auth-emulator/firebase.recovery.json'),'--non-interactive',`"${process.execPath}" tools/run-backend-tests.mjs`],root],
  ['gallery',[playwright,'test'],frontend],
  ['browser',[playwright,'test','--config','playwright.browser.config.ts'],frontend],
  ['boundary',[playwright,'test','--config','playwright.boundary.config.ts'],frontend],

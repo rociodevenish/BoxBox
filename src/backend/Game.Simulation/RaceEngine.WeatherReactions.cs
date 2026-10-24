@@ -18,13 +18,22 @@ public sealed partial class RaceEngine
             || configuration.Weather is not {} weather) return double.PositiveInfinity;
         var observed = GetCurrentWeather()!;
         var rate = observed.RainIntensity * weather.WettingPerSecond - (1-observed.RainIntensity) * weather.DryingPerSecond;
+        var knot = (Math.Floor(observed.Time/weather.IntervalSeconds+1e-10)+1)*weather.IntervalSeconds-weather.TimeOriginSeconds;
+        var eligible = Math.Max(time, lastWeatherReaction + bands.MinimumSeparationSeconds);
+        if (eligible > knot+1e-8) return double.PositiveInfinity;
+        var wetness = Math.Clamp(observed.Wetness + (eligible-time)*rate, 0, 1);
+        var upper = weatherBand switch { 0 => bands.DryBoundary+bands.Hysteresis,
+            1 => bands.WetBoundary+bands.Hysteresis, _ => double.PositiveInfinity };
+        var lower = weatherBand switch { 2 => bands.WetBoundary-bands.Hysteresis,
+            1 => bands.DryBoundary-bands.Hysteresis, _ => double.NegativeInfinity };
+        // A crossing delayed by separation remains applicable even after rain flattens or
+        // reverses. Test both remembered-band edges before predicting a future crossing.
+        if (wetness >= upper || wetness <= lower) return eligible;
         if (Math.Abs(rate) < 1e-14) return double.PositiveInfinity;
         var threshold = rate > 0 ? weatherBand switch {
             0 => bands.DryBoundary + bands.Hysteresis, 1 => bands.WetBoundary + bands.Hysteresis, _ => double.PositiveInfinity }
             : weatherBand switch { 2 => bands.WetBoundary-bands.Hysteresis, 1 => bands.DryBoundary-bands.Hysteresis, _ => double.NegativeInfinity };
-        var crossing = time + Math.Max(0, (threshold-observed.Wetness)/rate);
-        crossing = Math.Max(crossing, lastWeatherReaction + bands.MinimumSeparationSeconds);
-        var knot = (Math.Floor(observed.Time/weather.IntervalSeconds+1e-10)+1)*weather.IntervalSeconds-weather.TimeOriginSeconds;
+        var crossing = eligible + Math.Max(0, (threshold-wetness)/rate);
         return crossing <= knot+1e-8 ? crossing : double.PositiveInfinity;
     }
 
@@ -37,7 +46,7 @@ public sealed partial class RaceEngine
         // belongs to the interval that just elapsed, so infer it from the reached wetness edge.
         weatherBand = Math.Clamp(weatherBand + (weatherBand<2 && observed.Wetness>=upper-1e-9 ? 1 : -1),0,2);
         lastWeatherReaction = time;
-        weatherReaction = new($"{WeatherReactionTuning.Version}:{time:R}:{weatherBand}",time,
+        weatherReaction = new(FormattableString.Invariant($"{WeatherReactionTuning.Version}:{time:R}:{weatherBand}"),time,
             new[] { "Dry", "Intermediate", "Wet" }[weatherBand], observed,neutralised,
             neutralised ? neutralisedUntil : null, ["Weather"]);
     }

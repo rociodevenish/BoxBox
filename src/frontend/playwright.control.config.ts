@@ -4,6 +4,7 @@ import {resolve} from 'node:path';
 import {common,frontend,api} from './playwright.runtime';
 const root=resolve(__dirname,'../..');const configuration=JSON.parse(readFileSync(resolve(root,'tools/auth-emulator/firebase.recovery.json'),'utf8'));
 configuration.emulators.auth.port=19309;configuration.emulators.firestore.port=19300;configuration.emulators.hub.port=19510;configuration.emulators.logging.port=19560;configuration.firestore.rules=resolve(root,'tools/auth-emulator/firestore.rules');
+configuration.emulators.firestore.websocketPort=Number(process.env['F1_CONTROL_WEBSOCKET_PORT']??9150);
 mkdirSync(resolve(root,'.tools/config'),{recursive:true});writeFileSync(resolve(root,'.tools/config/control-emulators.json'),JSON.stringify(configuration));
 const server=api(true);
 export default defineConfig({...common,testDir:'tests/control',workers:1,timeout:90000,webServer:[
