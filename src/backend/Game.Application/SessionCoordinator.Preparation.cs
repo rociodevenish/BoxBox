@@ -11,7 +11,9 @@ public sealed partial class SessionCoordinator
         var configuration=presets.Get(lobby.Input.Preset!,lobby.Input.Laps!.Value).Configuration;
         if(configuration.Weather is null&&configuration.WetTyres is null)return effective;
         return effective with{Configuration=effective.Configuration with{
-            Weather=configuration.Weather is {} weather?WeekendPresetCatalog.WeatherInputs(effective,weather):null,
+            Weather=configuration.Weather is {} weather ? WeatherWeekendProfiles.GetProfile(weather) is {} profile
+                ? WeatherWeekendProfiles.Apply(effective,profile) with{TimeOriginSeconds=weather.TimeOriginSeconds,InformationQuality=weather.InformationQuality}
+                : WeekendPresetCatalog.WeatherInputs(effective,weather) : null,
             WetTyres=configuration.WetTyres,WeatherReactions=configuration.WeatherReactions}};
     }
     private const string PreparationModule = "weekend-preparation-v1";
