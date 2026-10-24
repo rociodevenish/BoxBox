@@ -18,7 +18,7 @@
     <p>{{model().message}}</p>
   </div>
   }
-  @if(model().assistance){<app-assistance-summary [assistance]="model().assistance" [editable]="editable()" (usePlan)="useRecommendation()" />}
+  @if(model().assistance){<app-assistance-summary [driverNames]="assistanceNames()" [assistance]="model().assistance" [editable]="editable()" (usePlan)="useRecommendation()" />}
   <div class="cars">
     @for(car of model().cars; track car.id; let i = $index){
     <section

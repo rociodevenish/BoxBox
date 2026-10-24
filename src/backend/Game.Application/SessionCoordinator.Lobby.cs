@@ -85,7 +85,7 @@ public sealed partial class SessionCoordinator
    var session=new Session(lobby.Id,lobby.Players.Single(p=>p.Uid==lobby.Host).Id,lobby.Devices.First(d=>d.Uid==lobby.Host).Id,
     System.Security.Cryptography.RandomNumberGenerator.GetBytes(32),config,preset.Drivers.ToArray(),lobby.Input.Seed!.Value,new(lobby.Input.Preset,lobby.Input.Laps,lobby.Input.Seed));
    lobby.RequiredTeams=lobby.Assignments.Keys.Order(StringComparer.Ordinal).ToArray();session.RequiredTeams=lobby.RequiredTeams;lobby.ScriptedTeams=session.Drivers.Select(d=>d.Team).Distinct().Except(lobby.RequiredTeams).Order(StringComparer.Ordinal).ToArray();
-   session.FrozenOpponents=OpponentScript.Freeze(session.Engine,lobby.ScriptedTeams,config.Laps);
+   session.FrozenOpponents=OpponentScript.Freeze(session.Engine,lobby.ScriptedTeams,config.Laps,wetTyresEnabled:config.WetTyres is not null);
    if(session.FrozenOpponents.Count!=lobby.ScriptedTeams.Length*2)throw new InvalidOperationException("The scripted phase-start decision set must cover every scripted driver.");
    session.WindowTimestamp=System.Diagnostics.Stopwatch.GetTimestamp();
    InitializeDecisionWindow(session,lobby);lobby.Race=session;lobby.Lifecycle="started";lobby.Revision++;Persist(lobby.Id);return ProjectLobby(lobby);

@@ -5,7 +5,7 @@ import {
 export interface PublicRaceEvent {
   readonly minimalist?: boolean;
   readonly id: string;
-  readonly kind: "overtake" | "pit-entry" | "tyre-change" | "pit-exit" | "incident";
+  readonly kind: "overtake" | "pit-entry" | "tyre-change" | "pit-exit" | "incident" | "weather";
   readonly lap: number;
   readonly summary: string;
   readonly driverName: string;

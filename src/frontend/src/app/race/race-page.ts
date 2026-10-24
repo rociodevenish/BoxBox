@@ -89,8 +89,13 @@ export class RacePage extends RaceSession {
         const state = this.publicState()!;
         const summary = state.presentation?.summary.replace(/phase/gi,'race window') ?? 'Fixed rolling order · 22 synthetic drivers · 11 teams.';
         return { state: this.playing() ? 'presenting' : state.lifecycle === 'finished' ? 'finished' : state.lifecycle === 'resolving' ? 'resolving' : state.presentation ? 'phase-results' : state.phase > 0 || state.opening ? 'awaiting' : 'initial',
-            classification: this.classification(), events: state.events.slice(0, this.shownEvents()).map(event => this.eventModel(event)),
-            context: { label: state.lifecycle === 'finished' && !this.playing() ? 'First across the line' : 'Race facts', name: state.lifecycle === 'finished' && !this.playing() ? state.classification[0].name : 'Dry race laboratory', description: summary, imageUrl: null } };
+            classification: this.classification(), events: [...(state.weatherReaction?[this.weatherEvent(state)]:[]),...state.events.slice(0, this.shownEvents()).map(event => this.eventModel(event))],
+            context: { label: state.lifecycle === 'finished' && !this.playing() ? 'First across the line' : 'Race facts', name: state.lifecycle === 'finished' && !this.playing() ? state.classification[0].name : state.weather?'Observed race conditions':'Dry race laboratory', description: summary, imageUrl: null } };
+    }
+    private weatherEvent(state:PublicState):PublicRaceEvent {
+        const reaction=state.weatherReaction!;
+        return {id:reaction.identity,kind:'weather',lap:state.leaderLap,driverName:'Circuit',portraitUrl:null,compound:null,
+            summary:'Observed '+reaction.band+' band at '+reaction.time.toFixed(1)+'s · track wetness '+(reaction.observed.wetness*100).toFixed(0)+'%. Both-car tyre decisions are open.'+(reaction.safetyCarActive?' Combined with Safety Car control: Conserve and Neutral; committed stops and the existing deadline continue.':''),minimalist:true};
     }
     private identity(id:string){return this.publicState()?.opening?.cars.find(car=>car.entryId===id);}
     private driverName(id:string){return this.publicState()?.opening?this.publicState()?.classification.find(car=>car.driverId===id)?.name??'Driver '+Number(id.slice(-2)):'Driver '+Number(id.slice(-2));}

@@ -12,7 +12,7 @@ public sealed partial class SessionCoordinator
     private static IReadOnlyDictionary<string,DriverDecision> FreezeSafetyCar(Session session,IEnumerable<string> teams)
     {
         var legal=session.Engine.GetSafetyCarOptions().Where(option=>option.Status=="available").Select(option=>option.DriverId).ToHashSet();
-        return OpponentScript.Freeze(session.Engine,teams,session.Configuration.Laps,session.ScriptVersion)
+        return OpponentScript.Freeze(session.Engine,teams,session.Configuration.Laps,session.ScriptVersion,session.Configuration.WetTyres is not null)
             .Where(pair=>legal.Contains(pair.Key)).ToDictionary(pair=>pair.Key,pair=>new DriverDecision(PitCompound:pair.Value.PitCompound));
     }
     public Task<SubmissionAck> SubmitSafetyCar(string id,string? capability,SafetyCarTeamCommand input)=>Submit(id,capability,NarrowSafetyCar(input));

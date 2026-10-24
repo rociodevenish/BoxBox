@@ -6,8 +6,8 @@ internal static class OpponentScript
 {
     public const string Version=ObservationDecisionPolicy.Version;
     public const string LegacyVersion="dry-opponents-v1";
-    public static bool Supports(string version)=>version is Version or LegacyVersion;
-    public static IReadOnlyDictionary<string,DriverDecision> Freeze(RaceEngine engine,IEnumerable<string> teams,int laps,string version=Version)
+    public static bool Supports(string version)=>version is Version or LegacyVersion or WeatherDecisionPolicy.Version;
+    public static IReadOnlyDictionary<string,DriverDecision> Freeze(RaceEngine engine,IEnumerable<string> teams,int laps,string version=Version,bool wetTyresEnabled=false)
     {
         var decisions=new Dictionary<string,DriverDecision>();
         foreach(var team in teams.Order(StringComparer.Ordinal))
@@ -27,7 +27,7 @@ internal static class OpponentScript
             }
             else
             {
-                var plan=ObservationDecisionPolicy.Evaluate(new(observation.LeaderLap/5,laps,observation,engine.GetTimingObservation()));
+                var plan=ObservationDecisionPolicy.Evaluate(new(observation.LeaderLap/5,laps,observation,engine.GetTimingObservation(),wetTyresEnabled));
                 foreach(var car in plan.Cars)decisions.Add(car.DriverId,car.Decision);
             }
         }
