@@ -15,11 +15,13 @@ test('frozen short campaign replays exactly, rejects changed results and preserv
  assert.notEqual(run(output).status,0);assert.deepEqual(readFileSync(path),original);
  const saved=JSON.parse(gunzipSync(original));
  assert.equal(saved.campaign.calendar[0].trackId,'track-monza');assert.equal(saved.campaign.calendar[1].trackId,'track-monaco');
+ assert.equal(saved.qualifying.length,2);assert.equal(saved.qualifying[0].attempts.length,3);
  assert.equal(saved.campaign.teams.length,11);assert.equal(saved.campaign.contributions[1].result.classification.length,22);
  saved.campaign.contributions[0].awards[0].points+=1;
  const changed=join(output,'changed.json.gz');writeFileSync(changed,gzipSync(JSON.stringify(saved)));
  assert.notEqual(run('--replay',changed).status,0);
  const damaged=JSON.parse(gunzipSync(original));damaged.campaign.contributions[1].result.hash='damaged';writeFileSync(changed,gzipSync(JSON.stringify(damaged)));assert.notEqual(run('--replay',changed).status,0);
  const gated=JSON.parse(gunzipSync(original));gated.campaign.calendar.push({...gated.campaign.calendar[0],trackId:"track-unvalidated"});writeFileSync(changed,gzipSync(JSON.stringify(gated)));assert.notEqual(run("--replay",changed).status,0);
+ const badQualifying=JSON.parse(gunzipSync(original));badQualifying.qualifying[0].results[0].ranking[0].position=99;writeFileSync(changed,gzipSync(JSON.stringify(badQualifying)));assert.notEqual(run("--replay",changed).status,0);
  const text=gunzipSync(original).toString();assert.doesNotMatch(text,/"(?:authorization|cookie|grantHash|idToken|refreshToken)"/i);
 });

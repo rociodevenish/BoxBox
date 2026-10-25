@@ -21,7 +21,7 @@ var weekends=Weekends();var campaigns=new CampaignCoordinator(weekends,new Campa
 var host=new AuthIdentity("synthetic-evidence-host",false);
 var joined=campaigns.Create(host,new("70c17215-3fb3-4497-849b-08340bced525","Evidence host",Seed:123));
 var id=joined.Campaign.CampaignId;var device=joined.Weekend.Membership.DeviceId;
-var replays=new List<BrowserReplayRecord>();var tables=new List<ChampionshipTable>();
+var qualifying=new List<QualifyingReplayRecord>();var replays=new List<BrowserReplayRecord>();var tables=new List<ChampionshipTable>();
 weekends.ClaimTeam(joined.Campaign.WeekendId,host,new("team-01",device));campaigns.Prepare(id,host);campaigns.PrepareAbsent(id,host,new("team-01"));campaigns.Start(id,host,new("eb954102-7c77-441d-837f-a9f4f51760e6"));
 for(var index=0;index<2;index++)
 {
@@ -30,7 +30,7 @@ for(var index=0;index<2;index++)
  {
   if(step>=100)throw new Exception("Weekend exceeded bounded delivery count.");clock.Advance();await weekends.SweepWakeups();
  }
- replays.Add(weekends.DesignerRecord(current.WeekendId) with{Timing=null});
+ qualifying.Add(weekends.DesignerQualifyingRecord(current.WeekendId));replays.Add(weekends.DesignerRecord(current.WeekendId) with{Timing=null});
  var result=campaigns.CommitResult(id,host,device);tables.Add(result.Standings!);
  // Duplicate commit after reconstructed application coordinators uses saved authority.
  weekends=Weekends();campaigns=new(weekends,new CampaignStore(store));
@@ -39,7 +39,7 @@ for(var index=0;index<2;index++)
  if(index==0){campaigns.PrepareNext(id,host);campaigns.PrepareAbsent(id,host,new("team-01",true));var returned=campaigns.Return(id,host,new(true));device=returned.Membership.DeviceId;campaigns.StartNext(id,host,new("ea1ee8b1-d504-4f0e-bdb7-fbf06cc2a385"));}
 }
 var record=new CampaignStore(store).Read(id)!.Record;
-var archiveCreated=new Archive("short-campaign-evidence-v1",record,replays.ToArray(),tables.ToArray());Verify(archiveCreated);
+var archiveCreated=new Archive("short-campaign-evidence-v1",record,replays.ToArray(),tables.ToArray(),qualifying.ToArray());Verify(archiveCreated);
 using(var file=File.Create(Path.Combine(args[0],"short-campaign.json.gz")))using(var gzip=new GZipStream(file,CompressionLevel.SmallestSize))JsonSerializer.Serialize(gzip,archiveCreated,json);
 File.WriteAllText(Path.Combine(args[0],"usage.json"),JsonSerializer.Serialize(new{scope="One synthetic two-event campaign; volatile application store, including restart recovery and duplicate commits",store.ReadAttempts,store.WriteAttempts,store.SerializedWriteBytes,store.SerializedReadBytes,store.ListAttempts,store.PeakSerializedWriteBytes,chunking="unobserved; volatile adapter stores whole application payloads",actualFirestoreRpc="unobserved",billableCloudUnits="unobserved",hostedCost="unobserved; no deployment",householdUnderstanding="unmeasured; ready for human evaluation"},json));
 Console.WriteLine($"Saved two complete 22-person/11-constructor events; {store.ReadAttempts} application reads, {store.WriteAttempts} writes, {store.SerializedWriteBytes} UTF-8 bytes written.");
@@ -49,11 +49,13 @@ void Verify(Archive archive)
 {
  if(archive.Schema!="short-campaign-evidence-v1")throw new Exception("Unknown archive schema.");
  var saved=archive.Campaign;CampaignSaveIntegrity.Validate(saved,saved.CampaignId);
- if(saved.Lifecycle!="season-complete"||saved.EventIndex!=1||saved.Calendar.Length!=2||archive.Replays.Length!=2||archive.Tables.Length!=2||saved.Contributions?.Length!=2)throw new Exception("Incomplete campaign.");
+ if(saved.Lifecycle!="season-complete"||saved.EventIndex!=1||saved.Calendar.Length!=2||archive.Replays.Length!=2||archive.Tables.Length!=2||archive.Qualifying.Length!=2||saved.Contributions?.Length!=2)throw new Exception("Incomplete campaign.");
  var entrants=saved.Teams.SelectMany(t=>t.Drivers.Select(d=>(t.TeamId,d.PersonId))).Select((d,i)=>new ChampionshipEntrant(d.PersonId,d.TeamId,i)).ToArray();
  for(var i=0;i<2;i++)
  {
-  var replay=archive.Replays[i];var verified=BrowserReplay.Verify(replay);
+  var q=archive.Qualifying[i];if(q.SessionId!=saved.Calendar[i].SessionId||q.Attempts.Length!=3||q.Results.Length!=3)throw new Exception("Incomplete qualifying history.");
+  var replayedQualifying=q.Attempts.Select(Qualifying.Resolve).ToArray();Equal(q.Results,replayedQualifying,"Qualifying replay");Equal(q.Grid,Qualifying.Grid(replayedQualifying),"Qualifying grid");
+  var replay=archive.Replays[i];Equal(q.Grid.Select(g=>new StartGridSlot(g.Position,g.EntryId)).ToArray(),replay.Replay.Opening!.Input.Grid.ToArray(),"Opening grid from qualifying");var verified=BrowserReplay.Verify(replay);
   if(!verified.Matches||!verified.Finished||replay.SessionId!=saved.Calendar[i].SessionId)throw new Exception("Weekend replay differs.");
   var contribution=saved.Contributions[i];CampaignResultIntegrity.Validate(saved);
   var engine=SimulationReplay.CreateEngine(replay.Replay);
@@ -75,7 +77,7 @@ void Verify(Archive archive)
   Equal(contribution.Awards,awards,"Scoring");Equal(archive.Tables[i],ChampionshipScoring.Rebuild(entrants,saved.Contributions.Take(i+1).Select(c=>(IReadOnlyList<ChampionshipAward>)c.Awards)),"Standings");
  }
 }
-record Archive(string Schema,CampaignRecord Campaign,BrowserReplayRecord[] Replays,ChampionshipTable[] Tables);
+record Archive(string Schema,CampaignRecord Campaign,BrowserReplayRecord[] Replays,ChampionshipTable[] Tables,QualifyingReplayRecord[] Qualifying);
 sealed class Clock:TimeProvider{private DateTimeOffset now=DateTimeOffset.Parse("2026-10-26T00:00:00Z");public override DateTimeOffset GetUtcNow()=>now;public void Advance()=>now=now.AddHours(1);}
 sealed class Notifications:ISessionNotifications{public Task Publish(PublicSnapshot display,TeamSnapshot team)=>Task.CompletedTask;public Task PublishHousehold(PublicSnapshot display,IReadOnlyList<TeamSnapshot> teams,IReadOnlyList<OpenTeamSnapshot> openTeams)=>Task.CompletedTask;}
 sealed class MeteredStore:ISessionStore

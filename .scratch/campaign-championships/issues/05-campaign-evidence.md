@@ -8,10 +8,10 @@
 
 ## Acceptance criteria
 
-- [ ] Complete browser two-event flow, reports, standings, interruption return and season finish with real imagery and fallbacks.
+- [x] Complete browser two-event flow, reports, standings, interruption return and season finish with real imagery and fallbacks.
 - [ ] Record actual household joining/readiness/reclaim clarity and progression failures alongside deterministic scoring/replay evidence.
 - [ ] Measure persistence and hosted usage separately from balance; document full-calendar content gate without requiring later acquisition or development.
-- [ ] Verify this slice through the parent spec-approved public API/SignalR or public domain/simulation boundary as appropriate, with focused browser coverage for user interaction and persistence/retry checks for durable transitions.
+- [x] Verify this slice through the parent spec-approved public API/SignalR or public domain/simulation boundary as appropriate, with focused browser coverage for user interaction and persistence/retry checks for durable transitions.
 
 ## Spec and supplied content
 
