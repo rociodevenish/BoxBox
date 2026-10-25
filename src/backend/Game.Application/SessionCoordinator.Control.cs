@@ -33,6 +33,7 @@ public sealed partial class SessionCoordinator
             Session session;TeamControlStatus status;PublicSnapshot display;TeamSnapshot own;
             lock(gate)
             {
+                if(RequireLobby(id).CampaignPresets is not null)RefreshCampaignWeekend(id);
                 var lobby=RequireLobby(id);if(reclaim)_=AuthoriseHousehold(id,identity,deviceId!,teamId);else RequireHost(lobby,identity);
                 session=lobby.Race??throw new SessionFault(SessionFailure.Conflict,"Start the race before requesting a control transfer.");
                 if(!lobby.RequiredTeams.Contains(teamId))throw new SessionFault(SessionFailure.InvalidInput,"Choose an assigned player team.");
@@ -55,6 +56,7 @@ public sealed partial class SessionCoordinator
     partial void ApplyControlBoundary(Session session)
     {
         if(!lobbies.TryGetValue(session.Id,out var lobby))return;
+        ApplyCampaignRebindBoundary(session,lobby);
         var state=ReadControl(session);
         foreach(var team in state.Teams.Keys.ToArray())
         {

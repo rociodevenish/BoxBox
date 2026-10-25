@@ -12,7 +12,7 @@
   </section>
  }
  @if(campaign();as season){
-  <section><h2>{{season.lifecycle==='event-result-committed'?'Event result committed':season.lifecycle==='active-weekend'?'Weekend active':season.lifecycle==='event-preparation'?'Event preparation':'Campaign created'}}</h2>
+  <section><h2>{{season.lifecycle==='season-complete'?'Season complete':season.lifecycle==='event-result-committed'?'Event result committed':season.lifecycle==='active-weekend'?'Weekend active':season.lifecycle==='event-preparation'?'Event preparation':'Campaign created'}}</h2>
    <p>{{season.mode}} privacy · Preset rosters and neutral cars remain fixed.</p>
    <p class="version">Short fixture · Provisional game content</p>
    <button (click)="refresh()" [disabled]="busy()">Refresh campaign</button>
@@ -32,15 +32,15 @@
    </section>
   }
   @if(season.lifecycle==='event-preparation'){
-   <section><h2>Preparation readiness</h2><p>Practice assessment and final confirmation follow the normal weekend rules.</p>
-    @for(team of season.readiness;track team.teamId){<p>{{team.teamId}} · {{team.finalReady?'Final-ready':'Preparing'}}</p>}
+   <section><h2>Preparation readiness</h2><p>Practice assessment and final confirmation follow the normal weekend rules. If a player is absent, the host may explicitly record AI preparation. This retains existing practice and ownership; race control resets to human at each weekend.</p>
+    @for(team of season.readiness;track team.teamId){<p>{{teamName(team.teamId)}} · {{team.finalReady?'Final-ready':'Preparing'}}{{team.source==='host-absent-ai'?' · Host-authorised AI preparation':''}}</p>@if(!team.finalReady){<button (click)="prepareAbsent(team.teamId)" [disabled]="busy()">Host: use disclosed AI preparation for {{teamName(team.teamId)}}</button>}}
     <a [href]="'/shared/lobby/'+season.weekendId">Open team preparation in household</a>
     <button (click)="begin()" [disabled]="busy()||!season.canStart">{{season.eventIndex===0?'Start first weekend':'Start weekend'}}</button>
    </section>
   }
   @if(season.lifecycle==='active-weekend'){<section><h2>Event {{season.eventIndex+1}} weekend</h2><a [href]="'/qualifying/'+season.weekendId">Open qualifying</a><a [href]="'/race/display/'+season.weekendId">Public race display</a></section>}
   @if(season.lifecycle==='event-result-committed'&&season.eventIndex+1<season.calendar.length&&!season.nextPreparation){<section><h2>Prepare the upcoming circuit</h2><p>Each team saves its own Weekend Setup. One Practice Assessment and final confirmation apply again at the new circuit.</p><button (click)="prepareNext()" [disabled]="busy()">Open next-event preparation</button></section>}
-  @if(season.nextPreparation;as next){<section><h2>Next event · {{next.trackName}}</h2><p>{{next.missingTeamPolicy}}</p><p>Public readiness contains no private setup or advice. Returning participants reclaim their own team on this device.</p>@for(team of next.readiness;track team.teamId){<p>{{teamName(team.teamId)}} · {{team.finalReady?'Final-ready':'Preparing'}}</p>}<button (click)="openNext()" [disabled]="busy()">Return to my next-event preparation</button><button (click)="startNext()" [disabled]="busy()||!next.canStart">Start next weekend</button></section>}
+  @if(season.nextPreparation;as next){<section><h2>Next event · {{next.trackName}}</h2><p>{{next.missingTeamPolicy}}</p><p>Public readiness contains no private setup or advice. Returning participants reclaim their own team on this device.</p>@for(team of next.readiness;track team.teamId){<p>{{teamName(team.teamId)}} · {{team.finalReady?'Final-ready':'Preparing'}}{{team.source==='host-absent-ai'?' · Host-authorised AI preparation':''}}</p>@if(!team.finalReady){<button (click)="prepareAbsent(team.teamId,true)" [disabled]="busy()">Host: use disclosed AI preparation for {{teamName(team.teamId)}}</button>}}<button (click)="openNext()" [disabled]="busy()">Return to my next-event preparation</button><button (click)="startNext()" [disabled]="busy()||!next.canStart">Start next weekend</button></section>}
   @if(season.results.length){
    <section><h2>Championship standings</h2><p>Game points by raw position: {{season.points.byPosition.join(' / ')}}. No fastest-lap bonus. Retired or ineligible entries score zero; other entries keep their original positions.</p><p>Equal points: counts of higher eligible finishes, then fixed campaign starting order.</p>
     <h3>Constructors' Championship</h3><ol>@for(row of season.standings.constructors;track row.id){<li>{{row.position}}. {{teamName(row.id)}} · {{row.points}} points</li>}</ol>
@@ -48,6 +48,7 @@
    </section>
    @for(report of season.results;track report.eventId){<section [id]="'report-'+report.eventId"><h2>Event report</h2><h3>{{reportName(report.eventId)}}</h3><p>Committed result · {{season.points.version}}</p><ol>@for(row of report.result.classification;track row.personId){<li>{{row.position}}. {{driverName(row.personId)}} · {{row.status}} · {{row.laps}} laps · {{awarded(report,row.personId)}} points · Championship {{previousPoints(report,row.personId)}} → {{previousPoints(report,row.personId)+awarded(report,row.personId)}} (+{{awarded(report,row.personId)}})</li>}</ol></section>}
   }
+  @if(season.lifecycle==='season-complete'){<section aria-label="Season champions"><h2>Constructors' champion · {{teamName(season.standings.constructors[0].id)}}</h2><p>Primary championship · {{season.standings.constructors[0].points}} points</p><h3>Drivers' champion · {{driverName(season.standings.drivers[0].id)}}</h3><p>Secondary championship · {{season.standings.drivers[0].points}} points</p><p>All event reports and championship history remain available above. This season has ended.</p></section>}
   <section><h2>Frozen preset roster</h2><div class="roster">@for(team of season.teams;track team.teamId){<article><h3>{{team.constructorName}}</h3>@for(driver of team.drivers;track driver.personId){<p><img class="portrait" [src]="portrait(driver.personId)" alt="" (error)="$any($event.target).hidden=true">{{driver.name}}</p>}</article>}</div></section>
  }
 </main>

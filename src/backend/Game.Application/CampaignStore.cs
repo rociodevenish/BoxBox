@@ -7,8 +7,8 @@ public sealed class CampaignStore(ISessionStore sessions):ICampaignStore
     {
         var saved=sessions.Read("campaign-"+id);if(saved is null)return null;
         CampaignRecord? record;
-        try{record=JsonSerializer.Deserialize<CampaignRecord>(saved.Payload,BrowserReplay.JsonOptions);if(record is not null)CampaignResultIntegrity.Validate(record);}
-        catch(Exception error) when(error is JsonException or ArgumentException or InvalidOperationException){throw new SessionFault(SessionFailure.Conflict,"Campaign save is incompatible. Preserve it for the compatible deployment.");}
+        try{record=JsonSerializer.Deserialize<CampaignRecord>(saved.Payload,BrowserReplay.JsonOptions);if(record is not null)CampaignSaveIntegrity.Validate(record,id);}
+        catch(Exception error) when(error is JsonException or ArgumentException or InvalidOperationException or NullReferenceException or KeyNotFoundException){throw CampaignSaveIntegrity.Incompatible();}
         if(record is null||record.Schema!=CampaignCoordinator.Schema||record.CampaignId!=id)
             throw new SessionFault(SessionFailure.Conflict,"Campaign save is incompatible. Preserve it for the compatible deployment.");
         return new(saved.Version,record);

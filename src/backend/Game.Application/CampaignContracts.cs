@@ -11,12 +11,15 @@ public record CampaignSnapshot(string CampaignId,long Revision,string Lifecycle,
 public record CampaignJoined(CampaignSnapshot Campaign,JoinedLobby Weekend);
 public record CampaignStartInput(string CommandId);
 public record CampaignReturnInput(bool NextEvent=false,string? DeviceId=null);
+public record CampaignAbsentInput(string TeamId,bool NextEvent=false);
 public record CampaignNextPreparation(string EventId,string SessionId,string TrackName,IReadOnlyList<PreparationReadiness> Readiness,bool CanStart,string MissingTeamPolicy="Unclaimed teams use the recorded automatic preparation policy; assigned teams must confirm Final-Ready.");
 
 // Only typed application contracts cross this persistence boundary. The adapter owns serialization and namespacing.
 public record CampaignRecord(string Schema,string CampaignId,string HostUid,string CreationFingerprint,CreateCampaignInput Input,
     long Revision,string Lifecycle,string ContentVersion,string CalendarVersion,CampaignEvent[] Calendar,CampaignTeam[] Teams,
-    Dictionary<string,WeekendPreset[]> FrozenPresets,Dictionary<string,RaceConfiguration> EventConditions,int EventIndex=0,string? StartCommandId=null,ChampionshipPoints? Points=null,CampaignEventContribution[]? Contributions=null,int? PreparationEventIndex=null,string? AdvanceCommandId=null);
+    Dictionary<string,WeekendPreset[]> FrozenPresets,Dictionary<string,RaceConfiguration> EventConditions,int EventIndex=0,string? StartCommandId=null,ChampionshipPoints? Points=null,CampaignEventContribution[]? Contributions=null,int? PreparationEventIndex=null,string? AdvanceCommandId=null,CampaignVersions? Versions=null);
+public record CampaignEventVersions(string Model,string Randomness);
+public record CampaignVersions(string Lifecycle,string Scoring,string Replay,string Preparation,string Practice,Dictionary<string,CampaignEventVersions> Events);
 public record StoredCampaign(string Version,CampaignRecord Record);
 public interface ICampaignStore
 {

@@ -4,7 +4,7 @@ namespace Game.Domain;
 public static class CampaignRules
 {
     public const string Version="preset-campaign-lifecycle-v1";
-    public static string Lifecycle(string saved,string weekend)=>saved=="event-result-committed"?saved:weekend is "qualifying" or "started"||saved=="active-weekend"
+    public static string Lifecycle(string saved,string weekend)=>saved is "event-result-committed" or "season-complete"?saved:weekend is "qualifying" or "started"||saved=="active-weekend"
         ?"active-weekend":weekend=="preparing"?"event-preparation":saved;
     public static bool CanStart(string lifecycle,IReadOnlyList<bool> finalReady)=>
         lifecycle=="event-preparation"&&finalReady.Count>0&&finalReady.All(ready=>ready);

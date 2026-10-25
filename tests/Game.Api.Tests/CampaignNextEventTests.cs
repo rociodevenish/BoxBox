@@ -25,6 +25,7 @@ public sealed class CampaignNextEventTests
  [InlineData("Competitive",1,false)][InlineData("Competitive",1,true)]
  [InlineData("Competitive",2,false)][InlineData("Competitive",2,true)]
  [InlineData("Competitive",3,false)][InlineData("Competitive",3,true)]
+ [InlineData("Competitive",4,false)][InlineData("Competitive",4,true)]
  public async Task Returning_member_prepares_second_circuit_without_changing_history_or_rerolling_practice(string mode,int interrupted,bool committedFirst)
  {
   var token=await LobbyTests.Identity(false);var clock=new Clock();
@@ -72,8 +73,18 @@ public sealed class CampaignNextEventTests
   var starts=await Task.WhenAll(retry.PostAsJsonAsync($"/api/campaigns/{id}/next/start",new CampaignStartInput(Guid.NewGuid().ToString())),observer.PostAsJsonAsync($"/api/campaigns/{id}/next/start",new CampaignStartInput(Guid.NewGuid().ToString())));foreach(var response in starts)response.EnsureSuccessStatusCode();
   state=(await starts[0].Content.ReadFromJsonAsync<CampaignSnapshot>())!;Assert.Equal(1,state.EventIndex);Assert.Equal(second,state.WeekendId);Assert.Single(state.Results!);Assert.Equal(101,state.Standings!.Drivers.Sum(r=>r.Points));
   var resumed=recovered.Services.GetRequiredService<SessionCoordinator>();for(var n=0;n<80&&resumed.CommittedCampaignResult(second) is null;n++){clock.Advance();await resumed.SweepWakeups();}
+  if(interrupted==4){store.Match="campaign-";store.Remaining=1;store.CommitFirst=committedFirst;var lost=await retry.PostAsJsonAsync($"/api/campaigns/{id}/commit-result?deviceId={nextDevice}",new{});Assert.Equal(committedFirst?HttpStatusCode.OK:HttpStatusCode.ServiceUnavailable,lost.StatusCode);}
   var committed=await retry.PostAsJsonAsync($"/api/campaigns/{id}/commit-result?deviceId={nextDevice}",new{});committed.EnsureSuccessStatusCode();state=(await committed.Content.ReadFromJsonAsync<CampaignSnapshot>())!;
   Assert.Equal(2,state.Results!.Count);Assert.Equal(202,state.Standings!.Drivers.Sum(r=>r.Points));
+  Assert.Equal("season-complete",state.Lifecycle);
+  var finalRevision=state.Revision;
+  var again=await retry.PostAsJsonAsync($"/api/campaigns/{id}/commit-result?deviceId={nextDevice}",new{});again.EnsureSuccessStatusCode();
+  Assert.Equal(finalRevision,(await again.Content.ReadFromJsonAsync<CampaignSnapshot>())!.Revision);
+  Assert.Equal(HttpStatusCode.Conflict,(await retry.PostAsJsonAsync($"/api/campaigns/{id}/next/prepare",new{})).StatusCode);
+  Assert.Equal(HttpStatusCode.Conflict,(await retry.PostAsJsonAsync($"/api/campaigns/{id}/next/start",new CampaignStartInput(Guid.NewGuid().ToString()))).StatusCode);
+  Assert.Equal(HttpStatusCode.Conflict,(await retry.PostAsJsonAsync($"/api/campaigns/{id}/prepare",new{})).StatusCode);
+  var afterRestart=(await observer.GetFromJsonAsync<CampaignSnapshot>($"/api/campaigns/{id}?deviceId={nextDevice}"))!;
+  Assert.Equal("season-complete",afterRestart.Lifecycle);Assert.Equal(finalRevision,afterRestart.Revision);Assert.Equal(2,afterRestart.Results!.Count);
  }
  private static async Task Ready(HttpClient client,string weekend,string device)
  {

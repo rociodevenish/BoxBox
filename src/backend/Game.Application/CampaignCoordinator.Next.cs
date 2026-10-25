@@ -1,6 +1,18 @@
 namespace Game.Application;
 public sealed partial class CampaignCoordinator
 {
+ public CampaignSnapshot PrepareAbsent(string id,AuthIdentity identity,CampaignAbsentInput input)
+ {
+  lock(gate)
+  {
+   var record=RequireHost(id,identity).Record;
+   if(record.Lifecycle=="season-complete")throw new SessionFault(SessionFailure.Conflict,"Season complete.");
+   var index=input.NextEvent?record.PreparationEventIndex??throw new SessionFault(SessionFailure.Conflict,"Open next-event preparation first."):record.EventIndex;
+   if(!record.Teams.Any(t=>t.TeamId==input.TeamId))throw new SessionFault(SessionFailure.InvalidInput,"Choose a team from this campaign.");
+   weekends.PrepareAbsentCampaignTeam(record.Calendar[index].SessionId,identity,input.TeamId);
+   return Project(record);
+  }
+ }
  public CampaignSnapshot PrepareNext(string id,AuthIdentity identity)
  {
   lock(gate)
@@ -40,6 +52,7 @@ public sealed partial class CampaignCoordinator
   lock(gate)
   {
    var saved=RequireHost(id,identity);var record=saved.Record;
+   if(record.Lifecycle=="season-complete")throw new SessionFault(SessionFailure.Conflict,"Season complete. No further weekend can be opened.");
    if(record.PreparationEventIndex is {} index)
    {
     EnsureNext(record,identity);weekends.RefreshCampaignWeekend(record.Calendar[index].SessionId);var readiness=weekends.PreparationPublic(record.Calendar[index].SessionId);

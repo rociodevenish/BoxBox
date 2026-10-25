@@ -272,7 +272,7 @@ public sealed partial class SessionCoordinator
         lobby.ModuleState[PreparationModule]=JsonSerializer.Serialize(state,BrowserReplay.JsonOptions);
     private static PreparationPublicSnapshot ProjectPreparation(Lobby lobby,PreparedLobby state)=>
         new(lobby.Id,lobby.Revision,lobby.Lifecycle,state.Teams.First().Value.Preset.Circuit,state.Teams.Keys.ToArray(),
-            state.Teams.Select(t=>new PreparationReadiness(t.Key,t.Value.Lifecycle is "final-ready" or "locked",t.Value.Lifecycle=="locked")).ToArray(),state.Teams.First().Value.Observed);
+            state.Teams.Select(t=>new PreparationReadiness(t.Key,t.Value.Lifecycle is "final-ready" or "locked",t.Value.Lifecycle=="locked",t.Value.Source)).ToArray(),state.Teams.First().Value.Observed);
     private static PreparationPolicyObservation ObservePreparation(PreparedTeam team)=>
         new(PreparationDecisionPolicy.ObservationVersion,string.Join("|",team.Preset.Version,team.Preset.Circuit.Version,
             team.Preset.Cars[0].Car.Version,team.Preset.Cars[0].Driver.Version,team.Preset.Cars[1].Driver.Version,team.Preset.Engineer.Version),

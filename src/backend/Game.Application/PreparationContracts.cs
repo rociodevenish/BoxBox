@@ -10,7 +10,7 @@ public record FrozenPreparedTeam(string TeamId, long Revision, string Source, We
 public record PreparationGuidance(string HelpLevel,bool AutoAcceptRecommendation,PreparationRecommendation? Recommendation);
 public record PreparationAutomaticRecord(string TeamId,string Source,IReadOnlyList<RecordedPreparationChoice> Choices);
 public record FrozenPreparationContext(string ContextId, string ModelVersion, IReadOnlyList<FrozenPreparedTeam> Teams);
-public record PreparationReadiness(string TeamId, bool FinalReady, bool Locked);
+public record PreparationReadiness(string TeamId, bool FinalReady, bool Locked,string Source="human");
 public record PracticeSnapshot(string ModelVersion, WeekendSetup Setup, string CircuitFeedback,
     IReadOnlyList<string> Compromises, IReadOnlyList<PracticeDriverFeedback> Drivers);
 public record SetupCommand(string CommandId, long? Revision, long? AssignmentRevision, WeekendSetup? Setup);
