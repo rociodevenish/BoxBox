@@ -1,0 +1,21 @@
+{
+  "command": "node",
+  "args": [
+    "tools/auth-emulator/node_modules/firebase-tools/lib/bin/firebase.js",
+    "emulators:exec",
+    "--only",
+    "auth,firestore",
+    "--project",
+    "demo-f1game",
+    "--config",
+    ".tools/reports/s11-remediation/firebase.json",
+    "--non-interactive",
+    "node .tools/reports/s11-remediation/api.mjs"
+  ],
+  "cwd": "C:\\Projects\\F1Game\\.worktrees\\s11-review-fixes",
+  "pid": 29148,
+  "startedAt": "2026-10-25T21:20:32.535Z",
+  "status": "failed",
+  "exitCode": 1,
+  "elapsedMs": 25300
+}

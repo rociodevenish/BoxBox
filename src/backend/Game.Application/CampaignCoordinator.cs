@@ -82,7 +82,7 @@ public sealed partial class CampaignCoordinator(SessionCoordinator weekends,ICam
         IReadOnlyList<PreparationReadiness> readiness=lobby.Lifecycle=="lobby"?[]:weekends.PreparationPublic(current.SessionId).Readiness;
         var lifecycle=CampaignRules.Lifecycle(record.Lifecycle,lobby.Lifecycle);
         return new(record.CampaignId,record.Revision,lifecycle,record.ContentVersion,record.CalendarVersion,record.Input.Mode,record.Calendar,record.Teams,
-            record.EventIndex,current.SessionId,readiness,CampaignRules.CanStart(lifecycle,readiness.Select(t=>t.FinalReady).ToArray()),Points:record.Points??ChampionshipScoring.Default,Standings:ChampionshipScoring.Rebuild(Entrants(record), (record.Contributions??[]).Select(c=>(IReadOnlyList<ChampionshipAward>)c.Awards)),Results:record.Contributions??[],NextPreparation:NextProjection(record));
+            record.EventIndex,current.SessionId,readiness,CampaignRules.CanStart(lifecycle,readiness.Select(t=>t.FinalReady).ToArray()),Points:record.Points??ChampionshipScoring.Default,Standings:ChampionshipScoring.Rebuild(CampaignScoringInputs.Entrants(record), (record.Contributions??[]).Select(c=>(IReadOnlyList<ChampionshipAward>)c.Awards)),Results:record.Contributions??[],NextPreparation:NextProjection(record));
     }
     private StoredCampaign RequireHost(string id,AuthIdentity identity){var saved=Require(id);if(saved.Record.HostUid!=identity.Uid)throw new SessionFault(SessionFailure.Forbidden,"Only this campaign's host can begin an event.");return saved;}
     private StoredCampaign Require(string id)=>ReadOptional(id)??throw new SessionFault(SessionFailure.Unavailable,"Campaign unavailable.");

@@ -1,0 +1,23 @@
+{
+  "runId": "2026-10-25T21-21-50-705Z-c3aa4db5-4f11-4abe-ad64-8d68c2e0c702",
+  "revision": "a10fcbc0241d2fb637ade87a0bb55ceb7c9c7c8a",
+  "startedAt": "2026-10-25T21:21:50.778Z",
+  "node": "v24.22.1",
+  "steps": [
+    {
+      "name": "build",
+      "command": "C:\\Users\\sbdev\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\node\\bin\\node.exe",
+      "args": [
+        "C:\\Projects\\F1Game\\.worktrees\\s11-review-fixes\\src\\frontend\\node_modules\\@angular\\cli\\bin\\ng.js",
+        "build"
+      ],
+      "cwd": "C:\\Projects\\F1Game\\.worktrees\\s11-review-fixes\\src\\frontend",
+      "pid": 7592,
+      "startedAt": "2026-10-25T21:21:50.780Z",
+      "status": "failed",
+      "exitCode": 1,
+      "elapsedMs": 5861
+    }
+  ],
+  "finishedAt": "2026-10-25T21:21:56.644Z"
+}

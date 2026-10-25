@@ -1,0 +1,19 @@
+{
+  "command": "dotnet",
+  "args": [
+    "run",
+    "--project",
+    "tools/CampaignEvidence",
+    "-p:",
+    "NuGetAudit=false",
+    "--",
+    "--replay",
+    ".scratch/campaign-championships/evidence/short-campaign.json.gz"
+  ],
+  "cwd": "C:\\Projects\\F1Game\\.worktrees\\s11-review-fixes",
+  "pid": 2808,
+  "startedAt": "2026-10-25T21:24:56.445Z",
+  "status": "passed",
+  "exitCode": 0,
+  "elapsedMs": 3259
+}
