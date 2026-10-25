@@ -1,5 +1,7 @@
 # S11 integration scope
 
+Completed automated implementation, verification and review: [final record](final/README.md). The sequencing below is the original integration plan; actual household and hosted observations remain pending.
+
 Implement the preset campaign on `codex/campaign-championships`, based on completed S10 `de0340be6060578699d36884fa5ba724e3ba8dba`. Earlier engineering, exact replay and independent reviews are complete; pending household understanding/pacing and hosted acceptance are not represented as measured prerequisites.
 
 The five-ticket graph is sequential: durable short campaign → scoring/standings → reports/next-event preparation → recovery/season completion → evidence. Use isolated implementation worktrees, independent merges, public-boundary TDD, and one integration branch. The parent explicitly approves public campaign rules, authenticated API/SignalR, real persistence/restart and focused browser testing; no new seam approval is needed.

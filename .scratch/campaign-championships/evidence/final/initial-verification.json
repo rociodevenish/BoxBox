@@ -1,0 +1,54 @@
+{
+  "runId": "2026-10-25T21-17-24-271Z-5a1d2e00-2f31-4b35-bf7e-ee80d1b70067",
+  "revision": "a10fcbc0241d2fb637ade87a0bb55ceb7c9c7c8a",
+  "startedAt": "2026-10-25T21:17:24.324Z",
+  "node": "v24.22.1",
+  "steps": [
+    {
+      "name": "tooling",
+      "command": "C:\\Users\\sbdev\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\node\\bin\\node.exe",
+      "args": [
+        "--test",
+        "tools/tests/run-bounded.test.mjs",
+        "tools/tests/publish-evidence.test.mjs"
+      ],
+      "cwd": "C:\\Projects\\F1Game",
+      "pid": 18976,
+      "startedAt": "2026-10-25T21:17:24.326Z",
+      "status": "passed",
+      "exitCode": 0,
+      "elapsedMs": 851
+    },
+    {
+      "name": "typecheck",
+      "command": "C:\\Users\\sbdev\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\node\\bin\\node.exe",
+      "args": [
+        "C:\\Projects\\F1Game\\src\\frontend\\node_modules\\@angular\\compiler-cli\\bundles\\src\\bin\\ngc.js",
+        "-p",
+        "tsconfig.app.json",
+        "--noEmit"
+      ],
+      "cwd": "C:\\Projects\\F1Game\\src\\frontend",
+      "pid": 8284,
+      "startedAt": "2026-10-25T21:17:25.180Z",
+      "status": "passed",
+      "exitCode": 0,
+      "elapsedMs": 5645
+    },
+    {
+      "name": "build",
+      "command": "C:\\Users\\sbdev\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\node\\bin\\node.exe",
+      "args": [
+        "C:\\Projects\\F1Game\\src\\frontend\\node_modules\\@angular\\cli\\bin\\ng.js",
+        "build"
+      ],
+      "cwd": "C:\\Projects\\F1Game\\src\\frontend",
+      "pid": 6100,
+      "startedAt": "2026-10-25T21:17:30.828Z",
+      "status": "failed",
+      "exitCode": 1,
+      "elapsedMs": 11689
+    }
+  ],
+  "finishedAt": "2026-10-25T21:17:42.519Z"
+}

@@ -1,7 +1,9 @@
 # S11 — Campaign, calendar and championships
 
-Status: ready-for-agent
+Status: ready-for-human
 Blocked by: weather strategy and the complete-weekend evidence; durable shared-session identity, recovery and control contracts.
+
+Implementation and independent review are complete. See [final integration evidence](evidence/final/README.md) for passing checks, supported fixture scope and outstanding household/hosted observations.
 
 ## Problem Statement
 

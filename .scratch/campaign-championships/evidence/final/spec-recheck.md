@@ -1,0 +1,11 @@
+# Narrow Spec recheck
+
+Reviewed `a10fcbc0241d2fb637ade87a0bb55ceb7c9c7c8a...79374076bb00b44cb79fbaeb3c19c6c33cc96670`, including remediation source, public regression changes and `evidence/remediation/README.md`. No tests or services run.
+
+**Prior P2 resolved.** `src/backend/Game.Application/SessionCoordinator.Campaign.cs:86–118` now separates registration from binding. Every explicit authenticated return evaluates owned assignments even when the supplied device is already registered. A device registered during qualifying can therefore return with its cached identity during the race and queue its grant at the next existing boundary; an explicit return in next preparation binds it there. This satisfies “Host-directed AI takeover/reclaim uses existing boundary rules” and the returning-player story “I want authorised reclaim, so that I can resume my team safely.”
+
+The changed logic preserves current authorised grants, preserves the phase of an existing same-device pending grant, revokes the old grant before scheduling replacement, and leaves accepted race locks and explicit AI control state intact. Added public regression scenarios exercise qualifying registration followed by same-device race return, restart, boundary activation, old HTTP/SignalR denial and idempotent retries. The next-event matrix explicitly reuses a known public-only device.
+
+**No remaining actionable finding in this narrow remediation.** The shared scoring mapping preserves the previous stable-person/raw-position behavior. Test-owned session enumeration is limited to harness isolation, while coordinators still share real durable persistence. Deferred pathname views retain existing navigation behavior and the unchanged budget; the evidence distinguishes development-browser interaction from the production chunk/build check.
+
+Evidence reports 20 API cases, five scoring cases, unchanged published archive replay and one complete browser flow, with failed/intermediate attempts retained. These were reviewed as reported evidence, not independently rerun here. Actual multi-day household comprehension/acceptance, hosted usage/cost and full-calendar acceptance remain explicitly pending; this recheck does not mark them complete.

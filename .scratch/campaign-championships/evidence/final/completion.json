@@ -1,0 +1,113 @@
+{
+  "implementationRevision": "79374076bb00b44cb79fbaeb3c19c6c33cc96670",
+  "baseline": "de0340be6060578699d36884fa5ba724e3ba8dba",
+  "branch": "codex/campaign-championships",
+  "verification": {
+    "controlTests": 1,
+    "apiTests": 203,
+    "completion": "verification-completion.json",
+    "initial": "initial-verification.json",
+    "browserTests": 22,
+    "passedStages": [
+      "tooling",
+      "typecheck",
+      "build",
+      "backend",
+      "gallery",
+      "browser",
+      "boundary",
+      "shared",
+      "assistance",
+      "control",
+      "deadlines",
+      "hosted"
+    ],
+    "simulationTests": 209,
+    "deadlineTests": 1,
+    "unchangedErrorBudgetKb": 500,
+    "galleryTests": 34,
+    "sharedTests": 14,
+    "productionInitialKb": 427.34,
+    "hostedTests": 1,
+    "boundaryTests": 2,
+    "assistanceTests": 1
+  },
+  "environment": {
+    "browserCache": ".tools/playwright",
+    "firebaseConfigHome": ".tools/firebase-config",
+    "node": "24.22.1",
+    "sdk": "10.0.401",
+    "uiPort": 4547,
+    "artifacts": ".tools/artifacts/s11-final",
+    "NuGetAudit": "false, invocation only; existing advisory unresolved",
+    "controlWebsocket": 9184,
+    "F1_RECOVERY_HOST": "127.0.0.1:19650",
+    "apiPort": 4647,
+    "emulatorRules": "firestore.rules",
+    "emulatorConfig": "verification-emulators.json",
+    "java": "21"
+  },
+  "campaignEvidence": {
+    "lapsPerEvent": 6,
+    "drivers": 22,
+    "replayed": [
+      "Q1/Q2/Q3",
+      "qualifying grid",
+      "automatic opening",
+      "race operations",
+      "raw results",
+      "awards",
+      "standings"
+    ],
+    "events": 2,
+    "sha256": "6A5CC13A5F29ABA900527D85875C55646518D879F05A89558106EEDB0B24F842",
+    "mode": "Competitive",
+    "constructors": 11,
+    "archive": "../short-campaign.json.gz",
+    "campaigns": 1,
+    "fullCalendar": "disabled pending validated manifest"
+  },
+  "applicationUsage": {
+    "returnedReadBytes": 44521469,
+    "adapter": "VolatileSessionStore",
+    "readAttempts": 60,
+    "writeAttempts": 37,
+    "rpcChunkCloudBillingObserved": false,
+    "peakWriteBytes": 1672659,
+    "attemptedWriteBytes": 30559713,
+    "scheduledListAttempts": 14
+  },
+  "reviews": {
+    "standards": {
+      "originalOptionalP3": 1,
+      "originalHardBreaches": 0,
+      "remaining": 0
+    },
+    "spec": {
+      "originalP2": 1,
+      "remaining": 0
+    }
+  },
+  "visualReview": {
+    "assessment": "Completion and primary/secondary champions above fold; names, points and missing-image report links readable. Historical tables intentionally scroll.",
+    "phoneViewport": "360x800",
+    "display": "../s11-05-top-viewport-1920.png",
+    "displayViewport": "1920x1080",
+    "phone": "../s11-05-top-viewport-360.png"
+  },
+  "cleanup": {
+    "worktrees": [
+      "C:/Projects/F1Game"
+    ],
+    "pushPrOrDeployment": false,
+    "workerPreservation": ".tools/reports/s11/*/*manifest*.json",
+    "record": "listeners.json",
+    "unrelatedProcessesStopped": false,
+    "ownedListeners": []
+  },
+  "pendingHumanAcceptance": [
+    "separate-day household joining/readiness/reclaim clarity",
+    "progression failures and return time",
+    "actual hosted usage/cost"
+  ]
+}

@@ -11,3 +11,5 @@ Integration branch: `codex/campaign-championships`, based on completed S10 `de03
 | [05 — Campaign evidence](issues/05-campaign-evidence.md) | ready-for-human — [Answer/evidence](evidence/05-campaign.md) | 04 |
 
 See [integration scope](evidence/integration.md). Individual ticket files retain authoritative claims and Answers.
+
+All implementation work is integrated. See [final verification and independent reviews](evidence/final/README.md). Actual multi-day household clarity, hosted usage and full-calendar content validation remain pending.
