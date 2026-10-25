@@ -75,8 +75,19 @@ test('returning host finishes two events and preserves final champions and histo
  for(const width of [360,1920]){
   await page.setViewportSize({width,height:width===360?800:1080});
   expect(await page.evaluate(()=>document.documentElement.scrollWidth)).toBeLessThanOrEqual(width);
-  await page.screenshot({path:captures+'/s11-04-season-complete-'+width+'.png',fullPage:true});
-  await page.getByRole('region',{name:'Season champions'}).screenshot({path:captures+'/s11-04-champions-'+width+'.png'});
+  await page.evaluate(()=>window.scrollTo(0,0));
+  const bounds=await page.getByRole('region',{name:'Season champions'}).boundingBox();
+  expect(bounds).not.toBeNull();expect(bounds!.y+bounds!.height).toBeLessThanOrEqual(width===360?800:1080);
+  await page.screenshot({path:captures+'/s11-05-top-viewport-'+width+'.png'});
+  await page.screenshot({path:captures+'/s11-05-season-history-'+width+'.png',fullPage:true});
+  await page.route('**/{portraits,tracks}/**',route=>route.abort());
+  await page.reload();await assertCompleted();
+  for(const image of await page.locator('img').all())await expect(image).toBeHidden();
+  await expect(page.getByRole('heading',{name:'Autodromo Nazionale Monza',exact:true}).first()).toBeVisible();
+  await page.evaluate(()=>window.scrollTo(0,0));
+  await page.screenshot({path:captures+'/s11-05-missing-images-'+width+'.png'});
+  await page.locator('.calendar').screenshot({path:captures+'/s11-05-calendar-fallback-'+width+'.png'});
+  await page.unroute('**/{portraits,tracks}/**');await page.reload();await assertCompleted();
  }
  await returning.close();
 });

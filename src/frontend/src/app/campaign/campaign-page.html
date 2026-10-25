@@ -18,6 +18,7 @@
    <button (click)="refresh()" [disabled]="busy()">Refresh campaign</button>
    <a [href]="'/shared/lobby/'+season.weekendId">Household assignments and control</a>
   </section>
+  @if(season.lifecycle==='season-complete'){<section aria-label="Season champions"><h2>Constructors' champion · {{teamName(season.standings.constructors[0].id)}}</h2><p>Primary championship · {{season.standings.constructors[0].points}} points</p><h3>Drivers' champion · {{driverName(season.standings.drivers[0].id)}}</h3><p>Secondary championship · {{season.standings.drivers[0].points}} points</p><p>All event reports and championship history remain available below. This season has ended.</p></section>}
   <section><h2>Calendar</h2><div class="calendar">@for(event of season.calendar;track event.eventId){
    <article [class.current]="event.order===season.eventIndex+1"><img [src]="trackImage(event.trackId)" alt="" (error)="$any($event.target).hidden=true">
     <p>Event {{event.order}} {{event.order===season.eventIndex+1?'· Current':''}}</p><h3>{{event.trackName}}</h3>
@@ -48,7 +49,6 @@
    </section>
    @for(report of season.results;track report.eventId){<section [id]="'report-'+report.eventId"><h2>Event report</h2><h3>{{reportName(report.eventId)}}</h3><p>Committed result · {{season.points.version}}</p><ol>@for(row of report.result.classification;track row.personId){<li>{{row.position}}. {{driverName(row.personId)}} · {{row.status}} · {{row.laps}} laps · {{awarded(report,row.personId)}} points · Championship {{previousPoints(report,row.personId)}} → {{previousPoints(report,row.personId)+awarded(report,row.personId)}} (+{{awarded(report,row.personId)}})</li>}</ol></section>}
   }
-  @if(season.lifecycle==='season-complete'){<section aria-label="Season champions"><h2>Constructors' champion · {{teamName(season.standings.constructors[0].id)}}</h2><p>Primary championship · {{season.standings.constructors[0].points}} points</p><h3>Drivers' champion · {{driverName(season.standings.drivers[0].id)}}</h3><p>Secondary championship · {{season.standings.drivers[0].points}} points</p><p>All event reports and championship history remain available above. This season has ended.</p></section>}
   <section><h2>Frozen preset roster</h2><div class="roster">@for(team of season.teams;track team.teamId){<article><h3>{{team.constructorName}}</h3>@for(driver of team.drivers;track driver.personId){<p><img class="portrait" [src]="portrait(driver.personId)" alt="" (error)="$any($event.target).hidden=true">{{driver.name}}</p>}</article>}</div></section>
  }
 </main>
