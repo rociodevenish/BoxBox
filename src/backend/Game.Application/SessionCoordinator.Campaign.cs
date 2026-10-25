@@ -87,24 +87,34 @@ public sealed partial class SessionCoordinator
             if(device is null)
             {
                 device=new(Guid.NewGuid().ToString("N"),identity.Uid);lobby.Devices.Add(device);lobby.Revision++;
-                foreach(var pair in lobby.Assignments.Where(p=>p.Value.PlayerId==player.Id&&lobby.Lifecycle is "lobby" or "preparing").ToArray())
-                {
-                    // Explicit authenticated reclaim replaces prior devices; accepted setup and practice stay intact.
-                    lobby.Assignments[pair.Key]=pair.Value with{DeviceId=device.Id,AdditionalDevices=[],Revision=lobby.Revision};
-                }
-                if(lobby.Race is {} race&&!race.Engine.GetState().Finished)
-                {
-                    var pending=lobby.ModuleState.TryGetValue(CampaignRebind,out var json)?JsonSerializer.Deserialize<Dictionary<string,CampaignRebindIntent>>(json,BrowserReplay.JsonOptions)!:[];
-                    foreach(var pair in lobby.Assignments.Where(p=>p.Value.PlayerId==player.Id).ToArray())
-                    {
-                        // Revoke now, grant only at the existing next decision boundary. Accepted locks remain in the race.
-                        lobby.Assignments[pair.Key]=pair.Value with{Approved=false,AdditionalDevices=[],Revision=lobby.Revision};
-                        pending[pair.Key]=new(device.Id,race.Phase+1);
-                    }
-                    lobby.ModuleState[CampaignRebind]=JsonSerializer.Serialize(pending,BrowserReplay.JsonOptions);
-                }
-                Persist(eventId);
             }
+            // Registration can happen while qualifying is locked. Every explicit authenticated
+            // return must also consider binding, including a device already known to this lobby.
+            var owned=lobby.Assignments.Where(p=>p.Value.PlayerId==player.Id&&
+                !(p.Value.Approved&&(p.Value.DeviceId==device.Id||(p.Value.AdditionalDevices?.Contains(device.Id)??false)))).ToArray();
+            var changed=false;
+            if(lobby.Lifecycle is "lobby" or "preparing")
+            {
+                foreach(var pair in owned)
+                {
+                    lobby.Assignments[pair.Key]=pair.Value with{DeviceId=device.Id,AdditionalDevices=[],Approved=true,Revision=++lobby.Revision};
+                    changed=true;
+                }
+            }
+            else if(lobby.Race is {} race&&!race.Engine.GetState().Finished)
+            {
+                var pending=lobby.ModuleState.TryGetValue(CampaignRebind,out var json)?JsonSerializer.Deserialize<Dictionary<string,CampaignRebindIntent>>(json,BrowserReplay.JsonOptions)!:[];
+                foreach(var pair in owned)
+                {
+                    // Retrying the same return must not postpone its already accepted boundary.
+                    if(pending.TryGetValue(pair.Key,out var intent)&&intent.DeviceId==device.Id)continue;
+                    lobby.Assignments[pair.Key]=pair.Value with{Approved=false,AdditionalDevices=[],Revision=++lobby.Revision};
+                    pending[pair.Key]=new(device.Id,race.Phase+1);changed=true;
+                }
+                if(changed)lobby.ModuleState[CampaignRebind]=JsonSerializer.Serialize(pending,BrowserReplay.JsonOptions);
+            }
+            // Persist new registration even when qualifying prevents a private grant.
+            if(changed||device.Id!=deviceId)Persist(eventId);
             return new(ProjectLobby(lobby),new(player.Id,device.Id,lobby.Host==identity.Uid));
         }
     }

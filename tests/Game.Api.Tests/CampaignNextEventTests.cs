@@ -29,7 +29,7 @@ public sealed class CampaignNextEventTests
  public async Task Returning_member_prepares_second_circuit_without_changing_history_or_rerolling_practice(string mode,int interrupted,bool committedFirst)
  {
   var token=await LobbyTests.Identity(false);var clock=new Clock();
-  var store=new InterruptedStore(new FirestoreSessionStore("demo-f1game",Environment.GetEnvironmentVariable("F1_RECOVERY_HOST")??"127.0.0.1:19600"));
+  var store=new InterruptedStore(new CampaignTestSessionScope(new FirestoreSessionStore("demo-f1game",Environment.GetEnvironmentVariable("F1_RECOVERY_HOST")??"127.0.0.1:19600")));
   await using var server=LobbyTests.Server().WithWebHostBuilder(b=>b.ConfigureServices(s=>{s.Replace(ServiceDescriptor.Singleton<TimeProvider>(clock));s.Replace(ServiceDescriptor.Singleton<ISessionStore>(store));}));
   using var client=server.CreateClient();client.DefaultRequestHeaders.Authorization=new("Bearer",token);
   var created=await client.PostAsJsonAsync("/api/campaigns",new CreateCampaignInput(Guid.NewGuid().ToString(),"Host",mode));created.EnsureSuccessStatusCode();var joined=(await created.Content.ReadFromJsonAsync<CampaignJoined>())!;
@@ -51,7 +51,7 @@ public sealed class CampaignNextEventTests
   await using var observing=LobbyTests.Server().WithWebHostBuilder(b=>b.ConfigureServices(s=>{s.Replace(ServiceDescriptor.Singleton<TimeProvider>(clock));s.Replace(ServiceDescriptor.Singleton<ISessionStore>(store));}));
   using var observer=observing.CreateClient();observer.DefaultRequestHeaders.Authorization=new("Bearer",token);
   (await observer.GetAsync($"/api/lobbies/{state.NextPreparation!.SessionId}/preparation/teams/team-01?deviceId={device}")).EnsureSuccessStatusCode();
-  var returning=await client.PostAsJsonAsync($"/api/campaigns/{id}/return",new{nextEvent=true});returning.EnsureSuccessStatusCode();var membership=(await returning.Content.ReadFromJsonAsync<JoinedLobby>())!;
+  var returning=await client.PostAsJsonAsync($"/api/campaigns/{id}/return",new{nextEvent=true,deviceId=readOnly.Membership.DeviceId});returning.EnsureSuccessStatusCode();var membership=(await returning.Content.ReadFromJsonAsync<JoinedLobby>())!;
   Assert.Equal(joined.Weekend.Membership.PlayerId,membership.Membership.PlayerId);Assert.NotEqual(first,membership.Lobby.SessionId);
   var second=membership.Lobby.SessionId;var nextDevice=membership.Membership.DeviceId;
   Assert.Equal(HttpStatusCode.Forbidden,(await observer.GetAsync($"/api/lobbies/{second}/preparation/teams/team-01?deviceId={device}")).StatusCode);
