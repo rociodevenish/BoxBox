@@ -1,0 +1,15 @@
+{
+  "command": "node",
+  "args": [
+    "src/frontend/node_modules/@playwright/test/cli.js",
+    "test",
+    "--config",
+    ".tools/reports/s11-remediation/playwright.config.ts"
+  ],
+  "cwd": "C:\\Projects\\F1Game\\.worktrees\\s11-review-fixes",
+  "pid": 14448,
+  "startedAt": "2026-10-25T21:27:30.949Z",
+  "status": "passed",
+  "exitCode": 0,
+  "elapsedMs": 35006
+}
