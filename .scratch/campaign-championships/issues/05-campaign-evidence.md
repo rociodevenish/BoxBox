@@ -4,7 +4,7 @@
 
 **Blocked by:** 04: Recover multi-day campaigns and conclude the season.
 
-**Status:** ready-for-agent
+**Status:** ready-for-human
 
 ## Acceptance criteria
 
@@ -18,3 +18,7 @@
 [Parent spec](../spec.md). Read its implementation, testing, scope, and Data and asset references before implementation. Review the named driver/track/car/construction data as relevant; record provisional-to-runtime mappings and content versions without converting card stars silently into physics.
 
 For presentation, inspect the current supplied asset collection, including new additions; map stable identities, preserve originals, record provenance and runtime packaging, and retain live text and readable fallbacks. Do not infer simulation geometry or rules from imagery.
+
+## Claim and Answer
+
+Claimed by s11-05. Automated implementation and reproducible history complete; [Answer and evidence](../evidence/05-campaign.md). Actual multi-day household evaluation and hosted usage remain unmeasured and ready for human work.

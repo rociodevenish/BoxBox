@@ -1,0 +1,25 @@
+import { test } from 'node:test';
+import assert from 'node:assert/strict';
+import { mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import { spawnSync } from 'node:child_process';
+import { gzipSync, gunzipSync } from 'node:zlib';
+const dll=join(process.cwd(),'tools/CampaignEvidence/bin/Debug/net10.0/CampaignEvidence.dll');
+const run=(...args)=>spawnSync('dotnet',[dll,...args],{encoding:'utf8',timeout:60000});
+test('frozen short campaign replays exactly, rejects changed results and preserves an existing output',()=>{
+ const output=mkdtempSync(join(tmpdir(),'f1-campaign-evidence-'));
+ const created=run(output);assert.equal(created.status,0,created.stderr);
+ const path=join(output,'short-campaign.json.gz');const original=readFileSync(path);
+ const replay=run('--replay',path);assert.equal(replay.status,0,replay.stderr);
+ assert.notEqual(run(output).status,0);assert.deepEqual(readFileSync(path),original);
+ const saved=JSON.parse(gunzipSync(original));
+ assert.equal(saved.campaign.calendar[0].trackId,'track-monza');assert.equal(saved.campaign.calendar[1].trackId,'track-monaco');
+ assert.equal(saved.campaign.teams.length,11);assert.equal(saved.campaign.contributions[1].result.classification.length,22);
+ saved.campaign.contributions[0].awards[0].points+=1;
+ const changed=join(output,'changed.json.gz');writeFileSync(changed,gzipSync(JSON.stringify(saved)));
+ assert.notEqual(run('--replay',changed).status,0);
+ const damaged=JSON.parse(gunzipSync(original));damaged.campaign.contributions[1].result.hash='damaged';writeFileSync(changed,gzipSync(JSON.stringify(damaged)));assert.notEqual(run('--replay',changed).status,0);
+ const gated=JSON.parse(gunzipSync(original));gated.campaign.calendar.push({...gated.campaign.calendar[0],trackId:"track-unvalidated"});writeFileSync(changed,gzipSync(JSON.stringify(gated)));assert.notEqual(run("--replay",changed).status,0);
+ const text=gunzipSync(original).toString();assert.doesNotMatch(text,/"(?:authorization|cookie|grantHash|idToken|refreshToken)"/i);
+});
