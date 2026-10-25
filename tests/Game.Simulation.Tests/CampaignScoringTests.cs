@@ -1,8 +1,23 @@
 using Game.Domain;
+using Game.Simulation;
+using System.Collections.Immutable;
 using Xunit;
 namespace Game.Simulation.Tests;
 public sealed class CampaignScoringTests
 {
+ [Fact] public void Understood_materialised_weekend_uses_its_recorded_source_metadata()
+ {
+  var current=WeekendPresetCatalog.Open("track-monza","driver-lando-norris","driver-oscar-piastri");
+  var frozen=current with{Circuit=current.Circuit with{Version="1.0.0/reviewed-old-content"},Cars=current.Cars.Select(c=>c with{Car=c.Car with{Version="car-spec/1.0.0/old"},Driver=c.Driver with{Version="1.0.0/reviewed-old-content"}}).ToImmutableArray()};
+  var prepared=WeekendPreparation.Prepare(frozen,6,new());
+  Assert.Equal("1.0.0/reviewed-old-content",prepared.Source.Circuit.Version);
+  Assert.Equal(6,prepared.Configuration.Laps);
+ }
+ [Fact] public void Completed_season_stays_complete_and_cannot_start_another_weekend()
+ {
+  Assert.Equal("season-complete",CampaignRules.Lifecycle("season-complete","started"));
+  Assert.False(CampaignRules.CanStart("season-complete",[true,true]));
+ }
  [Fact] public void Raw_positions_retirement_and_eligibility_determine_points_without_promotion()
  {
   var entrants=new[]{new ChampionshipEntrant("a","red",0),new ChampionshipEntrant("b","red",1),new ChampionshipEntrant("c","blue",2),new ChampionshipEntrant("d","blue",3)};

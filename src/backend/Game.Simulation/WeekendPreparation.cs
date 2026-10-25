@@ -76,9 +76,11 @@ public static class WeekendPreparation
     {
         ArgumentNullException.ThrowIfNull(preset);
         setup?.Validate();
-        if (preset.Version != ModelVersion || preset.Circuit.Version != CardVersion
+        // Source metadata identifies the frozen materialised values, not the currently
+        // bundled catalogue. Compatibility is governed by the model and typed bounds.
+        if (preset.Version != ModelVersion || !SupportsSource(preset.Circuit.Version,"1.0.0/")
             || preset.Engineer.Version != "authored-engineer-v1"
-            || preset.Cars.Any(c => c.Car.Version != CarVersion || c.Driver.Version != CardVersion)
+            || preset.Cars.Any(c => !SupportsSource(c.Car.Version,"car-spec/1.0.0/") || !SupportsSource(c.Driver.Version,"1.0.0/"))
             || preset.BaseCarId != "neutral-base-v1"
             || preset.PackageId != "neutral-package-v1" || preset.SetupId != "neutral-setup-v1"
             || preset.Cars.Length != 2 || preset.Cars.Select(c => c.EntryId).Distinct().Count() != 2
@@ -126,6 +128,7 @@ public static class WeekendPreparation
             setup is null ? [] : preset.Cars.Select(c => WeekendSetupTuning.Fit(c.Driver, setup)).ToImmutableArray());
     }
 
+    private static bool SupportsSource(string version,string schema)=>version is not null&&version.StartsWith(schema,StringComparison.Ordinal)&&!string.IsNullOrWhiteSpace(version[schema.Length..]);
     private static void Validate(ImmutableDictionary<string, double> values, ImmutableArray<string> keys)
     {
         if (values.Count != keys.Length || keys.Any(key => !values.TryGetValue(key, out var value)

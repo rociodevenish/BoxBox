@@ -16,14 +16,25 @@ public sealed partial class CampaignCoordinator
   for(var attempt=0;attempt<8;attempt++)
   {
    var record=saved.Record;var current=record.Calendar[record.EventIndex];
-   if((record.Contributions??[]).Any(c=>c.EventId==current.EventId))return saved;
+   if((record.Contributions??[]).Any(c=>c.EventId==current.EventId))
+   {
+    if(record.EventIndex!=record.Calendar.Length-1||record.Lifecycle=="season-complete")return saved;
+    // Older understood records may already contain the last contribution. Repair only
+    // the lifecycle under CAS; never award the final event again.
+    try{Write(record.CampaignId,saved.Version,record with{Lifecycle="season-complete",Revision=record.Revision+1});return Require(record.CampaignId);}
+    catch(SessionFault fault) when(fault.Failure is SessionFailure.Conflict or SessionFailure.StorageUnavailable)
+    {
+     var refreshed=Require(record.CampaignId);if(refreshed.Record.Lifecycle=="season-complete")return refreshed;
+     if(fault.Failure==SessionFailure.StorageUnavailable)throw;saved=refreshed;continue;
+    }
+   }
    var result=weekends.CommittedCampaignResult(current.SessionId);if(result is null)return saved;
    var entrants=Entrants(record);
    if(result.Classification.Length!=entrants.Length||result.Classification.Any(r=>!record.Teams.Any(t=>t.TeamId==r.TeamId&&t.Drivers.Any(d=>d.PersonId==r.PersonId&&d.EntryId==r.EntryId))))throw new SessionFault(SessionFailure.Conflict,"Weekend result does not match the frozen campaign roster.");
    var points=record.Points??ChampionshipScoring.Default;
    var awards=ChampionshipScoring.Score(points,entrants,result.Classification.Select(r=>new ChampionshipFinish(r.PersonId,r.Position,r.Eligible,r.Status=="retired")).ToArray());
    var contribution=new CampaignEventContribution(current.EventId,result,ChampionshipScoring.Version,points.Version,awards);
-   var next=record with{Contributions=[..record.Contributions??[],contribution],Lifecycle="event-result-committed",Revision=record.Revision+1};
+   var next=record with{Contributions=[..record.Contributions??[],contribution],Lifecycle=record.EventIndex==record.Calendar.Length-1?"season-complete":"event-result-committed",Revision=record.Revision+1};
    try{Write(record.CampaignId,saved.Version,next);return Require(record.CampaignId);}
    catch(SessionFault fault) when(fault.Failure is SessionFailure.Conflict or SessionFailure.StorageUnavailable)
    {

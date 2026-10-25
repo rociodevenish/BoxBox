@@ -1,10 +1,46 @@
 using System.Collections.Immutable;
 using Game.Domain;
 using Game.Simulation;
+using System.Text.Json;
 namespace Game.Application;
 
 public sealed partial class SessionCoordinator
 {
+    private const string CampaignRebind="campaign-boundary-rebind-v1";
+    private sealed record CampaignRebindIntent(string DeviceId,int Phase);
+    public void PrepareAbsentCampaignTeam(string id,AuthIdentity identity,string teamId)
+    {
+        mutations.Wait();try{lock(gate)
+        {
+            RefreshCampaignWeekend(id);var lobby=RequireLobby(id);RequireHost(lobby,identity);
+            if(lobby.CampaignPresets is null||lobby.Lifecycle!="preparing")throw new SessionFault(SessionFailure.Conflict,"Absent-team preparation is available only before the qualifying lock.");
+            var state=ReadPreparation(lobby);
+            if(!lobby.Assignments.ContainsKey(teamId)||!state.Teams.TryGetValue(teamId,out var team))throw new SessionFault(SessionFailure.InvalidInput,"Choose an assigned campaign team.");
+            if(team.Lifecycle=="final-ready")return;
+            PreparedTeam prepared;
+            if(team.Practice is null)prepared=PrepareAutomaticTeam(lobby,team);
+            else
+            {
+                var observation=ObservePreparation(team);var choice=PreparationDecisionPolicy.Evaluate(observation);
+                prepared=team with{Setup=choice.Setup,Effective=ApplyWeekendConditions(lobby,WeekendPreparation.Prepare(team.Preset,lobby.Input.Laps!.Value,choice.Setup)),Lifecycle="final-ready",Revision=team.Revision+1,AutomaticChoices=[new("final",observation,choice)]};
+            }
+            state.Teams[teamId]=prepared with{Source="host-absent-ai"};
+            lobby.Revision++;WritePreparation(lobby,state);Persist(id);
+        }}finally{mutations.Release();}
+    }
+    private void ApplyCampaignRebindBoundary(Session session,Lobby lobby)
+    {
+        if(!lobby.ModuleState.TryGetValue(CampaignRebind,out var json))return;
+        var pending=JsonSerializer.Deserialize<Dictionary<string,CampaignRebindIntent>>(json,BrowserReplay.JsonOptions)!;
+        foreach(var (team,intent) in pending.ToArray())
+        {
+            if(intent.Phase>session.Phase)continue;
+            if(lobby.Assignments.TryGetValue(team,out var assignment))
+                lobby.Assignments[team]=assignment with{DeviceId=intent.DeviceId,AdditionalDevices=[],Approved=true,Revision=++lobby.Revision};
+            pending.Remove(team);
+        }
+        if(pending.Count==0)lobby.ModuleState.Remove(CampaignRebind);else lobby.ModuleState[CampaignRebind]=JsonSerializer.Serialize(pending,BrowserReplay.JsonOptions);
+    }
     public void RefreshCampaignWeekend(string id)
     {
         lock(gate)
@@ -25,6 +61,11 @@ public sealed partial class SessionCoordinator
             lobby.CampaignPresets=frozen;lobby.CampaignConditions=conditions;lobby.ModuleState["campaign-standby-v1"]=previousId;
             lobby.Players.AddRange(previous.Players);lobby.Devices.AddRange(previous.Devices);
             foreach(var pair in previous.Assignments)lobby.Assignments.Add(pair.Key,pair.Value);
+            // Weekend preparation is a new boundary: complete any authenticated device return,
+            // but reset race AI modes, pending control intents and decision locks.
+            if(previous.ModuleState.TryGetValue(CampaignRebind,out var pendingJson))
+                foreach(var (team,intent) in JsonSerializer.Deserialize<Dictionary<string,CampaignRebindIntent>>(pendingJson,BrowserReplay.JsonOptions)!)
+                    if(lobby.Assignments.TryGetValue(team,out var assignment))lobby.Assignments[team]=assignment with{DeviceId=intent.DeviceId,AdditionalDevices=[],Approved=true,Revision=lobby.Revision};
             lobbies.Add(nextId,lobby);Persist(nextId);
         }
     }
@@ -50,6 +91,17 @@ public sealed partial class SessionCoordinator
                 {
                     // Explicit authenticated reclaim replaces prior devices; accepted setup and practice stay intact.
                     lobby.Assignments[pair.Key]=pair.Value with{DeviceId=device.Id,AdditionalDevices=[],Revision=lobby.Revision};
+                }
+                if(lobby.Race is {} race&&!race.Engine.GetState().Finished)
+                {
+                    var pending=lobby.ModuleState.TryGetValue(CampaignRebind,out var json)?JsonSerializer.Deserialize<Dictionary<string,CampaignRebindIntent>>(json,BrowserReplay.JsonOptions)!:[];
+                    foreach(var pair in lobby.Assignments.Where(p=>p.Value.PlayerId==player.Id).ToArray())
+                    {
+                        // Revoke now, grant only at the existing next decision boundary. Accepted locks remain in the race.
+                        lobby.Assignments[pair.Key]=pair.Value with{Approved=false,AdditionalDevices=[],Revision=lobby.Revision};
+                        pending[pair.Key]=new(device.Id,race.Phase+1);
+                    }
+                    lobby.ModuleState[CampaignRebind]=JsonSerializer.Serialize(pending,BrowserReplay.JsonOptions);
                 }
                 Persist(eventId);
             }
