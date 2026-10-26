@@ -31,6 +31,6 @@ public record CommittedWeekendRow(string EntryId,string PersonId,string TeamId,i
 public record CommittedWeekendResult(string SessionId,string StorageVersion,long Revision,string ModelVersion,string RandomnessVersion,int RaceLaps,double CircuitLength,double? TargetDistance,CommittedWeekendRow[] Classification,string Hash);
 public record CampaignEventContribution(string EventId,CommittedWeekendResult Result,string ScoringVersion,string PointsVersion,ChampionshipAward[] Awards);
 
-public record AcquisitionPublicSnapshot(string Version,string PoolVersion,string PriceVersion,string? ActiveTeamId,string? Slot,int RequiredSlots,int FilledSlots);
+public record AcquisitionPublicSnapshot(string Version,string PoolVersion,string PriceVersion,string? ActiveTeamId,string? Slot,int RequiredSlots,int FilledSlots,string ScheduleVersion,IReadOnlyList<string> InitialOrder,IReadOnlyList<PersonnelPick> Picks,int Cursor);
 public record AcquisitionTeamSnapshot(string CampaignId,string TeamId,long Revision,string PoolVersion,string PriceVersion,int StartingCredit,int Balance,int MinimumCarReserve,
- string? ActiveTeamId,string? Slot,IReadOnlyList<PersonnelCard> Offers,IReadOnlyList<PersonnelAssignment> Hires,IReadOnlyList<CreditEntry> Ledger,IReadOnlyList<string> RequiredSlots,IReadOnlyList<PersonnelCard> Roster);
+ string? ActiveTeamId,string? Slot,IReadOnlyList<PersonnelCard> Offers,IReadOnlyList<PersonnelAssignment> Hires,IReadOnlyList<CreditEntry> Ledger,IReadOnlyList<string> RequiredSlots,IReadOnlyList<PersonnelCard> Roster,int ScoutTokens,string? ScoutUnavailable,int Cursor,int TotalPicks,int DrawCount,string ScheduleVersion,string ScoutVersion);

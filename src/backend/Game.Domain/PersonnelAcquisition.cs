@@ -1,4 +1,7 @@
 using System.Collections.Immutable;
+using System.Security.Cryptography;
+using System.Text;
+using System.Globalization;
 namespace Game.Domain;
 
 public record PersonnelCard(string Id,string Name,string Role,int Price,string SourceVersion,string EffectLabel,DriverPreset? Driver=null,ImmutableDictionary<string,int>? Attributes=null);
@@ -7,28 +10,79 @@ public record PersonnelOffer(string TeamId,string Slot,ImmutableArray<string> Pe
 public record PersonnelAssignment(string TeamId,string Slot,string PersonId,string CommandId);
 public record CreditEntry(string CommandId,string TeamId,int Credits,string Reason,string? PersonId=null);
 public record PersonnelHire(string CommandId,long Revision,string TeamId,string PersonId);
+public record PersonnelScout(string CommandId,long Revision,string TeamId);
+public record PersonnelDraw(int Number,int Cursor,string TeamId,string Slot,bool Scout,ImmutableArray<string> PersonIds);
+public record ScoutAllocation(string Version,int BaseTokens=2,int LaterPriorityBonus=1,int MaximumTokens=3);
 public record PersonnelReceipt(string CommandId,string Fingerprint);
+public record PersonnelPick(string TeamId,string Slot);
+public record PersonnelCarousel(string Version,int Seed,ImmutableArray<string> InitialOrder,ImmutableArray<PersonnelPick> Picks,int Cursor);
 public record AcquisitionState(string Version,long Revision,PersonnelPool Pool,ImmutableArray<string> TeamIds,PersonnelOffer? Offer,
- ImmutableArray<PersonnelAssignment> Hires,ImmutableArray<CreditEntry> Ledger,ImmutableArray<PersonnelReceipt> Commands);
+ ImmutableArray<PersonnelAssignment> Hires,ImmutableArray<CreditEntry> Ledger,ImmutableArray<PersonnelReceipt> Commands,PersonnelCarousel? Carousel=null,ScoutAllocation? ScoutAllocation=null,ImmutableDictionary<string,int>? ScoutTokens=null,ImmutableArray<PersonnelDraw> Draws=default);
 
 /// <summary>Frozen content and integer-credit ownership transactions. No persistence or identity services.</summary>
 public static class PersonnelAcquisition
 {
- public const string Version="personnel-acquisition-v1";
+ public const string Version="personnel-acquisition-v2";
  public static readonly ImmutableArray<string> RequiredSlots=["manager","driver-1","driver-2","race-engineer-1","race-engineer-2","technical-engineer-1","technical-engineer-2"];
  public static string Role(string slot)=>slot.StartsWith("driver-")?"Driver":slot.StartsWith("race-engineer-")?"Race Engineer":slot.StartsWith("technical-engineer-")?"Technical Engineer":slot=="manager"?"Manager":throw new ArgumentException("Unknown mandatory slot.");
- public static AcquisitionState Open(PersonnelPool pool,IReadOnlyList<string> teams)
+ public static AcquisitionState Open(PersonnelPool pool,IReadOnlyList<string> teams,int seed=123,ScoutAllocation? scouts=null)
  {
   ValidatePool(pool,teams.Count);
   if(teams.Count==0||teams.Distinct().Count()!=teams.Count||teams.Any(string.IsNullOrWhiteSpace))throw new ArgumentException("Choose distinct teams.");
-  var offers=pool.People.Where(p=>p.Role=="Manager").Take(3).Select(p=>p.Id).ToImmutableArray();
-  return new(Version,1,pool,teams.ToImmutableArray(),new(teams[0],"manager",offers),[],teams.Select(t=>new CreditEntry("starting-credit",t,pool.StartingCredit,"starting-credit")).ToImmutableArray(),[]);
+  scouts??=new("bounded-scouts-v1");
+  if(scouts.Version!="bounded-scouts-v1"||scouts.BaseTokens is <0 or >3||scouts.LaterPriorityBonus is <0 or >1||scouts.MaximumTokens is <0 or >3||scouts.BaseTokens>scouts.MaximumTokens)throw new ArgumentException("Scout allocation must remain bounded between zero and three tokens.");
+  var order=teams.OrderBy(t=>Rank(seed,"initial-order",t),StringComparer.Ordinal).ThenBy(t=>t,StringComparer.Ordinal).ToImmutableArray();
+  var picks=ImmutableArray.CreateBuilder<PersonnelPick>();
+  string[][] categories=[["manager"],["driver-1","driver-2"],["race-engineer-1","race-engineer-2"],["technical-engineer-1","technical-engineer-2"]];
+  foreach(var (slots,category) in categories.Select((slots,category)=>(slots,category)))
+  {
+   var rotated=Enumerable.Range(0,order.Length).Select(i=>order[(i+category)%order.Length]).ToArray();
+   foreach(var (slot,index) in slots.Select((slot,index)=>(slot,index)))
+    foreach(var team in index%2==0?rotated:rotated.Reverse())picks.Add(new(team,slot));
+  }
+  var state=new AcquisitionState(Version,1,pool,teams.Order(StringComparer.Ordinal).ToImmutableArray(),null,[],teams.Select(t=>new CreditEntry("starting-credit",t,pool.StartingCredit,"starting-credit")).ToImmutableArray(),[],new("carousel-rotation-v1",seed,order,picks.ToImmutable(),0),scouts,order.Select((team,index)=>(team,tokens:Math.Min(scouts.MaximumTokens,scouts.BaseTokens+(order.Length>1&&index>=(order.Length+1)/2?scouts.LaterPriorityBonus:0)))).ToImmutableDictionary(x=>x.team,x=>x.tokens),[]);
+  return NextOffer(state);
+ }
+ private static string Rank(int seed,string purpose,string id)=>Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes($"{seed.ToString(CultureInfo.InvariantCulture)}/{purpose}/{id}")));
+ private static AcquisitionState NextOffer(AcquisitionState state)
+ {
+  var carousel=state.Carousel!;
+  if(carousel.Cursor==carousel.Picks.Length)return state with{Offer=null};
+  var pick=carousel.Picks[carousel.Cursor];
+  return DrawOffer(state,pick,false);
+ }
+ private static AcquisitionState DrawOffer(AcquisitionState state,PersonnelPick pick,bool scout)
+ {
+  var excluded=scout?state.Offer!.PersonIds:ImmutableArray<string>.Empty;
+  var people=Available(state,pick.Slot).Where(p=>!excluded.Contains(p.Id))
+   .OrderBy(p=>Rank(state.Carousel!.Seed,$"draw/{state.Draws.Length}",p.Id),StringComparer.Ordinal).ThenBy(p=>p.Id,StringComparer.Ordinal)
+   .Take(scout?state.Offer!.PersonIds.Length:3).Select(p=>p.Id).ToImmutableArray();
+  return state with{Offer=new(pick.TeamId,pick.Slot,people),Draws=state.Draws.Add(new(state.Draws.Length,state.Carousel!.Cursor,pick.TeamId,pick.Slot,scout,people))};
+ }
+ private static IEnumerable<PersonnelCard> Available(AcquisitionState state,string slot)=>state.Pool.People.Where(p=>p.Role==Role(slot)&&!state.Hires.Any(h=>h.PersonId==p.Id));
+ public static string? ScoutUnavailable(AcquisitionState state,string teamId)
+ {
+  if(state.Offer is not {} offer||offer.TeamId!=teamId)return "Wait for your scheduled pick.";
+  if(state.ScoutTokens![teamId]<=0)return "No Scout tokens remaining.";
+  if(Available(state,offer.Slot).Count(p=>!offer.PersonIds.Contains(p.Id))<offer.PersonIds.Length)return "Insufficient alternatives to replace this entire offer. No token will be spent.";
+  return null;
+ }
+ public static AcquisitionState Scout(AcquisitionState state,PersonnelScout command)
+ {
+  if(command is null||!Guid.TryParse(command.CommandId,out var key)||key==Guid.Empty)throw new ArgumentException("Supply a command identity.");
+  var fingerprint=$"scout/{command.Revision}/{command.TeamId}";
+  if(state.Commands.FirstOrDefault(c=>c.CommandId==key.ToString("D")) is {} receipt)
+   return receipt.Fingerprint==fingerprint?state:throw new InvalidOperationException("Command identity already accepted with different inputs.");
+  if(command.Revision!=state.Revision)throw new InvalidOperationException("Offers changed. Refresh the saved revision.");
+  if(ScoutUnavailable(state,command.TeamId) is {} unavailable)throw new InvalidOperationException(unavailable);
+  var offer=state.Offer!;
+  return DrawOffer(state with{Revision=state.Revision+1,ScoutTokens=state.ScoutTokens!.SetItem(command.TeamId,state.ScoutTokens[command.TeamId]-1),Commands=state.Commands.Add(new(key.ToString("D"),fingerprint))},new(offer.TeamId,offer.Slot),true);
  }
  public static int Balance(AcquisitionState state,string team)=>checked(state.Ledger.Where(e=>e.TeamId==team).Sum(e=>e.Credits));
  public static AcquisitionState Hire(AcquisitionState state,PersonnelHire command)
  {
   if(command is null||!Guid.TryParse(command.CommandId,out var key)||key==Guid.Empty)throw new ArgumentException("Supply a command identity.");
-  var fingerprint=$"{command.Revision}/{command.TeamId}/{command.PersonId}";
+  var fingerprint=$"hire/{command.Revision}/{command.TeamId}/{command.PersonId}";
   if(state.Commands.FirstOrDefault(c=>c.CommandId==key.ToString("D")) is {} receipt)
    return receipt.Fingerprint==fingerprint?state:throw new InvalidOperationException("Command identity already accepted with different inputs.");
   if(command.Revision!=state.Revision)throw new InvalidOperationException("Offers changed. Refresh the saved revision.");
@@ -37,8 +91,8 @@ public static class PersonnelAcquisition
   var card=state.Pool.People.Single(p=>p.Id==command.PersonId);
   if(card.Price>Balance(state,command.TeamId))throw new InvalidOperationException("Insufficient credits. No hire was made.");
   if(state.Hires.Any(h=>h.PersonId==card.Id||h.TeamId==command.TeamId&&h.Slot==offer.Slot))throw new InvalidOperationException("Person or slot already assigned.");
-  return state with{Revision=state.Revision+1,Offer=null,Hires=state.Hires.Add(new(command.TeamId,offer.Slot,card.Id,key.ToString("D"))),
-   Ledger=state.Ledger.Add(new(key.ToString("D"),command.TeamId,-card.Price,"personnel-hire",card.Id)),Commands=state.Commands.Add(new(key.ToString("D"),fingerprint))};
+  return NextOffer(state with{Revision=state.Revision+1,Offer=null,Carousel=state.Carousel! with{Cursor=state.Carousel.Cursor+1},Hires=state.Hires.Add(new(command.TeamId,offer.Slot,card.Id,key.ToString("D"))),
+   Ledger=state.Ledger.Add(new(key.ToString("D"),command.TeamId,-card.Price,"personnel-hire",card.Id)),Commands=state.Commands.Add(new(key.ToString("D"),fingerprint))});
  }
  public static void ValidatePool(PersonnelPool pool,int teamCount)
  {
@@ -51,12 +105,27 @@ public static class PersonnelAcquisition
    if(person.Role!="Driver"&&(person.Driver is not null||person.Attributes is null||person.Attributes.Count==0||person.Attributes.Values.Any(v=>v is <1 or >100)))throw new ArgumentException("Provisional staff attributes must use the printed 1–100 scale.");
   }
   foreach(var role in RequiredSlots.Select(Role).Distinct())
-   if(pool.People.Count(p=>p.Role==role)<Math.Max(3,teamCount*RequiredSlots.Count(s=>Role(s)==role)))throw new ArgumentException($"Insufficient unique {role} content for every team.");
+   if(pool.People.Count(p=>p.Role==role)<Math.Max(3,teamCount*RequiredSlots.Count(s=>Role(s)==role)+1))throw new ArgumentException($"Insufficient unique {role} content for every team.");
  }
  public static void Validate(AcquisitionState state)
  {
   if(state.Version!=Version||state.Revision<1||state.TeamIds.IsDefaultOrEmpty||state.TeamIds.Distinct().Count()!=state.TeamIds.Length)throw new ArgumentException("Unsupported acquisition save.");
   ValidatePool(state.Pool,state.TeamIds.Length);
+  var carousel=state.Carousel;
+  if(carousel is null||carousel.Version!="carousel-rotation-v1"||carousel.InitialOrder.Length!=state.TeamIds.Length||!carousel.InitialOrder.Order().SequenceEqual(state.TeamIds.Order())||carousel.Picks.Length!=state.TeamIds.Length*RequiredSlots.Length||carousel.Cursor!=state.Hires.Length||carousel.Cursor>carousel.Picks.Length)throw new ArgumentException("Unsupported carousel save. No saved data was changed.");
+  if(carousel.Picks.Select(p=>(p.TeamId,p.Slot)).Distinct().Count()!=carousel.Picks.Length||carousel.Picks.Any(p=>!state.TeamIds.Contains(p.TeamId)||!RequiredSlots.Contains(p.Slot)))throw new ArgumentException("Invalid carousel schedule.");
+  if(state.Hires.Where((h,i)=>h.TeamId!=carousel.Picks[i].TeamId||h.Slot!=carousel.Picks[i].Slot).Any())throw new ArgumentException("Hires must follow the saved schedule.");
+  if(carousel.Cursor==carousel.Picks.Length?state.Offer is not null:state.Offer is null||state.Offer.TeamId!=carousel.Picks[carousel.Cursor].TeamId||state.Offer.Slot!=carousel.Picks[carousel.Cursor].Slot)throw new ArgumentException("Offer must match the saved cursor.");
+  if(state.ScoutAllocation is not {} allocation||allocation.Version!="bounded-scouts-v1"||allocation.BaseTokens is <0 or >3||allocation.LaterPriorityBonus is <0 or >1||allocation.MaximumTokens is <0 or >3||allocation.BaseTokens>allocation.MaximumTokens||state.ScoutTokens is null||state.ScoutTokens.Count!=state.TeamIds.Length||state.Draws.IsDefaultOrEmpty)throw new ArgumentException("Unsupported Scout save.");
+  foreach(var (team,index) in carousel.InitialOrder.Select((team,index)=>(team,index)))
+  {
+   var allocated=Math.Min(allocation.MaximumTokens,allocation.BaseTokens+(carousel.InitialOrder.Length>1&&index>=(carousel.InitialOrder.Length+1)/2?allocation.LaterPriorityBonus:0));
+   if(!state.ScoutTokens.TryGetValue(team,out var remaining)||remaining<0||remaining!=allocated-state.Draws.Count(d=>d.TeamId==team&&d.Scout))throw new ArgumentException("Invalid Scout token conservation.");
+  }
+  foreach(var (draw,index) in state.Draws.Select((draw,index)=>(draw,index)))
+   if(draw.Number!=index||draw.Cursor<0||draw.Cursor>=carousel.Picks.Length||draw.TeamId!=carousel.Picks[draw.Cursor].TeamId||draw.Slot!=carousel.Picks[draw.Cursor].Slot||draw.PersonIds.Length is <2 or >3||draw.PersonIds.Distinct().Count()!=draw.PersonIds.Length||draw.PersonIds.Any(id=>!state.Pool.People.Any(p=>p.Id==id&&p.Role==Role(draw.Slot))))throw new ArgumentException("Invalid saved offer draw.");
+  if(state.Draws.Count(d=>!d.Scout)!=Math.Min(carousel.Cursor+1,carousel.Picks.Length)||state.Commands.Length!=state.Hires.Length+state.Draws.Count(d=>d.Scout)||state.Revision!=state.Commands.Length+1)throw new ArgumentException("Invalid acquisition command history.");
+  if(state.Offer is {} current&&!current.PersonIds.SequenceEqual(state.Draws[^1].PersonIds))throw new ArgumentException("Current offers must match the saved draw.");
   if(state.Hires.Select(h=>h.PersonId).Distinct().Count()!=state.Hires.Length||state.Hires.Select(h=>(h.TeamId,h.Slot)).Distinct().Count()!=state.Hires.Length||state.Commands.Select(c=>c.CommandId).Distinct().Count()!=state.Commands.Length)throw new ArgumentException("Duplicate ownership or command.");
   if(state.Ledger.Any(e=>e.Credits>state.Pool.StartingCredit||e.Credits< -state.Pool.StartingCredit))throw new ArgumentException("Invalid credit amount.");
   foreach(var team in state.TeamIds)
