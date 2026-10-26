@@ -5,8 +5,8 @@ Integration branch: `codex/personnel-acquisition`, based on completed S11 `54c36
 | Ticket | Status | Dependency |
 | --- | --- | --- |
 | [01 — Atomic hires and budget](issues/01-first-hire-ledger.md) | resolved | Existing campaign and preparation contracts |
-| [02 — Rotating carousel and Scouts](issues/02-carousel-scouts-priority.md) | in progress | 01 |
-| [03 — Affordable completion](issues/03-affordable-roster-completion.md) | blocked | 02 |
+| [02 — Rotating carousel and Scouts](issues/02-carousel-scouts-priority.md) | resolved | 01 |
+| [03 — Affordable completion](issues/03-affordable-roster-completion.md) | in progress | 02 |
 | [04 — Personnel effects and advice](issues/04-personnel-effects-advice.md) | blocked | 03 |
 | [05 — Fairness and recovery evidence](issues/05-acquisition-evidence.md) | blocked | 04 |
 
