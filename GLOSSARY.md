@@ -64,3 +64,19 @@ The primary campaign competition, combining both drivers' awarded points for eac
 
 **Drivers' Championship**:
 The secondary campaign competition, accumulating awarded points and finishing-position tie-breaks for each driver across events.
+
+**Personnel Acquisition**:
+The preseason carousel in which teams hire unique people at fixed prices to fill their mandatory roster places.
+_Avoid_: Auction
+
+**Personnel Offer**:
+A small reserved choice of people available to the current team for one roster place.
+
+**Scout**:
+A limited token spent to replace a Personnel Offer when alternatives are available, returning the replaced people to the pool.
+
+**Credit Ledger**:
+The record of a team's starting credits and spending, from which its remaining budget is determined.
+
+**Completion Reserve**:
+Credits kept available for a team's remaining mandatory personnel and minimum initial car construction.
