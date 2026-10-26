@@ -3,5 +3,6 @@
   <ItemGroup>
     <EmbeddedResource Include="../../../.docs/data/f1_strategy_driver_cards_2026.json" LogicalName="weekend.drivers.json" />
     <EmbeddedResource Include="../../../.docs/data/f1_strategy_track_cards_2026.json" LogicalName="weekend.tracks.json" />
+    <EmbeddedResource Include="../../../.docs/data/f1_strategy_preseason_car_construction_2026.json" LogicalName="preseason.construction.json" />
   </ItemGroup>
 </Project>
