@@ -43,10 +43,12 @@ public sealed class LocalWakeupQueue:IScheduledWakeups
     public IReadOnlyList<ScheduledWakeup> Due(DateTimeOffset now)=>pending.Values.Where(w=>w.DueUtc<=now).ToArray();
     public void Complete(string generation)=>pending.TryRemove(generation,out _);
 }
-public sealed class LocalWakeupDelivery(LocalWakeupQueue queue,SessionCoordinator sessions,CampaignCoordinator campaigns,TimeProvider clock,ILogger<LocalWakeupDelivery> logger):BackgroundService
+public sealed class LocalWakeupDelivery(LocalWakeupQueue queue,SessionCoordinator sessions,CampaignCoordinator campaigns,TimeProvider clock,ILogger<LocalWakeupDelivery> logger,IConfiguration configuration):BackgroundService
 {
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
+        // Host configuration can be completed after local services are registered.
+        if(configuration["Wakeups:Mode"]=="manual")return;
         using var timer=new PeriodicTimer(TimeSpan.FromMilliseconds(250));
         while(await timer.WaitForNextTickAsync(stoppingToken))
             foreach(var wakeup in queue.Due(clock.GetUtcNow()))

@@ -1,0 +1,8 @@
+[DEBUG-s12-weather] write coordinator=32819366 id=3ac0aa1392264a3cae8bed9a0e00e7d3 expected=2026-10-26T20:45:22.084894Z actual=2026-10-26T20:45:22.084894Z caller=SubmitStartingTyres
+[DEBUG-s12-weather] restore coordinator=32819366 id=3ac0aa1392264a3cae8bed9a0e00e7d3 version=2026-10-26T20:45:23.225743Z
+[DEBUG-s12-weather] restore coordinator=53307633 id=3ac0aa1392264a3cae8bed9a0e00e7d3 version=2026-10-26T20:45:23.225743Z
+[DEBUG-s12-weather] write coordinator=53307633 id=3ac0aa1392264a3cae8bed9a0e00e7d3 expected=2026-10-26T20:45:23.225743Z actual=2026-10-26T20:45:23.225743Z caller=MoveNext
+[DEBUG-s12-weather] write coordinator=32819366 id=3ac0aa1392264a3cae8bed9a0e00e7d3 expected=2026-10-26T20:45:23.225743Z actual=2026-10-26T20:45:23.225743Z caller=MoveNext
+[DEBUG-s12-weather] restore coordinator=32819366 id=3ac0aa1392264a3cae8bed9a0e00e7d3 version=2026-10-26T20:45:26.854414Z
+[DEBUG-s12-weather] restore coordinator=11568821 id=3ac0aa1392264a3cae8bed9a0e00e7d3 version=2026-10-26T20:45:26.854414Z
+[DEBUG-s12-weather] write coordinator=11568821 id=3ac0aa1392264a3cae8bed9a0e00e7d3 expected=2026-10-26T20:45:26.854414Z actual=2026-10-26T20:45:26.854414Z caller=RecoverPresentation

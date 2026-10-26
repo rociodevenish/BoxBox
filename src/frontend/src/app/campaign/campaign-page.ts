@@ -57,19 +57,17 @@ export class CampaignPage {
  private hireKey(){return 'campaign-hire:'+this.campaign()!.campaignId+':'+this.personnel()!.teamId;}
  pendingHire(){return this.personnel()?localStorage.getItem(this.hireKey())!==null:false;}
  async hire(personId?:string){await this.run(async()=>{
-  const own=this.personnel()!;const generation=this.personnelGeneration;const key=this.hireKey();let saved=localStorage.getItem(key);
-  if(!saved){if(!personId)return;saved=JSON.stringify({commandId:crypto.randomUUID(),revision:own.revision,teamId:own.teamId,personId});localStorage.setItem(key,saved);}
-  try{const updated=await this.request<AcquisitionTeam>('/api/campaigns/'+this.campaign()!.campaignId+'/acquisition/teams/'+own.teamId+'/hire?deviceId='+encodeURIComponent(this.device),JSON.parse(saved));if(generation===this.personnelGeneration)this.personnel.set(updated);}catch(error){const status=(error as {status?:number}).status;if(status&&status>=400&&status<500)localStorage.removeItem(key);throw error;}
-  localStorage.removeItem(key);this.campaign.set(await this.request<Campaign>('/api/campaigns/'+this.campaign()!.campaignId+'?deviceId='+encodeURIComponent(this.device)));
+  if(await this.personnelCommand('hire',personId?{personId}:undefined))this.campaign.set(await this.request<Campaign>('/api/campaigns/'+this.campaign()!.campaignId+'?deviceId='+encodeURIComponent(this.device)));
  });}
  private scoutKey(){return 'campaign-scout:'+this.campaign()!.campaignId+':'+this.personnel()!.teamId;}
  pendingScout(){return this.personnel()?localStorage.getItem(this.scoutKey())!==null:false;}
- async scout(){await this.run(async()=>{
-  const own=this.personnel()!;const generation=this.personnelGeneration;const key=this.scoutKey();let saved=localStorage.getItem(key);
-  if(!saved){saved=JSON.stringify({commandId:crypto.randomUUID(),revision:own.revision,teamId:own.teamId});localStorage.setItem(key,saved);}
-  try{const updated=await this.request<AcquisitionTeam>('/api/campaigns/'+this.campaign()!.campaignId+'/acquisition/teams/'+own.teamId+'/scout?deviceId='+encodeURIComponent(this.device),JSON.parse(saved));if(generation===this.personnelGeneration)this.personnel.set(updated);}catch(error){const status=(error as {status?:number}).status;if(status&&status>=400&&status<500)localStorage.removeItem(key);throw error;}
-  localStorage.removeItem(key);
- });}
+ async scout(){await this.run(async()=>{await this.personnelCommand('scout',{});});}
+ private async personnelCommand(kind:'hire'|'scout',input?:{personId?:string}):Promise<boolean>{
+  const own=this.personnel()!;const generation=this.personnelGeneration;const key=kind==='hire'?this.hireKey():this.scoutKey();let saved=localStorage.getItem(key);
+  if(!saved){if(!input)return false;saved=JSON.stringify({commandId:crypto.randomUUID(),revision:own.revision,teamId:own.teamId,...input});localStorage.setItem(key,saved);}
+  try{const updated=await this.request<AcquisitionTeam>('/api/campaigns/'+this.campaign()!.campaignId+'/acquisition/teams/'+own.teamId+'/'+kind+'?deviceId='+encodeURIComponent(this.device),JSON.parse(saved));if(generation===this.personnelGeneration)this.personnel.set(updated);}catch(error){const status=(error as {status?:number}).status;if(status&&status>=400&&status<500)localStorage.removeItem(key);throw error;}
+  localStorage.removeItem(key);return true;
+ }
  async activatePersonnel(){await this.change('/acquisition/activate',{});}
  async prepare(){await this.change('/prepare',{});}
  async refresh(){this.closePersonnel();await this.run(async()=>{this.campaign.set(await this.request<Campaign>('/api/campaigns/'+this.campaign()!.campaignId+'?deviceId='+encodeURIComponent(this.device)));await this.loadControllers();});}

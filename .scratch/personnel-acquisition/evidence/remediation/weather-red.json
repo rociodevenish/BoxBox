@@ -1,0 +1,21 @@
+{
+  "command": "C:/Program Files/dotnet/dotnet.exe",
+  "args": [
+    "test",
+    "tests/Game.Api.Tests/Game.Api.Tests.csproj",
+    "--nologo",
+    "/p:NuGetAudit=false",
+    "--filter",
+    "FullyQualifiedName~Weather_start_advice_forecasts_and_partial_locks_survive_real_Firestore_write_failure",
+    "--logger",
+    "trx;LogFileName=weather-repro.trx",
+    "--results-directory",
+    ".tools/reports/remediation/weather-tests"
+  ],
+  "cwd": "C:\\Projects\\F1Game\\.tools\\worktrees\\s12-review-fixes",
+  "pid": 35636,
+  "startedAt": "2026-10-26T20:40:12.846Z",
+  "status": "failed",
+  "exitCode": 1,
+  "elapsedMs": 49150
+}
