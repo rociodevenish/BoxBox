@@ -1,6 +1,6 @@
 # S12 — Personnel acquisition
 
-Status: ready-for-agent
+Status: resolved
 Blocked by: campaign, calendar and championships; effective attribute and personnel-information contracts.
 
 ## Problem Statement
@@ -84,3 +84,7 @@ Use supplied driver cards and portraits without restricting drafting to referenc
 ## Further Notes
 
 The acquisition ledger is foundational and does not wait for in-season economy. Reserve rules prevent dead ends without silently granting credits or changing fixed prices. The user approved the public session/domain and browser testing boundaries.
+
+## Answer
+
+Implemented on `codex/personnel-acquisition`, based on completed S11. All five tickets are resolved; independent Standards and Spec reviews have no unresolved findings. See the [ticket map](map.md) and [final verification, review and evidence record](evidence/final/README.md). Prices, Scout compensation and personnel value remain provisional; reproducible completion evidence does not claim validated fairness or future economy effects.

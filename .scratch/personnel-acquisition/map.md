@@ -14,4 +14,4 @@ The parent spec approves public acquisition domain operations, authenticated cam
 
 Each ticket records its claim, Answer and evidence. Independent Standards and Spec reviews follow integration; only one broad verification run follows inspected phone and public-display flows, with affected named reruns after fixes.
 
-Engineering tickets 01–05 are integrated. Independent Standards/Spec reviews and final integration verification remain pending.
+Engineering tickets 01–05 are integrated. Independent Standards and Spec reviews are complete with no unresolved findings. All verification stages pass; see the [final completion record](evidence/final/README.md). Prices and compensation remain provisional tuning hypotheses.

@@ -1,0 +1,158 @@
+{
+  "schema": "s12-completion-v1",
+  "recordedAt": "2026-10-26T21:20:14.2418296Z",
+  "branch": "codex/personnel-acquisition",
+  "baseline": "54c36ddb126f166a4b03aab544d93d023c33c10b",
+  "implementationRevision": "07db190b4dba13144b4a935d097682c564b843e6",
+  "runtime": {
+    "dotnet": "10.0.401",
+    "node": "24.22.1",
+    "java": "21.0.12.1"
+  },
+  "runs": [
+    {
+      "runId": "2026-10-26T20-26-41-850Z-4cf7ec25-4125-4dd4-9b2b-ea41141a73f4",
+      "manifest": "initial-verification.json",
+      "reusedStage": "tooling",
+      "retainedResult": "backend timeout after reproduced wakeup race"
+    },
+    {
+      "runId": "2026-10-26T20-55-01-583Z-44253dbd-b604-4014-b603-90c78599df0b",
+      "manifest": "verification-completion.json",
+      "result": "all11selectedstagespassed"
+    }
+  ],
+  "stages": [
+    {
+      "name": "tooling",
+      "cases": 3,
+      "status": "passed"
+    },
+    {
+      "name": "typecheck",
+      "status": "passed",
+      "pid": 12416,
+      "exitCode": 0
+    },
+    {
+      "name": "build",
+      "status": "passed",
+      "pid": 12588,
+      "exitCode": 0
+    },
+    {
+      "name": "backend",
+      "status": "passed",
+      "pid": 35032,
+      "exitCode": 0
+    },
+    {
+      "name": "gallery",
+      "status": "passed",
+      "pid": 30268,
+      "exitCode": 0
+    },
+    {
+      "name": "browser",
+      "status": "passed",
+      "pid": 21004,
+      "exitCode": 0
+    },
+    {
+      "name": "boundary",
+      "status": "passed",
+      "pid": 22068,
+      "exitCode": 0
+    },
+    {
+      "name": "shared",
+      "status": "passed",
+      "pid": 4264,
+      "exitCode": 0
+    },
+    {
+      "name": "assistance",
+      "status": "passed",
+      "pid": 26800,
+      "exitCode": 0
+    },
+    {
+      "name": "control",
+      "status": "passed",
+      "pid": 17052,
+      "exitCode": 0
+    },
+    {
+      "name": "deadlines",
+      "status": "passed",
+      "pid": 20208,
+      "exitCode": 0
+    },
+    {
+      "name": "hosted",
+      "status": "passed",
+      "pid": 22676,
+      "exitCode": 0
+    }
+  ],
+  "testCounts": {
+    "deadlines": 1,
+    "boundary": 2,
+    "gallery": 34,
+    "api": 216,
+    "hosted": 1,
+    "simulation": 227,
+    "assistance": 1,
+    "shared": 14,
+    "browser": 22,
+    "control": 1
+  },
+  "experiments": {
+    "archiveSha256": "DAD8BDFE5385D6A514A329118CFEBEC84E916D13CA185319A651C43DDF0FB564",
+    "hires": 3696,
+    "runs": 48,
+    "teams": 528,
+    "minimumFinalCredits": 18,
+    "fairness": "inconclusive"
+  },
+  "reviews": {
+    "specUnresolved": 0,
+    "standardsUnresolved": 0,
+    "reports": [
+      "standards-review.md",
+      "standards-recheck.md",
+      "spec-review.md",
+      "spec-recheck.md"
+    ]
+  },
+  "inspectedCaptures": [
+    {
+      "path": ".scratch/personnel-acquisition/evidence/s12-05-driver-offers-360.png",
+      "sha256": "DD598464B9FE067DA4FD3BDA6BACDCB03126C9DC7967B6C61980530E7BFD5283",
+      "assessment": "Reviewed complete360px flow or actual1920x1080 public top before full verification; readable text, contained controls and private details hidden on public view."
+    },
+    {
+      "path": ".scratch/personnel-acquisition/evidence/s12-05-reserve-360.png",
+      "sha256": "EA77BDCB99B09DE1C64BD86B921177F84A063BB47F13DD65CBA8844BF986C5CC",
+      "assessment": "Reviewed complete360px flow or actual1920x1080 public top before full verification; readable text, contained controls and private details hidden on public view."
+    },
+    {
+      "path": ".scratch/personnel-acquisition/evidence/s12-05-ready-360.png",
+      "sha256": "04EE3714CBEAC02B3B5E31817E5A76977F1D376DB17A6A0A79300222F236C47F",
+      "assessment": "Reviewed complete360px flow or actual1920x1080 public top before full verification; readable text, contained controls and private details hidden on public view."
+    },
+    {
+      "path": ".scratch/personnel-acquisition/evidence/s12-05-public-top-1920.png",
+      "sha256": "E732015E79329F3AA802C0D54FAEC67B226A257FC63226C23A66D2FB74ACEA65",
+      "assessment": "Reviewed complete360px flow or actual1920x1080 public top before full verification; readable text, contained controls and private details hidden on public view."
+    }
+  ],
+  "listeners": "listeners.json",
+  "workerEvidence": ".tools/reports/s12",
+  "cleanup": "All merged worker worktrees removed; dependency targets preserved",
+  "limitations": [
+    "Provisional staff/prices/ratings/compensation",
+    "Manager/Technical economy effects deferred; unsupported engineer attributes labelled inactive",
+    "No actual hosted deployment, household acceptance or campaign/economy personnel-value measurement"
+  ]
+}
