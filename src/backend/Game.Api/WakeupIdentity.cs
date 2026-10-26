@@ -38,13 +38,13 @@ public static class WakeupEndpoints
 {
     public static void MapWakeupEndpoints(this WebApplication app)
     {
-        app.MapPost("/internal/wakeups",async(WakeupInput input,HttpRequest request,WakeupIdentity identity,SessionCoordinator sessions)=>{
-            await identity.Verify(request);var state=await sessions.DeliverScheduledWakeup(input);
+        app.MapPost("/internal/wakeups",async(WakeupInput input,HttpRequest request,WakeupIdentity identity,SessionCoordinator sessions,CampaignCoordinator campaigns)=>{
+            await identity.Verify(request);var state=input.SessionId.StartsWith("campaign-",StringComparison.Ordinal)?campaigns.DeliverPersonnelWakeup(input):await sessions.DeliverScheduledWakeup(input);
             if(state is PublicSnapshot race && (race.Phase!=input.Phase||race.Paused))app.Logger.LogInformation("Scheduled progression session {Session} generation {Generation} phase {Phase} paused {Paused}",input.SessionId,input.Generation,race.Phase,race.Paused);
             return state;
         });
-        app.MapPost("/internal/wakeups/sweep",async(HttpRequest request,WakeupIdentity identity,SessionCoordinator sessions)=>{
-            await identity.Verify(request,true);var advanced=await sessions.SweepWakeups();
+        app.MapPost("/internal/wakeups/sweep",async(HttpRequest request,WakeupIdentity identity,SessionCoordinator sessions,CampaignCoordinator campaigns)=>{
+            await identity.Verify(request,true);var advanced=campaigns.SweepPersonnelWakeups()+await sessions.SweepWakeups();
             if(advanced>0)app.Logger.LogInformation("Independent wakeup repair advanced {Count} scheduled sessions",advanced);
             return Results.Ok(new{advanced});
         });

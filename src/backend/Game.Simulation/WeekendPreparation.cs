@@ -24,9 +24,10 @@ public static class WeekendPreparation
         var effective = Prepare(preset, laps, setup);
         var drivers = effective.DriverFits.Select(fit =>
         {
-            var driver = preset.Cars.Single(car => car.Driver.Id == fit.DriverId).Driver;
+            var source = preset.Cars.Single(car => car.Driver.Id == fit.DriverId);
+            var driver = source.Driver;
             // Authored information-quality hypothesis: better feedback narrows uncertainty only.
-            var quality = (preset.Engineer.Setup + driver.Ratings["setupFeedback"]) / 2;
+            var quality = ((source.Engineer ?? preset.Engineer).Setup + driver.Ratings["setupFeedback"]) / 2;
             var radius = 3 + (100 - quality) * .2;
             var bytes = System.Security.Cryptography.SHA256.HashData(System.Text.Encoding.UTF8.GetBytes(
                 $"{PracticeModelVersion}|{seed}|{fit.DriverId}"));
@@ -94,6 +95,9 @@ public static class WeekendPreparation
         {
             Validate(source.Car.Ratings, CarKeys);
             Validate(source.Driver.Ratings, DriverKeys);
+            if (source.Engineer is {} engineer && (engineer.Version != "authored-engineer-v1"
+                || !double.IsFinite(engineer.Setup) || engineer.Setup is < 1 or > 100))
+                throw new ArgumentException("Assigned Race Engineer Setup must be versioned 1–100 design points.");
             if (string.IsNullOrWhiteSpace(source.EntryId) || string.IsNullOrWhiteSpace(source.TeamId))
                 throw new ArgumentException("Stable entry and team identities are required.");
             var car = setup is null ? source.Car.Ratings : WeekendSetupTuning.Apply(source.Car.Ratings, setup);

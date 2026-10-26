@@ -120,7 +120,7 @@
     },
     {
       "driverId": "nico-hulkenberg",
-      "name": "Nico H\u00c3\u00bclkenberg",
+      "name": "Nico HÃ¼lkenberg",
       "source": "assets/driver images/nico-hulkenberg.png",
       "url": "portraits/nico-hulkenberg-384.webp",
       "objectPosition": "center 22%",
@@ -185,7 +185,7 @@
     },
     {
       "driverId": "sergio-perez",
-      "name": "Sergio P\u00c3\u00a9rez",
+      "name": "Sergio PÃ©rez",
       "source": "assets/driver images/sergio-perez.png",
       "url": "portraits/sergio-perez-384.webp",
       "objectPosition": "center 22%",
@@ -285,6 +285,90 @@
         "width": 384,
         "height": 576,
         "bytes": 31764
+      }
+    },
+    {
+      "driverId": "yuki-tsunoda",
+      "name": "Yuki Tsunoda",
+      "source": "assets/driver images/yuki-tsunoda.png",
+      "sourceSha256": "01223c8877293df260db2ee6f5917bb20fda691b4ea55f47225b3f6bdb46a5a9",
+      "url": "portraits/yuki-tsunoda-384.webp",
+      "objectPosition": "center 22%",
+      "runtimeUrl": "portraits/yuki-tsunoda-384.webp",
+      "runtimeSize": {
+        "width": 384,
+        "height": 576,
+        "bytes": 35050
+      }
+    },
+    {
+      "driverId": "patricio-oward",
+      "name": "Pato O’Ward",
+      "source": "assets/driver images/patricio-oward.png",
+      "sourceSha256": "9e40e3dade1deebbe78b57ff7c10a21e07d1e7ac25cc6627f803a86ad57be706",
+      "url": "portraits/patricio-oward-384.webp",
+      "objectPosition": "center 22%",
+      "runtimeUrl": "portraits/patricio-oward-384.webp",
+      "runtimeSize": {
+        "width": 384,
+        "height": 576,
+        "bytes": 35446
+      }
+    },
+    {
+      "driverId": "zhou-guanyu",
+      "name": "Zhou Guanyu",
+      "source": "assets/driver images/zhou-guanyu.png",
+      "sourceSha256": "380e8e39ad450c6e88e49c868104ff35b8ec8feeca2304a53d794b859a46875b",
+      "url": "portraits/zhou-guanyu-384.webp",
+      "objectPosition": "center 22%",
+      "runtimeUrl": "portraits/zhou-guanyu-384.webp",
+      "runtimeSize": {
+        "width": 384,
+        "height": 576,
+        "bytes": 35148
+      }
+    },
+    {
+      "driverId": "stoffel-vandoorne",
+      "name": "Stoffel Vandoorne",
+      "source": "assets/driver images/stoffel-vandoorne.png",
+      "sourceSha256": "1a11cbcf9bc755155f6a1903bcafa47c3e352bc945f2fcc9e544ee4359ccc235",
+      "url": "portraits/stoffel-vandoorne-384.webp",
+      "objectPosition": "center 22%",
+      "runtimeUrl": "portraits/stoffel-vandoorne-384.webp",
+      "runtimeSize": {
+        "width": 384,
+        "height": 576,
+        "bytes": 31384
+      }
+    },
+    {
+      "driverId": "antonio-giovinazzi",
+      "name": "Antonio Giovinazzi",
+      "source": "assets/driver images/antonio-giovinazzi.png",
+      "sourceSha256": "0ea6eaeda707f4ca30811134556c2c8bf7faf36bcfa961adcb2cf73134d33d4c",
+      "url": "portraits/antonio-giovinazzi-384.webp",
+      "objectPosition": "center 22%",
+      "runtimeUrl": "portraits/antonio-giovinazzi-384.webp",
+      "runtimeSize": {
+        "width": 384,
+        "height": 576,
+        "bytes": 36236
+      }
+    },
+    {
+      "driverId": "jack-doohan",
+      "name": "Jack Doohan",
+      "source": "assets/driver images/jack-doohan.png",
+      "sourceSha256": "02f5ec03ebbb3546431f1225bd4b312c2ade0c644466d2d261d9bba69b72777d",
+      "url": "portraits/jack-doohan-384.webp",
+      "objectPosition": "center 22%",
+      "runtimeUrl": "portraits/jack-doohan-384.webp",
+      "runtimeSize": {
+        "width": 384,
+        "height": 576,
+        "bytes": 39812
       }
     }
   ],

@@ -9,10 +9,31 @@ using Xunit;
 namespace Game.Api.Tests;
 public sealed class PersonnelAcquisitionTests
 {
+ [Fact]
+ public async Task Independent_coordinators_cannot_sell_the_same_offer_twice_and_private_reads_refresh()
+ {
+  var durable=new FirestoreSessionStore("demo-f1game",Environment.GetEnvironmentVariable("F1_RECOVERY_HOST")!);var token=await LobbyTests.Identity(false);
+  await using var first=LobbyTests.Server().WithWebHostBuilder(b=>b.ConfigureServices(s=>s.Replace(ServiceDescriptor.Singleton<ISessionStore>(durable))));
+  await using var second=LobbyTests.Server().WithWebHostBuilder(b=>b.ConfigureServices(s=>s.Replace(ServiceDescriptor.Singleton<ISessionStore>(durable))));
+  using var a=first.CreateClient();using var b=second.CreateClient();a.DefaultRequestHeaders.Authorization=new("Bearer",token);b.DefaultRequestHeaders.Authorization=new("Bearer",token);
+  var response=await a.PostAsJsonAsync("/api/campaigns",new{commandId=Guid.NewGuid().ToString(),name="Concurrent host",personnelMode="acquisition",seed=1});response.EnsureSuccessStatusCode();
+  var joined=(await response.Content.ReadFromJsonAsync<CampaignJoined>())!;var team=joined.Campaign.Acquisition!.ActiveTeamId!;var device=joined.Weekend.Membership.DeviceId;
+  (await a.PostAsJsonAsync($"/api/lobbies/{joined.Campaign.WeekendId}/claims",new ClaimTeamInput(team,device))).EnsureSuccessStatusCode();
+  var path=$"/api/campaigns/{joined.Campaign.CampaignId}/acquisition/teams/{team}?deviceId={device}";var own=(await a.GetFromJsonAsync<AcquisitionTeamSnapshot>(path))!;
+  Assert.Equal(own.Revision,(await b.GetFromJsonAsync<AcquisitionTeamSnapshot>(path))!.Revision);
+  var person=own.Advice!.PersonId;var price=own.Offers.Single(p=>p.Id==person).Price;
+  var results=await Task.WhenAll(a.PostAsJsonAsync(path.Replace("?","/hire?"),new Game.Domain.PersonnelHire(Guid.NewGuid().ToString(),own.Revision,team,person)),b.PostAsJsonAsync(path.Replace("?","/hire?"),new Game.Domain.PersonnelHire(Guid.NewGuid().ToString(),own.Revision,team,person)));
+  Assert.Single(results,r=>r.StatusCode==HttpStatusCode.OK);Assert.Single(results,r=>r.StatusCode==HttpStatusCode.Conflict);
+  foreach(var client in new[]{a,b}){var after=(await client.GetFromJsonAsync<AcquisitionTeamSnapshot>(path))!;Assert.Single(after.Hires);Assert.Equal(100-price,after.Balance);Assert.Equal(2,after.Ledger.Count);}
+ }
  [Theory]
- [InlineData(false)]
- [InlineData(true)]
- public async Task Legal_completion_reserves_and_final_roster_survive_a_failed_final_write_and_restart(bool committed)
+ [InlineData(false,0)]
+ [InlineData(true,0)]
+ [InlineData(false,1)]
+ [InlineData(true,1)]
+ [InlineData(false,2)]
+ [InlineData(true,2)]
+ public async Task Legal_completion_reserves_and_final_roster_survive_a_failed_final_write_and_restart(bool committed,int interruptedStage)
  {
   var token=await LobbyTests.Identity(false);
   var durable=new FirestoreSessionStore("demo-f1game",Environment.GetEnvironmentVariable("F1_RECOVERY_HOST")!);
@@ -51,7 +72,7 @@ public sealed class PersonnelAcquisitionTests
     }
     var person=choices.Where(c=>c.GetProperty("canHire").GetBoolean()).Select(c=>c.GetProperty("personId").GetString()).OrderByDescending(personId=>offers.Single(p=>p.GetProperty("id").GetString()==personId).GetProperty("price").GetInt32()).First();
     var command=new{commandId=Guid.NewGuid().ToString(),revision=own.GetProperty("revision").GetInt64(),teamId=team,personId=person};
-    if(pick==76){finalCommand=command;interrupted.Armed=true;Assert.Equal(HttpStatusCode.ServiceUnavailable,(await client.PostAsJsonAsync(path.Replace("?","/hire?"),command)).StatusCode);}
+    if(pick==76){finalCommand=command;interrupted.WritesBeforeFailure=interruptedStage;interrupted.IncludeLobby=true;interrupted.Armed=true;Assert.Equal(HttpStatusCode.ServiceUnavailable,(await client.PostAsJsonAsync(path.Replace("?","/hire?"),command)).StatusCode);}
     else (await client.PostAsJsonAsync(path.Replace("?","/hire?"),command)).EnsureSuccessStatusCode();
    }
   }
@@ -63,7 +84,13 @@ public sealed class PersonnelAcquisitionTests
   Assert.True(after.GetProperty("rosterReady").GetBoolean());Assert.Equal(18,after.GetProperty("completionReserve").GetInt32());Assert.Empty(after.GetProperty("remainingSlots").EnumerateArray());Assert.Equal(7,after.GetProperty("roster").GetArrayLength());Assert.Equal(8,after.GetProperty("ledger").GetArrayLength());
   var duplicate=await retry.PostAsJsonAsync(path.Replace("?","/hire?"),finalCommand);duplicate.EnsureSuccessStatusCode();Assert.Equal(after.ToString(),(await duplicate.Content.ReadFromJsonAsync<JsonElement>()).ToString());
   var final=await retry.GetFromJsonAsync<JsonElement>($"/api/campaigns/{id}?deviceId={device}");
-  Assert.Equal("acquiring",final.GetProperty("lifecycle").GetString());Assert.True(final.GetProperty("acquisition").GetProperty("allRostersReady").GetBoolean());Assert.Equal(77,final.GetProperty("acquisition").GetProperty("filledSlots").GetInt32());
+  Assert.Equal("created",final.GetProperty("lifecycle").GetString());Assert.True(final.GetProperty("acquisition").GetProperty("allRostersReady").GetBoolean());Assert.Equal(77,final.GetProperty("acquisition").GetProperty("filledSlots").GetInt32());
+  var finalTeam=final.GetProperty("teams").EnumerateArray().Single(t=>t.GetProperty("teamId").GetString()==after.GetProperty("teamId").GetString());
+  Assert.Equal(after.GetProperty("roster").EnumerateArray().Where(p=>p.GetProperty("role").GetString()=="Driver").Select(p=>p.GetProperty("id").GetString()).Order(),finalTeam.GetProperty("drivers").EnumerateArray().Select(p=>p.GetProperty("personId").GetString()).Order());
+  (await retry.PostAsJsonAsync($"/api/campaigns/{id}/prepare",new{})).EnsureSuccessStatusCode();
+  var preparation=await retry.GetFromJsonAsync<JsonElement>($"/api/lobbies/{final.GetProperty("weekendId").GetString()}/preparation/teams/{after.GetProperty("teamId").GetString()}?deviceId={device}");
+  Assert.Equal(finalTeam.GetProperty("drivers").EnumerateArray().Select(d=>d.GetProperty("personId").GetString()),preparation.GetProperty("preset").GetProperty("cars").EnumerateArray().Select(c=>c.GetProperty("driver").GetProperty("id").GetString()));
+  Assert.All(preparation.GetProperty("preset").GetProperty("cars").EnumerateArray(),car=>Assert.StartsWith("staff-race-engineer-",car.GetProperty("engineer").GetProperty("id").GetString()));
  }
  [Theory]
  [InlineData(false)]
@@ -152,11 +179,12 @@ public sealed class PersonnelAcquisitionTests
  private sealed class InterruptedStore(ISessionStore inner,bool committed):ISessionStore
  {
   public bool Armed {get;set;}
+  public int WritesBeforeFailure;public bool IncludeLobby;
   public StoredSession? Read(string id)=>inner.Read(id);
   public IReadOnlyList<string> FindByJoinCode(string code)=>inner.FindByJoinCode(code);
   public string Write(string id,string? version,string payload,string? code)
   {
-   if(Armed&&id.StartsWith("campaign-",StringComparison.Ordinal)){Armed=false;if(committed)inner.Write(id,version,payload,code);throw new IOException("Save failed or acknowledgement lost");}return inner.Write(id,version,payload,code);
+   if(Armed&&(IncludeLobby||id.StartsWith("campaign-",StringComparison.Ordinal))&&WritesBeforeFailure--==0){Armed=false;if(committed)inner.Write(id,version,payload,code);throw new IOException("Save failed or acknowledgement lost");}return inner.Write(id,version,payload,code);
   }
  }
 }

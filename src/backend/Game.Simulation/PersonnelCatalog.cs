@@ -25,7 +25,7 @@ public static class PersonnelCatalog
    {
     var attributes=role=="Manager"?new[]{"Leadership","Operations","Development","Efficiency"}:role=="Race Engineer"?new[]{"Setup","Tyre Reading","Strategy","Communication"}:new[]{"Aerodynamics","Mechanical / Chassis","Power Systems","Reliability","Development Efficiency"};
     people.Add(new($"staff-{prefix}-{i+1:00}",$"{first[i]} {last[(i+(prefix=="manager"?0:prefix=="race-engineer"?7:13))%last.Length]}",role,basePrice+i%3,"fictional-staff-v1",
-     role=="Race Engineer"?"Provisional fictional staff. Information support activates with personnel integration; no pace or error bonus.":"Provisional fictional staff. Development and resource effects await the economy system; no current performance bonus.",
+     role=="Race Engineer"?"Provisional fictional staff. Setup improves the assigned driver's Practice Assessment confidence. Tyre Reading, Strategy and Communication are inactive; no pace or error bonus.":"Provisional fictional staff. Development and resource effects await the economy system; no current performance bonus.",
      Attributes:attributes.ToImmutableDictionary(k=>k,_=>70+i%5*4)));
    }
   // Additional unique fictional staff back every mandatory staff place at base price.

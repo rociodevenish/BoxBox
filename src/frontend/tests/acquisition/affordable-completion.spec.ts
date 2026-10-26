@@ -10,6 +10,7 @@ test('completion reserves explain blocked choices and a recovered final hire sho
  await page.getByRole('link',{name:'Campaigns',exact:true}).click();await page.getByLabel('Personnel').selectOption('acquisition');await page.getByRole('button',{name:'Create campaign',exact:true}).click();await expect(page.getByRole('heading',{name:'Personnel acquisition',exact:true})).toBeVisible();
  const picker=(await page.getByText(/^Current picker:/).textContent())!.split(': ')[1].split(' · ')[0];await page.getByRole('button',{name:'Claim '+picker,exact:true}).click();await page.getByRole('button',{name:'Open personnel for '+picker,exact:true}).click();
  await expect(page.getByText('Completion reserve: 96 credits',{exact:true})).toBeVisible();await expect(page.getByText('7 mandatory places remaining',{exact:true})).toBeVisible();
+ await expect(page.getByRole('complementary',{name:'Offer comparison advice'})).toContainText('lowest priced legal offer');
  const campaignId=new URL(page.url()).pathname.split('/')[2];
  const device=await page.evaluate(id=>{const weekend=localStorage.getItem('campaign-weekend:'+id)!;const key=Object.keys(localStorage).find(k=>k.startsWith('household-device:')&&k.endsWith(':'+weekend))!;return localStorage.getItem(key)!;},campaignId);
  const headers={Authorization:authorization};
@@ -21,10 +22,15 @@ test('completion reserves explain blocked choices and a recovered final hire sho
   const name='Shared '+team.teamId;const lobby=await post('/api/lobbies/'+weekend+'/participants',{name,deviceId:device});const playerId=lobby.players.find((p:{name:string})=>p.name===name).playerId;
   await post('/api/lobbies/'+weekend+'/assignments',{teamId:team.teamId,playerId,deviceId:device,control:'SharedTablet'});
  }
- let captured=false;
+ let captured=false,driverCaptured=false;
  for(let pick=0;pick<77;pick++){
   const current=await get('/api/campaigns/'+campaignId+'?deviceId='+device);const team=current.acquisition.activeTeamId;const path='/api/campaigns/'+campaignId+'/acquisition/teams/'+team+'?deviceId='+device;let own=await get(path);if(own.scoutUnavailable===null)own=await post(path.replace('?','/scout?'),{commandId:crypto.randomUUID(),revision:own.revision,teamId:team});
   const illegal=own.hireOptions.find((o:{canHire:boolean})=>!o.canHire);
+  if(own.slot==='driver-1'&&!driverCaptured){
+   await page.reload();const name=season.teams.find((t:{teamId:string})=>t.teamId===team).constructorName;await page.getByRole('button',{name:'Open personnel for '+name,exact:true}).click();
+   const offers=page.getByRole('region',{name:'Reserved personnel offers'});await expect(offers.getByText('Race Pace',{exact:true})).toHaveCount(3);await expect(offers.getByText('Preferences describe compatibility, separately from quality.',{exact:true})).toHaveCount(3);
+   await expect.poll(()=>offers.locator('img').evaluateAll(images=>images.every(image=>(image as HTMLImageElement).naturalWidth>0))).toBeTruthy();await offers.scrollIntoViewIfNeeded();await page.screenshot({path:captures+'/s12-04-driver-offers-360.png',fullPage:true});driverCaptured=true;
+  }
   if(illegal&&!captured){
    await page.reload();const name=season.teams.find((t:{teamId:string})=>t.teamId===team).constructorName;await page.getByRole('button',{name:'Open personnel for '+name,exact:true}).click();
    const card=own.offers.find((p:{id:string})=>p.id===illegal.personId);await expect(page.getByRole('button',{name:'Hire '+card.name+' · '+card.price+' credits',exact:true})).toBeDisabled();await expect(page.getByText(illegal.unavailable,{exact:true}).first()).toBeVisible();
@@ -36,8 +42,9 @@ test('completion reserves explain blocked choices and a recovered final hire sho
   else{
    const name=season.teams.find((t:{teamId:string})=>t.teamId===team).constructorName;await page.reload();await page.getByRole('button',{name:'Open personnel for '+name,exact:true}).click();const card=own.offers.find((p:{id:string})=>p.id===legal.personId);
    await page.route('**/hire?*',async route=>{await route.fetch();await route.abort('connectionfailed');},{times:1});await page.getByRole('button',{name:'Hire '+card.name+' · '+card.price+' credits',exact:true}).click();await expect(page.getByRole('alert')).toBeVisible();await page.reload();await page.getByRole('button',{name:'Open personnel for '+name,exact:true}).click();await page.getByRole('button',{name:'Retry saved hire',exact:true}).click();await expect(page.getByRole('button',{name:'Retry saved hire',exact:true})).toHaveCount(0);
-   await expect(page.getByRole('heading',{name:'Roster ready',exact:true})).toBeVisible();await expect(page.getByText('0 mandatory places remaining',{exact:true})).toBeVisible();await expect(page.getByText('Completion reserve: 18 credits',{exact:true})).toBeVisible();await expect(page.getByRole('region',{name:'Final personnel roster'}).getByRole('listitem')).toHaveCount(7);await page.screenshot({path:captures+'/s12-03-ready-360.png',fullPage:true});
+   await expect(page.getByRole('heading',{name:'Roster ready',exact:true})).toBeVisible();await expect(page.getByText('0 mandatory places remaining',{exact:true})).toBeVisible();await expect(page.getByText('Completion reserve: 18 credits',{exact:true})).toBeVisible();await expect(page.getByRole('region',{name:'Final personnel roster'}).getByRole('listitem')).toHaveCount(7);await page.screenshot({path:captures+'/s12-04-ready-360.png',fullPage:true});
    await page.getByRole('button',{name:'Hide private personnel',exact:true}).click();await page.setViewportSize({width:1920,height:1080});await page.evaluate(()=>window.scrollTo(0,0));await page.screenshot({path:captures+'/s12-03-public-top-1920.png'});await page.getByRole('region',{name:'Acquisition progress'}).scrollIntoViewIfNeeded();await expect(page.getByText('All required rosters are ready.',{exact:true})).toBeVisible();await expect(page.getByRole('region',{name:'Your private personnel'})).toHaveCount(0);await page.screenshot({path:captures+'/s12-03-ready-public-1920.png'});
+   const roster=page.locator('section').filter({has:page.getByRole('heading',{name:'Acquired campaign drivers',exact:true})});await expect(roster.locator('img')).toHaveCount(22);await expect.poll(()=>roster.locator('img').evaluateAll(images=>images.every(image=>(image as HTMLImageElement).naturalWidth>0))).toBeTruthy();await page.getByRole('heading',{name:'Acquired campaign drivers',exact:true}).evaluate(heading=>heading.closest('section')!.scrollIntoView({block:'start'}));await page.screenshot({path:captures+'/s12-04-acquired-roster-1920.png'});
   }
  }
  expect(captured).toBeTruthy();

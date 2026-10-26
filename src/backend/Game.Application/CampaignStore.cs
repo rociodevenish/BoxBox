@@ -3,6 +3,7 @@ namespace Game.Application;
 
 public sealed class CampaignStore(ISessionStore sessions):ICampaignStore
 {
+    public IReadOnlyList<string> ListScheduled()=>sessions.ListSessions().Where(id=>id.StartsWith("campaign-",StringComparison.Ordinal)).Select(id=>id[9..]).ToArray();
     public StoredCampaign? Read(string id)
     {
         var saved=sessions.Read("campaign-"+id);if(saved is null)return null;
@@ -14,5 +15,5 @@ public sealed class CampaignStore(ISessionStore sessions):ICampaignStore
         return new(saved.Version,record);
     }
     public string Write(string id,string? expectedVersion,CampaignRecord record)=>
-        sessions.Write("campaign-"+id,expectedVersion,JsonSerializer.Serialize(record,BrowserReplay.JsonOptions),null);
+        sessions.Write("campaign-"+id,expectedVersion,JsonSerializer.Serialize(record,BrowserReplay.JsonOptions),null,record.AcquisitionWakeup);
 }

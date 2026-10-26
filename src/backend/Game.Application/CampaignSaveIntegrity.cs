@@ -16,6 +16,11 @@ public static class CampaignSaveIntegrity
    if(record.Calendar is null||record.Teams is null||record.FrozenPresets is null||record.EventConditions is null||record.Calendar.Length<2||record.Teams.Length==0||record.EventIndex<0||record.EventIndex>=record.Calendar.Length)throw new ArgumentException();
    if(record.Lifecycle is not("acquiring" or "created" or "event-preparation" or "active-weekend" or "event-result-committed" or "season-complete"))throw new ArgumentException();
    if(record.Acquisition is {} acquisition)PersonnelAcquisition.Validate(acquisition);
+   if(record.AcquisitionWakeup is {} wakeup&&(record.Acquisition is null||!record.AcquisitionAutomatic||record.Lifecycle is not("acquiring" or "created")||wakeup.SessionId!="campaign-"+id||wakeup.Kind!="personnel"||!Guid.TryParse(wakeup.Generation,out _)))throw new ArgumentException();
+   foreach(var choice in record.PersonnelChoices??[])
+   {
+    if(record.Acquisition is not {} personnel||choice.Source is not("unclaimed-ai" or "deadline-absence-ai")||choice.Recommendation.Version!=PersonnelDecisionPolicy.Version||PersonnelDecisionPolicy.Evaluate(choice.Observation)!=choice.Recommendation||!personnel.Commands.Any(c=>c.CommandId==choice.CommandId&&c.Fingerprint==$"hire/{choice.Revision}/{personnel.Hires.Single(h=>h.CommandId==choice.CommandId).TeamId}/{choice.Recommendation.PersonId}"))throw new ArgumentException();
+   }
    if(record.Input.PersonnelMode is not("preset" or "acquisition"))throw new ArgumentException();
    if(record.Input.PersonnelMode=="acquisition"&&record.Acquisition is null||record.Input.PersonnelMode=="preset"&&record.Acquisition is not null)throw new ArgumentException();
    CampaignRules.ValidateShortCalendar(record.Calendar.Select(e=>e.TrackId).ToArray());
@@ -33,6 +38,12 @@ public static class CampaignSaveIntegrity
     foreach(var (team,teamIndex) in record.Teams.Select((t,i)=>(t,i)))
     {
      var preset=presets[teamIndex];
+     if(record.Acquisition is {} acquired&&record.Lifecycle!="acquiring")
+     {
+      if(!PersonnelAcquisition.RosterReady(acquired,team.TeamId))throw new ArgumentException();
+      for(var slot=0;slot<2;slot++)
+       if(preset.Cars[slot].Driver.Id!=acquired.Hires.Single(h=>h.TeamId==team.TeamId&&h.Slot==$"driver-{slot+1}").PersonId||preset.Cars[slot].Engineer?.Id!=acquired.Hires.Single(h=>h.TeamId==team.TeamId&&h.Slot==$"race-engineer-{slot+1}").PersonId)throw new ArgumentException();
+     }
      if(preset.Circuit.Id!=e.TrackId||preset.Circuit.Version!=e.TrackVersion||preset.Cars.Length!=2||preset.Cars.Any(c=>c.TeamId!=team.TeamId||!team.Drivers.Any(d=>d.EntryId==c.EntryId&&d.PersonId==c.Driver.Id&&d.SourceVersion==c.Driver.Version)))throw new ArgumentException();
      _=WeekendPreparation.Prepare(preset,record.Input.Laps,new());
     }
