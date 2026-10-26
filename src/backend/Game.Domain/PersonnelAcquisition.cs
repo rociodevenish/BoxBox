@@ -32,7 +32,7 @@ public static class PersonnelAcquisition
   ValidatePool(pool,teams.Count);
   if(teams.Count==0||teams.Distinct().Count()!=teams.Count||teams.Any(string.IsNullOrWhiteSpace))throw new ArgumentException("Choose distinct teams.");
   scouts??=new("bounded-scouts-v1");
-  if(scouts.Version!="bounded-scouts-v1"||scouts.BaseTokens is <0 or >3||scouts.LaterPriorityBonus is <0 or >1||scouts.MaximumTokens is <0 or >3||scouts.BaseTokens>scouts.MaximumTokens)throw new ArgumentException("Scout allocation must remain bounded between zero and three tokens.");
+  if(!ValidScoutAllocation(scouts))throw new ArgumentException("Scout allocation must remain bounded between zero and three tokens.");
   var order=teams.OrderBy(t=>Rank(seed,"initial-order",t),StringComparer.Ordinal).ThenBy(t=>t,StringComparer.Ordinal).ToImmutableArray();
   var picks=ImmutableArray.CreateBuilder<PersonnelPick>();
   string[][] categories=[["manager"],["driver-1","driver-2"],["race-engineer-1","race-engineer-2"],["technical-engineer-1","technical-engineer-2"]];
@@ -42,9 +42,11 @@ public static class PersonnelAcquisition
    foreach(var (slot,index) in slots.Select((slot,index)=>(slot,index)))
     foreach(var team in index%2==0?rotated:rotated.Reverse())picks.Add(new(team,slot));
   }
-  var state=new AcquisitionState(Version,1,pool,teams.Order(StringComparer.Ordinal).ToImmutableArray(),null,[],teams.Select(t=>new CreditEntry("starting-credit",t,pool.StartingCredit,"starting-credit")).ToImmutableArray(),[],new("carousel-rotation-v1",seed,order,picks.ToImmutable(),0),scouts,order.Select((team,index)=>(team,tokens:Math.Min(scouts.MaximumTokens,scouts.BaseTokens+(order.Length>1&&index>=(order.Length+1)/2?scouts.LaterPriorityBonus:0)))).ToImmutableDictionary(x=>x.team,x=>x.tokens),[]);
+  var state=new AcquisitionState(Version,1,pool,teams.Order(StringComparer.Ordinal).ToImmutableArray(),null,[],teams.Select(t=>new CreditEntry("starting-credit",t,pool.StartingCredit,"starting-credit")).ToImmutableArray(),[],new("carousel-rotation-v1",seed,order,picks.ToImmutable(),0),scouts,order.Select((team,index)=>(team,tokens:AllocatedScoutTokens(scouts,order.Length,index))).ToImmutableDictionary(x=>x.team,x=>x.tokens),[]);
   return NextOffer(state);
  }
+ private static bool ValidScoutAllocation(ScoutAllocation allocation)=>allocation.Version=="bounded-scouts-v1"&&allocation.BaseTokens is >=0 and <=3&&allocation.LaterPriorityBonus is >=0 and <=1&&allocation.MaximumTokens is >=0 and <=3&&allocation.BaseTokens<=allocation.MaximumTokens;
+ private static int AllocatedScoutTokens(ScoutAllocation allocation,int teamCount,int index)=>Math.Min(allocation.MaximumTokens,allocation.BaseTokens+(teamCount>1&&index>=(teamCount+1)/2?allocation.LaterPriorityBonus:0));
  private static string Rank(int seed,string purpose,string id)=>Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes($"{seed.ToString(CultureInfo.InvariantCulture)}/{purpose}/{id}")));
  private static AcquisitionState NextOffer(AcquisitionState state)
  {
@@ -168,10 +170,10 @@ public static class PersonnelAcquisition
   if(carousel.Picks.Select(p=>(p.TeamId,p.Slot)).Distinct().Count()!=carousel.Picks.Length||carousel.Picks.Any(p=>!state.TeamIds.Contains(p.TeamId)||!RequiredSlots.Contains(p.Slot)))throw new ArgumentException("Invalid carousel schedule.");
   if(state.Hires.Where((h,i)=>h.TeamId!=carousel.Picks[i].TeamId||h.Slot!=carousel.Picks[i].Slot).Any())throw new ArgumentException("Hires must follow the saved schedule.");
   if(carousel.Cursor==carousel.Picks.Length?state.Offer is not null:state.Offer is null||state.Offer.TeamId!=carousel.Picks[carousel.Cursor].TeamId||state.Offer.Slot!=carousel.Picks[carousel.Cursor].Slot)throw new ArgumentException("Offer must match the saved cursor.");
-  if(state.ScoutAllocation is not {} allocation||allocation.Version!="bounded-scouts-v1"||allocation.BaseTokens is <0 or >3||allocation.LaterPriorityBonus is <0 or >1||allocation.MaximumTokens is <0 or >3||allocation.BaseTokens>allocation.MaximumTokens||state.ScoutTokens is null||state.ScoutTokens.Count!=state.TeamIds.Length||state.Draws.IsDefaultOrEmpty)throw new ArgumentException("Unsupported Scout save.");
+  if(state.ScoutAllocation is not {} allocation||!ValidScoutAllocation(allocation)||state.ScoutTokens is null||state.ScoutTokens.Count!=state.TeamIds.Length||state.Draws.IsDefaultOrEmpty)throw new ArgumentException("Unsupported Scout save.");
   foreach(var (team,index) in carousel.InitialOrder.Select((team,index)=>(team,index)))
   {
-   var allocated=Math.Min(allocation.MaximumTokens,allocation.BaseTokens+(carousel.InitialOrder.Length>1&&index>=(carousel.InitialOrder.Length+1)/2?allocation.LaterPriorityBonus:0));
+   var allocated=AllocatedScoutTokens(allocation,carousel.InitialOrder.Length,index);
    if(!state.ScoutTokens.TryGetValue(team,out var remaining)||remaining<0||remaining!=allocated-state.Draws.Count(d=>d.TeamId==team&&d.Scout))throw new ArgumentException("Invalid Scout token conservation.");
   }
   foreach(var (draw,index) in state.Draws.Select((draw,index)=>(draw,index)))

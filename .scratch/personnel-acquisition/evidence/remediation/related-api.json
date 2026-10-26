@@ -1,0 +1,23 @@
+{
+  "command": "C:/Program Files/dotnet/dotnet.exe",
+  "args": [
+    "test",
+    "tests/Game.Api.Tests/Game.Api.Tests.csproj",
+    "--nologo",
+    "--artifacts-path",
+    ".tools/remediation-weather-dotnet",
+    "/p:NuGetAudit=false",
+    "--filter",
+    "FullyQualifiedName~Weather_start_advice_forecasts_and_partial_locks_survive_real_Firestore_write_failure|FullyQualifiedName~Saved_deadline_pause_and_sweep|FullyQualifiedName~PersonnelDeadlineTests|FullyQualifiedName~Wet_grid_precedes",
+    "--logger",
+    "trx;LogFileName=related-api.trx",
+    "--results-directory",
+    ".tools/reports/remediation/weather-tests"
+  ],
+  "cwd": "C:\\Projects\\F1Game\\.tools\\worktrees\\s12-review-fixes",
+  "pid": 2864,
+  "startedAt": "2026-10-26T20:48:02.333Z",
+  "status": "passed",
+  "exitCode": 0,
+  "elapsedMs": 73562
+}

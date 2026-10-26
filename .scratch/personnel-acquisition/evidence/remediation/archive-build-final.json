@@ -1,0 +1,17 @@
+{
+  "command": "C:/Program Files/dotnet/dotnet.exe",
+  "args": [
+    "build",
+    "tools/AcquisitionEvidence/AcquisitionEvidence.csproj",
+    "--no-restore",
+    "/p:NuGetAudit=false",
+    "--verbosity",
+    "minimal"
+  ],
+  "cwd": "C:\\Projects\\F1Game\\.tools\\worktrees\\s12-review-fixes",
+  "pid": 29868,
+  "startedAt": "2026-10-26T20:35:41.257Z",
+  "status": "passed",
+  "exitCode": 0,
+  "elapsedMs": 19816
+}

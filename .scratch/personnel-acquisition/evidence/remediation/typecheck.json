@@ -1,0 +1,15 @@
+{
+  "command": "C:/Users/sbdev/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+  "args": [
+    "src/frontend/node_modules/@angular/compiler-cli/bundles/src/bin/ngc.js",
+    "-p",
+    "src/frontend/tsconfig.app.json",
+    "--noEmit"
+  ],
+  "cwd": "C:\\Projects\\F1Game\\.tools\\worktrees\\s12-review-fixes",
+  "pid": 16860,
+  "startedAt": "2026-10-26T20:29:08.832Z",
+  "status": "passed",
+  "exitCode": 0,
+  "elapsedMs": 73887
+}

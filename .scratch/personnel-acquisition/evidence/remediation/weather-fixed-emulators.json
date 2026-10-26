@@ -1,0 +1,21 @@
+{
+  "command": "node",
+  "args": [
+    "tools/auth-emulator/node_modules/firebase-tools/lib/bin/firebase.js",
+    "emulators:exec",
+    "--only",
+    "auth,firestore",
+    "--project",
+    "demo-f1game",
+    "--config",
+    ".tools/reports/remediation/firebase-weather.json",
+    "--non-interactive",
+    "node .tools/reports/remediation/weather-tests.mjs"
+  ],
+  "cwd": "C:\\Projects\\F1Game\\.tools\\worktrees\\s12-review-fixes",
+  "pid": 23536,
+  "startedAt": "2026-10-26T20:46:15.257Z",
+  "status": "passed",
+  "exitCode": 0,
+  "elapsedMs": 63120
+}
