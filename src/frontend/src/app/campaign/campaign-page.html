@@ -6,14 +6,15 @@
   <section><h2>Create a short campaign</h2><p>Two contrasting circuits, frozen preset teams and both drivers. Six laps per event.</p>
    <label>Player name<input #name value="Host" maxlength="40"></label>
    <label>Privacy<select #mode><option>Competitive</option><option>Family</option><option>Mixed</option></select></label>
+   <label>Personnel<select #personnelMode><option value="preset">Preset rosters</option><option value="acquisition">Personnel acquisition · Provisional</option></select></label>
    <label>Calendar<select disabled><option>Short fixture · Monza → Monaco</option></select></label>
    <p>Full calendar unavailable until a complete content manifest is approved.</p>
-   <button (click)="create(name.value,mode.value)" [disabled]="busy()">Create campaign</button>
+   <button (click)="create(name.value,mode.value,personnelMode.value)" [disabled]="busy()">Create campaign</button>
   </section>
  }
  @if(campaign();as season){
-  <section><h2>{{season.lifecycle==='season-complete'?'Season complete':season.lifecycle==='event-result-committed'?'Event result committed':season.lifecycle==='active-weekend'?'Weekend active':season.lifecycle==='event-preparation'?'Event preparation':'Campaign created'}}</h2>
-   <p>{{season.mode}} privacy · Preset rosters and neutral cars remain fixed.</p>
+  <section><h2>{{season.lifecycle==='acquiring'?'Personnel acquisition':season.lifecycle==='season-complete'?'Season complete':season.lifecycle==='event-result-committed'?'Event result committed':season.lifecycle==='active-weekend'?'Weekend active':season.lifecycle==='event-preparation'?'Event preparation':'Campaign created'}}</h2>
+   <p>{{season.mode}} privacy · {{season.acquisition?'Fixed-price personnel. Constructor identity stays yours.':'Preset rosters and neutral cars remain fixed.'}}</p>
    <p class="version">Short fixture · Provisional game content</p>
    <button (click)="refresh()" [disabled]="busy()">Refresh campaign</button>
    <a [href]="'/shared/lobby/'+season.weekendId">Household assignments and control</a>
@@ -26,13 +27,34 @@
     @if(event.order===season.eventIndex+2){<p>Upcoming circuit · Saved preparation opens after the current result is committed.</p>}
    </article>
   }</div></section>
-  @if(season.lifecycle==='created'){
-   <section><h2>Choose your constructor</h2><p>Claim one team. Add other players through household assignments. Unclaimed teams use the disclosed automatic preparation policy.</p>
+  @if(season.lifecycle==='created'||season.lifecycle==='acquiring'){
+   <section><h2>Choose your constructor</h2><p>Claim one team. Add other players through household assignments. {{season.acquisition?'Every team needs a complete acquired roster before preparation.':'Unclaimed teams use the disclosed automatic preparation policy.'}}</p>
     <div class="teams">@for(team of season.teams;track team.teamId){<button (click)="claim(team.teamId)" [disabled]="busy()">Claim {{team.constructorName}}</button>}</div>
-    <button (click)="prepare()" [disabled]="busy()">Begin event preparation</button>
+    @if(season.lifecycle==='created'){<button (click)="prepare()" [disabled]="busy()">Begin event preparation</button>}
+   </section>
+  }
+  @if(season.acquisition;as acquisition){
+   <section aria-label="Acquisition progress"><h2>Build your roster</h2><p>One Manager · Two Drivers · Two Race Engineers · Two Technical Engineers. Pit Crew remains a team attribute.</p><p>{{acquisition.filledSlots}} / {{acquisition.requiredSlots}} mandatory places filled across the household.</p><p>Provisional fixed prices · 100 starting credits per team. No auctions or transfers.</p>
+    @if(acquisition.activeTeamId){<p>Current picker: {{teamName(acquisition.activeTeamId)}} · {{slotLabel(acquisition.slot!)}}</p>}
+    @for(teamId of controlledTeams();track teamId){<button (click)="openPersonnel(teamId)" [disabled]="busy()">Open personnel for {{teamName(teamId)}}</button>}
+    @if(!controlledTeams().length){<p>Claim a constructor above, or ask the host to approve this device in household assignments, then refresh.</p>}
+   </section>
+  }
+  @if(personnel();as own){
+   <section aria-label="Your private personnel"><h2>{{teamName(own.teamId)}} personnel</h2><button (click)="closePersonnel()">Hide private personnel</button><p class="funds">{{own.balance}} credits remaining</p><p>Starting credit {{own.startingCredit}} · Minimum future car cost {{own.minimumCarReserve}} credits. Car construction is not active yet.</p><p>{{own.hires.length}} / {{own.requiredSlots.length}} required places filled</p>
+    @if(pendingHire()){<button (click)="hire()" [disabled]="busy()">Retry saved hire</button><p>The same saved command is retried after a lost connection.</p>}
+    @if(own.offers.length){<div role="region" aria-label="Reserved personnel offers"><p>Reserved for you · {{slotLabel(own.slot!)}} · Refresh keeps these offers.</p><div class="personnel-offers">
+     @for(card of own.offers;track card.id){<article><div class="staff-fallback" aria-hidden="true">{{card.name.charAt(0)}}</div><p>{{card.role}} · Provisional fictional staff</p><h3>{{card.name}}</h3><p class="price">{{card.price}} credits</p><dl>@for(attribute of attributes(card);track attribute[0]){<div><dt>{{attribute[0]}}</dt><dd>{{attribute[1]}} / 100</dd></div>}</dl><p class="inactive">Future economy effects · No current performance bonus</p><p>{{card.effectLabel}}</p><button (click)="hire(card.id)" [disabled]="busy()||pendingHire()">Hire {{card.name}} · {{card.price}} credits</button></article>}
+    </div></div>}
+    @else{<p>{{own.hires.length?'Hire saved. ':''}}{{own.activeTeamId?'Waiting for '+teamName(own.activeTeamId)+'.':'The next carousel offer will appear here when the next pick opens.'}}</p>}
+    <h3>Your roster</h3>@for(card of own.roster;track card.id){<p>{{card.role}} · {{card.name}} · {{card.price}} credits</p>}
+    <details><summary>Remaining mandatory places</summary>@for(slot of own.requiredSlots;track slot){<p>{{slotLabel(slot)}} · {{filledSlot(slot)?'Filled':'Required'}}</p>}</details>
+    <div role="region" aria-label="Your personnel ledger"><h3>Saved credit ledger</h3>@for(entry of own.ledger;track entry.commandId){<p><span>{{entry.credits>0?'+':''}}{{entry.credits}} credits</span> · {{entry.reason==='starting-credit'?'Starting credit':'Personnel hire'}}</p>}</div>
+    <p class="version">{{own.poolVersion}} · {{own.priceVersion}}</p>
    </section>
   }
   @if(season.lifecycle==='event-preparation'){
+
    <section><h2>Preparation readiness</h2><p>Practice assessment and final confirmation follow the normal weekend rules. If a player is absent, the host may explicitly record AI preparation. This retains existing practice and ownership; race control resets to human at each weekend.</p>
     @for(team of season.readiness;track team.teamId){<p>{{teamName(team.teamId)}} · {{team.finalReady?'Final-ready':'Preparing'}}{{team.source==='host-absent-ai'?' · Host-authorised AI preparation':''}}</p>@if(!team.finalReady){<button (click)="prepareAbsent(team.teamId)" [disabled]="busy()">Host: use disclosed AI preparation for {{teamName(team.teamId)}}</button>}}
     <a [href]="'/shared/lobby/'+season.weekendId">Open team preparation in household</a>
@@ -49,6 +71,6 @@
    </section>
    @for(report of season.results;track report.eventId){<section [id]="'report-'+report.eventId"><h2>Event report</h2><h3>{{reportName(report.eventId)}}</h3><p>Committed result · {{season.points.version}}</p><ol>@for(row of report.result.classification;track row.personId){<li>{{row.position}}. {{driverName(row.personId)}} · {{row.status}} · {{row.laps}} laps · {{awarded(report,row.personId)}} points · Championship {{previousPoints(report,row.personId)}} → {{previousPoints(report,row.personId)+awarded(report,row.personId)}} (+{{awarded(report,row.personId)}})</li>}</ol></section>}
   }
-  <section><h2>Frozen preset roster</h2><div class="roster">@for(team of season.teams;track team.teamId){<article><h3>{{team.constructorName}}</h3>@for(driver of team.drivers;track driver.personId){<p><img class="portrait" [src]="portrait(driver.personId)" alt="" (error)="$any($event.target).hidden=true">{{driver.name}}</p>}</article>}</div></section>
+  @if(!season.acquisition){<section><h2>Frozen preset roster</h2><div class="roster">@for(team of season.teams;track team.teamId){<article><h3>{{team.constructorName}}</h3>@for(driver of team.drivers;track driver.personId){<p><img class="portrait" [src]="portrait(driver.personId)" alt="" (error)="$any($event.target).hidden=true">{{driver.name}}</p>}</article>}</div></section>}
  }
 </main>

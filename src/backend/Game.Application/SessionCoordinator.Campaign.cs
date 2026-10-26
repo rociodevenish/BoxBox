@@ -141,7 +141,7 @@ public sealed partial class SessionCoordinator
             frozen[calendar[0].EventId][i].Cars.Select(car=>new CampaignDriver(car.Driver.Id,car.Driver.Name,car.Driver.Slug,car.EntryId,car.Driver.Version)).ToArray())).ToArray();
         return(calendar,roster,frozen,conditions);
     }
-    public JoinedLobby EnsureCampaignLobby(string sessionId,AuthIdentity identity,CreateLobbyInput input,WeekendPreset[] frozen,RaceConfiguration conditions)
+    public JoinedLobby EnsureCampaignLobby(string sessionId,AuthIdentity identity,CreateLobbyInput input,WeekendPreset[] frozen,RaceConfiguration conditions,bool acquisitionPending=false)
     {
         lock(gate)
         {
@@ -155,6 +155,7 @@ public sealed partial class SessionCoordinator
             var lobby=new Lobby(sessionId,Convert.ToHexString(System.Security.Cryptography.RandomNumberGenerator.GetBytes(4)),identity.Uid,input);
             lobby.CampaignPresets=frozen;
             lobby.CampaignConditions=conditions;
+            if(acquisitionPending)lobby.ModuleState["campaign-personnel-pending-v1"]="pending";
             var player=new Player(Guid.NewGuid().ToString("N"),Name(input.Name),identity.Uid);var device=new Device(Guid.NewGuid().ToString("N"),identity.Uid);
             lobby.Players.Add(player);lobby.Devices.Add(device);lobbies.Add(sessionId,lobby);Persist(sessionId);
             return new(ProjectLobby(lobby),new(player.Id,device.Id,true));
