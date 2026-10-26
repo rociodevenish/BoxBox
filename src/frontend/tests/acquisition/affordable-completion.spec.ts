@@ -22,14 +22,19 @@ test('completion reserves explain blocked choices and a recovered final hire sho
   const name='Shared '+team.teamId;const lobby=await post('/api/lobbies/'+weekend+'/participants',{name,deviceId:device});const playerId=lobby.players.find((p:{name:string})=>p.name===name).playerId;
   await post('/api/lobbies/'+weekend+'/assignments',{teamId:team.teamId,playerId,deviceId:device,control:'SharedTablet'});
  }
- let captured=false,driverCaptured=false;
+ let captured=false,driverCaptured=false,engineerCaptured=false,technicalCaptured=false;
  for(let pick=0;pick<77;pick++){
   const current=await get('/api/campaigns/'+campaignId+'?deviceId='+device);const team=current.acquisition.activeTeamId;const path='/api/campaigns/'+campaignId+'/acquisition/teams/'+team+'?deviceId='+device;let own=await get(path);if(own.scoutUnavailable===null)own=await post(path.replace('?','/scout?'),{commandId:crypto.randomUUID(),revision:own.revision,teamId:team});
   const illegal=own.hireOptions.find((o:{canHire:boolean})=>!o.canHire);
+  if((own.slot==='race-engineer-1'&&!engineerCaptured)||(own.slot==='technical-engineer-1'&&!technicalCaptured)){
+   await page.reload();const name=season.teams.find((t:{teamId:string})=>t.teamId===team).constructorName;await page.getByRole('button',{name:'Open personnel for '+name,exact:true}).click();const offers=page.getByRole('region',{name:'Reserved personnel offers'});await expect(offers.locator('.staff-fallback')).toHaveCount(3);
+   if(own.slot==='race-engineer-1'){await expect(offers.getByText("Setup improves the assigned driver's Practice Assessment confidence. Tyre Reading, Strategy and Communication are inactive; no pace or error bonus.",{exact:true})).toHaveCount(3);engineerCaptured=true;}else{await expect(offers.getByText('Future economy effects · No current performance bonus',{exact:true})).toHaveCount(3);technicalCaptured=true;}
+  }
   if(own.slot==='driver-1'&&!driverCaptured){
    await page.reload();const name=season.teams.find((t:{teamId:string})=>t.teamId===team).constructorName;await page.getByRole('button',{name:'Open personnel for '+name,exact:true}).click();
    const offers=page.getByRole('region',{name:'Reserved personnel offers'});await expect(offers.getByText('Race Pace',{exact:true})).toHaveCount(3);await expect(offers.getByText('Preferences describe compatibility, separately from quality.',{exact:true})).toHaveCount(3);
    await expect.poll(()=>offers.locator('img').evaluateAll(images=>images.every(image=>(image as HTMLImageElement).naturalWidth>0))).toBeTruthy();await offers.scrollIntoViewIfNeeded();await page.screenshot({path:captures+'/s12-04-driver-offers-360.png',fullPage:true});driverCaptured=true;
+   const names=await offers.getByRole('heading').allTextContents();await page.route('**/portraits/*.webp',route=>route.abort());await page.reload();await page.getByRole('button',{name:'Open personnel for '+name,exact:true}).click();await expect(offers.getByRole('heading')).toHaveText(names);await expect.poll(()=>offers.locator('img').evaluateAll(images=>images.every(image=>(image as HTMLImageElement).hidden))).toBeTruthy();await expect(offers.getByRole('button',{name:/^Hire /})).toHaveCount(3);await page.unroute('**/portraits/*.webp');
   }
   if(illegal&&!captured){
    await page.reload();const name=season.teams.find((t:{teamId:string})=>t.teamId===team).constructorName;await page.getByRole('button',{name:'Open personnel for '+name,exact:true}).click();
@@ -48,4 +53,5 @@ test('completion reserves explain blocked choices and a recovered final hire sho
   }
  }
  expect(captured).toBeTruthy();
+ expect(engineerCaptured).toBeTruthy();expect(technicalCaptured).toBeTruthy();
 });

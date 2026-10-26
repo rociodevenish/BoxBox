@@ -23,7 +23,7 @@ export class CampaignPage {
  portrait(id:string){const asset=portraits.portraits.find(driver=>'driver-'+driver.driverId===id);return asset?'/'+asset.runtimeUrl:'';}
  readonly personnel=signal<AcquisitionTeam|null>(null);readonly controlledTeams=signal<string[]>([]);
  readonly campaign=signal<Campaign|null>(null);readonly user=signal<User|null>(null);readonly error=signal('');readonly busy=signal(false);readonly ready=signal(false);
- private device='';private creation=localStorage.getItem('campaign-create-command')??crypto.randomUUID();private start=crypto.randomUUID();
+ private device='';private personnelGeneration=0;private creation=localStorage.getItem('campaign-create-command')??crypto.randomUUID();private start=crypto.randomUUID();
  constructor(){void this.run(async()=>{
   const config=await this.request<{projectId:string;apiKey:string;emulatorUrl:string|null}>('/api/auth/config');
   const {initializeApp}=await import('firebase/app');const sdk=await import('firebase/auth');const auth=sdk.getAuth(initializeApp({projectId:config.projectId,apiKey:config.apiKey}));
@@ -46,8 +46,8 @@ export class CampaignPage {
  });}
  async claim(teamId:string){await this.run(async()=>{await this.request('/api/lobbies/'+this.campaign()!.weekendId+'/claims',{teamId,deviceId:this.device});await this.loadControllers();});}
  private async loadControllers(){const season=this.campaign();if(!season?.acquisition)return;const teams=await this.request<{teamId:string}[]>('/api/lobbies/'+season.weekendId+'/controllers?deviceId='+encodeURIComponent(this.device));this.controlledTeams.set(teams.map(t=>t.teamId));}
- async openPersonnel(teamId:string){this.personnel.set(null);await this.run(async()=>{this.personnel.set(await this.request<AcquisitionTeam>('/api/campaigns/'+this.campaign()!.campaignId+'/acquisition/teams/'+teamId+'?deviceId='+encodeURIComponent(this.device)));});}
- closePersonnel(){this.personnel.set(null);}
+ async openPersonnel(teamId:string){const generation=++this.personnelGeneration;this.personnel.set(null);await this.run(async()=>{const own=await this.request<AcquisitionTeam>('/api/campaigns/'+this.campaign()!.campaignId+'/acquisition/teams/'+teamId+'?deviceId='+encodeURIComponent(this.device));if(generation===this.personnelGeneration)this.personnel.set(own);});}
+ closePersonnel(){this.personnelGeneration++;this.personnel.set(null);}
  attributes(card:PersonnelCard){return Object.entries(card.driver?.ratings??card.attributes??{});}
  attributeLabel(key:string){const label=key.replace(/([a-z])([A-Z])/g,'$1 $2');return label.charAt(0).toUpperCase()+label.slice(1);}
  hireOption(id:string){return this.personnel()?.hireOptions.find(option=>option.personId===id);}
@@ -57,22 +57,22 @@ export class CampaignPage {
  private hireKey(){return 'campaign-hire:'+this.campaign()!.campaignId+':'+this.personnel()!.teamId;}
  pendingHire(){return this.personnel()?localStorage.getItem(this.hireKey())!==null:false;}
  async hire(personId?:string){await this.run(async()=>{
-  const own=this.personnel()!;const key=this.hireKey();let saved=localStorage.getItem(key);
+  const own=this.personnel()!;const generation=this.personnelGeneration;const key=this.hireKey();let saved=localStorage.getItem(key);
   if(!saved){if(!personId)return;saved=JSON.stringify({commandId:crypto.randomUUID(),revision:own.revision,teamId:own.teamId,personId});localStorage.setItem(key,saved);}
-  try{this.personnel.set(await this.request<AcquisitionTeam>('/api/campaigns/'+this.campaign()!.campaignId+'/acquisition/teams/'+own.teamId+'/hire?deviceId='+encodeURIComponent(this.device),JSON.parse(saved)));}catch(error){const status=(error as {status?:number}).status;if(status&&status>=400&&status<500)localStorage.removeItem(key);throw error;}
+  try{const updated=await this.request<AcquisitionTeam>('/api/campaigns/'+this.campaign()!.campaignId+'/acquisition/teams/'+own.teamId+'/hire?deviceId='+encodeURIComponent(this.device),JSON.parse(saved));if(generation===this.personnelGeneration)this.personnel.set(updated);}catch(error){const status=(error as {status?:number}).status;if(status&&status>=400&&status<500)localStorage.removeItem(key);throw error;}
   localStorage.removeItem(key);this.campaign.set(await this.request<Campaign>('/api/campaigns/'+this.campaign()!.campaignId+'?deviceId='+encodeURIComponent(this.device)));
  });}
  private scoutKey(){return 'campaign-scout:'+this.campaign()!.campaignId+':'+this.personnel()!.teamId;}
  pendingScout(){return this.personnel()?localStorage.getItem(this.scoutKey())!==null:false;}
  async scout(){await this.run(async()=>{
-  const own=this.personnel()!;const key=this.scoutKey();let saved=localStorage.getItem(key);
+  const own=this.personnel()!;const generation=this.personnelGeneration;const key=this.scoutKey();let saved=localStorage.getItem(key);
   if(!saved){saved=JSON.stringify({commandId:crypto.randomUUID(),revision:own.revision,teamId:own.teamId});localStorage.setItem(key,saved);}
-  try{this.personnel.set(await this.request<AcquisitionTeam>('/api/campaigns/'+this.campaign()!.campaignId+'/acquisition/teams/'+own.teamId+'/scout?deviceId='+encodeURIComponent(this.device),JSON.parse(saved)));}catch(error){const status=(error as {status?:number}).status;if(status&&status>=400&&status<500)localStorage.removeItem(key);throw error;}
+  try{const updated=await this.request<AcquisitionTeam>('/api/campaigns/'+this.campaign()!.campaignId+'/acquisition/teams/'+own.teamId+'/scout?deviceId='+encodeURIComponent(this.device),JSON.parse(saved));if(generation===this.personnelGeneration)this.personnel.set(updated);}catch(error){const status=(error as {status?:number}).status;if(status&&status>=400&&status<500)localStorage.removeItem(key);throw error;}
   localStorage.removeItem(key);
  });}
  async activatePersonnel(){await this.change('/acquisition/activate',{});}
  async prepare(){await this.change('/prepare',{});}
- async refresh(){this.personnel.set(null);await this.run(async()=>{this.campaign.set(await this.request<Campaign>('/api/campaigns/'+this.campaign()!.campaignId+'?deviceId='+encodeURIComponent(this.device)));await this.loadControllers();});}
+ async refresh(){this.closePersonnel();await this.run(async()=>{this.campaign.set(await this.request<Campaign>('/api/campaigns/'+this.campaign()!.campaignId+'?deviceId='+encodeURIComponent(this.device)));await this.loadControllers();});}
  async begin(){await this.change('/start',{commandId:this.start});}
  private remember(id:string,joined:Joined['weekend'],current=true){if(current){this.device=joined.membership.deviceId;localStorage.setItem('campaign-weekend:'+id,joined.lobby.sessionId);}localStorage.setItem('household-device:'+this.user()!.uid+':'+joined.lobby.sessionId,joined.membership.deviceId);localStorage.setItem('weekend-campaign:'+joined.lobby.sessionId,id);}
  async prepareNext(){await this.change('/next/prepare',{});}

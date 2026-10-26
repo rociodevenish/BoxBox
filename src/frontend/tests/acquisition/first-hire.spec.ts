@@ -1,24 +1,35 @@
 import {test,expect} from '@playwright/test';
 import {mkdirSync} from 'node:fs';
 import {captures} from '../../playwright.runtime';
-test('saved carousel offers and Scout survive refresh and lost acknowledgement on a phone',async({page})=>{
+test('saved carousel offers and Scout survive refresh and lost acknowledgement on a phone',async({page,request})=>{
+ let authorization='';page.on('request',req=>{if(req.url().includes('/api/campaigns')&&req.headers()['authorization'])authorization=req.headers()['authorization'];});
  mkdirSync(captures,{recursive:true});await page.setViewportSize({width:360,height:800});await page.goto('/shared/new');
  await page.getByLabel('Your name').fill('Acquisition host');await page.getByLabel('Email').fill('personnel-'+Date.now()+'@example.test');await page.getByLabel('Password').fill('Local-test-password-123');await page.getByRole('button',{name:'Create account',exact:true}).click();await expect(page.getByRole('button',{name:'Create lobby',exact:true})).toBeEnabled();
  await page.getByRole('link',{name:'Campaigns',exact:true}).click();await page.getByLabel('Personnel').selectOption('acquisition');await page.getByRole('button',{name:'Create campaign',exact:true}).click();
  await expect(page.getByRole('heading',{name:'Personnel acquisition',exact:true})).toBeVisible();const picker=(await page.getByText(/^Current picker:/).textContent())!.split(': ')[1].split(' · ')[0];await page.getByRole('button',{name:'Claim '+picker,exact:true}).click();await page.getByRole('button',{name:'Open personnel for '+picker,exact:true}).click();
  await expect(page.getByText('100 credits remaining',{exact:true})).toBeVisible();const cards=page.getByRole('region',{name:'Reserved personnel offers'});await expect(cards.getByRole('article')).toHaveCount(3);const first=await cards.getByRole('heading').first().textContent();
  await expect(cards.getByText('Future economy effects', {exact:false}).first()).toBeVisible();
+ await expect(cards.locator('.staff-fallback')).toHaveCount(3);
+ await expect(cards.getByText('Future economy effects · No current performance bonus',{exact:true})).toHaveCount(3);
  await page.reload();await page.getByRole('button',{name:'Open personnel for '+picker,exact:true}).click();await expect(cards.getByRole('heading').first()).toHaveText(first!);
  await expect(page.getByText('2 Scout tokens remaining',{exact:true})).toBeVisible();
+ let release!:()=>void;const held=new Promise<void>(resolve=>{release=resolve;});let received!:()=>void;const fetched=new Promise<void>(resolve=>{received=resolve;});let delivered!:()=>void;const completed=new Promise<void>(resolve=>{delivered=resolve;});
+ await page.route('**/scout?*',async route=>{const response=await route.fetch();received();await held;await route.fulfill({response});delivered();},{times:1});
+ await page.getByRole('button',{name:'Scout · 1 token',exact:true}).click();await fetched;await page.getByRole('button',{name:'Hide private personnel',exact:true}).click();release();await completed;
+ await expect(page.getByRole('button',{name:'Open personnel for '+picker,exact:true})).toBeEnabled();await expect(page.getByRole('region',{name:'Your private personnel'})).toHaveCount(0);
+ await page.reload();await expect(page.getByRole('region',{name:'Your private personnel'})).toHaveCount(0);await page.getByRole('button',{name:'Open personnel for '+picker,exact:true}).click();await expect(page.getByText('1 Scout tokens remaining',{exact:true})).toBeVisible();
+ const beforeLostScout=await cards.getByRole('heading').allTextContents();
  await page.route('**/scout?*',async route=>{await route.fetch();await route.abort('connectionfailed');},{times:1});
  await page.getByRole('button',{name:'Scout · 1 token',exact:true}).click();await expect(page.getByRole('alert')).toBeVisible();
  await page.reload();await page.getByRole('button',{name:'Open personnel for '+picker,exact:true}).click();
  await page.getByRole('button',{name:'Retry saved Scout',exact:true}).click();await expect(page.getByRole('button',{name:'Retry saved Scout',exact:true})).toHaveCount(0);
- await expect(page.getByText('1 Scout tokens remaining',{exact:true})).toBeVisible();
- const scouted=await cards.getByRole('heading').allTextContents();expect(scouted).not.toContain(first);
+ await expect(page.getByText('0 Scout tokens remaining',{exact:true})).toBeVisible();
+ const scouted=await cards.getByRole('heading').allTextContents();expect(scouted).not.toEqual(beforeLostScout);
  await page.reload();await page.getByRole('button',{name:'Open personnel for '+picker,exact:true}).click();await expect(cards.getByRole('heading')).toHaveText(scouted);
  const price=Number((await cards.locator('.price').first().textContent())!.split(' ')[0]);
  expect(await page.evaluate(()=>document.documentElement.scrollWidth)).toBeLessThanOrEqual(360);await page.screenshot({path:captures+'/s12-02-offer-360.png',fullPage:true});
  await page.route('**/hire?*',async route=>{await route.fetch();await route.abort('connectionfailed');},{times:1});await cards.getByRole('button',{name:'Hire',exact:false}).first().click();await expect(page.getByRole('alert')).toBeVisible();await page.reload();await page.getByRole('button',{name:'Open personnel for '+picker,exact:true}).click();await page.getByRole('button',{name:'Retry saved hire',exact:true}).click();await expect(page.getByRole('button',{name:'Retry saved hire',exact:true})).toHaveCount(0);await expect(page.getByText((100-price)+' credits remaining',{exact:true})).toBeVisible();await expect(page.getByRole('region',{name:'Your personnel ledger'}).getByText('-'+price+' credits',{exact:true})).toBeVisible();await page.reload();await page.getByRole('button',{name:'Open personnel for '+picker,exact:true}).click();await expect(page.getByText((100-price)+' credits remaining',{exact:true})).toBeVisible();
  await page.screenshot({path:captures+'/s12-02-hired-360.png',fullPage:true});await page.getByRole('button',{name:'Hide private personnel',exact:true}).click();await expect(page.getByRole('region',{name:'Your private personnel'})).toHaveCount(0);await page.setViewportSize({width:1920,height:1080});await page.screenshot({path:captures+'/s12-02-campaign-1920.png'});
+ const campaignId=new URL(page.url()).pathname.split('/')[2];const control=await page.evaluate(id=>{const weekend=localStorage.getItem('campaign-weekend:'+id)!;const key=Object.keys(localStorage).find(k=>k.startsWith('household-device:')&&k.endsWith(':'+weekend))!;return {weekend,device:localStorage.getItem(key)!};},campaignId);
+ const revoked=await request.post('/api/lobbies/'+control.weekend+'/devices/'+control.device+'/revoke',{headers:{Authorization:authorization}});expect(revoked.ok(),await revoked.text()).toBeTruthy();await page.getByRole('button',{name:'Refresh campaign',exact:true}).click();await expect(page.getByRole('button',{name:'Open personnel for '+picker,exact:true})).toHaveCount(0);await expect(page.getByRole('region',{name:'Your private personnel'})).toHaveCount(0);const denied=await request.get('/api/campaigns/'+campaignId+'/acquisition/teams/'+(await(await request.get('/api/campaigns/'+campaignId+'?deviceId='+control.device,{headers:{Authorization:authorization}})).json()).teams.find((team:{constructorName:string})=>team.constructorName===picker).teamId+'?deviceId='+control.device,{headers:{Authorization:authorization}});expect(denied.status()).toBe(403);
 });
