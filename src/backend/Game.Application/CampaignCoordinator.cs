@@ -6,12 +6,13 @@ using Game.Simulation;
 namespace Game.Application;
 
 /// <summary>Durable campaign orchestration over the public household weekend operations.</summary>
-public sealed partial class CampaignCoordinator(SessionCoordinator weekends,ICampaignStore store)
+public sealed partial class CampaignCoordinator(SessionCoordinator weekends,ICampaignStore store,TimeProvider? timeProvider=null,IScheduledWakeups? scheduledWakeups=null)
 {
     public const string Schema="campaign-record-v1";
     public const string ContentVersion="preset-campaign-v1/provisional-2026.10.08";
     public const string CalendarVersion="authored-short-monza-monaco-v1";
     private readonly object gate=new();
+    private readonly TimeProvider acquisitionClock=timeProvider??TimeProvider.System;
     public CampaignJoined Create(AuthIdentity identity,CreateCampaignInput input)
     {
         if(identity.Guest)throw new SessionFault(SessionFailure.Forbidden,"Use a permanent account to host a campaign.");
@@ -39,13 +40,13 @@ public sealed partial class CampaignCoordinator(SessionCoordinator weekends,ICam
     }
     public CampaignSnapshot Snapshot(string id,AuthIdentity identity,string deviceId)
     {
-        lock(gate){var saved=Require(id);_=weekends.LobbyMembership(saved.Record.Calendar[saved.Record.EventIndex].SessionId,identity,deviceId);return Project(CommitFinished(saved).Record);}
+        lock(gate){var saved=CompletePersonnel(Require(id));_=weekends.LobbyMembership(saved.Record.Calendar[saved.Record.EventIndex].SessionId,identity,deviceId);return Project(CommitFinished(saved).Record);}
     }
     public CampaignSnapshot Prepare(string id,AuthIdentity identity)
     {
         lock(gate)
         {
-            var saved=RequireHost(id,identity);var record=saved.Record;
+            var saved=CompletePersonnel(RequireHost(id,identity));var record=saved.Record;
             if(record.Lifecycle=="acquiring")throw new SessionFault(SessionFailure.Conflict,"Complete personnel acquisition before event preparation.");
             if(record.Lifecycle=="season-complete")throw new SessionFault(SessionFailure.Conflict,"Season complete. Its results are retained; create a new campaign to race again.");
             EnsureWeekend(record,identity);
@@ -84,10 +85,10 @@ public sealed partial class CampaignCoordinator(SessionCoordinator weekends,ICam
         IReadOnlyList<PreparationReadiness> readiness=lobby.Lifecycle=="lobby"?[]:weekends.PreparationPublic(current.SessionId).Readiness;
         var lifecycle=CampaignRules.Lifecycle(record.Lifecycle,lobby.Lifecycle);
         return new(record.CampaignId,record.Revision,lifecycle,record.ContentVersion,record.CalendarVersion,record.Input.Mode,record.Calendar,record.Teams,
-            record.EventIndex,current.SessionId,readiness,CampaignRules.CanStart(lifecycle,readiness.Select(t=>t.FinalReady).ToArray()),Points:record.Points??ChampionshipScoring.Default,Standings:ChampionshipScoring.Rebuild(CampaignScoringInputs.Entrants(record), (record.Contributions??[]).Select(c=>(IReadOnlyList<ChampionshipAward>)c.Awards)),Results:record.Contributions??[],NextPreparation:NextProjection(record),Acquisition:record.Acquisition is {} acquisition?new(acquisition.Version,acquisition.Pool.Version,acquisition.Pool.PriceVersion,acquisition.Offer?.TeamId,acquisition.Offer?.Slot,acquisition.TeamIds.Length*PersonnelAcquisition.RequiredSlots.Length,acquisition.Hires.Length,acquisition.Carousel!.Version,acquisition.Carousel.InitialOrder,acquisition.Carousel.Picks,acquisition.Carousel.Cursor,acquisition.TeamIds.All(t=>PersonnelAcquisition.RosterReady(acquisition,t))):null);
+            record.EventIndex,current.SessionId,readiness,CampaignRules.CanStart(lifecycle,readiness.Select(t=>t.FinalReady).ToArray()),Points:record.Points??ChampionshipScoring.Default,Standings:ChampionshipScoring.Rebuild(CampaignScoringInputs.Entrants(record), (record.Contributions??[]).Select(c=>(IReadOnlyList<ChampionshipAward>)c.Awards)),Results:record.Contributions??[],NextPreparation:NextProjection(record),Acquisition:record.Acquisition is {} acquisition?new(acquisition.Version,acquisition.Pool.Version,acquisition.Pool.PriceVersion,acquisition.Offer?.TeamId,acquisition.Offer?.Slot,acquisition.TeamIds.Length*PersonnelAcquisition.RequiredSlots.Length,acquisition.Hires.Length,acquisition.Carousel!.Version,acquisition.Carousel.InitialOrder,acquisition.Carousel.Picks,acquisition.Carousel.Cursor,acquisition.TeamIds.All(t=>PersonnelAcquisition.RosterReady(acquisition,t)),record.AcquisitionAutomatic,record.AcquisitionWakeup?.DueUtc):null);
     }
     private StoredCampaign RequireHost(string id,AuthIdentity identity){var saved=Require(id);if(saved.Record.HostUid!=identity.Uid)throw new SessionFault(SessionFailure.Forbidden,"Only this campaign's host can begin an event.");return saved;}
     private StoredCampaign Require(string id)=>ReadOptional(id)??throw new SessionFault(SessionFailure.Unavailable,"Campaign unavailable.");
     private StoredCampaign? ReadOptional(string id){try{var saved=store.Read(id);if(saved is not null)CampaignSaveIntegrity.Validate(saved.Record,id);return saved;}catch(SessionFault){throw;}catch(Exception){throw new SessionFault(SessionFailure.StorageUnavailable,"Campaign storage unavailable. Retry the same command.");}}
-    private void Write(string id,string? version,CampaignRecord record){try{store.Write(id,version,record);}catch(SessionFault){throw;}catch(Exception){throw new SessionFault(SessionFailure.StorageUnavailable,"Campaign save confirmation unavailable. Retry the same command.");}}
+    private void Write(string id,string? version,CampaignRecord record){try{store.Write(id,version,record);if(record.AcquisitionWakeup is {} wakeup){try{scheduledWakeups?.Enqueue(wakeup);}catch(Exception){/* Saved wakeup remains repairable by sweep. */}}}catch(SessionFault){throw;}catch(Exception){throw new SessionFault(SessionFailure.StorageUnavailable,"Campaign save confirmation unavailable. Retry the same command.");}}
 }

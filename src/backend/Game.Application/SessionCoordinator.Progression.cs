@@ -105,7 +105,7 @@ public sealed partial class SessionCoordinator
     {
         var count=0;
         // Independent Cloud Scheduler invocation supplies the wakeup even if enqueue never happened.
-        foreach(var id in persistence.ListSessions())
+        foreach(var id in persistence.ListSessions().Where(id=>!id.StartsWith("campaign-",StringComparison.Ordinal)))
         {
             ScheduledWakeup? wakeup;
             await mutations.WaitAsync();

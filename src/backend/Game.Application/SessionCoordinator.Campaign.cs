@@ -163,4 +163,14 @@ public sealed partial class SessionCoordinator
     }
     public PreparationPublicSnapshot BeginCampaignPreparation(string sessionId,AuthIdentity identity,IReadOnlyList<WeekendPreset> frozen)=>
         BeginPreparationCore(sessionId,identity,new(frozen[0].Circuit.Id),frozen);
+    public void CommitCampaignPersonnel(string sessionId,WeekendPreset[] frozen)
+    {
+        lock(gate)
+        {
+            RefreshCampaignWeekend(sessionId);var lobby=RequireLobby(sessionId);
+            if(!lobby.ModuleState.ContainsKey("campaign-personnel-pending-v1"))return;
+            if(lobby.Lifecycle!="lobby")throw new SessionFault(SessionFailure.Conflict,"Personnel handoff requires the campaign lobby.");
+            lobby.CampaignPresets=frozen;lobby.ModuleState.Remove("campaign-personnel-pending-v1");lobby.Revision++;Persist(sessionId);
+        }
+    }
 }

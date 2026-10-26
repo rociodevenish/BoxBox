@@ -10,7 +10,7 @@ public sealed record DriverPreset(string Id, string Name, string Slug, string Ve
 public sealed record CircuitPreset(string Id, string Name, string Slug, string Version,
     ImmutableDictionary<string, double> Demands, Track Track);
 public sealed record EngineerPreset(string Id, string Name, string Version, double Setup);
-public sealed record WeekendCar(string EntryId, string TeamId, CarPreset Car, DriverPreset Driver);
+public sealed record WeekendCar(string EntryId, string TeamId, CarPreset Car, DriverPreset Driver, EngineerPreset? Engineer = null);
 public sealed record WeekendPreset(string Version, CircuitPreset Circuit, ImmutableArray<WeekendCar> Cars,
     EngineerPreset Engineer, string BaseCarId = "neutral-base-v1", string PackageId = "neutral-package-v1",
     string SetupId = "neutral-setup-v1");

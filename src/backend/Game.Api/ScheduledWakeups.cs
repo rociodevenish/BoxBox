@@ -43,7 +43,7 @@ public sealed class LocalWakeupQueue:IScheduledWakeups
     public IReadOnlyList<ScheduledWakeup> Due(DateTimeOffset now)=>pending.Values.Where(w=>w.DueUtc<=now).ToArray();
     public void Complete(string generation)=>pending.TryRemove(generation,out _);
 }
-public sealed class LocalWakeupDelivery(LocalWakeupQueue queue,SessionCoordinator sessions,TimeProvider clock,ILogger<LocalWakeupDelivery> logger):BackgroundService
+public sealed class LocalWakeupDelivery(LocalWakeupQueue queue,SessionCoordinator sessions,CampaignCoordinator campaigns,TimeProvider clock,ILogger<LocalWakeupDelivery> logger):BackgroundService
 {
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
@@ -51,7 +51,7 @@ public sealed class LocalWakeupDelivery(LocalWakeupQueue queue,SessionCoordinato
         while(await timer.WaitForNextTickAsync(stoppingToken))
             foreach(var wakeup in queue.Due(clock.GetUtcNow()))
             {
-                try{await sessions.DeliverScheduledWakeup(new(wakeup.SessionId,wakeup.Generation,wakeup.Phase,wakeup.WindowRevision));queue.Complete(wakeup.Generation);}
+                try{if(wakeup.SessionId.StartsWith("campaign-",StringComparison.Ordinal))campaigns.DeliverPersonnelWakeup(new(wakeup.SessionId,wakeup.Generation,wakeup.Phase,wakeup.WindowRevision));else await sessions.DeliverScheduledWakeup(new(wakeup.SessionId,wakeup.Generation,wakeup.Phase,wakeup.WindowRevision));queue.Complete(wakeup.Generation);}
                 catch(Exception error){logger.LogWarning("Local wakeup delivery failed for {Session}: {Failure}",wakeup.SessionId,error.GetType().Name);}
             }
     }
