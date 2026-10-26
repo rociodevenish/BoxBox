@@ -5,7 +5,8 @@ using System.Globalization;
 namespace Game.Domain;
 
 public record PersonnelCard(string Id,string Name,string Role,int Price,string SourceVersion,string EffectLabel,DriverPreset? Driver=null,ImmutableDictionary<string,int>? Attributes=null);
-public record PersonnelPool(string Version,string PriceVersion,int StartingCredit,int MinimumCarReserve,ImmutableArray<PersonnelCard> People);
+public record ConstructionCreditMapping(string Version,string SourceVersion,int MinimumBudgetUnits,int CreditsPerBudgetUnit);
+public record PersonnelPool(string Version,string PriceVersion,int StartingCredit,int MinimumCarReserve,ImmutableArray<PersonnelCard> People,ConstructionCreditMapping? ConstructionMapping=null);
 public record PersonnelOffer(string TeamId,string Slot,ImmutableArray<string> PersonIds);
 public record PersonnelAssignment(string TeamId,string Slot,string PersonId,string CommandId);
 public record CreditEntry(string CommandId,string TeamId,int Credits,string Reason,string? PersonId=null);
@@ -22,7 +23,8 @@ public record AcquisitionState(string Version,long Revision,PersonnelPool Pool,I
 /// <summary>Frozen content and integer-credit ownership transactions. No persistence or identity services.</summary>
 public static class PersonnelAcquisition
 {
- public const string Version="personnel-acquisition-v2";
+ public const string Version="personnel-acquisition-v3";
+ public const string ReserveVersion="global-demand-envelope-v1";
  public static readonly ImmutableArray<string> RequiredSlots=["manager","driver-1","driver-2","race-engineer-1","race-engineer-2","technical-engineer-1","technical-engineer-2"];
  public static string Role(string slot)=>slot.StartsWith("driver-")?"Driver":slot.StartsWith("race-engineer-")?"Race Engineer":slot.StartsWith("technical-engineer-")?"Technical Engineer":slot=="manager"?"Manager":throw new ArgumentException("Unknown mandatory slot.");
  public static AcquisitionState Open(PersonnelPool pool,IReadOnlyList<string> teams,int seed=123,ScoutAllocation? scouts=null)
@@ -54,9 +56,16 @@ public static class PersonnelAcquisition
  private static AcquisitionState DrawOffer(AcquisitionState state,PersonnelPick pick,bool scout)
  {
   var excluded=scout?state.Offer!.PersonIds:ImmutableArray<string>.Empty;
-  var people=Available(state,pick.Slot).Where(p=>!excluded.Contains(p.Id))
+  var candidates=Available(state,pick.Slot).Where(p=>!excluded.Contains(p.Id))
    .OrderBy(p=>Rank(state.Carousel!.Seed,$"draw/{state.Draws.Length}",p.Id),StringComparer.Ordinal).ThenBy(p=>p.Id,StringComparer.Ordinal)
-   .Take(scout?state.Offer!.PersonIds.Length:3).Select(p=>p.Id).ToImmutableArray();
+   .ToArray();
+  var selected=candidates.Take(scout?state.Offer!.PersonIds.Length:3).ToArray();
+  if(!selected.Any(p=>CandidateUnavailable(state,pick.TeamId,pick.Slot,p) is null))
+  {
+   var affordable=candidates.FirstOrDefault(p=>CandidateUnavailable(state,pick.TeamId,pick.Slot,p) is null)??throw new InvalidOperationException("No affordable completion offer is available. Preserve the campaign and review its frozen pool.");
+   selected[^1]=affordable;
+  }
+  var people=selected.Select(p=>p.Id).ToImmutableArray();
   return state with{Offer=new(pick.TeamId,pick.Slot,people),Draws=state.Draws.Add(new(state.Draws.Length,state.Carousel!.Cursor,pick.TeamId,pick.Slot,scout,people))};
  }
  private static IEnumerable<PersonnelCard> Available(AcquisitionState state,string slot)=>state.Pool.People.Where(p=>p.Role==Role(slot)&&!state.Hires.Any(h=>h.PersonId==p.Id));
@@ -65,6 +74,7 @@ public static class PersonnelAcquisition
   if(state.Offer is not {} offer||offer.TeamId!=teamId)return "Wait for your scheduled pick.";
   if(state.ScoutTokens![teamId]<=0)return "No Scout tokens remaining.";
   if(Available(state,offer.Slot).Count(p=>!offer.PersonIds.Contains(p.Id))<offer.PersonIds.Length)return "Insufficient alternatives to replace this entire offer. No token will be spent.";
+  if(!Available(state,offer.Slot).Any(p=>!offer.PersonIds.Contains(p.Id)&&CandidateUnavailable(state,teamId,offer.Slot,p) is null))return "No affordable alternatives preserve the completion reserve. No token will be spent.";
   return null;
  }
  public static AcquisitionState Scout(AcquisitionState state,PersonnelScout command)
@@ -79,6 +89,45 @@ public static class PersonnelAcquisition
   return DrawOffer(state with{Revision=state.Revision+1,ScoutTokens=state.ScoutTokens!.SetItem(command.TeamId,state.ScoutTokens[command.TeamId]-1),Commands=state.Commands.Add(new(key.ToString("D"),fingerprint))},new(offer.TeamId,offer.Slot),true);
  }
  public static int Balance(AcquisitionState state,string team)=>checked(state.Ledger.Where(e=>e.TeamId==team).Sum(e=>e.Credits));
+ public static ImmutableArray<string> RemainingSlots(AcquisitionState state,string team)=>RequiredSlots.Where(slot=>!state.Hires.Any(h=>h.TeamId==team&&h.Slot==slot)).ToImmutableArray();
+ public static bool RosterReady(AcquisitionState state,string team)=>RemainingSlots(state,team).IsEmpty&&Balance(state,team)>=state.Pool.MinimumCarReserve;
+ // The Nth cheapest unowned person backs N remaining places globally. Removing any
+ // person while reducing demand by one can never raise that bound. No cheap identity
+ // is promised twice; every remaining place can be filled at or below its role bound.
+ private static Dictionary<string,int> RoleBounds(PersonnelPool pool,int teamCount,ImmutableArray<PersonnelAssignment> hires)
+ {
+  var bounds=new Dictionary<string,int>();
+  foreach(var role in RequiredSlots.Select(Role).Distinct())
+  {
+   var needed=teamCount*RequiredSlots.Count(s=>Role(s)==role)-hires.Count(h=>Role(h.Slot)==role);
+   var candidates=pool.People.Where(p=>p.Role==role&&!hires.Any(h=>h.PersonId==p.Id)).OrderBy(p=>p.Price).Take(needed).ToArray();
+   if(needed<0||candidates.Length<needed)throw new ArgumentException($"Insufficient unique affordable {role} supply for remaining mandatory places.");
+   bounds[role]=needed==0?0:candidates[^1].Price;
+  }
+  return bounds;
+ }
+ public static int CompletionReserve(AcquisitionState state,string team)
+ {
+  var bounds=RoleBounds(state.Pool,state.TeamIds.Length,state.Hires);
+  return checked(state.Pool.MinimumCarReserve+RemainingSlots(state,team).Sum(slot=>bounds[Role(slot)]));
+ }
+ public static int ReserveAfterHire(AcquisitionState state,string team,string personId)
+ {
+  var offer=state.Offer;
+  if(offer is null||offer.TeamId!=team||!offer.PersonIds.Contains(personId))throw new InvalidOperationException("Choose a reserved offer for the active team.");
+  return CompletionReserve(state with{Hires=state.Hires.Add(new(team,offer.Slot,personId,"reserve-preview"))},team);
+ }
+ public static string? HireUnavailable(AcquisitionState state,string team,string personId)
+ {
+  if(state.Offer is not {} offer||offer.TeamId!=team||!offer.PersonIds.Contains(personId))return "Choose a reserved offer for the active team.";
+  var card=state.Pool.People.Single(p=>p.Id==personId);
+  return CandidateUnavailable(state,team,offer.Slot,card);
+ }
+ private static string? CandidateUnavailable(AcquisitionState state,string team,string slot,PersonnelCard card)
+ {
+  var reserve=CompletionReserve(state with{Hires=state.Hires.Add(new(team,slot,card.Id,"reserve-preview"))},team);
+  return Balance(state,team)-card.Price<reserve?$"Completion reserve requires {reserve} credits after this hire for remaining personnel and the minimum car. No hire was made.":null;
+ }
  public static AcquisitionState Hire(AcquisitionState state,PersonnelHire command)
  {
   if(command is null||!Guid.TryParse(command.CommandId,out var key)||key==Guid.Empty)throw new ArgumentException("Supply a command identity.");
@@ -89,7 +138,7 @@ public static class PersonnelAcquisition
   var offer=state.Offer;
   if(offer is null||offer.TeamId!=command.TeamId||!offer.PersonIds.Contains(command.PersonId))throw new InvalidOperationException("Choose a reserved offer for the active team.");
   var card=state.Pool.People.Single(p=>p.Id==command.PersonId);
-  if(card.Price>Balance(state,command.TeamId))throw new InvalidOperationException("Insufficient credits. No hire was made.");
+  if(HireUnavailable(state,command.TeamId,card.Id) is {} unavailable)throw new InvalidOperationException(unavailable);
   if(state.Hires.Any(h=>h.PersonId==card.Id||h.TeamId==command.TeamId&&h.Slot==offer.Slot))throw new InvalidOperationException("Person or slot already assigned.");
   return NextOffer(state with{Revision=state.Revision+1,Offer=null,Carousel=state.Carousel! with{Cursor=state.Carousel.Cursor+1},Hires=state.Hires.Add(new(command.TeamId,offer.Slot,card.Id,key.ToString("D"))),
    Ledger=state.Ledger.Add(new(key.ToString("D"),command.TeamId,-card.Price,"personnel-hire",card.Id)),Commands=state.Commands.Add(new(key.ToString("D"),fingerprint))});
@@ -97,6 +146,7 @@ public static class PersonnelAcquisition
  public static void ValidatePool(PersonnelPool pool,int teamCount)
  {
   if(pool.Version is null||!pool.Version.StartsWith("personnel-pool-v1/",StringComparison.Ordinal)||pool.PriceVersion!="provisional-prices-v1"||pool.StartingCredit<=0||pool.MinimumCarReserve<0||pool.People.IsDefaultOrEmpty||pool.People.Select(p=>p.Id).Distinct().Count()!=pool.People.Length)throw new ArgumentException("Invalid frozen personnel pool.");
+  if(pool.ConstructionMapping is not {Version:"budgetUnits-to-credits-v1",SourceVersion:"1.0.0/2026.10.09-preseason-car-build-v1",MinimumBudgetUnits:18,CreditsPerBudgetUnit:1}||pool.MinimumCarReserve!=18)throw new ArgumentException("Unsupported construction credit mapping. Preserve the frozen pool and restore a compatible version.");
   foreach(var person in pool.People)
    if(string.IsNullOrWhiteSpace(person.Id)||string.IsNullOrWhiteSpace(person.Name)||string.IsNullOrWhiteSpace(person.SourceVersion)||string.IsNullOrWhiteSpace(person.EffectLabel)||person.Price<=0||person.Price>pool.StartingCredit||!RequiredSlots.Select(Role).Contains(person.Role)||person.Role=="Driver"&&(person.Driver is null||person.Driver.Id!=person.Id))throw new ArgumentException("Invalid personnel identity, role or fixed price.");
   foreach(var person in pool.People)
@@ -106,6 +156,8 @@ public static class PersonnelAcquisition
   }
   foreach(var role in RequiredSlots.Select(Role).Distinct())
    if(pool.People.Count(p=>p.Role==role)<Math.Max(3,teamCount*RequiredSlots.Count(s=>Role(s)==role)+1))throw new ArgumentException($"Insufficient unique {role} content for every team.");
+  var bounds=RoleBounds(pool,teamCount,[]);
+  if((long)pool.MinimumCarReserve+RequiredSlots.Sum(slot=>(long)bounds[Role(slot)])>pool.StartingCredit)throw new ArgumentException("Insufficient unique affordable personnel supply: conservative mandatory completion and minimum car exceed starting credit. No credit was granted.");
  }
  public static void Validate(AcquisitionState state)
  {
@@ -131,7 +183,7 @@ public static class PersonnelAcquisition
   foreach(var team in state.TeamIds)
   {
    var initial=state.Ledger.Where(e=>e.TeamId==team&&e.Reason=="starting-credit").ToArray();
-   if(initial.Length!=1||initial[0].Credits!=state.Pool.StartingCredit||Balance(state,team)<0)throw new ArgumentException("Invalid starting credit or debit.");
+   if(initial.Length!=1||initial[0].Credits!=state.Pool.StartingCredit||Balance(state,team)<CompletionReserve(state,team))throw new ArgumentException("Invalid starting credit, debit or affordable completion reserve.");
   }
   if(state.Ledger.Length!=state.TeamIds.Length+state.Hires.Length||state.Ledger.Any(e=>!state.TeamIds.Contains(e.TeamId)))throw new ArgumentException("Unrecognised ledger entries.");
   foreach(var hire in state.Hires)
@@ -140,5 +192,6 @@ public static class PersonnelAcquisition
    if(!state.TeamIds.Contains(hire.TeamId)||!RequiredSlots.Contains(hire.Slot)||Role(hire.Slot)!=card.Role||!state.Commands.Any(c=>c.CommandId==hire.CommandId)||state.Ledger.Count(e=>e.TeamId==hire.TeamId&&e.CommandId==hire.CommandId&&e.PersonId==card.Id&&e.Credits==-card.Price&&e.Reason=="personnel-hire")!=1)throw new ArgumentException("Hire and debit must agree.");
   }
   if(state.Offer is {} offer&&(offer.PersonIds.Length is <2 or >3||!state.TeamIds.Contains(offer.TeamId)||offer.PersonIds.Distinct().Count()!=offer.PersonIds.Length||offer.PersonIds.Any(id=>!state.Pool.People.Any(p=>p.Id==id&&p.Role==Role(offer.Slot))||state.Hires.Any(h=>h.PersonId==id))))throw new ArgumentException("Invalid reserved offers.");
+  if(state.Offer is {} affordableOffer&&!affordableOffer.PersonIds.Any(id=>HireUnavailable(state,affordableOffer.TeamId,id) is null))throw new ArgumentException("Saved offers contain no affordable completion choice. Preserve the frozen campaign.");
  }
 }

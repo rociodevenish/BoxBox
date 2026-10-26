@@ -28,6 +28,20 @@ public static class PersonnelCatalog
      role=="Race Engineer"?"Provisional fictional staff. Information support activates with personnel integration; no pace or error bonus.":"Provisional fictional staff. Development and resource effects await the economy system; no current performance bonus.",
      Attributes:attributes.ToImmutableDictionary(k=>k,_=>70+i%5*4)));
    }
-  return new("personnel-pool-v1/"+version,"provisional-prices-v1",100,18,people.ToImmutableArray());
+  // Additional unique fictional staff back every mandatory staff place at base price.
+  // Existing people and printed prices are unchanged; no team receives extra credits.
+  foreach(var (role,prefix,count,price) in new[]{("Manager","manager",6,8),("Race Engineer","race-engineer",13,6),("Technical Engineer","technical-engineer",13,5)})
+   for(var i=0;i<count;i++)
+   {
+    var reference=people.First(p=>p.Role==role);
+    people.Add(new($"staff-{prefix}-completion-{i+1:00}",$"{first[(i+8)%first.Length]} {last[(i+19+(role=="Manager"?0:role=="Race Engineer"?5:10))%last.Length]}",role,price,"fictional-completion-staff-v1",reference.EffectLabel,
+     Attributes:reference.Attributes!.ToImmutableDictionary(k=>k.Key,_=>70+i%5*4)));
+   }
+  using var construction=JsonDocument.Parse(typeof(PersonnelCatalog).Assembly.GetManifestResourceStream("preseason.construction.json")!);
+  var source=construction.RootElement;
+  var minimum=source.GetProperty("categories").EnumerateArray().Sum(category=>category.GetProperty("options").EnumerateArray().Min(option=>option.GetProperty("cost").GetInt32()));
+  if(minimum!=18||source.GetProperty("budgetModel").GetProperty("currency").GetString()!="budgetUnits"||source.GetProperty("budgetModel").GetProperty("possibleBuildCostRange").GetProperty("min").GetInt32()!=minimum)throw new InvalidOperationException("Review the provisional minimum construction mapping before opening acquisition.");
+  var mapping=new ConstructionCreditMapping("budgetUnits-to-credits-v1",source.GetProperty("schemaVersion").GetString()+"/"+source.GetProperty("dataVersion").GetString(),minimum,1);
+  return new("personnel-pool-v1/"+version+"/completion-supply-v1","provisional-prices-v1",100,minimum,people.ToImmutableArray(),mapping);
  }
 }
