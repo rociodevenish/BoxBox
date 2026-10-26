@@ -21,6 +21,8 @@ Runtime: Node24.22.1, SDK10.0.401, Java21. UI4695/API4795; Auth22309, Firestore2
 
 Inspected actual generated captures using `view_image`: the complete360×800 phone flow (full-page driver comparison, reserve rejection and final ready roster), and the actual1920×1080 public page at scroll position0. Driver photographs, live names, prices, preference explanations, reserve errors, buttons and final ledger remain contained. Staff initials and truthful future-only labels are legible. The long phone page scrolls vertically without horizontal overflow. The desktop top contains the campaign state and calendar; it has no private balance, offers, ledger or advice after Hide. These are current captures, not the historical04 evidence.
 
+The coordinating agent independently inspected and approved the published360px driver comparison and ready roster plus the actual1920×1080 public top before broad verification.
+
 Reviewed files published explicitly with `tools/publish-evidence.mjs`:
 
 - [Driver comparison,360px](s12-05-driver-offers-360.png)
