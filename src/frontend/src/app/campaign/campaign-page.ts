@@ -7,7 +7,9 @@ interface Event {eventId:string;order:number;trackId:string;trackName:string;tra
 interface Team {teamId:string;constructorName:string;drivers:{personId:string;name:string;slug:string}[]}
 interface Standing {id:string;position:number;points:number}
 interface Result {eventId:string;result:{hash:string;classification:{personId:string;position:number;status:string;laps:number;eligible:boolean}[]};awards:{personId:string;points:number}[]}
-interface Campaign {campaignId:string;lifecycle:string;contentVersion:string;calendarVersion:string;mode:string;calendar:Event[];teams:Team[];eventIndex:number;weekendId:string;canStart:boolean;readiness:{teamId:string;finalReady:boolean;source:string}[];points:{version:string;byPosition:number[]};standings:{drivers:Standing[];constructors:Standing[]};results:Result[];nextPreparation:{eventId:string;sessionId:string;trackName:string;canStart:boolean;missingTeamPolicy:string;readiness:{teamId:string;finalReady:boolean;source:string}[]}|null}
+interface PersonnelCard {id:string;name:string;role:string;price:number;effectLabel:string;attributes:Record<string,number>|null}
+interface AcquisitionTeam {teamId:string;revision:number;balance:number;startingCredit:number;minimumCarReserve:number;slot:string|null;activeTeamId:string|null;poolVersion:string;priceVersion:string;offers:PersonnelCard[];hires:{slot:string;personId:string}[];ledger:{commandId:string;credits:number;reason:string;personId:string|null}[];requiredSlots:string[];roster:PersonnelCard[]}
+interface Campaign {acquisition:{version:string;activeTeamId:string|null;slot:string|null;requiredSlots:number;filledSlots:number}|null;campaignId:string;lifecycle:string;contentVersion:string;calendarVersion:string;mode:string;calendar:Event[];teams:Team[];eventIndex:number;weekendId:string;canStart:boolean;readiness:{teamId:string;finalReady:boolean;source:string}[];points:{version:string;byPosition:number[]};standings:{drivers:Standing[];constructors:Standing[]};results:Result[];nextPreparation:{eventId:string;sessionId:string;trackName:string;canStart:boolean;missingTeamPolicy:string;readiness:{teamId:string;finalReady:boolean;source:string}[]}|null}
 interface Joined {campaign:Campaign;weekend:{lobby:{sessionId:string};membership:{deviceId:string}}}
 @Component({selector:'app-campaign-page',templateUrl:'./campaign-page.html',styleUrl:'./campaign-page.css'})
 export class CampaignPage {
@@ -19,6 +21,7 @@ export class CampaignPage {
  previousPoints(result:Result,id:string){let total=0;for(const report of this.campaign()?.results??[]){if(report.eventId===result.eventId)break;total+=this.awarded(report,id);}return total;}
  trackImage(id:string){return tracks.tracks.find(track=>track.id===id)?.url??'';}
  portrait(id:string){const asset=portraits.portraits.find(driver=>'driver-'+driver.driverId===id);return asset?'/'+asset.runtimeUrl:'';}
+ readonly personnel=signal<AcquisitionTeam|null>(null);readonly controlledTeams=signal<string[]>([]);
  readonly campaign=signal<Campaign|null>(null);readonly user=signal<User|null>(null);readonly error=signal('');readonly busy=signal(false);readonly ready=signal(false);
  private device='';private creation=localStorage.getItem('campaign-create-command')??crypto.randomUUID();private start=crypto.randomUUID();
  constructor(){void this.run(async()=>{
@@ -29,21 +32,35 @@ export class CampaignPage {
   const id=location.pathname.split('/')[2];if(id&&id!=='new'&&this.user()){
    const weekend=localStorage.getItem('campaign-weekend:'+id);this.device=weekend?localStorage.getItem('household-device:'+this.user()!.uid+':'+weekend)??'':'';
    const joined=await this.request<Joined['weekend']>('/api/campaigns/'+id+'/return',{deviceId:this.device||null});this.remember(id,joined);
-   this.campaign.set(await this.request<Campaign>('/api/campaigns/'+id+'?deviceId='+encodeURIComponent(this.device)));
+   this.campaign.set(await this.request<Campaign>('/api/campaigns/'+id+'?deviceId='+encodeURIComponent(this.device)));await this.loadControllers();
   }
  });}
- private async request<T>(path:string,input?:unknown):Promise<T>{const token=await this.user()?.getIdToken();const response=await fetch(apiUrl(path),{method:input===undefined?'GET':'POST',headers:{'Content-Type':'application/json',...(token?{Authorization:'Bearer '+token}:{})},body:input===undefined?undefined:JSON.stringify(input)});const result=await response.json();if(!response.ok)throw new Error(result.message??'Campaign unavailable. Retry.');return result;}
+ private async request<T>(path:string,input?:unknown):Promise<T>{const token=await this.user()?.getIdToken();const response=await fetch(apiUrl(path),{method:input===undefined?'GET':'POST',headers:{'Content-Type':'application/json',...(token?{Authorization:'Bearer '+token}:{})},body:input===undefined?undefined:JSON.stringify(input)});const result=await response.json();if(!response.ok)throw Object.assign(new Error(result.message??'Campaign unavailable. Retry.'),{status:response.status});return result;}
  private async run(action:()=>Promise<void>){this.busy.set(true);this.error.set('');try{await action();}catch(error){this.error.set(error instanceof Error?error.message:'Campaign unavailable.');}finally{this.busy.set(false);}}
- async create(name:string,mode:string){await this.run(async()=>{
+ async create(name:string,mode:string,personnelMode="preset"){await this.run(async()=>{
   localStorage.setItem('campaign-create-command',this.creation);
-  const joined=await this.request<Joined>('/api/campaigns',{commandId:this.creation,name,mode,calendar:'short',seed:123,laps:6});
+  const joined=await this.request<Joined>('/api/campaigns',{commandId:this.creation,name,mode,personnelMode,calendar:'short',seed:123,laps:6});
   this.device=joined.weekend.membership.deviceId;localStorage.setItem('household-device:'+this.user()!.uid+':'+joined.weekend.lobby.sessionId,this.device);
   localStorage.setItem('campaign-weekend:'+joined.campaign.campaignId,joined.weekend.lobby.sessionId);localStorage.removeItem('campaign-create-command');
-  history.replaceState(null,'','/campaigns/'+joined.campaign.campaignId);this.campaign.set(joined.campaign);
+  history.replaceState(null,'','/campaigns/'+joined.campaign.campaignId);this.campaign.set(joined.campaign);await this.loadControllers();
  });}
- async claim(teamId:string){await this.run(async()=>{await this.request('/api/lobbies/'+this.campaign()!.weekendId+'/claims',{teamId,deviceId:this.device});});}
+ async claim(teamId:string){await this.run(async()=>{await this.request('/api/lobbies/'+this.campaign()!.weekendId+'/claims',{teamId,deviceId:this.device});await this.loadControllers();});}
+ private async loadControllers(){const season=this.campaign();if(!season?.acquisition)return;const teams=await this.request<{teamId:string}[]>('/api/lobbies/'+season.weekendId+'/controllers?deviceId='+encodeURIComponent(this.device));this.controlledTeams.set(teams.map(t=>t.teamId));}
+ async openPersonnel(teamId:string){this.personnel.set(null);await this.run(async()=>{this.personnel.set(await this.request<AcquisitionTeam>('/api/campaigns/'+this.campaign()!.campaignId+'/acquisition/teams/'+teamId+'?deviceId='+encodeURIComponent(this.device)));});}
+ closePersonnel(){this.personnel.set(null);}
+ attributes(card:PersonnelCard){return Object.entries(card.attributes??{});}
+ filledSlot(slot:string){return this.personnel()?.hires.some(h=>h.slot===slot)??false;}
+ slotLabel(slot:string){return slot.replaceAll('-',' ');}
+ private hireKey(){return 'campaign-hire:'+this.campaign()!.campaignId+':'+this.personnel()!.teamId;}
+ pendingHire(){return this.personnel()?localStorage.getItem(this.hireKey())!==null:false;}
+ async hire(personId?:string){await this.run(async()=>{
+  const own=this.personnel()!;const key=this.hireKey();let saved=localStorage.getItem(key);
+  if(!saved){if(!personId)return;saved=JSON.stringify({commandId:crypto.randomUUID(),revision:own.revision,teamId:own.teamId,personId});localStorage.setItem(key,saved);}
+  try{this.personnel.set(await this.request<AcquisitionTeam>('/api/campaigns/'+this.campaign()!.campaignId+'/acquisition/teams/'+own.teamId+'/hire?deviceId='+encodeURIComponent(this.device),JSON.parse(saved)));}catch(error){const status=(error as {status?:number}).status;if(status&&status>=400&&status<500)localStorage.removeItem(key);throw error;}
+  localStorage.removeItem(key);this.campaign.set(await this.request<Campaign>('/api/campaigns/'+this.campaign()!.campaignId+'?deviceId='+encodeURIComponent(this.device)));
+ });}
  async prepare(){await this.change('/prepare',{});}
- async refresh(){await this.run(async()=>{this.campaign.set(await this.request<Campaign>('/api/campaigns/'+this.campaign()!.campaignId+'?deviceId='+encodeURIComponent(this.device)));});}
+ async refresh(){this.personnel.set(null);await this.run(async()=>{this.campaign.set(await this.request<Campaign>('/api/campaigns/'+this.campaign()!.campaignId+'?deviceId='+encodeURIComponent(this.device)));await this.loadControllers();});}
  async begin(){await this.change('/start',{commandId:this.start});}
  private remember(id:string,joined:Joined['weekend'],current=true){if(current){this.device=joined.membership.deviceId;localStorage.setItem('campaign-weekend:'+id,joined.lobby.sessionId);}localStorage.setItem('household-device:'+this.user()!.uid+':'+joined.lobby.sessionId,joined.membership.deviceId);localStorage.setItem('weekend-campaign:'+joined.lobby.sessionId,id);}
  async prepareNext(){await this.change('/next/prepare',{});}

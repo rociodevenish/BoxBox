@@ -38,6 +38,7 @@ public sealed partial class SessionCoordinator
         try { lock (gate)
         {
             var lobby = RequireLobby(id); RequireHost(lobby, identity);
+            if(lobby.ModuleState.ContainsKey("campaign-personnel-pending-v1"))throw new SessionFault(SessionFailure.Conflict,"Complete campaign personnel acquisition before preparation.");
             if(lobby.CampaignPresets is {} campaignPresets)
             {
                 if(input.CircuitId!=campaignPresets[0].Circuit.Id)throw new SessionFault(SessionFailure.Conflict,"Campaign event circuit is frozen.");

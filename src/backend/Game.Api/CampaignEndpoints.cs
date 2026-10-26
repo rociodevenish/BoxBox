@@ -1,10 +1,13 @@
 using Game.Application;
+using Game.Domain;
 namespace Game.Api;
 
 public static class CampaignEndpoints
 {
     public static void MapCampaignEndpoints(this WebApplication app)
     {
+        app.MapGet("/api/campaigns/{id}/acquisition/teams/{teamId}",async(string id,string teamId,string deviceId,HttpRequest request,FirebaseIdentity auth,CampaignCoordinator campaigns)=>campaigns.AcquisitionTeam(id,await auth.Verify(LobbyEndpoints.Token(request)),deviceId,teamId));
+        app.MapPost("/api/campaigns/{id}/acquisition/teams/{teamId}/hire",async(string id,string teamId,string deviceId,PersonnelHire input,HttpRequest request,FirebaseIdentity auth,CampaignCoordinator campaigns)=>campaigns.HirePersonnel(id,await auth.Verify(LobbyEndpoints.Token(request)),deviceId,teamId,input));
         app.MapPost("/api/campaigns/{id}/absent/prepare",async(string id,CampaignAbsentInput input,HttpRequest request,FirebaseIdentity auth,CampaignCoordinator campaigns)=>campaigns.PrepareAbsent(id,await auth.Verify(LobbyEndpoints.Token(request)),input));
         app.MapPost("/api/campaigns/{id}/next/prepare",async(string id,HttpRequest request,FirebaseIdentity auth,CampaignCoordinator campaigns)=>campaigns.PrepareNext(id,await auth.Verify(LobbyEndpoints.Token(request))));
         app.MapPost("/api/campaigns/{id}/next/start",async(string id,CampaignStartInput input,HttpRequest request,FirebaseIdentity auth,CampaignCoordinator campaigns)=>campaigns.StartNext(id,await auth.Verify(LobbyEndpoints.Token(request)),input));

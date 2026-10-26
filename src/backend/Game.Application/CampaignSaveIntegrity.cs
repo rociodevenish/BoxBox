@@ -14,7 +14,10 @@ public static class CampaignSaveIntegrity
   {
    if(record.Schema!=CampaignCoordinator.Schema||record.CampaignId!=id||string.IsNullOrWhiteSpace(record.HostUid)||record.Revision<1||record.Input is null||string.IsNullOrWhiteSpace(record.ContentVersion)||string.IsNullOrWhiteSpace(record.CalendarVersion))throw new ArgumentException();
    if(record.Calendar is null||record.Teams is null||record.FrozenPresets is null||record.EventConditions is null||record.Calendar.Length<2||record.Teams.Length==0||record.EventIndex<0||record.EventIndex>=record.Calendar.Length)throw new ArgumentException();
-   if(record.Lifecycle is not("created" or "event-preparation" or "active-weekend" or "event-result-committed" or "season-complete"))throw new ArgumentException();
+   if(record.Lifecycle is not("acquiring" or "created" or "event-preparation" or "active-weekend" or "event-result-committed" or "season-complete"))throw new ArgumentException();
+   if(record.Acquisition is {} acquisition)PersonnelAcquisition.Validate(acquisition);
+   if(record.Input.PersonnelMode is not("preset" or "acquisition"))throw new ArgumentException();
+   if(record.Input.PersonnelMode=="acquisition"&&record.Acquisition is null||record.Input.PersonnelMode=="preset"&&record.Acquisition is not null)throw new ArgumentException();
    CampaignRules.ValidateShortCalendar(record.Calendar.Select(e=>e.TrackId).ToArray());
    if(record.Calendar.Select(e=>e.EventId).Distinct().Count()!=record.Calendar.Length||record.Calendar.Select(e=>e.SessionId).Distinct().Count()!=record.Calendar.Length||record.Teams.Select(t=>t.TeamId).Distinct().Count()!=record.Teams.Length)throw new ArgumentException();
    var drivers=record.Teams.SelectMany(t=>t.Drivers).ToArray();
