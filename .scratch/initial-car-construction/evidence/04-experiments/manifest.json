@@ -1,0 +1,290 @@
+{
+  "schema": "construction-evidence-manifest-v1",
+  "baseRevision": "1531b9721ceab0a72f46ba8f0a1547ba0213f17b",
+  "runtime": {
+    "node": "24.22.1",
+    "dotnetSdk": "10.0.401",
+    "configuration": "Release",
+    "platform": "Windows"
+  },
+  "versions": {
+    "catalogue": "construction-catalogue-v1/1.0.0/2026.10.09-preseason-car-build-v1",
+    "constructionSource": "1.0.0/2026.10.09-preseason-car-build-v1",
+    "mapping": "bounded-detailed-deltas-v1",
+    "carAttributes": "car-spec/1.0.0/2026.10.08-initial-model",
+    "driverTrack": "1.0.0/2026.10.08-initial-balance",
+    "effective": "effective-weekend-v1",
+    "setup": "weekend-setup-v1",
+    "simulation": "segment-race-v1",
+    "randomness": "scoped-random-v2-segment",
+    "incidents": "local-incidents-v1"
+  },
+  "counts": {
+    "races": 1300,
+    "entriesPerRace": 22,
+    "normalRaces": 300,
+    "diagnosticRaces": 1000,
+    "targetEntriesPerRace": 2,
+    "normalPairedRaceSeedsPerCase": 30,
+    "diagnosticPairedRaceSeedsPerCase": 100
+  },
+  "budget": {
+    "unit": "integer credit",
+    "mapping": "budgetUnits-to-credits-v1",
+    "experimentalPostPersonnelBalance": 24,
+    "minimumLegalBuild": 18,
+    "maximumCatalogueBuild": 24,
+    "source20UnitEnvelope": "superseded by actual shared credits"
+  },
+  "artifacts": [
+    {
+      "path": ".scratch/initial-car-construction/evidence/04-experiments/construction.json.gz",
+      "sha256": "be0a5d69fb5468923ae785ee5f0a4e2169c7dcb907635b8845efdef4c1609782"
+    },
+    {
+      "path": ".scratch/initial-car-construction/evidence/04-experiments/summary.json",
+      "sha256": "64cb639d79a1ce3726c912414de3c2c77ca784715dacaf50e2e6712aad09da25"
+    },
+    {
+      "path": ".scratch/initial-car-construction/evidence/04-experiments/pairwise.json",
+      "sha256": "105d2921c61cb90bb3bab595c846596ad2db482a7f79fa79da7f8d9961910f68"
+    }
+  ],
+  "inputs": [
+    {
+      "path": ".docs/data/f1_strategy_preseason_car_construction_2026.json",
+      "sha256": "6e2880ea6d08fc68b5f333e245119555dd9551f823d1f31f40eb988487200399"
+    },
+    {
+      "path": ".docs/data/f1_strategy_car_attribute_spec_2026.json",
+      "sha256": "3487c80c4dd714b7a010c8ee539ed2a3f601217fe6c1c7e98a450a1dbb9f148d"
+    },
+    {
+      "path": ".docs/data/f1_strategy_driver_cards_2026.json",
+      "sha256": "a05746243b00f4519e70dee49e7045a33134b894053c4ad42fbb2995c5597c2a"
+    },
+    {
+      "path": ".docs/data/f1_strategy_track_cards_2026.json",
+      "sha256": "b6de4dd19d598454f13d39318a885f966ea2a174b87c050fd1076733b41ac6a7"
+    }
+  ],
+  "toolSources": [
+    {
+      "path": "tools/ConstructionEvidence/Program.cs",
+      "sha256": "b4a08e972a4733b1642043a3f39f648915c6979814902c26489519f801c3ffc6"
+    },
+    {
+      "path": "tools/ConstructionEvidence/ConstructionEvidence.csproj",
+      "sha256": "2e30266779d2ffd244ac3bac9367984a4571aaedc4fcb70dc80abdbce7413906"
+    },
+    {
+      "path": "tools/ConstructionEvidence/evidence.test.mjs",
+      "sha256": "3c19f487c1b16852d01984856cfb61a516674401c7305e85eb5538c2aa20ef25"
+    },
+    {
+      "path": "tools/ConstructionEvidence/summarize.mjs",
+      "sha256": "9ace653cf7454e0d0ab2c9a9528340a7c51078eac62b5ba9b132ad8ae72214ce"
+    }
+  ],
+  "assembly": {
+    "path": ".tools/artifacts/s13-evidence-release/bin/ConstructionEvidence/release/ConstructionEvidence.dll",
+    "sha256": "7f15dce7bf72d40f6a0c7d97dde67f4af773914846fa88fb24de3841145d771f"
+  },
+  "builds": [
+    {
+      "name": "baseline",
+      "id": "evidence-base-v1/baseline",
+      "choices": [
+        "car-aero-front-loaded-rotation",
+        "car-chassis-braking",
+        "car-power-robust",
+        "car-thermal-low-drag"
+      ],
+      "cost": 18,
+      "remainingCredits": 6
+    },
+    {
+      "name": "low-drag",
+      "id": "evidence-base-v1/low-drag",
+      "choices": [
+        "car-aero-low-drag-efficiency",
+        "car-chassis-balanced",
+        "car-power-top-end",
+        "car-thermal-low-drag"
+      ],
+      "cost": 20,
+      "remainingCredits": 4
+    },
+    {
+      "name": "cornering",
+      "id": "evidence-base-v1/cornering",
+      "choices": [
+        "car-aero-high-downforce",
+        "car-chassis-responsive",
+        "car-power-deployment",
+        "car-thermal-balanced"
+      ],
+      "cost": 21,
+      "remainingCredits": 3
+    },
+    {
+      "name": "tyre",
+      "id": "evidence-base-v1/tyre",
+      "choices": [
+        "car-aero-balanced-efficiency",
+        "car-chassis-tyre-friendly",
+        "car-power-smooth-delivery",
+        "car-thermal-long-run"
+      ],
+      "cost": 21,
+      "remainingCredits": 3
+    },
+    {
+      "name": "reliability",
+      "id": "evidence-base-v1/reliability",
+      "choices": [
+        "car-aero-high-speed-stability",
+        "car-chassis-balanced",
+        "car-power-robust",
+        "car-thermal-hot-climate"
+      ],
+      "cost": 20,
+      "remainingCredits": 4
+    }
+  ],
+  "verificationRecords": [
+    {
+      "command": "C:/Program Files/dotnet/dotnet.exe",
+      "args": [
+        ".tools/artifacts/s13-evidence-final/bin/ConstructionEvidence/debug/ConstructionEvidence.dll",
+        ".tools/reports/s13-04-frozen"
+      ],
+      "cwd": "C:\\Projects\\F1Game\\.tools\\worktrees\\s13-04",
+      "pid": 4364,
+      "startedAt": "2026-10-27T19:51:43.401Z",
+      "status": "passed",
+      "exitCode": 0,
+      "elapsedMs": 232785
+    },
+    {
+      "command": "C:/Program Files/dotnet/dotnet.exe",
+      "args": [
+        ".tools/artifacts/s13-evidence-release/bin/ConstructionEvidence/release/ConstructionEvidence.dll",
+        ".tools/reports/s13-04-frozen-compact"
+      ],
+      "cwd": "C:\\Projects\\F1Game\\.tools\\worktrees\\s13-04",
+      "pid": 25144,
+      "startedAt": "2026-10-27T19:56:05.414Z",
+      "status": "passed",
+      "exitCode": 0,
+      "elapsedMs": 94137
+    },
+    {
+      "command": "C:/Users/sbdev/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+      "args": [
+        "--test",
+        "tools/ConstructionEvidence/evidence.test.mjs"
+      ],
+      "cwd": "C:\\Projects\\F1Game\\.tools\\worktrees\\s13-04",
+      "pid": 18664,
+      "startedAt": "2026-10-27T19:57:53.330Z",
+      "status": "passed",
+      "exitCode": 0,
+      "elapsedMs": 105101
+    },
+    {
+      "command": "C:/Program Files/dotnet/dotnet.exe",
+      "args": [
+        "test",
+        "tests/Game.Simulation.Tests/Game.Simulation.Tests.csproj",
+        "-p:",
+        "NuGetAudit=false",
+        "--artifacts-path",
+        ".tools/artifacts/s13-domain",
+        "--filter",
+        "FullyQualifiedName~Construction|FullyQualifiedName~CarConstruction|FullyQualifiedName~WeekendPreset|FullyQualifiedName~Personnel"
+      ],
+      "cwd": "C:\\Projects\\F1Game\\.tools\\worktrees\\s13-04",
+      "pid": 12312,
+      "startedAt": "2026-10-27T19:49:54.717Z",
+      "status": "passed",
+      "exitCode": 0,
+      "elapsedMs": 14490
+    },
+    {
+      "command": "C:/Users/sbdev/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+      "args": [
+        "tools/auth-emulator/node_modules/firebase-tools/lib/bin/firebase.js",
+        "emulators:exec",
+        "--only",
+        "auth,firestore",
+        "--project",
+        "demo-f1game",
+        "--config",
+        "tools/auth-emulator/firebase.construction-evidence-api.json",
+        "--non-interactive",
+        "node .tools/reports/s13-04-api/run.mjs"
+      ],
+      "cwd": "C:\\Projects\\F1Game\\.tools\\worktrees\\s13-04",
+      "pid": 20144,
+      "startedAt": "2026-10-27T19:54:15.972Z",
+      "status": "passed",
+      "exitCode": 0,
+      "elapsedMs": 57179
+    },
+    {
+      "command": "C:/Program Files/dotnet/dotnet.exe",
+      "args": [
+        "test",
+        "tests/Game.Api.Tests",
+        "-p:NuGetAudit=false",
+        "--artifacts-path",
+        ".tools/artifacts/s13-api",
+        "--filter",
+        "FullyQualifiedName~ConstructionConfirmationTests|FullyQualifiedName~ConstructionDraftTests|FullyQualifiedName~ConstructionPolicyTests"
+      ],
+      "cwd": "C:\\Projects\\F1Game\\.tools\\worktrees\\s13-04",
+      "pid": 22760,
+      "startedAt": "2026-10-27T19:54:23.261Z",
+      "status": "passed",
+      "exitCode": 0,
+      "elapsedMs": 49246
+    },
+    {
+      "command": "C:/Program Files/dotnet/dotnet.exe",
+      "args": [
+        ".tools/artifacts/s13-old-acquisition/bin/AcquisitionEvidence/debug/AcquisitionEvidence.dll",
+        "--replay",
+        ".scratch/personnel-acquisition/evidence/05-experiments/acquisition.json.gz"
+      ],
+      "cwd": "C:\\Projects\\F1Game\\.tools\\worktrees\\s13-04",
+      "pid": 25816,
+      "startedAt": "2026-10-27T19:49:28.875Z",
+      "status": "passed",
+      "exitCode": 0,
+      "elapsedMs": 8047
+    },
+    {
+      "command": "C:/Program Files/dotnet/dotnet.exe",
+      "args": [
+        ".tools/artifacts/s13-old-campaign/bin/CampaignEvidence/debug/CampaignEvidence.dll",
+        "--replay",
+        ".scratch/campaign-championships/evidence/short-campaign.json.gz"
+      ],
+      "cwd": "C:\\Projects\\F1Game\\.tools\\worktrees\\s13-04",
+      "pid": 36484,
+      "startedAt": "2026-10-27T19:49:37.052Z",
+      "status": "passed",
+      "exitCode": 0,
+      "elapsedMs": 1192
+    }
+  ],
+  "commands": {
+    "build": "dotnet build tools/ConstructionEvidence -c Release -p:NuGetAudit=false --artifacts-path .tools/artifacts/s13-evidence-release",
+    "generate": "dotnet .tools/artifacts/s13-evidence-release/bin/ConstructionEvidence/release/ConstructionEvidence.dll NEW_EMPTY_DIRECTORY",
+    "replay": "dotnet .tools/artifacts/s13-evidence-release/bin/ConstructionEvidence/release/ConstructionEvidence.dll --replay .scratch/initial-car-construction/evidence/04-experiments/construction.json.gz",
+    "contract": "CONSTRUCTION_EVIDENCE_OUTPUT=.tools/reports/s13-04-frozen-compact CONSTRUCTION_EVIDENCE_DLL=.tools/artifacts/s13-evidence-release/bin/ConstructionEvidence/release/ConstructionEvidence.dll node --test tools/ConstructionEvidence/evidence.test.mjs",
+    "pairwise": "node tools/ConstructionEvidence/summarize.mjs .scratch/initial-car-construction/evidence/04-experiments/construction.json.gz NEW-pairwise.json"
+  },
+  "limits": "One roster, target-first grid, 20 laps, one Standard/Hard phase-2 strategy, two representative circuits. Full calendar deferred to validated content. Human comprehension UNMEASURED. Zero observed diagnostic retirement reduction does not prove reliability inactive or ineffective."
+}
