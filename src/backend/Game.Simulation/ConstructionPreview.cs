@@ -43,7 +43,6 @@ public static class ConstructionPreview
    var corners=(d["highSpeedCornering"]+d["lowSpeedCornering"]+d["mechanicalGrip"]+d["braking"]+d["traction"])/5;
    return new ConstructionTrackPreview(circuit.Id,circuit.Name,circuit.Slug,circuit.Version,gains.ToImmutable(),weaknesses.ToImmutable(),straight>corners?"Greater relative straight demand":"Greater relative cornering demand");
   }).ToImmutableArray();
-  return new(Version,cost,balance,balance-cost,cost<=balance,ratings,groups,fits,tracks,"Free editable draft; 1 budgetUnit = 1 credit. Remaining credits fund future flexibility. First two stacked modifier points apply fully, further points at half strength, capped at six; final detailed values stay 1–100. Indicative comparisons against the supplied baseline (Reliability 84), not guaranteed pace. No future weather or incidents are observed. Base Car, permanent development, Race Package and Weekend Setup are separate layers. Reliability is a displayed design margin; supported race reliability mechanics are unchanged.");
+  return new(Version,cost,balance,balance-cost,cost<=balance,ratings,groups,fits,tracks,"Free editable draft; 1 budgetUnit = 1 credit. Remaining credits fund future flexibility. First two stacked modifier points apply fully, further points at half strength, capped at six; final detailed values stay 1–100. Indicative comparisons against the supplied baseline (Reliability 84), not guaranteed pace. No future weather or incidents are observed. Base Car, permanent development, Race Package and Weekend Setup are separate layers. Reliability affects incident resilience only when the existing incident policy is enabled; otherwise it is inactive.");
  }
 }
-

@@ -175,4 +175,15 @@ public sealed partial class SessionCoordinator
             lobby.CampaignPresets=frozen;lobby.ModuleState.Remove("campaign-personnel-pending-v1");lobby.Revision++;Persist(sessionId);
         }
     }
+    public void CommitCampaignConstruction(string sessionId,WeekendPreset[] frozen)
+    {
+        lock(gate)
+        {
+            RefreshCampaignWeekend(sessionId);var lobby=RequireLobby(sessionId);
+            if(!lobby.ModuleState.ContainsKey("campaign-construction-pending-v1"))return;
+            if(lobby.Lifecycle!="lobby"||lobby.ModuleState.ContainsKey("campaign-personnel-pending-v1"))throw new SessionFault(SessionFailure.Conflict,"Construction handoff requires completed personnel in the campaign lobby.");
+            if(frozen.Any(p=>p.BaseCarId=="neutral-base-v1"))throw new SessionFault(SessionFailure.Conflict,"Every team needs a confirmed Base Car.");
+            lobby.CampaignPresets=frozen;lobby.ModuleState.Remove("campaign-construction-pending-v1");lobby.Revision++;Persist(sessionId);
+        }
+    }
 }

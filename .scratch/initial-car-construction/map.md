@@ -5,8 +5,8 @@ Integration branch: `codex/initial-car-construction`, based on completed S12 `05
 | Ticket | Status | Dependency |
 | --- | --- | --- |
 | [01 — Catalogue and editable draft](issues/01-draft-car-catalogue.md) | resolved | Existing acquisition ledger/campaign/preparation |
-| [02 — Immutable confirmed Base Car](issues/02-confirm-base-car.md) | in progress | 01 |
-| [03 — Policy and first-weekend readiness](issues/03-construction-policy-readiness.md) | blocked | 02 |
+| [02 — Immutable confirmed Base Car](issues/02-confirm-base-car.md) | resolved | 01 |
+| [03 — Policy and first-weekend readiness](issues/03-construction-policy-readiness.md) | ready | 02 |
 | [04 — Construction evidence](issues/04-construction-evidence.md) | blocked | 03 |
 
 The parent spec approves public construction/effective-input operations, authenticated API/SignalR, focused browser flows and existing persistence-emulator boundaries. Costs map one provisional construction budget unit to one credit, retaining the protected 18-credit baseline. Catalogue coefficients and specialisation balance remain tunable hypotheses.
