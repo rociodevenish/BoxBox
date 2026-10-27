@@ -80,3 +80,10 @@ The record of a team's starting credits and spending, from which its remaining b
 
 **Completion Reserve**:
 Credits kept available for a team's remaining mandatory personnel and minimum initial car construction.
+
+**Base Car**:
+A team's confirmed initial car, shared by both drivers, before permanent development, a Race Package and Weekend Setup are applied.
+_Avoid_: Weekend Setup, Race Package
+
+**Construction Draft**:
+An editable choice of initial car options whose credits remain unspent until confirmation.
