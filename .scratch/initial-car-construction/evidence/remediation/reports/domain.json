@@ -1,0 +1,21 @@
+{
+  "command": "C:/Program Files/dotnet/dotnet.exe",
+  "args": [
+    "test",
+    "tests/Game.Simulation.Tests",
+    "-p:",
+    "NuGetAudit=false",
+    "--artifacts-path",
+    ".tools/reports/remediation/dotnet-domain",
+    "--filter",
+    "FullyQualifiedName~CarConstructionTests|FullyQualifiedName~ConstructionConfirmationTests|FullyQualifiedName~ConstructionPolicyTests|FullyQualifiedName~WeekendPresetTests",
+    "--logger",
+    "trx;LogFileName=domain.trx"
+  ],
+  "cwd": "C:\\Projects\\F1Game\\.tools\\worktrees\\s13-review-fixes",
+  "pid": 30736,
+  "startedAt": "2026-10-27T20:08:27.720Z",
+  "status": "passed",
+  "exitCode": 0,
+  "elapsedMs": 5486
+}

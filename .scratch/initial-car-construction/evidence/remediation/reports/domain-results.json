@@ -1,0 +1,165 @@
+{
+  "source": "domain.trx",
+  "times": {
+    "creation": "2026-10-28T07:08:33.0233925+11:00",
+    "queuing": "2026-10-28T07:08:33.0233928+11:00",
+    "start": "2026-10-28T07:08:31.4221495+11:00",
+    "finish": "2026-10-28T07:08:33.1222916+11:00"
+  },
+  "counts": {
+    "total": "17",
+    "executed": "17",
+    "passed": "17",
+    "failed": "0",
+    "error": "0",
+    "timeout": "0",
+    "aborted": "0",
+    "inconclusive": "0",
+    "passedButRunAborted": "0",
+    "notRunnable": "0",
+    "notExecuted": "0",
+    "disconnected": "0",
+    "warning": "0",
+    "completed": "0",
+    "inProgress": "0",
+    "pending": "0"
+  },
+  "results": [
+    {
+      "name": "Game.Simulation.Tests.WeekendPresetTests.Adaptability_moderates_different_driver_preferences_and_information_has_no_pace_effect",
+      "outcome": "Passed",
+      "duration": "00:00:00.0633734",
+      "startedAt": "2026-10-28T07:08:32.9992262+11:00",
+      "endedAt": "2026-10-28T07:08:33.0416783+11:00",
+      "error": null
+    },
+    {
+      "name": "Game.Simulation.Tests.CarConstructionTests.All_six_hundred_twenty_five_source_combinations_are_bounded_and_no_choice_is_scarce",
+      "outcome": "Passed",
+      "duration": "00:00:00.1062460",
+      "startedAt": "2026-10-28T07:08:32.9498098+11:00",
+      "endedAt": "2026-10-28T07:08:33.0457725+11:00",
+      "error": null
+    },
+    {
+      "name": "Game.Simulation.Tests.WeekendPresetTests.Prepared_weekend_retains_two_car_sources_and_can_replay_without_content_files",
+      "outcome": "Passed",
+      "duration": "00:00:00.0097117",
+      "startedAt": "2026-10-28T07:08:33.0551024+11:00",
+      "endedAt": "2026-10-28T07:08:33.0581410+11:00",
+      "error": null
+    },
+    {
+      "name": "Game.Simulation.Tests.ConstructionPolicyTests.Advice_preserves_every_affordable_alternative_and_credits_without_observing_future_or_opponents",
+      "outcome": "Passed",
+      "duration": "00:00:00.5720726",
+      "startedAt": "2026-10-28T07:08:32.5017427+11:00",
+      "endedAt": "2026-10-28T07:08:33.0776722+11:00",
+      "error": null
+    },
+    {
+      "name": "Game.Simulation.Tests.WeekendPresetTests.Future_effective_replay_model_is_rejected_at_the_public_race_boundary",
+      "outcome": "Passed",
+      "duration": "00:00:00.0014613",
+      "startedAt": "2026-10-28T07:08:32.9581905+11:00",
+      "endedAt": "2026-10-28T07:08:32.9588161+11:00",
+      "error": null
+    },
+    {
+      "name": "Game.Simulation.Tests.WeekendPresetTests.Warm_up_choice_buys_first_lap_response_while_preservation_buys_stint_life",
+      "outcome": "Passed",
+      "duration": "00:00:00.0081853",
+      "startedAt": "2026-10-28T07:08:32.9988454+11:00",
+      "endedAt": "2026-10-28T07:08:32.9989313+11:00",
+      "error": null
+    },
+    {
+      "name": "Game.Simulation.Tests.WeekendPresetTests.Team_setup_preserves_sources_and_exchanges_speed_for_cornering_for_both_cars",
+      "outcome": "Passed",
+      "duration": "00:00:00.0045132",
+      "startedAt": "2026-10-28T07:08:32.9603540+11:00",
+      "endedAt": "2026-10-28T07:08:32.9646654+11:00",
+      "error": null
+    },
+    {
+      "name": "Game.Simulation.Tests.CarConstructionTests.Every_team_can_retain_the_same_complete_minimum_build_for_eighteen_credits",
+      "outcome": "Passed",
+      "duration": "00:00:00.0007850",
+      "startedAt": "2026-10-28T07:08:33.0657432+11:00",
+      "endedAt": "2026-10-28T07:08:33.0658069+11:00",
+      "error": null
+    },
+    {
+      "name": "Game.Simulation.Tests.WeekendPresetTests.Subdividing_representative_segments_does_not_multiply_effective_car_gains",
+      "outcome": "Passed",
+      "duration": "00:00:00.4516715",
+      "startedAt": "2026-10-28T07:08:32.5024954+11:00",
+      "endedAt": "2026-10-28T07:08:32.9573877+11:00",
+      "error": null
+    },
+    {
+      "name": "Game.Simulation.Tests.CarConstructionTests.Draft_editing_uses_actual_credits_and_retries_without_spending_or_replacing_a_revision",
+      "outcome": "Passed",
+      "duration": "00:00:00.4320925",
+      "startedAt": "2026-10-28T07:08:32.5025494+11:00",
+      "endedAt": "2026-10-28T07:08:32.9394582+11:00",
+      "error": null
+    },
+    {
+      "name": "Game.Simulation.Tests.WeekendPresetTests.Aero_setup_race_advantage_reverses_between_monza_and_monaco",
+      "outcome": "Passed",
+      "duration": "00:00:00.0064482",
+      "startedAt": "2026-10-28T07:08:33.0419033+11:00",
+      "endedAt": "2026-10-28T07:08:33.0482724+11:00",
+      "error": null
+    },
+    {
+      "name": "Game.Simulation.Tests.WeekendPresetTests.Speed_and_cornering_strengths_reverse_their_advantage_on_contrasting_supplied_circuits",
+      "outcome": "Passed",
+      "duration": "00:00:00.0052392",
+      "startedAt": "2026-10-28T07:08:32.9648569+11:00",
+      "endedAt": "2026-10-28T07:08:32.9700687+11:00",
+      "error": null
+    },
+    {
+      "name": "Game.Simulation.Tests.WeekendPresetTests.Unknown_content_versions_are_rejected_instead_of_silently_changing_replay_semantics",
+      "outcome": "Passed",
+      "duration": "00:00:00.0011529",
+      "startedAt": "2026-10-28T07:08:32.9590394+11:00",
+      "endedAt": "2026-10-28T07:08:32.9601147+11:00",
+      "error": null
+    },
+    {
+      "name": "Game.Simulation.Tests.CarConstructionTests.A_preview_shows_both_drivers_and_representative_circuit_compromises_without_mutating_the_preset",
+      "outcome": "Passed",
+      "duration": "00:00:00.0142985",
+      "startedAt": "2026-10-28T07:08:33.0460175+11:00",
+      "endedAt": "2026-10-28T07:08:33.0601547+11:00",
+      "error": null
+    },
+    {
+      "name": "Game.Simulation.Tests.ConstructionConfirmationTests.An_eighteen_credit_baseline_can_leave_zero_without_allowing_unrelated_ledger_debits",
+      "outcome": "Passed",
+      "duration": "00:00:00.0425755",
+      "startedAt": "2026-10-28T07:08:32.9994412+11:00",
+      "endedAt": "2026-10-28T07:08:33.0378224+11:00",
+      "error": null
+    },
+    {
+      "name": "Game.Simulation.Tests.CarConstructionTests.Simple_groups_use_the_five_locked_source_weighted_summaries_of_detailed_values",
+      "outcome": "Passed",
+      "duration": "00:00:00.0037541",
+      "startedAt": "2026-10-28T07:08:33.0604628+11:00",
+      "endedAt": "2026-10-28T07:08:33.0639592+11:00",
+      "error": null
+    },
+    {
+      "name": "Game.Simulation.Tests.ConstructionConfirmationTests.Confirmation_spends_once_freezes_the_saved_draft_and_preserves_personnel_history",
+      "outcome": "Passed",
+      "duration": "00:00:00.4894698",
+      "startedAt": "2026-10-28T07:08:32.5025324+11:00",
+      "endedAt": "2026-10-28T07:08:32.9992972+11:00",
+      "error": null
+    }
+  ]
+}

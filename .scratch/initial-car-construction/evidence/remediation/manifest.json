@@ -1,0 +1,39 @@
+{
+  "results": {
+    "api": 8,
+    "browser": 2,
+    "domain": 17,
+    "typecheck": "passed",
+    "replayedRaces": 1300
+  },
+  "ownedPorts": [
+    4701,
+    4801,
+    22909,
+    22900,
+    22950,
+    22910,
+    22960
+  ],
+  "base": "818ad34e362314c1cd015e6bd1af507bc6f39ff6",
+  "archiveSha256": "BE0A5D69FB5468923AE785EE5F0A4E2169C7DCB907635B8845EFDEF4C1609782",
+  "source": [
+    {
+      "path": "src/backend/Game.Simulation/ConstructionPreview.cs",
+      "sha256": "D399A2464317CA337707A23B5D1C62603B40897828ABB0E415FEAE0440DF8E5A"
+    },
+    {
+      "path": "src/frontend/src/app/campaign/campaign-page.html",
+      "sha256": "D5D3741E12F1AF773295C0DC74E6BEDE64B0258D1BEE39B0430F7B512EA48E25"
+    },
+    {
+      "path": "src/frontend/tests/construction/confirm.spec.ts",
+      "sha256": "0751298185A53DD4996795FF695CD3E3DD675CAEE1D656ED4A05996A3A5EBFD5"
+    },
+    {
+      "path": "tests/Game.Api.Tests/ConstructionConfirmationTests.cs",
+      "sha256": "94284AA40FA21667F541DB97ED4236403522107D9464B207E461C450294B0791"
+    }
+  ],
+  "listenersStopped": true
+}

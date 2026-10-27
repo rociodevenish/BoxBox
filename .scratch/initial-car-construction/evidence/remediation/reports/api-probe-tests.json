@@ -1,0 +1,20 @@
+{
+  "command": "C:/Program Files/dotnet/dotnet.exe",
+  "args": [
+    "test",
+    "tests/Game.Api.Tests",
+    "-p:NuGetAudit=false",
+    "--artifacts-path",
+    ".tools/reports/remediation/dotnet-api",
+    "--filter",
+    "FullyQualifiedName~ConstructionConfirmationTests",
+    "--logger",
+    "trx;LogFileName=construction-api.trx"
+  ],
+  "cwd": "C:\\Projects\\F1Game\\.tools\\worktrees\\s13-review-fixes",
+  "pid": 18348,
+  "startedAt": "2026-10-27T20:10:44.563Z",
+  "status": "failed",
+  "exitCode": 1,
+  "elapsedMs": 42379
+}
