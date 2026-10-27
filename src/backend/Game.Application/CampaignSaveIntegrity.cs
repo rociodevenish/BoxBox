@@ -17,6 +17,10 @@ public static class CampaignSaveIntegrity
    if(record.Lifecycle is not("acquiring" or "constructing" or "created" or "event-preparation" or "active-weekend" or "event-result-committed" or "season-complete"))throw new ArgumentException();
    if(record.Acquisition is {} acquisition)PersonnelAcquisition.Validate(acquisition);
    if(record.Construction is {} construction)CarConstruction.Validate(construction,record.Teams.Select(t=>t.TeamId).ToArray());
+   var confirmed=record.Construction?.Confirmed;
+   var debited=record.Acquisition?.ConstructedCars;
+   if((confirmed?.Count??0)!=(debited?.Count??0)||confirmed is not null&&confirmed.Any(p=>debited is null||!debited.TryGetValue(p.Key,out var car)||JsonSerializer.Serialize(p.Value)!=JsonSerializer.Serialize(car)))throw new ArgumentException();
+   if(record.ConstructionRequired&&record.Lifecycle is not("acquiring" or "constructing")&&(confirmed?.Count??0)!=record.Teams.Length)throw new ArgumentException();
    if(record.ConstructionRequired&&(record.Acquisition is null||record.Lifecycle!="acquiring"&&record.Construction is null)||record.Lifecycle=="constructing"&&(!record.ConstructionRequired||record.Construction is null))throw new ArgumentException();
    if(record.AcquisitionWakeup is {} wakeup&&(record.Acquisition is null||!record.AcquisitionAutomatic||record.Lifecycle is not("acquiring" or "created")||wakeup.SessionId!="campaign-"+id||wakeup.Kind!="personnel"||!Guid.TryParse(wakeup.Generation,out _)))throw new ArgumentException();
    foreach(var choice in record.PersonnelChoices??[])
@@ -40,6 +44,12 @@ public static class CampaignSaveIntegrity
     foreach(var (team,teamIndex) in record.Teams.Select((t,i)=>(t,i)))
     {
      var preset=presets[teamIndex];
+     if(confirmed?.GetValueOrDefault(team.TeamId) is {} car)
+     {
+      var materialised=ConstructedBaseCar.Apply(preset,car.Id,car.Catalogue.Version,car.Ratings,car.MechanicalAxis);
+      if(JsonSerializer.Serialize(preset)!=JsonSerializer.Serialize(materialised))throw new ArgumentException();
+     }
+     else if(record.ConstructionRequired&&preset.BaseCarId!="neutral-base-v1")throw new ArgumentException();
      if(record.Acquisition is {} acquired&&record.Lifecycle!="acquiring")
      {
       if(!PersonnelAcquisition.RosterReady(acquired,team.TeamId))throw new ArgumentException();

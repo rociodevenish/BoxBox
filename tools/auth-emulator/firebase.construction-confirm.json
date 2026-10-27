@@ -1,0 +1,1 @@
+{"emulators":{"auth":{"host":"127.0.0.1","port":22609},"firestore":{"host":"127.0.0.1","port":22600,"websocketPort":22650},"hub":{"host":"127.0.0.1","port":22610},"logging":{"host":"127.0.0.1","port":22660},"ui":{"enabled":false},"singleProjectMode":true},"firestore":{"rules":"firestore.confirm.rules"}}

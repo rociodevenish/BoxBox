@@ -39,4 +39,4 @@ public record AcquisitionTeamSnapshot(string CampaignId,string TeamId,long Revis
  int CompletionReserve,IReadOnlyList<string> RemainingSlots,bool RosterReady,IReadOnlyList<PersonnelHireOption> HireOptions,string ReserveVersion,ConstructionCreditMapping ConstructionMapping,Game.Simulation.PersonnelRecommendation? Advice=null,IReadOnlyList<RecordedPersonnelChoice>? AutomaticChoices=null);
 public record RecordedPersonnelChoice(string Source,long Revision,Game.Simulation.PersonnelPolicyObservation Observation,Game.Simulation.PersonnelRecommendation Recommendation,string CommandId);
 
-public sealed record ConstructionTeamSnapshot(string CampaignId,string TeamId,ConstructionCatalogue Catalogue,ConstructionDraft Draft,Game.Simulation.ConstructionPreviewResult Preview);
+public sealed record ConstructionTeamSnapshot(string CampaignId,string TeamId,ConstructionCatalogue Catalogue,ConstructionDraft Draft,Game.Simulation.ConstructionPreviewResult Preview,ConfirmedBaseCar? Confirmed=null);

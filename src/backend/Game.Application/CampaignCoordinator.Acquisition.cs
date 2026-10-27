@@ -73,7 +73,7 @@ public sealed partial class CampaignCoordinator
   {
    record=record with{AcquisitionWakeup=null,Revision=record.Revision+1};Write(record.CampaignId,saved.Version,record);saved=Require(record.CampaignId);
   }
-  return saved;
+  return CompleteConstruction(saved);
  }
  private static PersonnelPolicyObservation ObservePersonnel(AcquisitionState state,string teamId)=>new(state.Offer!.Slot,PersonnelAcquisition.Balance(state,teamId),PersonnelAcquisition.CompletionReserve(state,teamId),state.Offer.PersonIds.Select(id=>{var card=state.Pool.People.Single(p=>p.Id==id);return new PersonnelPolicyOffer(id,card.Name,card.Price,PersonnelAcquisition.HireUnavailable(state,teamId,id) is null,PersonnelAcquisition.ReserveAfterHire(state,teamId,id));}).ToImmutableArray());
  private static AcquisitionTeamSnapshot ProjectAcquisition(CampaignRecord record,string teamId)

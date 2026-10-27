@@ -3,6 +3,42 @@ using Game.Simulation;
 namespace Game.Application;
 public sealed partial class CampaignCoordinator
 {
+ public ConstructionTeamSnapshot ConfirmConstruction(string id,AuthIdentity identity,string deviceId,string teamId,ConstructionConfirm command)
+ {
+  lock(gate)
+  {
+   var saved=CompletePersonnel(Require(id));var record=saved.Record;
+   weekends.AuthoriseCampaignPersonnel(record.Calendar[0].SessionId,identity,deviceId,teamId);
+   if(command is null||command.TeamId!=teamId)throw new SessionFault(SessionFailure.InvalidInput,"Choose the authorised construction team.");
+   if(record.Construction is null||record.Acquisition is null)throw new SessionFault(SessionFailure.Conflict,"Base Car construction is not open.");
+   ConstructionConfirmation next;
+   try{next=CarConstruction.Confirm(record.Construction,record.Acquisition,command);}
+   catch(ArgumentException error){throw new SessionFault(SessionFailure.InvalidInput,error.Message);}
+   catch(InvalidOperationException error){throw new SessionFault(SessionFailure.Conflict,error.Message);}
+   if(!ReferenceEquals(next.Construction,record.Construction))
+   {
+    if(record.Lifecycle!="constructing")throw new SessionFault(SessionFailure.Conflict,"Base Car purchases are closed.");
+    var car=next.Construction.Confirmed![teamId];
+    var frozen=record.FrozenPresets.ToDictionary(p=>p.Key,p=>p.Value.Select(preset=>preset.Cars[0].TeamId==teamId?ConstructedBaseCar.Apply(preset,car.Id,car.Catalogue.Version,car.Ratings,car.MechanicalAxis):preset).ToArray());
+    record=record with{Construction=next.Construction,Acquisition=next.Acquisition,FrozenPresets=frozen,Revision=record.Revision+1};
+    Write(id,saved.Version,record);
+   }
+   return ProjectConstruction(CompleteConstruction(Require(id)).Record,teamId);
+  }
+ }
+ private StoredCampaign CompleteConstruction(StoredCampaign saved)
+ {
+  var record=saved.Record;
+  if(!record.ConstructionRequired||record.Construction?.Confirmed is not {} cars||cars.Count!=record.Teams.Length)return saved;
+  // The campaign owns every frozen event input before the independent lobby guard opens.
+  // A failed lobby acknowledgement is repaired by reads and identical confirmation retries.
+  weekends.CommitCampaignConstruction(record.Calendar[0].SessionId,record.FrozenPresets[record.Calendar[0].EventId]);
+  if(record.Lifecycle=="constructing")
+  {
+   record=record with{Lifecycle="created",Revision=record.Revision+1};Write(record.CampaignId,saved.Version,record);saved=Require(record.CampaignId);
+  }
+  return saved;
+ }
  public ConstructionTeamSnapshot ConstructionTeam(string id,AuthIdentity identity,string deviceId,string teamId)
  {
   lock(gate)
@@ -33,6 +69,6 @@ public sealed partial class CampaignCoordinator
   var state=record.Construction??throw new SessionFault(SessionFailure.Conflict,"Complete personnel acquisition before construction previews.");
   if(!state.Drafts.TryGetValue(teamId,out var draft))throw new SessionFault(SessionFailure.InvalidInput,"Choose a campaign construction team.");
   var preset=record.FrozenPresets[record.Calendar[0].EventId].Single(p=>p.Cars[0].TeamId==teamId);
-  return new(record.CampaignId,teamId,state.Catalogue,draft,ConstructionPreview.Preview(state.Catalogue,draft.OptionIds,preset,PersonnelAcquisition.Balance(record.Acquisition!,teamId)));
+  return new(record.CampaignId,teamId,state.Catalogue,draft,ConstructionPreview.Preview(state.Catalogue,draft.OptionIds,preset,PersonnelAcquisition.Balance(record.Acquisition!,teamId)),state.Confirmed?.GetValueOrDefault(teamId));
  }
 }
