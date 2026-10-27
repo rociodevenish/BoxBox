@@ -13,4 +13,4 @@ The parent spec approves public construction/effective-input operations, authent
 
 Each ticket records its claim, Answer and evidence. Preserve existing saved campaign/replay contracts; construction, future development, one Race Package and Weekend Setup remain separate layers. Full-calendar comparisons await validated content. Independent Standards/Spec reviews and one broad verification follow integrated tickets and inspected 360px/1920×1080 flows; fixes receive affected named reruns.
 
-Ticket 04 engineering is integrated; actual human choice comprehension remains UNMEASURED and ready for human review. Independent Standards/Spec reviews and root broad verification are pending.
+All engineering is integrated. Independent Standards and Spec reviews are complete with no unresolved implementation findings; all verification stages pass. See the [final integration record](evidence/final/README.md). Ticket 04 and the parent remain ready for human review because actual choice comprehension is UNMEASURED; balance and full-calendar limitations remain explicit.

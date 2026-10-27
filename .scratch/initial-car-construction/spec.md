@@ -1,6 +1,6 @@
 # S13 — Initial car construction
 
-Status: ready-for-agent
+Status: ready-for-human
 Blocked by: personnel acquisition and its starting-budget ledger; campaign progression; effective weekend attributes.
 
 ## Problem Statement
@@ -79,3 +79,9 @@ Start from the supplied four-category menu and baseline/modifiers. Reconcile pro
 ## Further Notes
 
 Construction offers equal access while personnel remain unique. Confirmation establishes the Base Car, not a Weekend Setup or permanent-development transaction. The user approved the public API/domain and browser testing boundaries.
+
+## Answer
+
+Engineering is implemented on `codex/initial-car-construction`, based on completed S12. The first three tickets are resolved; ticket 04's engineering evidence is complete and actual player choice comprehension remains **UNMEASURED**, ready for human review. All verification stages pass, and independent Standards/Spec reviews have no unresolved implementation findings. See the [ticket map](map.md) and [final integration record](evidence/final/README.md).
+
+The 1,300-race archive reports unresolved low-drag local dominance and no observed diagnostic retirement reduction; it does not establish final balance. Full-calendar comparisons remain deferred until validated circuit content exists. Human follow-up should check whether players understand free drafts versus permanent confirmation, both-driver fit, circuit compromises and the long phone guidance flow.
