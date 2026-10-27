@@ -1,0 +1,14 @@
+{
+  "command": "C:/Program Files/dotnet/dotnet.exe",
+  "args": [
+    "tools/AcquisitionEvidence/bin/Debug/net10.0/AcquisitionEvidence.dll",
+    "--replay",
+    ".scratch/personnel-acquisition/evidence/05-experiments/acquisition.json.gz"
+  ],
+  "cwd": "C:\\Projects\\F1Game\\.tools\\worktrees\\s12-review-fixes",
+  "pid": 35444,
+  "startedAt": "2026-10-26T20:36:31.799Z",
+  "status": "passed",
+  "exitCode": 0,
+  "elapsedMs": 46701
+}

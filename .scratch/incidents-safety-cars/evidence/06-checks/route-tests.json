@@ -1,0 +1,19 @@
+{
+  "command": "dotnet",
+  "args": [
+    "test",
+    "tests/Game.Simulation.Tests",
+    "--filter",
+    "FullyQualifiedName~Authored_routes_reduce_matched_distance_loss",
+    "-p:",
+    "NuGetAudit=false",
+    "--verbosity",
+    "minimal"
+  ],
+  "cwd": "C:\\Projects\\F1Game\\.worktrees\\s09-06",
+  "pid": 7660,
+  "startedAt": "2026-10-18T03:31:07.131Z",
+  "status": "passed",
+  "exitCode": 0,
+  "elapsedMs": 3864
+}

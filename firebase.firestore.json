@@ -1,0 +1,1 @@
+{"firestore":{"rules":"tools/auth-emulator/firestore.rules"}}

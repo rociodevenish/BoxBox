@@ -1,0 +1,15 @@
+{
+  "command": "node",
+  "args": [
+    "src/frontend/node_modules/@playwright/test/cli.js",
+    "test",
+    "--config",
+    "src/frontend/playwright.acquisition.config.ts"
+  ],
+  "cwd": "C:\\Projects\\F1Game\\.tools\\worktrees\\s12-review-fixes",
+  "pid": 6584,
+  "startedAt": "2026-10-26T20:30:29.762Z",
+  "status": "failed",
+  "exitCode": 1,
+  "elapsedMs": 210718
+}

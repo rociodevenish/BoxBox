@@ -1,0 +1,1 @@
+{"name":"grid-driver-lab","private":true,"scripts":{"build":"node build.mjs"},"dependencies":{"@angular/core":"22.2.1","@angular/common":"22.2.1","@angular/compiler":"22.2.1","@angular/platform-browser":"22.2.1","rxjs":"7.8.2"},"devDependencies":{"esbuild":"0.25.12","typescript":"5.9.3"}}

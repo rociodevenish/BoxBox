@@ -1,0 +1,19 @@
+{
+  "command": "C:\\Users\\sbdev\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\node\\bin\\node.exe",
+  "args": [
+    "node_modules/@playwright/test/cli.js",
+    "test",
+    "--config",
+    "playwright.shared.config.ts",
+    "tests/shared/preparation.spec.ts",
+    "--grep",
+    "a household chooses",
+    "--workers=1"
+  ],
+  "cwd": "C:\\Projects\\F1Game\\.worktrees\\s07-03/src/frontend",
+  "pid": 12176,
+  "startedAt": "2026-10-14T20:47:05.878Z",
+  "status": "failed",
+  "exitCode": 1,
+  "elapsedMs": 48395
+}

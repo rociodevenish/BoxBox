@@ -1,0 +1,94 @@
+{
+  "implementationRevision": "e1b25da26ad35d6c080f46a8750ba0f9aec9cf2e",
+  "baseline": "51c18a5e8db556372ca4021ad9dfc75dac5d8fd6",
+  "branch": "codex/weather-strategy",
+  "verification": {
+    "passedStages": [
+      "tooling",
+      "typecheck",
+      "build",
+      "backend",
+      "gallery",
+      "browser",
+      "boundary",
+      "shared",
+      "assistance",
+      "control",
+      "deadlines",
+      "hosted"
+    ],
+    "archiveBytes": 13452740,
+    "simulationTests": 204,
+    "frozenFullFieldWeekends": 560,
+    "archiveGroups": 10,
+    "apiTests": 171,
+    "remediationNewTests": 7,
+    "completion": "verification-completion.json",
+    "remediationFocusedTests": 24,
+    "initial": "initial-verification.json"
+  },
+  "environment": {
+    "browserCache": ".tools/playwright",
+    "emulatorConfiguration": "verification-emulators.json",
+    "controlWebsocket": 9174,
+    "firebaseConfigHome": ".tools/firebase-config",
+    "java": "21",
+    "dotnetArtifacts": ".tools/artifacts/s10-final",
+    "apiPort": 4637,
+    "node": "24.19.0",
+    "sdk": "global.json:10.0.401",
+    "F1_RECOVERY_HOST": "127.0.0.1:19540",
+    "sharedAssistanceDeadlines": "19539 Auth /19540 Firestore, same owned config",
+    "NuGetAudit": "false (command only; existing advisory remains)",
+    "uiPort": 4537
+  },
+  "visualReview": {
+    "publicViewport": "1920x1080",
+    "publicDisplay": "05/open-mixed-public-1920x1080.png",
+    "phone": "05/open-equal-guided-phone-360.png",
+    "phoneViewport": "360px wide, scrolling full flow",
+    "assessment": "All22 public classification rows fit; observed/predicted text, uncertainty and both-car controls readable; private forecasts absent publicly."
+  },
+  "reviews": {
+    "spec": {
+      "resolved": "Deferred outward crossing rechecked at first eligible time",
+      "originalP2": 1,
+      "remaining": 0
+    },
+    "standards": {
+      "resolved": "Invariant reaction identity formatting",
+      "originalP2": 1,
+      "remaining": 0
+    }
+  },
+  "cleanup": {
+    "listenerRecord": "listeners.json",
+    "preservedPreviewPids": [
+      25928,
+      30036
+    ],
+    "workerPreservation": ".tools/reports/s10/*/preservation-manifest.json",
+    "worktrees": [
+      "C:/Projects/F1Game"
+    ],
+    "ownedListeners": [],
+    "pushOrDeployment": false
+  },
+  "activation": {
+    "policy": "weather-weekend-presets-v1",
+    "default": "DryRacePresets unless both policy/profile configured",
+    "profiles": [
+      "all-dry",
+      "steady-wet",
+      "rain-arrival",
+      "drying",
+      "changeable"
+    ]
+  },
+  "pendingHumanAcceptance": [
+    "forecast understanding",
+    "added decision/presentation time",
+    "mixed-trigger clarity",
+    "actual hosted household acceptance"
+  ]
+}

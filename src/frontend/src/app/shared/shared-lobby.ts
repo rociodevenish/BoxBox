@@ -1,0 +1,80 @@
+import {apiUrl} from '../api-url';
+import {AssistanceSettings} from '../assistance/assistance-settings';
+import type {PlayerHelp} from '../assistance/assistance.model';
+import {TeamControlStatus,controlName} from '../race/team-control';
+import { Component, signal } from '@angular/core';
+import { HubConnection, HubConnectionBuilder } from '@microsoft/signalr';
+import type { Auth, User } from 'firebase/auth';
+interface PublicControl {controlStatus?:TeamControlStatus[];lifecycle:string;phase:number;windowRevision?:number;paused?:boolean}
+interface Player {playerId:string;name:string;sharedParticipant:boolean;assistance?:PlayerHelp}
+interface Team {teamId:string;constructorId:string;constructorName:string;playerId:string|null;control:string;approved:boolean;assignmentRevision:number}
+interface Lobby {sessionId:string;joinCode:string;joinUrl:string;revision:number;lifecycle:string;mode:string;players:Player[];teams:Team[];requiredTeams:string[];scriptedTeams:string[];displayUrl:string|null;paused:boolean;timingPolicy?:{effectiveSeconds:number;decisionSeconds:number;handoffSeconds:number;additionalSharedTeams:number;timeoutPolicy:string}}
+interface Membership {playerId:string;deviceId:string;isHost:boolean}
+interface Joined {lobby:Lobby;membership:Membership}
+class LobbyFailure extends Error {constructor(readonly status:number,message:string){super(message);}}
+@Component({selector:'app-shared-lobby',imports:[AssistanceSettings],templateUrl:'./shared-lobby.html',styleUrl:'./shared-lobby.css'})
+export class SharedLobby {
+ readonly campaignId=localStorage.getItem('weekend-campaign:'+location.pathname.split('/').at(-1));
+ readonly pendingQualifying=signal<{commandId:string;revision:number}|null>(null);
+ readonly preparation=signal<{revision:number;readiness:{teamId:string;finalReady:boolean}[]}|null>(null);
+ private preparationSubscribed=false;
+ private async observePreparation(id:string){if(this.hub?.state!=='Connected'||this.preparationSubscribed)return;this.preparationSubscribed=true;try{this.preparation.set(await this.hub.invoke('SubscribePreparation',id));}catch{this.preparationSubscribed=false;}}
+ canQualify(){return !this.busy()&&this.connection()==='Connected'&&(!!this.pendingQualifying()||this.canQualifyState());}
+ async startQualifying(){await this.run(async()=>{if(!this.membership()?.isHost||(!this.pendingQualifying()&&!this.canQualifyState()))return;const command=this.pendingQualifying()??{commandId:crypto.randomUUID(),revision:this.preparation()!.revision};this.pendingQualifying.set(command);try{await this.request('/api/lobbies/'+this.lobby()!.sessionId+'/qualifying',command);this.pendingQualifying.set(null);location.assign('/qualifying/'+this.lobby()!.sessionId);}catch(error){if(error instanceof LobbyFailure&&error.status<500){this.pendingQualifying.set(null);throw error;}throw new Error('Qualifying start confirmation unavailable. Retry the same start command to recover the accepted session.');}});}
+ private canQualifyState(){const state=this.preparation();return !!state&&state.readiness.length>0&&state.readiness.every(team=>team.finalReady);}
+ readonly publicControl=signal<PublicControl|null>(null);
+ readonly controlStatus=signal<TeamControlStatus[]>([]);
+ readonly controlName=controlName;
+ private publicSubscribed=false;
+ teamControl(teamId:string){return this.controlStatus().find(status=>status.teamId===teamId)??{teamId,mode:'Human',revision:0};}
+ private async observeControl(id:string){
+  if(this.hub?.state!=='Connected'||this.publicSubscribed)return;
+  this.publicSubscribed=true;
+  try{const state=await this.hub.invoke<PublicControl>('SubscribePublic',id);this.applyPublic(state);}catch{this.publicSubscribed=false;}
+ }
+ async takeover(team:Team,mode:string){await this.run(async()=>{
+  const status=await this.request<TeamControlStatus>('/api/lobbies/'+this.lobby()!.sessionId+'/teams/'+team.teamId+'/control',{commandId:crypto.randomUUID(),revision:this.teamControl(team.teamId).revision,mode});
+  this.controlStatus.update(statuses=>[...statuses.filter(item=>item.teamId!==team.teamId),status]);
+ });}
+ readonly controllerDevices=signal<{deviceId:string;playerName:string;teamIds:string[]}[]>([]);
+ readonly authorisedTeams=signal<string[]>([]);
+ hasOpenTeams(){return this.lobby()?.teams.some(team=>team.control==='Open'&&team.playerId&&team.approved)??false;}
+ readonly hasSharedTeam=(team:Team)=>team.control==='SharedTablet' && !!team.playerId;
+ readonly path=location.pathname;readonly joinMode=this.path.includes('/join');readonly id=this.path.startsWith('/shared/lobby/')?this.path.split('/').at(-1):undefined;
+ readonly lobby=signal<Lobby|null>(null);readonly membership=signal<Membership|null>(null);readonly user=signal<User|null>(null);readonly ready=signal(false);readonly busy=signal(false);readonly error=signal('');readonly qr=signal('');readonly connection=signal('Connecting');
+ readonly code=new URL(location.href).searchParams.get('code')??'';readonly accountName=signal(localStorage.getItem('household-player-name')??'');
+ private auth?:Auth;private hub?:HubConnection;
+ constructor(){void this.run(async()=>{
+  const config=await this.request<{projectId:string;apiKey:string;emulatorUrl:string|null}>('/api/auth/config',undefined,false);
+  const {initializeApp}=await import('firebase/app');const sdk=await import('firebase/auth');this.auth=sdk.getAuth(initializeApp({projectId:config.projectId,apiKey:config.apiKey}));
+  if(config.emulatorUrl)sdk.connectAuthEmulator(this.auth,config.emulatorUrl,{disableWarnings:true});
+  await new Promise<void>(resolve=>{const unsubscribe=sdk.onAuthStateChanged(this.auth!,user=>{this.user.set(user);unsubscribe();resolve();});});this.ready.set(true);
+  if(this.id&&this.user()){const device=localStorage.getItem(this.deviceKey(this.id));if(device)await this.accept(await this.request<Joined>('/api/lobbies/'+this.id+'/membership?deviceId='+encodeURIComponent(device)));else this.error.set('Join this lobby on this device before claiming a team.');}
+ });}
+ ngOnDestroy(){void this.hub?.stop();}
+ private deviceKey(id:string){return 'household-device:'+this.user()?.uid+':'+id;}
+ private async request<T>(url:string,input?:unknown,authenticated=true):Promise<T>{const response=await fetch(apiUrl(url),{method:input===undefined?'GET':'POST',headers:{'Content-Type':'application/json',...(authenticated?{'Authorization':'Bearer '+await this.user()?.getIdToken()}: {})},body:input===undefined?undefined:JSON.stringify(input)});const result=await response.json();if(!response.ok)throw new LobbyFailure(response.status,result.message??'Request unavailable. Try again.');return result;}
+ private async run(action:()=>Promise<void>){if(this.busy())return;this.busy.set(true);this.error.set('');try{await action();}catch(error){this.error.set(error instanceof Error?error.message:'Unable to complete this action.');}finally{this.busy.set(false);}}
+ async account(name:string,email:string,password:string,create:boolean){await this.run(async()=>{const sdk=await import('firebase/auth');const credential=await(create?sdk.createUserWithEmailAndPassword(this.auth!,email,password):sdk.signInWithEmailAndPassword(this.auth!,email,password));this.user.set(credential.user);this.accountName.set(name);localStorage.setItem('household-player-name',name);});}
+ async signOut(){await this.run(async()=>{const sdk=await import('firebase/auth');await sdk.signOut(this.auth!);this.user.set(null);});}
+ async create(name:string,preset:string,laps:string,seed:string,mode:string,decisionSeconds:string,handoffSeconds:string){await this.run(async()=>{await this.accept(await this.request<Joined>('/api/lobbies',{name,preset,laps:Number(laps),seed:Number(seed),mode,decisionSeconds:Number(decisionSeconds),handoffSeconds:Number(handoffSeconds)}));});}
+ async join(name:string,code:string){await this.run(async()=>{if(!this.user()){const sdk=await import('firebase/auth');const credential=await sdk.signInAnonymously(this.auth!);this.user.set(credential.user);}this.accountName.set(name);localStorage.setItem('household-player-name',name);await this.accept(await this.request<Joined>('/api/lobbies/join',{name,code}));});}
+ private async accept(joined:Joined){this.membership.set(joined.membership);this.apply(joined.lobby);localStorage.setItem(this.deviceKey(joined.lobby.sessionId),joined.membership.deviceId);history.replaceState(null,'','/shared/lobby/'+joined.lobby.sessionId);await this.connect();}
+ private apply(state:Lobby){if(this.lobby()&&this.lobby()!.revision>state.revision)return;this.lobby.set(state);if(state.lifecycle==='started')void this.observeControl(state.sessionId);if(state.lifecycle==='preparing')void this.observePreparation(state.sessionId);if(this.membership()?.isHost)void this.request<{deviceId:string;playerName:string;teamIds:string[]}[]>("/api/lobbies/"+state.sessionId+"/controller-devices").then(devices=>{if(this.lobby()?.revision===state.revision)this.controllerDevices.set(devices);}).catch(()=>undefined);this.authorisedTeams.set([]);if((state.lifecycle==='started'||state.lifecycle==='preparing'||state.lifecycle==='qualifying')&&this.membership())void this.request<Team[]>('/api/lobbies/'+state.sessionId+'/controllers?deviceId='+encodeURIComponent(this.membership()!.deviceId)).then(teams=>{if(this.lobby()?.sessionId===state.sessionId&&this.lobby()?.revision===state.revision)this.authorisedTeams.set(teams.map(team=>team.teamId));}).catch(()=>undefined);void import('qrcode').then(({default:qr})=>qr.toDataURL(new URL(state.joinUrl,location.origin).href,{width:200,margin:2})).then(image=>this.qr.set(image));}
+ private async connect(){await this.hub?.stop();const lobby=this.lobby()!;const member=this.membership()!;const hub=new HubConnectionBuilder().withUrl(apiUrl('/hubs/race'),{accessTokenFactory:()=>this.user()!.getIdToken()}).withAutomaticReconnect().build();this.hub=hub;this.publicSubscribed=false;this.preparationSubscribed=false;hub.on('preparationSnapshot',(state:{revision:number;readiness:{teamId:string;finalReady:boolean}[]})=>{if(state.revision>=(this.preparation()?.revision??-1))this.preparation.set(state);});hub.on('publicSnapshot',(state:PublicControl)=>this.applyPublic(state));hub.on('lobbySnapshot',(state:Lobby)=>{if(state.sessionId===lobby.sessionId)this.apply(state);});const rejoin=async()=>{const current=await hub.invoke<Joined>('SubscribeLobby',lobby.sessionId,member.deviceId);this.membership.set(current.membership);this.publicSubscribed=false;this.preparationSubscribed=false;this.apply(current.lobby);this.connection.set('Connected');};hub.onreconnecting(()=>this.connection.set('Reconnecting'));hub.onreconnected(()=>{void rejoin().catch(()=>this.connection.set('Unavailable'));});hub.onclose(()=>this.connection.set('Disconnected'));await hub.start();await rejoin();}
+ async claim(team:Team){await this.change('/claims',{teamId:team.teamId,deviceId:this.membership()!.deviceId});}
+ async assign(team:Team,playerId:string,control:string){const player=this.lobby()!.players.find(p=>p.playerId===playerId);await this.change('/assignments',{teamId:team.teamId,playerId:playerId||null,deviceId:player?.sharedParticipant||control!=='Private'?this.membership()!.deviceId:null,control});}
+ async approve(team:Team){await this.assign(team,team.playerId!,team.control);}
+ async addParticipant(name:string){await this.change('/participants',{name,deviceId:this.membership()!.deviceId});}
+ async help(input:{playerId:string;helpLevel:string;autoAcceptRecommendation:boolean}){await this.change("/players/"+encodeURIComponent(input.playerId)+"/assistance",input);}
+ private applyPublic(state:PublicControl){this.publicControl.set(state);this.controlStatus.set(state.controlStatus??[]);}
+ async continuePlay(){await this.run(async()=>{const state=this.publicControl();if(!state||state.lifecycle!=='phase-result'||state.paused||state.windowRevision===undefined)return;this.applyPublic(await this.request<PublicControl>('/api/lobbies/'+this.lobby()!.sessionId+'/continue',{commandId:crypto.randomUUID(),phase:state.phase,windowRevision:state.windowRevision}));});}
+ async pause(){await this.change(this.lobby()?.paused?"/resume":"/pause",{});}
+ async revoke(deviceId:string){await this.change("/devices/"+encodeURIComponent(deviceId)+"/revoke",{});}
+ async beginPreparation(circuitId:string){await this.run(async()=>{await this.request('/api/lobbies/'+this.lobby()!.sessionId+'/preparation',{circuitId});const joined=await this.request<Joined>('/api/lobbies/'+this.lobby()!.sessionId+'/membership?deviceId='+encodeURIComponent(this.membership()!.deviceId));this.apply(joined.lobby);});}
+ async start(){await this.change('/start',{});}
+ private async change(path:string,input:unknown){await this.run(async()=>this.apply(await this.request<Lobby>('/api/lobbies/'+this.lobby()!.sessionId+path,input)));}
+ owner(team:Team){return this.lobby()!.players.find(p=>p.playerId===team.playerId)?.name??'Unclaimed · scripted at start';}
+ canClaim(team:Team){return !this.busy()&&this.connection()==='Connected'&&this.lobby()?.lifecycle==='lobby'&&!team.playerId&&!this.lobby()!.teams.some(t=>t.playerId===this.membership()?.playerId);}
+ canStart(){return !this.busy()&&this.connection()==='Connected'&&this.lobby()!.teams.some(t=>t.playerId)&&this.lobby()!.teams.every(t=>!t.playerId||t.approved);}
+}

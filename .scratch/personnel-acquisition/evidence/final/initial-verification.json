@@ -1,0 +1,76 @@
+{
+  "runId": "2026-10-26T20-26-41-850Z-4cf7ec25-4125-4dd4-9b2b-ea41141a73f4",
+  "revision": "8458f00dd8b43725395f8746811e371e0a100f72",
+  "startedAt": "2026-10-26T20:26:41.949Z",
+  "node": "v24.22.1",
+  "steps": [
+    {
+      "name": "tooling",
+      "command": "C:\\Users\\sbdev\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\node\\bin\\node.exe",
+      "args": [
+        "--test",
+        "tools/tests/run-bounded.test.mjs",
+        "tools/tests/publish-evidence.test.mjs"
+      ],
+      "cwd": "C:\\Projects\\F1Game",
+      "pid": 2288,
+      "startedAt": "2026-10-26T20:26:41.950Z",
+      "status": "passed",
+      "exitCode": 0,
+      "elapsedMs": 1283
+    },
+    {
+      "name": "typecheck",
+      "command": "C:\\Users\\sbdev\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\node\\bin\\node.exe",
+      "args": [
+        "C:\\Projects\\F1Game\\src\\frontend\\node_modules\\@angular\\compiler-cli\\bundles\\src\\bin\\ngc.js",
+        "-p",
+        "tsconfig.app.json",
+        "--noEmit"
+      ],
+      "cwd": "C:\\Projects\\F1Game\\src\\frontend",
+      "pid": 10268,
+      "startedAt": "2026-10-26T20:26:43.235Z",
+      "status": "passed",
+      "exitCode": 0,
+      "elapsedMs": 12931
+    },
+    {
+      "name": "build",
+      "command": "C:\\Users\\sbdev\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\node\\bin\\node.exe",
+      "args": [
+        "C:\\Projects\\F1Game\\src\\frontend\\node_modules\\@angular\\cli\\bin\\ng.js",
+        "build"
+      ],
+      "cwd": "C:\\Projects\\F1Game\\src\\frontend",
+      "pid": 15820,
+      "startedAt": "2026-10-26T20:26:56.171Z",
+      "status": "passed",
+      "exitCode": 0,
+      "elapsedMs": 65443
+    },
+    {
+      "name": "backend",
+      "command": "C:\\Users\\sbdev\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\node\\bin\\node.exe",
+      "args": [
+        "C:\\Projects\\F1Game\\tools\\auth-emulator\\node_modules\\firebase-tools\\lib\\bin\\firebase.js",
+        "emulators:exec",
+        "--only",
+        "auth,firestore",
+        "--project",
+        "demo-f1game",
+        "--config",
+        "C:\\Projects\\F1Game\\.tools\\reports\\s12-isolation\\firebase.json",
+        "--non-interactive",
+        "\"C:\\Users\\sbdev\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\node\\bin\\node.exe\" tools/run-backend-tests.mjs"
+      ],
+      "cwd": "C:\\Projects\\F1Game",
+      "pid": 16816,
+      "startedAt": "2026-10-26T20:28:01.622Z",
+      "status": "failed",
+      "exitCode": 124,
+      "elapsedMs": 716868
+    }
+  ],
+  "finishedAt": "2026-10-26T20:39:58.498Z"
+}

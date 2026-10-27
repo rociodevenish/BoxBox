@@ -1,0 +1,75 @@
+{
+  "runId": "2026-10-18T03-50-01-897Z-a10af205-093a-4e96-97b7-be06d1d71987",
+  "revision": "82d8a67137e94df649376c6c71958184764baca7",
+  "startedAt": "2026-10-18T03:50:01.959Z",
+  "node": "v24.19.0",
+  "steps": [
+    {
+      "name": "typecheck",
+      "command": "C:\\Users\\sbdev\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\node\\bin\\node.exe",
+      "args": [
+        "C:\\Projects\\F1Game\\src\\frontend\\node_modules\\@angular\\compiler-cli\\bundles\\src\\bin\\ngc.js",
+        "-p",
+        "tsconfig.app.json",
+        "--noEmit"
+      ],
+      "cwd": "C:\\Projects\\F1Game\\src\\frontend",
+      "pid": 18956,
+      "startedAt": "2026-10-18T03:50:01.960Z",
+      "status": "passed",
+      "exitCode": 0,
+      "elapsedMs": 2481
+    },
+    {
+      "name": "build",
+      "command": "C:\\Users\\sbdev\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\node\\bin\\node.exe",
+      "args": [
+        "C:\\Projects\\F1Game\\src\\frontend\\node_modules\\@angular\\cli\\bin\\ng.js",
+        "build"
+      ],
+      "cwd": "C:\\Projects\\F1Game\\src\\frontend",
+      "pid": 15364,
+      "startedAt": "2026-10-18T03:50:04.451Z",
+      "status": "passed",
+      "exitCode": 0,
+      "elapsedMs": 5803
+    },
+    {
+      "name": "backend",
+      "command": "C:\\Users\\sbdev\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\node\\bin\\node.exe",
+      "args": [
+        "C:\\Projects\\F1Game\\tools\\auth-emulator\\node_modules\\firebase-tools\\lib\\bin\\firebase.js",
+        "emulators:exec",
+        "--only",
+        "auth,firestore",
+        "--project",
+        "demo-f1game",
+        "--config",
+        "C:\\Projects\\F1Game\\tools\\auth-emulator\\firebase.recovery.json",
+        "--non-interactive",
+        "\"C:\\Users\\sbdev\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\node\\bin\\node.exe\" tools/run-backend-tests.mjs"
+      ],
+      "cwd": "C:\\Projects\\F1Game",
+      "pid": 16884,
+      "startedAt": "2026-10-18T03:50:10.256Z",
+      "status": "passed",
+      "exitCode": 0,
+      "elapsedMs": 120062
+    },
+    {
+      "name": "gallery",
+      "command": "C:\\Users\\sbdev\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\node\\bin\\node.exe",
+      "args": [
+        "C:\\Projects\\F1Game\\src\\frontend\\node_modules\\@playwright\\test\\cli.js",
+        "test"
+      ],
+      "cwd": "C:\\Projects\\F1Game\\src\\frontend",
+      "pid": 23680,
+      "startedAt": "2026-10-18T03:52:10.322Z",
+      "status": "failed",
+      "exitCode": 1,
+      "elapsedMs": 76053
+    }
+  ],
+  "finishedAt": "2026-10-18T03:53:26.392Z"
+}

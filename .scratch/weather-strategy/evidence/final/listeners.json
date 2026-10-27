@@ -1,0 +1,48 @@
+{
+  "checkedAtUtc": "2026-10-24T14:24:16.0381890Z",
+  "ownedPorts": [
+    4537,
+    4637,
+    19539,
+    19540,
+    19760,
+    19810,
+    9173,
+    19309,
+    19300,
+    19510,
+    19560,
+    9174,
+    19099,
+    19400,
+    19450
+  ],
+  "ownedListeners": [],
+  "preservedPreviewListeners": [
+    {
+      "LocalAddress": "127.0.0.1",
+      "LocalPort": 19460,
+      "OwningProcess": 25928
+    },
+    {
+      "LocalAddress": "127.0.0.1",
+      "LocalPort": 19410,
+      "OwningProcess": 25928
+    },
+    {
+      "LocalAddress": "127.0.0.1",
+      "LocalPort": 19109,
+      "OwningProcess": 25928
+    },
+    {
+      "LocalAddress": "127.0.0.1",
+      "LocalPort": 19100,
+      "OwningProcess": 30036
+    },
+    {
+      "LocalAddress": "127.0.0.1",
+      "LocalPort": 9150,
+      "OwningProcess": 30036
+    }
+  ]
+}

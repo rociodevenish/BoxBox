@@ -1,0 +1,2118 @@
+{
+  "schemaVersion": "1.0.0",
+  "dataVersion": "2026.10.08-initial-balance",
+  "entityType": "driver-card-collection",
+  "seasonReference": 2026,
+  "generatedOn": "2026-10-08",
+  "status": "provisional",
+  "counts": {
+    "total": 28,
+    "race": 22,
+    "reserve": 6
+  },
+  "notes": [
+    "Initial game seed data; ratings are balance inputs rather than objective real-world rankings.",
+    "Reference teams and roles are metadata only. Drivers can be drafted independently of real-world constructor.",
+    "Headline ratings use 1-5. Detailed ratings use 1-100.",
+    "Preferences are compatibility traits, not performance ratings.",
+    "Preference confidence is internal research metadata and need not appear on the player-facing card.",
+    "Aggression is intentionally not a standalone stat."
+  ],
+  "ratingScales": {
+    "headline": {
+      "min": 1,
+      "max": 5
+    },
+    "detailed": {
+      "min": 1,
+      "max": 100
+    }
+  },
+  "headlineDerivation": {
+    "pace": [
+      "qualifyingPace",
+      "racePace"
+    ],
+    "racecraft": [
+      "overtaking",
+      "defending",
+      "starts"
+    ],
+    "tyres": [
+      "tyrePreservation",
+      "tyreWarmup"
+    ],
+    "consistency": [
+      "errorControl",
+      "wetWeatherSkill"
+    ],
+    "technical": [
+      "setupFeedback",
+      "adaptability"
+    ]
+  },
+  "assetConvention": {
+    "portrait": "/assets/personnel/drivers/{slug}.webp",
+    "portraitFallback": "/assets/personnel/drivers/_placeholder.webp"
+  },
+  "drivers": [
+    {
+      "id": "driver-max-verstappen",
+      "slug": "max-verstappen",
+      "code": "VER",
+      "cardType": "driver",
+      "sortOrder": 1,
+      "enabled": true,
+      "draftEligible": true,
+      "identity": {
+        "givenName": "Max",
+        "familyName": "Verstappen",
+        "fullName": "Max Verstappen",
+        "displayName": "Max Verstappen",
+        "nationality": {
+          "name": "Dutch",
+          "countryCode": "NLD"
+        }
+      },
+      "reference": {
+        "season": 2026,
+        "poolRole": "race",
+        "teamIds": [
+          "red-bull-racing"
+        ],
+        "roleLabel": "Red Bull Racing race driver"
+      },
+      "economy": {
+        "cost": 12,
+        "currencyKey": "budget-unit"
+      },
+      "ratings": {
+        "headline": {
+          "pace": 5,
+          "racecraft": 5,
+          "tyres": 4,
+          "consistency": 5,
+          "technical": 5
+        },
+        "detailed": {
+          "qualifyingPace": 96,
+          "racePace": 97,
+          "overtaking": 96,
+          "defending": 96,
+          "starts": 94,
+          "tyrePreservation": 92,
+          "tyreWarmup": 89,
+          "errorControl": 95,
+          "wetWeatherSkill": 98,
+          "setupFeedback": 93,
+          "adaptability": 97
+        }
+      },
+      "preferences": [
+        {
+          "key": "sharp-front",
+          "label": "Sharp Front",
+          "confidence": "high"
+        },
+        {
+          "key": "loose-rear-tolerant",
+          "label": "Loose-Rear Tolerant",
+          "confidence": "high"
+        }
+      ],
+      "assets": {
+        "portrait": "/assets/personnel/drivers/max-verstappen.webp",
+        "portraitFallback": "/assets/personnel/drivers/_placeholder.webp"
+      },
+      "research": {
+        "ratingsStatus": "initial-balance",
+        "preferencesStatus": "researched",
+        "lastReviewed": "2026-10-08"
+      }
+    },
+    {
+      "id": "driver-george-russell",
+      "slug": "george-russell",
+      "code": "RUS",
+      "cardType": "driver",
+      "sortOrder": 2,
+      "enabled": true,
+      "draftEligible": true,
+      "identity": {
+        "givenName": "George",
+        "familyName": "Russell",
+        "fullName": "George Russell",
+        "displayName": "George Russell",
+        "nationality": {
+          "name": "British",
+          "countryCode": "GBR"
+        }
+      },
+      "reference": {
+        "season": 2026,
+        "poolRole": "race",
+        "teamIds": [
+          "mercedes"
+        ],
+        "roleLabel": "Mercedes race driver"
+      },
+      "economy": {
+        "cost": 11,
+        "currencyKey": "budget-unit"
+      },
+      "ratings": {
+        "headline": {
+          "pace": 5,
+          "racecraft": 4,
+          "tyres": 4,
+          "consistency": 5,
+          "technical": 4
+        },
+        "detailed": {
+          "qualifyingPace": 94,
+          "racePace": 92,
+          "overtaking": 91,
+          "defending": 93,
+          "starts": 91,
+          "tyrePreservation": 88,
+          "tyreWarmup": 87,
+          "errorControl": 95,
+          "wetWeatherSkill": 91,
+          "setupFeedback": 91,
+          "adaptability": 93
+        }
+      },
+      "preferences": [
+        {
+          "key": "responsive-front",
+          "label": "Responsive Front",
+          "confidence": "high"
+        },
+        {
+          "key": "stable-rear",
+          "label": "Stable Rear",
+          "confidence": "high"
+        }
+      ],
+      "assets": {
+        "portrait": "/assets/personnel/drivers/george-russell.webp",
+        "portraitFallback": "/assets/personnel/drivers/_placeholder.webp"
+      },
+      "research": {
+        "ratingsStatus": "initial-balance",
+        "preferencesStatus": "researched",
+        "lastReviewed": "2026-10-08"
+      }
+    },
+    {
+      "id": "driver-andrea-kimi-antonelli",
+      "slug": "andrea-kimi-antonelli",
+      "code": "ANT",
+      "cardType": "driver",
+      "sortOrder": 3,
+      "enabled": true,
+      "draftEligible": true,
+      "identity": {
+        "givenName": "Andrea Kimi",
+        "familyName": "Antonelli",
+        "fullName": "Andrea Kimi Antonelli",
+        "displayName": "Kimi Antonelli",
+        "nationality": {
+          "name": "Italian",
+          "countryCode": "ITA"
+        }
+      },
+      "reference": {
+        "season": 2026,
+        "poolRole": "race",
+        "teamIds": [
+          "mercedes"
+        ],
+        "roleLabel": "Mercedes race driver"
+      },
+      "economy": {
+        "cost": 11,
+        "currencyKey": "budget-unit"
+      },
+      "ratings": {
+        "headline": {
+          "pace": 5,
+          "racecraft": 4,
+          "tyres": 4,
+          "consistency": 4,
+          "technical": 4
+        },
+        "detailed": {
+          "qualifyingPace": 93,
+          "racePace": 94,
+          "overtaking": 91,
+          "defending": 88,
+          "starts": 92,
+          "tyrePreservation": 85,
+          "tyreWarmup": 90,
+          "errorControl": 87,
+          "wetWeatherSkill": 91,
+          "setupFeedback": 89,
+          "adaptability": 95
+        }
+      },
+      "preferences": [
+        {
+          "key": "strong-front",
+          "label": "Strong Front",
+          "confidence": "high"
+        },
+        {
+          "key": "entry-rotation",
+          "label": "Entry Rotation",
+          "confidence": "high"
+        }
+      ],
+      "assets": {
+        "portrait": "/assets/personnel/drivers/andrea-kimi-antonelli.webp",
+        "portraitFallback": "/assets/personnel/drivers/_placeholder.webp"
+      },
+      "research": {
+        "ratingsStatus": "initial-balance",
+        "preferencesStatus": "researched",
+        "lastReviewed": "2026-10-08"
+      }
+    },
+    {
+      "id": "driver-lewis-hamilton",
+      "slug": "lewis-hamilton",
+      "code": "HAM",
+      "cardType": "driver",
+      "sortOrder": 4,
+      "enabled": true,
+      "draftEligible": true,
+      "identity": {
+        "givenName": "Lewis",
+        "familyName": "Hamilton",
+        "fullName": "Lewis Hamilton",
+        "displayName": "Lewis Hamilton",
+        "nationality": {
+          "name": "British",
+          "countryCode": "GBR"
+        }
+      },
+      "reference": {
+        "season": 2026,
+        "poolRole": "race",
+        "teamIds": [
+          "ferrari"
+        ],
+        "roleLabel": "Ferrari race driver"
+      },
+      "economy": {
+        "cost": 11,
+        "currencyKey": "budget-unit"
+      },
+      "ratings": {
+        "headline": {
+          "pace": 4,
+          "racecraft": 5,
+          "tyres": 4,
+          "consistency": 5,
+          "technical": 5
+        },
+        "detailed": {
+          "qualifyingPace": 91,
+          "racePace": 94,
+          "overtaking": 94,
+          "defending": 93,
+          "starts": 92,
+          "tyrePreservation": 94,
+          "tyreWarmup": 88,
+          "errorControl": 91,
+          "wetWeatherSkill": 97,
+          "setupFeedback": 95,
+          "adaptability": 94
+        }
+      },
+      "preferences": [
+        {
+          "key": "positive-front",
+          "label": "Positive Front",
+          "confidence": "high"
+        },
+        {
+          "key": "strong-braking-platform",
+          "label": "Strong Braking Platform",
+          "confidence": "high"
+        }
+      ],
+      "assets": {
+        "portrait": "/assets/personnel/drivers/lewis-hamilton.webp",
+        "portraitFallback": "/assets/personnel/drivers/_placeholder.webp"
+      },
+      "research": {
+        "ratingsStatus": "initial-balance",
+        "preferencesStatus": "researched",
+        "lastReviewed": "2026-10-08"
+      }
+    },
+    {
+      "id": "driver-charles-leclerc",
+      "slug": "charles-leclerc",
+      "code": "LEC",
+      "cardType": "driver",
+      "sortOrder": 5,
+      "enabled": true,
+      "draftEligible": true,
+      "identity": {
+        "givenName": "Charles",
+        "familyName": "Leclerc",
+        "fullName": "Charles Leclerc",
+        "displayName": "Charles Leclerc",
+        "nationality": {
+          "name": "Monegasque",
+          "countryCode": "MCO"
+        }
+      },
+      "reference": {
+        "season": 2026,
+        "poolRole": "race",
+        "teamIds": [
+          "ferrari"
+        ],
+        "roleLabel": "Ferrari race driver"
+      },
+      "economy": {
+        "cost": 11,
+        "currencyKey": "budget-unit"
+      },
+      "ratings": {
+        "headline": {
+          "pace": 5,
+          "racecraft": 4,
+          "tyres": 4,
+          "consistency": 4,
+          "technical": 4
+        },
+        "detailed": {
+          "qualifyingPace": 96,
+          "racePace": 93,
+          "overtaking": 93,
+          "defending": 91,
+          "starts": 90,
+          "tyrePreservation": 88,
+          "tyreWarmup": 92,
+          "errorControl": 88,
+          "wetWeatherSkill": 91,
+          "setupFeedback": 91,
+          "adaptability": 93
+        }
+      },
+      "preferences": [
+        {
+          "key": "pointy-front",
+          "label": "Pointy Front",
+          "confidence": "high"
+        },
+        {
+          "key": "loose-rear-tolerant",
+          "label": "Loose-Rear Tolerant",
+          "confidence": "high"
+        }
+      ],
+      "assets": {
+        "portrait": "/assets/personnel/drivers/charles-leclerc.webp",
+        "portraitFallback": "/assets/personnel/drivers/_placeholder.webp"
+      },
+      "research": {
+        "ratingsStatus": "initial-balance",
+        "preferencesStatus": "researched",
+        "lastReviewed": "2026-10-08"
+      }
+    },
+    {
+      "id": "driver-lando-norris",
+      "slug": "lando-norris",
+      "code": "NOR",
+      "cardType": "driver",
+      "sortOrder": 6,
+      "enabled": true,
+      "draftEligible": true,
+      "identity": {
+        "givenName": "Lando",
+        "familyName": "Norris",
+        "fullName": "Lando Norris",
+        "displayName": "Lando Norris",
+        "nationality": {
+          "name": "British",
+          "countryCode": "GBR"
+        }
+      },
+      "reference": {
+        "season": 2026,
+        "poolRole": "race",
+        "teamIds": [
+          "mclaren"
+        ],
+        "roleLabel": "McLaren race driver"
+      },
+      "economy": {
+        "cost": 11,
+        "currencyKey": "budget-unit"
+      },
+      "ratings": {
+        "headline": {
+          "pace": 5,
+          "racecraft": 4,
+          "tyres": 4,
+          "consistency": 4,
+          "technical": 5
+        },
+        "detailed": {
+          "qualifyingPace": 95,
+          "racePace": 94,
+          "overtaking": 92,
+          "defending": 90,
+          "starts": 90,
+          "tyrePreservation": 91,
+          "tyreWarmup": 94,
+          "errorControl": 92,
+          "wetWeatherSkill": 93,
+          "setupFeedback": 92,
+          "adaptability": 94
+        }
+      },
+      "preferences": [
+        {
+          "key": "strong-front",
+          "label": "Strong Front",
+          "confidence": "high"
+        },
+        {
+          "key": "aggressive-entry-braking",
+          "label": "Aggressive Entry / Braking",
+          "confidence": "high"
+        }
+      ],
+      "assets": {
+        "portrait": "/assets/personnel/drivers/lando-norris.webp",
+        "portraitFallback": "/assets/personnel/drivers/_placeholder.webp"
+      },
+      "research": {
+        "ratingsStatus": "initial-balance",
+        "preferencesStatus": "researched",
+        "lastReviewed": "2026-10-08"
+      }
+    },
+    {
+      "id": "driver-oscar-piastri",
+      "slug": "oscar-piastri",
+      "code": "PIA",
+      "cardType": "driver",
+      "sortOrder": 7,
+      "enabled": true,
+      "draftEligible": true,
+      "identity": {
+        "givenName": "Oscar",
+        "familyName": "Piastri",
+        "fullName": "Oscar Piastri",
+        "displayName": "Oscar Piastri",
+        "nationality": {
+          "name": "Australian",
+          "countryCode": "AUS"
+        }
+      },
+      "reference": {
+        "season": 2026,
+        "poolRole": "race",
+        "teamIds": [
+          "mclaren"
+        ],
+        "roleLabel": "McLaren race driver"
+      },
+      "economy": {
+        "cost": 10,
+        "currencyKey": "budget-unit"
+      },
+      "ratings": {
+        "headline": {
+          "pace": 5,
+          "racecraft": 4,
+          "tyres": 4,
+          "consistency": 4,
+          "technical": 4
+        },
+        "detailed": {
+          "qualifyingPace": 92,
+          "racePace": 94,
+          "overtaking": 94,
+          "defending": 92,
+          "starts": 90,
+          "tyrePreservation": 91,
+          "tyreWarmup": 88,
+          "errorControl": 93,
+          "wetWeatherSkill": 88,
+          "setupFeedback": 90,
+          "adaptability": 94
+        }
+      },
+      "preferences": [
+        {
+          "key": "predictable-balance",
+          "label": "Predictable Balance",
+          "confidence": "high"
+        },
+        {
+          "key": "braking-stability",
+          "label": "Braking Stability",
+          "confidence": "high"
+        }
+      ],
+      "assets": {
+        "portrait": "/assets/personnel/drivers/oscar-piastri.webp",
+        "portraitFallback": "/assets/personnel/drivers/_placeholder.webp"
+      },
+      "research": {
+        "ratingsStatus": "initial-balance",
+        "preferencesStatus": "researched",
+        "lastReviewed": "2026-10-08"
+      }
+    },
+    {
+      "id": "driver-fernando-alonso",
+      "slug": "fernando-alonso",
+      "code": "ALO",
+      "cardType": "driver",
+      "sortOrder": 8,
+      "enabled": true,
+      "draftEligible": true,
+      "identity": {
+        "givenName": "Fernando",
+        "familyName": "Alonso",
+        "fullName": "Fernando Alonso",
+        "displayName": "Fernando Alonso",
+        "nationality": {
+          "name": "Spanish",
+          "countryCode": "ESP"
+        }
+      },
+      "reference": {
+        "season": 2026,
+        "poolRole": "race",
+        "teamIds": [
+          "aston-martin"
+        ],
+        "roleLabel": "Aston Martin race driver"
+      },
+      "economy": {
+        "cost": 10,
+        "currencyKey": "budget-unit"
+      },
+      "ratings": {
+        "headline": {
+          "pace": 4,
+          "racecraft": 5,
+          "tyres": 4,
+          "consistency": 5,
+          "technical": 5
+        },
+        "detailed": {
+          "qualifyingPace": 92,
+          "racePace": 93,
+          "overtaking": 96,
+          "defending": 96,
+          "starts": 91,
+          "tyrePreservation": 94,
+          "tyreWarmup": 86,
+          "errorControl": 94,
+          "wetWeatherSkill": 94,
+          "setupFeedback": 98,
+          "adaptability": 96
+        }
+      },
+      "preferences": [
+        {
+          "key": "strong-front-feedback",
+          "label": "Strong Front Feedback",
+          "confidence": "high"
+        },
+        {
+          "key": "adaptable-balance",
+          "label": "Adaptable Balance",
+          "confidence": "high"
+        }
+      ],
+      "assets": {
+        "portrait": "/assets/personnel/drivers/fernando-alonso.webp",
+        "portraitFallback": "/assets/personnel/drivers/_placeholder.webp"
+      },
+      "research": {
+        "ratingsStatus": "initial-balance",
+        "preferencesStatus": "researched",
+        "lastReviewed": "2026-10-08"
+      }
+    },
+    {
+      "id": "driver-carlos-sainz",
+      "slug": "carlos-sainz",
+      "code": "SAI",
+      "cardType": "driver",
+      "sortOrder": 9,
+      "enabled": true,
+      "draftEligible": true,
+      "identity": {
+        "givenName": "Carlos",
+        "familyName": "Sainz",
+        "fullName": "Carlos Sainz",
+        "displayName": "Carlos Sainz",
+        "nationality": {
+          "name": "Spanish",
+          "countryCode": "ESP"
+        }
+      },
+      "reference": {
+        "season": 2026,
+        "poolRole": "race",
+        "teamIds": [
+          "williams"
+        ],
+        "roleLabel": "Williams race driver"
+      },
+      "economy": {
+        "cost": 9,
+        "currencyKey": "budget-unit"
+      },
+      "ratings": {
+        "headline": {
+          "pace": 4,
+          "racecraft": 4,
+          "tyres": 4,
+          "consistency": 4,
+          "technical": 5
+        },
+        "detailed": {
+          "qualifyingPace": 91,
+          "racePace": 90,
+          "overtaking": 90,
+          "defending": 92,
+          "starts": 89,
+          "tyrePreservation": 91,
+          "tyreWarmup": 87,
+          "errorControl": 93,
+          "wetWeatherSkill": 90,
+          "setupFeedback": 96,
+          "adaptability": 93
+        }
+      },
+      "preferences": [
+        {
+          "key": "stable-rear",
+          "label": "Stable Rear",
+          "confidence": "high"
+        },
+        {
+          "key": "progressive-front",
+          "label": "Progressive Front",
+          "confidence": "high"
+        }
+      ],
+      "assets": {
+        "portrait": "/assets/personnel/drivers/carlos-sainz.webp",
+        "portraitFallback": "/assets/personnel/drivers/_placeholder.webp"
+      },
+      "research": {
+        "ratingsStatus": "initial-balance",
+        "preferencesStatus": "researched",
+        "lastReviewed": "2026-10-08"
+      }
+    },
+    {
+      "id": "driver-nico-hulkenberg",
+      "slug": "nico-hulkenberg",
+      "code": "HUL",
+      "cardType": "driver",
+      "sortOrder": 10,
+      "enabled": true,
+      "draftEligible": true,
+      "identity": {
+        "givenName": "Nico",
+        "familyName": "Hülkenberg",
+        "fullName": "Nico Hülkenberg",
+        "displayName": "Nico Hülkenberg",
+        "nationality": {
+          "name": "German",
+          "countryCode": "DEU"
+        }
+      },
+      "reference": {
+        "season": 2026,
+        "poolRole": "race",
+        "teamIds": [
+          "audi"
+        ],
+        "roleLabel": "Audi race driver"
+      },
+      "economy": {
+        "cost": 9,
+        "currencyKey": "budget-unit"
+      },
+      "ratings": {
+        "headline": {
+          "pace": 4,
+          "racecraft": 4,
+          "tyres": 4,
+          "consistency": 4,
+          "technical": 4
+        },
+        "detailed": {
+          "qualifyingPace": 91,
+          "racePace": 87,
+          "overtaking": 87,
+          "defending": 89,
+          "starts": 86,
+          "tyrePreservation": 85,
+          "tyreWarmup": 89,
+          "errorControl": 91,
+          "wetWeatherSkill": 88,
+          "setupFeedback": 93,
+          "adaptability": 90
+        }
+      },
+      "preferences": [
+        {
+          "key": "strong-braking-platform",
+          "label": "Strong Braking Platform",
+          "confidence": "medium"
+        },
+        {
+          "key": "decisive-front-response",
+          "label": "Decisive Front Response",
+          "confidence": "medium"
+        }
+      ],
+      "assets": {
+        "portrait": "/assets/personnel/drivers/nico-hulkenberg.webp",
+        "portraitFallback": "/assets/personnel/drivers/_placeholder.webp"
+      },
+      "research": {
+        "ratingsStatus": "initial-balance",
+        "preferencesStatus": "researched",
+        "lastReviewed": "2026-10-08"
+      }
+    },
+    {
+      "id": "driver-pierre-gasly",
+      "slug": "pierre-gasly",
+      "code": "GAS",
+      "cardType": "driver",
+      "sortOrder": 11,
+      "enabled": true,
+      "draftEligible": true,
+      "identity": {
+        "givenName": "Pierre",
+        "familyName": "Gasly",
+        "fullName": "Pierre Gasly",
+        "displayName": "Pierre Gasly",
+        "nationality": {
+          "name": "French",
+          "countryCode": "FRA"
+        }
+      },
+      "reference": {
+        "season": 2026,
+        "poolRole": "race",
+        "teamIds": [
+          "alpine"
+        ],
+        "roleLabel": "Alpine race driver"
+      },
+      "economy": {
+        "cost": 9,
+        "currencyKey": "budget-unit"
+      },
+      "ratings": {
+        "headline": {
+          "pace": 4,
+          "racecraft": 4,
+          "tyres": 4,
+          "consistency": 4,
+          "technical": 4
+        },
+        "detailed": {
+          "qualifyingPace": 89,
+          "racePace": 88,
+          "overtaking": 88,
+          "defending": 87,
+          "starts": 86,
+          "tyrePreservation": 88,
+          "tyreWarmup": 85,
+          "errorControl": 89,
+          "wetWeatherSkill": 89,
+          "setupFeedback": 90,
+          "adaptability": 91
+        }
+      },
+      "preferences": [
+        {
+          "key": "stable-rear",
+          "label": "Stable Rear",
+          "confidence": "high"
+        },
+        {
+          "key": "sharp-initial-turn",
+          "label": "Sharp Initial Turn",
+          "confidence": "high"
+        }
+      ],
+      "assets": {
+        "portrait": "/assets/personnel/drivers/pierre-gasly.webp",
+        "portraitFallback": "/assets/personnel/drivers/_placeholder.webp"
+      },
+      "research": {
+        "ratingsStatus": "initial-balance",
+        "preferencesStatus": "researched",
+        "lastReviewed": "2026-10-08"
+      }
+    },
+    {
+      "id": "driver-isack-hadjar",
+      "slug": "isack-hadjar",
+      "code": "HAD",
+      "cardType": "driver",
+      "sortOrder": 12,
+      "enabled": true,
+      "draftEligible": true,
+      "identity": {
+        "givenName": "Isack",
+        "familyName": "Hadjar",
+        "fullName": "Isack Hadjar",
+        "displayName": "Isack Hadjar",
+        "nationality": {
+          "name": "French",
+          "countryCode": "FRA"
+        }
+      },
+      "reference": {
+        "season": 2026,
+        "poolRole": "race",
+        "teamIds": [
+          "red-bull-racing"
+        ],
+        "roleLabel": "Red Bull Racing race driver"
+      },
+      "economy": {
+        "cost": 9,
+        "currencyKey": "budget-unit"
+      },
+      "ratings": {
+        "headline": {
+          "pace": 4,
+          "racecraft": 4,
+          "tyres": 4,
+          "consistency": 4,
+          "technical": 4
+        },
+        "detailed": {
+          "qualifyingPace": 89,
+          "racePace": 87,
+          "overtaking": 88,
+          "defending": 84,
+          "starts": 87,
+          "tyrePreservation": 84,
+          "tyreWarmup": 87,
+          "errorControl": 84,
+          "wetWeatherSkill": 87,
+          "setupFeedback": 82,
+          "adaptability": 90
+        }
+      },
+      "preferences": [
+        {
+          "key": "entry-stability",
+          "label": "Entry Stability",
+          "confidence": "high"
+        },
+        {
+          "key": "neutral-balance",
+          "label": "Neutral Balance",
+          "confidence": "high"
+        }
+      ],
+      "assets": {
+        "portrait": "/assets/personnel/drivers/isack-hadjar.webp",
+        "portraitFallback": "/assets/personnel/drivers/_placeholder.webp"
+      },
+      "research": {
+        "ratingsStatus": "initial-balance",
+        "preferencesStatus": "researched",
+        "lastReviewed": "2026-10-08"
+      }
+    },
+    {
+      "id": "driver-esteban-ocon",
+      "slug": "esteban-ocon",
+      "code": "OCO",
+      "cardType": "driver",
+      "sortOrder": 13,
+      "enabled": true,
+      "draftEligible": true,
+      "identity": {
+        "givenName": "Esteban",
+        "familyName": "Ocon",
+        "fullName": "Esteban Ocon",
+        "displayName": "Esteban Ocon",
+        "nationality": {
+          "name": "French",
+          "countryCode": "FRA"
+        }
+      },
+      "reference": {
+        "season": 2026,
+        "poolRole": "race",
+        "teamIds": [
+          "haas"
+        ],
+        "roleLabel": "Haas race driver"
+      },
+      "economy": {
+        "cost": 9,
+        "currencyKey": "budget-unit"
+      },
+      "ratings": {
+        "headline": {
+          "pace": 4,
+          "racecraft": 4,
+          "tyres": 4,
+          "consistency": 4,
+          "technical": 4
+        },
+        "detailed": {
+          "qualifyingPace": 86,
+          "racePace": 87,
+          "overtaking": 88,
+          "defending": 90,
+          "starts": 86,
+          "tyrePreservation": 87,
+          "tyreWarmup": 83,
+          "errorControl": 86,
+          "wetWeatherSkill": 87,
+          "setupFeedback": 88,
+          "adaptability": 89
+        }
+      },
+      "preferences": [
+        {
+          "key": "entry-rotation",
+          "label": "Entry Rotation",
+          "confidence": "medium"
+        },
+        {
+          "key": "clean-exit-traction",
+          "label": "Clean Exit / Traction",
+          "confidence": "medium"
+        }
+      ],
+      "assets": {
+        "portrait": "/assets/personnel/drivers/esteban-ocon.webp",
+        "portraitFallback": "/assets/personnel/drivers/_placeholder.webp"
+      },
+      "research": {
+        "ratingsStatus": "initial-balance",
+        "preferencesStatus": "researched",
+        "lastReviewed": "2026-10-08"
+      }
+    },
+    {
+      "id": "driver-alexander-albon",
+      "slug": "alexander-albon",
+      "code": "ALB",
+      "cardType": "driver",
+      "sortOrder": 14,
+      "enabled": true,
+      "draftEligible": true,
+      "identity": {
+        "givenName": "Alexander",
+        "familyName": "Albon",
+        "fullName": "Alexander Albon",
+        "displayName": "Alex Albon",
+        "nationality": {
+          "name": "Thai",
+          "countryCode": "THA"
+        }
+      },
+      "reference": {
+        "season": 2026,
+        "poolRole": "race",
+        "teamIds": [
+          "williams"
+        ],
+        "roleLabel": "Williams race driver"
+      },
+      "economy": {
+        "cost": 9,
+        "currencyKey": "budget-unit"
+      },
+      "ratings": {
+        "headline": {
+          "pace": 4,
+          "racecraft": 4,
+          "tyres": 4,
+          "consistency": 4,
+          "technical": 4
+        },
+        "detailed": {
+          "qualifyingPace": 88,
+          "racePace": 87,
+          "overtaking": 88,
+          "defending": 87,
+          "starts": 88,
+          "tyrePreservation": 85,
+          "tyreWarmup": 86,
+          "errorControl": 88,
+          "wetWeatherSkill": 86,
+          "setupFeedback": 91,
+          "adaptability": 92
+        }
+      },
+      "preferences": [
+        {
+          "key": "sharp-front",
+          "label": "Sharp Front",
+          "confidence": "high"
+        },
+        {
+          "key": "predictable-rear",
+          "label": "Predictable Rear",
+          "confidence": "high"
+        }
+      ],
+      "assets": {
+        "portrait": "/assets/personnel/drivers/alexander-albon.webp",
+        "portraitFallback": "/assets/personnel/drivers/_placeholder.webp"
+      },
+      "research": {
+        "ratingsStatus": "initial-balance",
+        "preferencesStatus": "researched",
+        "lastReviewed": "2026-10-08"
+      }
+    },
+    {
+      "id": "driver-sergio-perez",
+      "slug": "sergio-perez",
+      "code": "PER",
+      "cardType": "driver",
+      "sortOrder": 15,
+      "enabled": true,
+      "draftEligible": true,
+      "identity": {
+        "givenName": "Sergio",
+        "familyName": "Pérez",
+        "fullName": "Sergio Pérez",
+        "displayName": "Sergio Pérez",
+        "nationality": {
+          "name": "Mexican",
+          "countryCode": "MEX"
+        }
+      },
+      "reference": {
+        "season": 2026,
+        "poolRole": "race",
+        "teamIds": [
+          "cadillac"
+        ],
+        "roleLabel": "Cadillac race driver"
+      },
+      "economy": {
+        "cost": 8,
+        "currencyKey": "budget-unit"
+      },
+      "ratings": {
+        "headline": {
+          "pace": 4,
+          "racecraft": 4,
+          "tyres": 4,
+          "consistency": 3,
+          "technical": 4
+        },
+        "detailed": {
+          "qualifyingPace": 84,
+          "racePace": 86,
+          "overtaking": 89,
+          "defending": 91,
+          "starts": 88,
+          "tyrePreservation": 92,
+          "tyreWarmup": 82,
+          "errorControl": 83,
+          "wetWeatherSkill": 86,
+          "setupFeedback": 90,
+          "adaptability": 87
+        }
+      },
+      "preferences": [
+        {
+          "key": "strong-front",
+          "label": "Strong Front",
+          "confidence": "high"
+        },
+        {
+          "key": "stable-rear",
+          "label": "Stable Rear",
+          "confidence": "high"
+        }
+      ],
+      "assets": {
+        "portrait": "/assets/personnel/drivers/sergio-perez.webp",
+        "portraitFallback": "/assets/personnel/drivers/_placeholder.webp"
+      },
+      "research": {
+        "ratingsStatus": "initial-balance",
+        "preferencesStatus": "researched",
+        "lastReviewed": "2026-10-08"
+      }
+    },
+    {
+      "id": "driver-valtteri-bottas",
+      "slug": "valtteri-bottas",
+      "code": "BOT",
+      "cardType": "driver",
+      "sortOrder": 16,
+      "enabled": true,
+      "draftEligible": true,
+      "identity": {
+        "givenName": "Valtteri",
+        "familyName": "Bottas",
+        "fullName": "Valtteri Bottas",
+        "displayName": "Valtteri Bottas",
+        "nationality": {
+          "name": "Finnish",
+          "countryCode": "FIN"
+        }
+      },
+      "reference": {
+        "season": 2026,
+        "poolRole": "race",
+        "teamIds": [
+          "cadillac"
+        ],
+        "roleLabel": "Cadillac race driver"
+      },
+      "economy": {
+        "cost": 8,
+        "currencyKey": "budget-unit"
+      },
+      "ratings": {
+        "headline": {
+          "pace": 4,
+          "racecraft": 4,
+          "tyres": 4,
+          "consistency": 4,
+          "technical": 4
+        },
+        "detailed": {
+          "qualifyingPace": 88,
+          "racePace": 86,
+          "overtaking": 85,
+          "defending": 87,
+          "starts": 86,
+          "tyrePreservation": 88,
+          "tyreWarmup": 86,
+          "errorControl": 90,
+          "wetWeatherSkill": 86,
+          "setupFeedback": 94,
+          "adaptability": 91
+        }
+      },
+      "preferences": [
+        {
+          "key": "pointy-front",
+          "label": "Pointy / Responsive Front",
+          "confidence": "high"
+        },
+        {
+          "key": "high-speed-rear-stability",
+          "label": "High-Speed Rear Stability",
+          "confidence": "high"
+        }
+      ],
+      "assets": {
+        "portrait": "/assets/personnel/drivers/valtteri-bottas.webp",
+        "portraitFallback": "/assets/personnel/drivers/_placeholder.webp"
+      },
+      "research": {
+        "ratingsStatus": "initial-balance",
+        "preferencesStatus": "researched",
+        "lastReviewed": "2026-10-08"
+      }
+    },
+    {
+      "id": "driver-oliver-bearman",
+      "slug": "oliver-bearman",
+      "code": "BEA",
+      "cardType": "driver",
+      "sortOrder": 17,
+      "enabled": true,
+      "draftEligible": true,
+      "identity": {
+        "givenName": "Oliver",
+        "familyName": "Bearman",
+        "fullName": "Oliver Bearman",
+        "displayName": "Oliver Bearman",
+        "nationality": {
+          "name": "British",
+          "countryCode": "GBR"
+        }
+      },
+      "reference": {
+        "season": 2026,
+        "poolRole": "race",
+        "teamIds": [
+          "haas"
+        ],
+        "roleLabel": "Haas race driver"
+      },
+      "economy": {
+        "cost": 8,
+        "currencyKey": "budget-unit"
+      },
+      "ratings": {
+        "headline": {
+          "pace": 4,
+          "racecraft": 4,
+          "tyres": 4,
+          "consistency": 3,
+          "technical": 4
+        },
+        "detailed": {
+          "qualifyingPace": 87,
+          "racePace": 86,
+          "overtaking": 89,
+          "defending": 83,
+          "starts": 87,
+          "tyrePreservation": 82,
+          "tyreWarmup": 88,
+          "errorControl": 82,
+          "wetWeatherSkill": 84,
+          "setupFeedback": 83,
+          "adaptability": 91
+        }
+      },
+      "preferences": [
+        {
+          "key": "responsive-front",
+          "label": "Responsive Front",
+          "confidence": "medium"
+        },
+        {
+          "key": "stable-entry",
+          "label": "Stable Entry",
+          "confidence": "medium"
+        }
+      ],
+      "assets": {
+        "portrait": "/assets/personnel/drivers/oliver-bearman.webp",
+        "portraitFallback": "/assets/personnel/drivers/_placeholder.webp"
+      },
+      "research": {
+        "ratingsStatus": "initial-balance",
+        "preferencesStatus": "researched",
+        "lastReviewed": "2026-10-08"
+      }
+    },
+    {
+      "id": "driver-gabriel-bortoleto",
+      "slug": "gabriel-bortoleto",
+      "code": "BOR",
+      "cardType": "driver",
+      "sortOrder": 18,
+      "enabled": true,
+      "draftEligible": true,
+      "identity": {
+        "givenName": "Gabriel",
+        "familyName": "Bortoleto",
+        "fullName": "Gabriel Bortoleto",
+        "displayName": "Gabriel Bortoleto",
+        "nationality": {
+          "name": "Brazilian",
+          "countryCode": "BRA"
+        }
+      },
+      "reference": {
+        "season": 2026,
+        "poolRole": "race",
+        "teamIds": [
+          "audi"
+        ],
+        "roleLabel": "Audi race driver"
+      },
+      "economy": {
+        "cost": 8,
+        "currencyKey": "budget-unit"
+      },
+      "ratings": {
+        "headline": {
+          "pace": 4,
+          "racecraft": 4,
+          "tyres": 3,
+          "consistency": 3,
+          "technical": 4
+        },
+        "detailed": {
+          "qualifyingPace": 86,
+          "racePace": 85,
+          "overtaking": 87,
+          "defending": 84,
+          "starts": 84,
+          "tyrePreservation": 83,
+          "tyreWarmup": 86,
+          "errorControl": 84,
+          "wetWeatherSkill": 83,
+          "setupFeedback": 84,
+          "adaptability": 91
+        }
+      },
+      "preferences": [
+        {
+          "key": "aggressive-front",
+          "label": "Aggressive Front",
+          "confidence": "high"
+        },
+        {
+          "key": "immediate-turn-in",
+          "label": "Immediate Turn-In",
+          "confidence": "high"
+        }
+      ],
+      "assets": {
+        "portrait": "/assets/personnel/drivers/gabriel-bortoleto.webp",
+        "portraitFallback": "/assets/personnel/drivers/_placeholder.webp"
+      },
+      "research": {
+        "ratingsStatus": "initial-balance",
+        "preferencesStatus": "researched",
+        "lastReviewed": "2026-10-08"
+      }
+    },
+    {
+      "id": "driver-liam-lawson",
+      "slug": "liam-lawson",
+      "code": "LAW",
+      "cardType": "driver",
+      "sortOrder": 19,
+      "enabled": true,
+      "draftEligible": true,
+      "identity": {
+        "givenName": "Liam",
+        "familyName": "Lawson",
+        "fullName": "Liam Lawson",
+        "displayName": "Liam Lawson",
+        "nationality": {
+          "name": "New Zealander",
+          "countryCode": "NZL"
+        }
+      },
+      "reference": {
+        "season": 2026,
+        "poolRole": "race",
+        "teamIds": [
+          "racing-bulls"
+        ],
+        "roleLabel": "Racing Bulls race driver"
+      },
+      "economy": {
+        "cost": 7,
+        "currencyKey": "budget-unit"
+      },
+      "ratings": {
+        "headline": {
+          "pace": 3,
+          "racecraft": 4,
+          "tyres": 3,
+          "consistency": 3,
+          "technical": 3
+        },
+        "detailed": {
+          "qualifyingPace": 85,
+          "racePace": 84,
+          "overtaking": 86,
+          "defending": 85,
+          "starts": 87,
+          "tyrePreservation": 80,
+          "tyreWarmup": 83,
+          "errorControl": 82,
+          "wetWeatherSkill": 84,
+          "setupFeedback": 80,
+          "adaptability": 88
+        }
+      },
+      "preferences": [
+        {
+          "key": "natural-front-feel",
+          "label": "Natural Front Feel",
+          "confidence": "medium"
+        },
+        {
+          "key": "predictable-balance",
+          "label": "Predictable Balance",
+          "confidence": "medium"
+        }
+      ],
+      "assets": {
+        "portrait": "/assets/personnel/drivers/liam-lawson.webp",
+        "portraitFallback": "/assets/personnel/drivers/_placeholder.webp"
+      },
+      "research": {
+        "ratingsStatus": "initial-balance",
+        "preferencesStatus": "researched",
+        "lastReviewed": "2026-10-08"
+      }
+    },
+    {
+      "id": "driver-arvid-lindblad",
+      "slug": "arvid-lindblad",
+      "code": "LIN",
+      "cardType": "driver",
+      "sortOrder": 20,
+      "enabled": true,
+      "draftEligible": true,
+      "identity": {
+        "givenName": "Arvid",
+        "familyName": "Lindblad",
+        "fullName": "Arvid Lindblad",
+        "displayName": "Arvid Lindblad",
+        "nationality": {
+          "name": "British",
+          "countryCode": "GBR"
+        }
+      },
+      "reference": {
+        "season": 2026,
+        "poolRole": "race",
+        "teamIds": [
+          "racing-bulls"
+        ],
+        "roleLabel": "Racing Bulls race driver"
+      },
+      "economy": {
+        "cost": 7,
+        "currencyKey": "budget-unit"
+      },
+      "ratings": {
+        "headline": {
+          "pace": 3,
+          "racecraft": 3,
+          "tyres": 3,
+          "consistency": 3,
+          "technical": 3
+        },
+        "detailed": {
+          "qualifyingPace": 84,
+          "racePace": 82,
+          "overtaking": 84,
+          "defending": 80,
+          "starts": 85,
+          "tyrePreservation": 79,
+          "tyreWarmup": 85,
+          "errorControl": 78,
+          "wetWeatherSkill": 82,
+          "setupFeedback": 79,
+          "adaptability": 90
+        }
+      },
+      "preferences": [
+        {
+          "key": "strong-front",
+          "label": "Strong Front",
+          "confidence": "high"
+        },
+        {
+          "key": "stable-entry",
+          "label": "Stable Entry",
+          "confidence": "high"
+        }
+      ],
+      "assets": {
+        "portrait": "/assets/personnel/drivers/arvid-lindblad.webp",
+        "portraitFallback": "/assets/personnel/drivers/_placeholder.webp"
+      },
+      "research": {
+        "ratingsStatus": "initial-balance",
+        "preferencesStatus": "researched",
+        "lastReviewed": "2026-10-08"
+      }
+    },
+    {
+      "id": "driver-franco-colapinto",
+      "slug": "franco-colapinto",
+      "code": "COL",
+      "cardType": "driver",
+      "sortOrder": 21,
+      "enabled": true,
+      "draftEligible": true,
+      "identity": {
+        "givenName": "Franco",
+        "familyName": "Colapinto",
+        "fullName": "Franco Colapinto",
+        "displayName": "Franco Colapinto",
+        "nationality": {
+          "name": "Argentine",
+          "countryCode": "ARG"
+        }
+      },
+      "reference": {
+        "season": 2026,
+        "poolRole": "race",
+        "teamIds": [
+          "alpine"
+        ],
+        "roleLabel": "Alpine race driver"
+      },
+      "economy": {
+        "cost": 7,
+        "currencyKey": "budget-unit"
+      },
+      "ratings": {
+        "headline": {
+          "pace": 3,
+          "racecraft": 3,
+          "tyres": 3,
+          "consistency": 3,
+          "technical": 3
+        },
+        "detailed": {
+          "qualifyingPace": 83,
+          "racePace": 84,
+          "overtaking": 86,
+          "defending": 80,
+          "starts": 85,
+          "tyrePreservation": 82,
+          "tyreWarmup": 84,
+          "errorControl": 78,
+          "wetWeatherSkill": 82,
+          "setupFeedback": 79,
+          "adaptability": 88
+        }
+      },
+      "preferences": [
+        {
+          "key": "predictable-balance",
+          "label": "Predictable Balance",
+          "confidence": "medium"
+        }
+      ],
+      "assets": {
+        "portrait": "/assets/personnel/drivers/franco-colapinto.webp",
+        "portraitFallback": "/assets/personnel/drivers/_placeholder.webp"
+      },
+      "research": {
+        "ratingsStatus": "initial-balance",
+        "preferencesStatus": "researched",
+        "lastReviewed": "2026-10-08"
+      }
+    },
+    {
+      "id": "driver-lance-stroll",
+      "slug": "lance-stroll",
+      "code": "STR",
+      "cardType": "driver",
+      "sortOrder": 22,
+      "enabled": true,
+      "draftEligible": true,
+      "identity": {
+        "givenName": "Lance",
+        "familyName": "Stroll",
+        "fullName": "Lance Stroll",
+        "displayName": "Lance Stroll",
+        "nationality": {
+          "name": "Canadian",
+          "countryCode": "CAN"
+        }
+      },
+      "reference": {
+        "season": 2026,
+        "poolRole": "race",
+        "teamIds": [
+          "aston-martin"
+        ],
+        "roleLabel": "Aston Martin race driver"
+      },
+      "economy": {
+        "cost": 7,
+        "currencyKey": "budget-unit"
+      },
+      "ratings": {
+        "headline": {
+          "pace": 3,
+          "racecraft": 3,
+          "tyres": 3,
+          "consistency": 3,
+          "technical": 3
+        },
+        "detailed": {
+          "qualifyingPace": 81,
+          "racePace": 82,
+          "overtaking": 82,
+          "defending": 84,
+          "starts": 83,
+          "tyrePreservation": 84,
+          "tyreWarmup": 80,
+          "errorControl": 80,
+          "wetWeatherSkill": 84,
+          "setupFeedback": 85,
+          "adaptability": 84
+        }
+      },
+      "preferences": [
+        {
+          "key": "responsive-front",
+          "label": "Responsive Front",
+          "confidence": "medium"
+        },
+        {
+          "key": "confidence-predictability",
+          "label": "Confidence / Predictability",
+          "confidence": "medium"
+        }
+      ],
+      "assets": {
+        "portrait": "/assets/personnel/drivers/lance-stroll.webp",
+        "portraitFallback": "/assets/personnel/drivers/_placeholder.webp"
+      },
+      "research": {
+        "ratingsStatus": "initial-balance",
+        "preferencesStatus": "researched",
+        "lastReviewed": "2026-10-08"
+      }
+    },
+    {
+      "id": "driver-yuki-tsunoda",
+      "slug": "yuki-tsunoda",
+      "code": "TSU",
+      "cardType": "driver",
+      "sortOrder": 23,
+      "enabled": true,
+      "draftEligible": true,
+      "identity": {
+        "givenName": "Yuki",
+        "familyName": "Tsunoda",
+        "fullName": "Yuki Tsunoda",
+        "displayName": "Yuki Tsunoda",
+        "nationality": {
+          "name": "Japanese",
+          "countryCode": "JPN"
+        }
+      },
+      "reference": {
+        "season": 2026,
+        "poolRole": "reserve",
+        "teamIds": [
+          "red-bull-racing",
+          "racing-bulls"
+        ],
+        "roleLabel": "Red Bull / Racing Bulls reserve driver"
+      },
+      "economy": {
+        "cost": 8,
+        "currencyKey": "budget-unit"
+      },
+      "ratings": {
+        "headline": {
+          "pace": 4,
+          "racecraft": 4,
+          "tyres": 3,
+          "consistency": 3,
+          "technical": 4
+        },
+        "detailed": {
+          "qualifyingPace": 86,
+          "racePace": 85,
+          "overtaking": 87,
+          "defending": 84,
+          "starts": 88,
+          "tyrePreservation": 82,
+          "tyreWarmup": 87,
+          "errorControl": 81,
+          "wetWeatherSkill": 86,
+          "setupFeedback": 88,
+          "adaptability": 89
+        }
+      },
+      "preferences": [
+        {
+          "key": "aggressive-front",
+          "label": "Aggressive Front",
+          "confidence": "high"
+        },
+        {
+          "key": "moderate-rear-stability",
+          "label": "Moderate Rear Stability",
+          "confidence": "high"
+        }
+      ],
+      "assets": {
+        "portrait": "/assets/personnel/drivers/yuki-tsunoda.webp",
+        "portraitFallback": "/assets/personnel/drivers/_placeholder.webp"
+      },
+      "research": {
+        "ratingsStatus": "initial-balance",
+        "preferencesStatus": "researched",
+        "lastReviewed": "2026-10-08"
+      }
+    },
+    {
+      "id": "driver-patricio-oward",
+      "slug": "patricio-oward",
+      "code": "OWA",
+      "cardType": "driver",
+      "sortOrder": 24,
+      "enabled": true,
+      "draftEligible": true,
+      "identity": {
+        "givenName": "Patricio",
+        "familyName": "O’Ward",
+        "fullName": "Patricio O’Ward",
+        "displayName": "Pato O’Ward",
+        "nationality": {
+          "name": "Mexican",
+          "countryCode": "MEX"
+        }
+      },
+      "reference": {
+        "season": 2026,
+        "poolRole": "reserve",
+        "teamIds": [
+          "mclaren"
+        ],
+        "roleLabel": "McLaren reserve driver"
+      },
+      "economy": {
+        "cost": 8,
+        "currencyKey": "budget-unit"
+      },
+      "ratings": {
+        "headline": {
+          "pace": 4,
+          "racecraft": 4,
+          "tyres": 3,
+          "consistency": 4,
+          "technical": 4
+        },
+        "detailed": {
+          "qualifyingPace": 87,
+          "racePace": 87,
+          "overtaking": 91,
+          "defending": 88,
+          "starts": 89,
+          "tyrePreservation": 83,
+          "tyreWarmup": 86,
+          "errorControl": 84,
+          "wetWeatherSkill": 87,
+          "setupFeedback": 83,
+          "adaptability": 90
+        }
+      },
+      "preferences": [
+        {
+          "key": "responsive-front",
+          "label": "Responsive Front",
+          "confidence": "medium"
+        },
+        {
+          "key": "rotation",
+          "label": "Rotation",
+          "confidence": "medium"
+        }
+      ],
+      "assets": {
+        "portrait": "/assets/personnel/drivers/patricio-oward.webp",
+        "portraitFallback": "/assets/personnel/drivers/_placeholder.webp"
+      },
+      "research": {
+        "ratingsStatus": "initial-balance",
+        "preferencesStatus": "researched",
+        "lastReviewed": "2026-10-08"
+      }
+    },
+    {
+      "id": "driver-zhou-guanyu",
+      "slug": "zhou-guanyu",
+      "code": "ZHO",
+      "cardType": "driver",
+      "sortOrder": 25,
+      "enabled": true,
+      "draftEligible": true,
+      "identity": {
+        "givenName": "Guanyu",
+        "familyName": "Zhou",
+        "fullName": "Zhou Guanyu",
+        "displayName": "Zhou Guanyu",
+        "nationality": {
+          "name": "Chinese",
+          "countryCode": "CHN"
+        }
+      },
+      "reference": {
+        "season": 2026,
+        "poolRole": "reserve",
+        "teamIds": [
+          "cadillac"
+        ],
+        "roleLabel": "Cadillac reserve driver"
+      },
+      "economy": {
+        "cost": 7,
+        "currencyKey": "budget-unit"
+      },
+      "ratings": {
+        "headline": {
+          "pace": 3,
+          "racecraft": 3,
+          "tyres": 4,
+          "consistency": 4,
+          "technical": 4
+        },
+        "detailed": {
+          "qualifyingPace": 83,
+          "racePace": 84,
+          "overtaking": 84,
+          "defending": 86,
+          "starts": 84,
+          "tyrePreservation": 89,
+          "tyreWarmup": 84,
+          "errorControl": 88,
+          "wetWeatherSkill": 84,
+          "setupFeedback": 92,
+          "adaptability": 89
+        }
+      },
+      "preferences": [
+        {
+          "key": "neutral-adaptable",
+          "label": "Neutral / Adaptable",
+          "confidence": "low"
+        }
+      ],
+      "assets": {
+        "portrait": "/assets/personnel/drivers/zhou-guanyu.webp",
+        "portraitFallback": "/assets/personnel/drivers/_placeholder.webp"
+      },
+      "research": {
+        "ratingsStatus": "initial-balance",
+        "preferencesStatus": "researched",
+        "lastReviewed": "2026-10-08"
+      }
+    },
+    {
+      "id": "driver-stoffel-vandoorne",
+      "slug": "stoffel-vandoorne",
+      "code": "VAN",
+      "cardType": "driver",
+      "sortOrder": 26,
+      "enabled": true,
+      "draftEligible": true,
+      "identity": {
+        "givenName": "Stoffel",
+        "familyName": "Vandoorne",
+        "fullName": "Stoffel Vandoorne",
+        "displayName": "Stoffel Vandoorne",
+        "nationality": {
+          "name": "Belgian",
+          "countryCode": "BEL"
+        }
+      },
+      "reference": {
+        "season": 2026,
+        "poolRole": "reserve",
+        "teamIds": [
+          "aston-martin"
+        ],
+        "roleLabel": "Aston Martin reserve driver"
+      },
+      "economy": {
+        "cost": 7,
+        "currencyKey": "budget-unit"
+      },
+      "ratings": {
+        "headline": {
+          "pace": 3,
+          "racecraft": 3,
+          "tyres": 4,
+          "consistency": 4,
+          "technical": 4
+        },
+        "detailed": {
+          "qualifyingPace": 82,
+          "racePace": 83,
+          "overtaking": 82,
+          "defending": 84,
+          "starts": 82,
+          "tyrePreservation": 88,
+          "tyreWarmup": 82,
+          "errorControl": 89,
+          "wetWeatherSkill": 87,
+          "setupFeedback": 94,
+          "adaptability": 88
+        }
+      },
+      "preferences": [
+        {
+          "key": "neutral-predictable",
+          "label": "Neutral / Predictable",
+          "confidence": "low"
+        }
+      ],
+      "assets": {
+        "portrait": "/assets/personnel/drivers/stoffel-vandoorne.webp",
+        "portraitFallback": "/assets/personnel/drivers/_placeholder.webp"
+      },
+      "research": {
+        "ratingsStatus": "initial-balance",
+        "preferencesStatus": "researched",
+        "lastReviewed": "2026-10-08"
+      }
+    },
+    {
+      "id": "driver-antonio-giovinazzi",
+      "slug": "antonio-giovinazzi",
+      "code": "GIO",
+      "cardType": "driver",
+      "sortOrder": 27,
+      "enabled": true,
+      "draftEligible": true,
+      "identity": {
+        "givenName": "Antonio",
+        "familyName": "Giovinazzi",
+        "fullName": "Antonio Giovinazzi",
+        "displayName": "Antonio Giovinazzi",
+        "nationality": {
+          "name": "Italian",
+          "countryCode": "ITA"
+        }
+      },
+      "reference": {
+        "season": 2026,
+        "poolRole": "reserve",
+        "teamIds": [
+          "ferrari"
+        ],
+        "roleLabel": "Ferrari reserve driver"
+      },
+      "economy": {
+        "cost": 7,
+        "currencyKey": "budget-unit"
+      },
+      "ratings": {
+        "headline": {
+          "pace": 3,
+          "racecraft": 3,
+          "tyres": 3,
+          "consistency": 3,
+          "technical": 4
+        },
+        "detailed": {
+          "qualifyingPace": 82,
+          "racePace": 82,
+          "overtaking": 83,
+          "defending": 82,
+          "starts": 82,
+          "tyrePreservation": 82,
+          "tyreWarmup": 83,
+          "errorControl": 84,
+          "wetWeatherSkill": 82,
+          "setupFeedback": 90,
+          "adaptability": 86
+        }
+      },
+      "preferences": [
+        {
+          "key": "stable-car",
+          "label": "Stable Car",
+          "confidence": "high"
+        },
+        {
+          "key": "understeer-tolerant",
+          "label": "Understeer Tolerant",
+          "confidence": "high"
+        }
+      ],
+      "assets": {
+        "portrait": "/assets/personnel/drivers/antonio-giovinazzi.webp",
+        "portraitFallback": "/assets/personnel/drivers/_placeholder.webp"
+      },
+      "research": {
+        "ratingsStatus": "initial-balance",
+        "preferencesStatus": "researched",
+        "lastReviewed": "2026-10-08"
+      }
+    },
+    {
+      "id": "driver-jack-doohan",
+      "slug": "jack-doohan",
+      "code": "DOO",
+      "cardType": "driver",
+      "sortOrder": 28,
+      "enabled": true,
+      "draftEligible": true,
+      "identity": {
+        "givenName": "Jack",
+        "familyName": "Doohan",
+        "fullName": "Jack Doohan",
+        "displayName": "Jack Doohan",
+        "nationality": {
+          "name": "Australian",
+          "countryCode": "AUS"
+        }
+      },
+      "reference": {
+        "season": 2026,
+        "poolRole": "reserve",
+        "teamIds": [
+          "haas"
+        ],
+        "roleLabel": "Haas reserve driver"
+      },
+      "economy": {
+        "cost": 7,
+        "currencyKey": "budget-unit"
+      },
+      "ratings": {
+        "headline": {
+          "pace": 3,
+          "racecraft": 3,
+          "tyres": 3,
+          "consistency": 3,
+          "technical": 4
+        },
+        "detailed": {
+          "qualifyingPace": 83,
+          "racePace": 81,
+          "overtaking": 84,
+          "defending": 79,
+          "starts": 84,
+          "tyrePreservation": 79,
+          "tyreWarmup": 82,
+          "errorControl": 77,
+          "wetWeatherSkill": 82,
+          "setupFeedback": 84,
+          "adaptability": 88
+        }
+      },
+      "preferences": [
+        {
+          "key": "rear-stability",
+          "label": "Rear Stability",
+          "confidence": "high"
+        },
+        {
+          "key": "early-rotation",
+          "label": "Early Rotation",
+          "confidence": "high"
+        }
+      ],
+      "assets": {
+        "portrait": "/assets/personnel/drivers/jack-doohan.webp",
+        "portraitFallback": "/assets/personnel/drivers/_placeholder.webp"
+      },
+      "research": {
+        "ratingsStatus": "initial-balance",
+        "preferencesStatus": "researched",
+        "lastReviewed": "2026-10-08"
+      }
+    }
+  ]
+}

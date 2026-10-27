@@ -1,0 +1,18 @@
+{
+  "viewport": {
+    "width": 768,
+    "height": 1024
+  },
+  "phase": {
+    "width": 768,
+    "height": 2016
+  },
+  "crowded": {
+    "width": 768,
+    "height": 2817
+  },
+  "finished": {
+    "width": 768,
+    "height": 1552
+  }
+}

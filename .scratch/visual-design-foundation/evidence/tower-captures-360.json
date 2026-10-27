@@ -1,0 +1,15 @@
+{
+  "viewport": {
+    "width": 360,
+    "height": 800
+  },
+  "reducedMotion": true,
+  "captures": [
+    {
+      "file": "angular-tower-360.png",
+      "width": 326,
+      "height": 1323
+    }
+  ],
+  "lastRowBounds": null
+}

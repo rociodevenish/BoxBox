@@ -1,0 +1,16 @@
+{
+  "viewport": {
+    "width": 1024,
+    "height": 768
+  },
+  "fullPage": {
+    "width": 1024,
+    "height": 1332
+  },
+  "confirmation": {
+    "x": 232,
+    "y": 203.5,
+    "width": 560,
+    "height": 361
+  }
+}

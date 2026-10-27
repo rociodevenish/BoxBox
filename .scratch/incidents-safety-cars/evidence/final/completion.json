@@ -1,0 +1,78 @@
+{
+  "implementationRevision": "29206468d7754b4915c9fdc04e29d320830f8b43",
+  "baseline": "285277d715c938b656b36c5adb0a99a8970b86d9",
+  "integrationBranch": "codex/incidents-safety-cars",
+  "verification": {
+    "savedDisruptionRuns": 904,
+    "historicalOpeningRuns": 800,
+    "affected": "affected-backend-verification.json",
+    "simulationTests": 171,
+    "passedStages": [
+      "tooling",
+      "typecheck",
+      "build",
+      "backend",
+      "gallery",
+      "browser",
+      "boundary",
+      "shared",
+      "assistance",
+      "control",
+      "deadlines",
+      "hosted"
+    ],
+    "initial": "initial-verification.json",
+    "remaining": "verification-completion.json",
+    "apiTests": 146
+  },
+  "environment": {
+    "uiPort": 4527,
+    "node": "24.19.0",
+    "browserCache": ".tools/playwright",
+    "NuGetAudit": "false (invocation only; existing advisory remains)",
+    "apiPort": 4627,
+    "java": "21",
+    "sdk": "global.json:10.0.401",
+    "recoveryHost": "Initial F1_RECOVERY_HOST unset; emulators:exec supplied FIRESTORE_EMULATOR_HOST=127.0.0.1:19100. Corrected tests resolve explicitly.",
+    "dotnetArtifacts": ".tools/artifacts/s09-final",
+    "firebaseConfigHome": ".tools/firebase-config"
+  },
+  "visualReview": {
+    "desktopViewport": "1920x1080",
+    "phone": [
+      "05-safety-car-360.png",
+      "05-active-restart-360.png",
+      "05-retired-controls-360.png",
+      "review-remediation/s09-review-advice-360.png"
+    ],
+    "assessment": "Readable choices, committed/retired status and own coarse bands/advice; all22 public classification rows fit actual1080 viewport.",
+    "desktop": "06-public-fit-1920.png"
+  },
+  "reviews": {
+    "standards": "No actionable findings; remediation clean",
+    "spec": "Two P2 findings resolved; remediation clean"
+  },
+  "activation": {
+    "unsupportedTracks": "off pending authored routes",
+    "default": "off",
+    "policy": "disruption-live-opt-in-v1",
+    "tracks": [
+      "monza",
+      "monaco"
+    ]
+  },
+  "cleanup": {
+    "worktrees": [
+      "C:/Projects/F1Game"
+    ],
+    "noPushOrDeployment": true,
+    "preservedWorkerReports": ".tools/reports/s09/*/SHA256-manifest.json",
+    "remainingOwnedListeners": []
+  },
+  "pendingHumanAcceptance": [
+    "household decision timing",
+    "comprehension",
+    "shared-device pacing",
+    "actual hosted acceptance"
+  ]
+}

@@ -1,0 +1,141 @@
+<section aria-labelledby="controller-title" class="controller">
+  <header>
+    <p class="eyebrow">{{model().teamName}} · {{model().privacyLabel ?? 'Private team controller'}}</p>
+    <p id="controller-title" class="decision-summary">{{model().safetyCar ? 'Safety Car pit window' : model().decisionLaps===0 ? 'Final instructions' : model().decisionLaps === undefined ? 'Phase '+model().phase+' instructions' : 'Decisions for the next '+model().decisionLaps+' '+(model().decisionLaps===1?'lap':'laps')}}</p>
+
+  </header>
+  @if(model().wetTyresEnabled){<p>Intermediate suits damp conditions; Wet suits heavy wetness. Wrong-condition tyres lose pace and wear faster. Sets are unlimited; pit service is unchanged.</p>}
+  @if(model().state!=='selected'){<div
+    [attr.role]="model().state === 'rejected' ? 'alert' : 'status'"
+    [attr.aria-live]="model().state === 'rejected' ? 'assertive' : 'polite'"
+    class="state"
+    [class.rejected]="model().state === 'rejected'"
+  >
+    <strong
+      >{{model().state.charAt(0).toUpperCase() +
+      model().state.slice(1)}}</strong
+    >
+    <p>{{model().message}}</p>
+  </div>
+  }
+  @if(model().assistance){<app-assistance-summary [driverNames]="assistanceNames()" [assistance]="model().assistance" [editable]="editable()" (usePlan)="useRecommendation()" />}
+  <div class="cars">
+    @for(car of model().cars; track car.id; let i = $index){
+    <section
+      [attr.aria-label]="'Car ' + (i + 1) + ' — ' + car.name"
+      class="car"
+    >
+      @if(car.card){<app-driver-card [driver]="car.card" variant="identity" [embedded]="true" />}@else{<h2>{{car.name}}</h2>}
+      @if(car.nearbyClassification){<section [attr.aria-label]="car.name+' race information'"><app-timing-tower [highlightedDriverId]="car.id" [inline]="true" [classification]="car.nearbyClassification" [interactive]="true" (driverSelected)="analyzeDriver($event)" /></section>}
+      <div class="race-details">
+        <section class="recent-laps">
+          <h3>Recent recorded laps</h3>
+          @if(car.recentLaps?.length){<ol aria-label="Recent recorded lap times">@for(lap of car.recentLaps;track lap.lap){<li>Lap {{lap.lap}} · {{lapTime(lap.seconds)}}</li>}</ol>}@else{<p>No full lap times recorded yet.</p>}
+        </section>
+        <section class="tyres">
+          <h3>Tyre condition</h3>
+          <app-compound-badge [compound]="car.currentCompound" />
+          <p>Condition estimate: <strong>{{car.tyreEstimate}}</strong></p>
+          @if(car.conditionEstimate){<p class="component-estimate">{{car.conditionEstimate}}</p>}
+          @if(car.tyreAge!==undefined){<p>Age: {{car.tyreAge}} {{car.tyreAge===1?'lap':'laps'}}</p>}
+        </section>
+      </div>
+      @if(choices()[i]; as choice){
+      @if(!model().safetyCar){<fieldset [disabled]="!editable() || car.unavailable">
+        <legend>Pace</legend>
+        <div class="options">
+          @for(pace of model().neutralisedWeather ? [paces[0]] : paces; track pace){<button
+            type="button"
+            [attr.aria-pressed]="choice.pace === pace"
+            (click)="choose(i, {pace})"
+          >
+            {{pace}}</button
+          >}
+        </div>
+        <p class="explanation">
+          @if(model().neutralisedWeather){Safety Car control requires Conserve and Neutral until racing resumes.}
+          @else{Conserve protects tyres; Push trades tyre life for pace. Standard balances both.}
+        </p>
+      </fieldset>
+      }
+      <fieldset [disabled]="!editable() || !!car.pendingStop">
+        <legend>Pit instruction</legend>
+        <div class="options">
+          <button
+            type="button"
+            [attr.aria-pressed]="choice.stop === 'Stay Out'"
+            (click)="choose(i, {stop: 'Stay Out'})"
+          >
+            Stay Out</button
+          ><button
+            type="button"
+            [attr.aria-pressed]="choice.stop === 'Pit'"
+            (click)="choose(i, {stop: 'Pit'})"
+          >
+            Pit
+          </button>
+        </div>
+        @if(choice.stop === 'Pit'){<fieldset><legend>New compound</legend><div class="options">@for(tyre of compounds;track tyre){<button type="button" [attr.aria-label]="'New compound '+tyre" [attr.aria-pressed]="choice.compound===tyre" (click)="choose(i,{compound:tyre})"><app-compound-badge [compound]="tyre" [fullName]="true" /></button>}</div></fieldset>}
+        <p class="explanation">
+          Stay Out keeps track position. Pit requests a stop at the next lap
+          end.
+        </p>
+      </fieldset>
+      @if(car.pendingStop){
+      <p class="notice">{{car.pendingStop}}</p>
+      } @if(!model().safetyCar && car.battleOptions.length>1){
+      <fieldset [disabled]="!editable() || car.unavailable">
+        <legend>Battle approach</legend>
+        <div class="options">
+          @for(battle of car.battleOptions; track battle){<button
+            type="button"
+            [attr.aria-pressed]="choice.battle === battle"
+            (click)="choose(i, {battle})"
+          >
+            {{battle}}</button
+          >}
+        </div>
+        <p class="explanation">
+          Attack prioritises an opportunity; Defend protects position. Neutral
+          avoids extra battle effort.
+        </p>
+      </fieldset>
+      }
+      @if(!model().safetyCar && car.battleExplanation){<p class="explanation">{{car.battleExplanation}}</p>}
+
+      }
+    </section>
+    }
+  </div>
+  <button
+    class="primary review"
+    type="button"
+    [disabled]="!editable()"
+    (click)="review()"
+  >
+    Approve Plan
+  </button>
+  <dialog #analysis aria-label="Driver analysis" (keydown)="keepAnalysisFocus($event)"><button (click)="analysis.close()">Close driver analysis</button>@if(analyzedDriver();as driver){<app-driver-card [driver]="driver" [variant]="'expanded'" />}</dialog>
+  <dialog
+    (keydown)="keepFocus($event)"
+    #confirmation
+    aria-labelledby="confirmation-title"
+  >
+    <h2 id="confirmation-title">Confirm both cars</h2>
+    <p>{{model().decisionLaps === undefined ? 'Phase '+model().phase : 'Next '+model().decisionLaps+' '+(model().decisionLaps===1?'lap':'laps')}} · {{model().teamName}}</p>
+    @for(car of model().cars; track car.id; let i = $index){
+    <div class="confirmed">
+      <h3>{{car.name}}</h3>
+      @if(choices()[i]; as choice){
+      <p>{{model().safetyCar ? car.pendingStop || (choice.stop + (choice.stop==='Pit' ? '  -  '+choice.compound : '')) : summary(choice)}}</p>
+      }
+    </div>
+    }
+    <div class="dialog-actions">
+      <button type="button" (click)="close()">Keep editing</button
+      ><button class="primary" type="button" (click)="submit()">
+        {{model().submitLabel ?? 'Submit both cars'}}
+      </button>
+    </div>
+  </dialog>
+</section>

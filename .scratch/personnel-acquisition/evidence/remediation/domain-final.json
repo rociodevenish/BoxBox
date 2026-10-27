@@ -1,0 +1,19 @@
+{
+  "command": "C:/Program Files/dotnet/dotnet.exe",
+  "args": [
+    "test",
+    "tests/Game.Simulation.Tests/Game.Simulation.Tests.csproj",
+    "--no-restore",
+    "--filter",
+    "FullyQualifiedName~PersonnelAcquisitionTests",
+    "/p:NuGetAudit=false",
+    "--verbosity",
+    "minimal"
+  ],
+  "cwd": "C:\\Projects\\F1Game\\.tools\\worktrees\\s12-review-fixes",
+  "pid": 26936,
+  "startedAt": "2026-10-26T20:33:35.579Z",
+  "status": "passed",
+  "exitCode": 0,
+  "elapsedMs": 77933
+}

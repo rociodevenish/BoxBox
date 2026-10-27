@@ -1,0 +1,20 @@
+{
+  "command": "dotnet",
+  "args": [
+    "run",
+    "--project",
+    "tools/WeekendSetupEvidence",
+    "--artifacts-path",
+    ".tools/artifacts/s07-06-sim",
+    "-p:NuGetAudit=false",
+    "--",
+    "--replay",
+    ".tools/reports/s07-06/simulation/track-monaco-mixed-traffic-noisy.json"
+  ],
+  "cwd": "C:\\Projects\\F1Game\\.worktrees\\s07-06",
+  "pid": 12676,
+  "startedAt": "2026-10-14T21:18:05.261Z",
+  "status": "passed",
+  "exitCode": 0,
+  "elapsedMs": 11838
+}

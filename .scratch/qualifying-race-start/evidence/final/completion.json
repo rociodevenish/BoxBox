@@ -1,0 +1,70 @@
+{
+  "spec": "S08",
+  "status": "local-implementation-complete",
+  "branch": "codex/qualifying-race-start",
+  "baseline": "cd7c61f248cdc1e32f38beda5bd4b31dc738cc1a",
+  "integratedCode": "2df420f5ba4e486395f3fe88b77c9ed968079dcc",
+  "initialRun": "2026-10-17T06-10-02-831Z-91237078-6dcd-4d42-a947-704c15e3ae19",
+  "initialFailure": "browser: legacy controller naming regression, aggregate timeout124",
+  "completionRun": "2026-10-17T11-08-20-001Z-4f86796c-c638-4931-8b54-ee1fa73399e0",
+  "passedStages": [
+    "assistance",
+    "backend",
+    "boundary",
+    "browser",
+    "build",
+    "control",
+    "deadlines",
+    "gallery",
+    "hosted",
+    "shared",
+    "tooling",
+    "typecheck"
+  ],
+  "initialBackend": {
+    "simulation": 137,
+    "api": 129
+  },
+  "affectedRemediation": {
+    "api": 13,
+    "countsOverlap": true,
+    "simulation": 62,
+    "browser": 2
+  },
+  "opening": {
+    "controlsUseFirstFourSeeds": true,
+    "currentModel": "automatic-standing-start-v2",
+    "legacyModel": "automatic-standing-start-v1",
+    "randomness": "opening-keyed-v1",
+    "historicalReplayCases": 400,
+    "legacyPace": "Conserve",
+    "independentPublishedRiskSeeds": 32,
+    "currentPace": "Standard",
+    "currentReplayCases": 400
+  },
+  "reviews": {
+    "outstanding": 0,
+    "specP2Resolved": 1,
+    "standardsHeuristicsResolved": 1,
+    "standardsHardViolations": 0,
+    "additionalIntegrationRegressionsResolved": [
+      "legacy frontend driver labels",
+      "saved v1 public version label"
+    ]
+  },
+  "externalPending": [
+    "household qualifying duration and handoff comprehension",
+    "human start readability and weekend pacing",
+    "actual hosted deployment recovery and costs"
+  ],
+  "knownLimitations": [
+    "authored coefficients and representative circuits; inconclusive circuit-control reversal",
+    "co-located queues can yield zero intervals; missing measurements remain unavailable",
+    "existing SignalR10.0.12 dependency advisory; scoped NuGetAudit=false is not remediation",
+    "existing initial bundle budget and CommonJS warnings"
+  ],
+  "remainingOwnedListeners": [],
+  "remainingWorktrees": [
+    "C:/Projects/F1Game"
+  ]
+}

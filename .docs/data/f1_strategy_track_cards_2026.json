@@ -1,0 +1,1748 @@
+{
+  "schemaVersion": "1.0.0",
+  "dataVersion": "2026.10.08-initial-balance",
+  "entityType": "track-card-collection",
+  "seasonReference": 2026,
+  "generatedOn": "2026-10-08",
+  "status": "provisional",
+  "calendarBasis": "Current official 2026 championship calendar as of 2026-10-08",
+  "notes": [
+    "The live 2026 championship calendar contains 23 rounds after in-season changes to the originally announced 24-round schedule.",
+    "Saudi Arabia is not present on the current 2026 calendar.",
+    "The Bahrain Grand Prix was relocated to Sepang International Circuit in Malaysia for 2-4 October 2026 and is represented as an event referencing the Sepang track entity.",
+    "Track ratings are game-design starting values informed by circuit characteristics; they are not official FIA or Formula 1 ratings.",
+    "High track-demand values mean that vehicle capability is more important at that circuit; they do not mean the track itself is 'better'.",
+    "Tyre Thermal Demand represents difficulty keeping tyres in their useful operating window, including both overheating and warm-up challenges.",
+    "Race characteristic ratings use 1 as low/easy and 5 as high/difficult."
+  ],
+  "ratingScales": {
+    "headlineTrackDemand": {
+      "min": 1,
+      "max": 5,
+      "dimensions": [
+        "speed",
+        "cornering",
+        "mechanicalGrip",
+        "tyres"
+      ]
+    },
+    "detailedTrackDemand": {
+      "min": 1,
+      "max": 100,
+      "dimensions": [
+        "topSpeed",
+        "accelerationDeployment",
+        "highSpeedCornering",
+        "lowSpeedCornering",
+        "braking",
+        "traction",
+        "mechanicalGrip",
+        "tyreDegradation",
+        "tyreThermalDemand"
+      ]
+    },
+    "raceCharacteristics": {
+      "min": 1,
+      "max": 5,
+      "dimensions": [
+        "overtakingDifficulty",
+        "pitLaneLoss",
+        "safetyCarRisk",
+        "mechanicalStress",
+        "weatherVolatility",
+        "trackEvolution"
+      ]
+    }
+  },
+  "trackDemandDefinitions": {
+    "speed": "Importance of straight-line speed and acceleration/deployment across the lap.",
+    "cornering": "Importance of aerodynamic cornering performance across the circuit's dominant corner types.",
+    "mechanicalGrip": "Importance of chassis/mechanical grip independent of pure aero load.",
+    "tyres": "Importance of tyre degradation control and keeping tyres in the operating window.",
+    "topSpeed": "Importance of maximum straight-line speed.",
+    "accelerationDeployment": "Importance of acceleration and effective energy deployment out of corners and along straights.",
+    "highSpeedCornering": "Importance of aero performance and stability in fast corners.",
+    "lowSpeedCornering": "Importance of rotation and low-speed aero/mechanical performance.",
+    "braking": "Importance of braking stability, efficiency and confidence.",
+    "traction": "Importance of traction on corner exit.",
+    "tyreDegradation": "How strongly preserving tyre performance across a stint matters.",
+    "tyreThermalDemand": "How challenging tyre temperature management is, whether through overheating or warm-up."
+  },
+  "raceCharacteristicDefinitions": {
+    "overtakingDifficulty": "1 = relatively easy to pass; 5 = track position and qualifying are critical.",
+    "pitLaneLoss": "1 = relatively cheap stop; 5 = very costly stop relative to a racing lap.",
+    "safetyCarRisk": "1 = low historical/structural likelihood; 5 = high incident and neutralisation potential.",
+    "mechanicalStress": "1 = relatively gentle; 5 = severe stress on brakes, power unit, cooling, kerbs or sustained loads.",
+    "weatherVolatility": "1 = generally stable; 5 = highly changeable or rain-sensitive.",
+    "trackEvolution": "1 = relatively stable surface; 5 = major grip evolution across the weekend."
+  },
+  "trackCardDefaults": {
+    "cardType": "track",
+    "enabled": true,
+    "assetConvention": {
+      "circuitOutline": "/assets/tracks/{slug}/outline.svg",
+      "hero": "/assets/tracks/{slug}/hero.webp",
+      "flag": "/assets/flags/{countryCode-lower}.svg"
+    }
+  },
+  "tracks": [
+    {
+      "id": "track-albert-park",
+      "slug": "albert-park",
+      "code": "AUS-MEL",
+      "circuitName": "Albert Park Grand Prix Circuit",
+      "shortName": "Albert Park",
+      "locality": "Melbourne",
+      "countryName": "Australia",
+      "countryCode": "AUS",
+      "circuitType": "semi-permanent",
+      "firstFormula1GrandPrixAtCircuit": 1996,
+      "trackLengthKm": 5.278,
+      "scheduledRaceLaps": 58,
+      "corners": 14,
+      "lighting": "day",
+      "headlineRatings": {
+        "speed": 4,
+        "cornering": 4,
+        "mechanicalGrip": 3,
+        "tyres": 3
+      },
+      "detailedDemands": {
+        "topSpeed": 85,
+        "accelerationDeployment": 80,
+        "highSpeedCornering": 88,
+        "lowSpeedCornering": 70,
+        "braking": 72,
+        "traction": 75,
+        "mechanicalGrip": 70,
+        "tyreDegradation": 68,
+        "tyreThermalDemand": 68
+      },
+      "raceCharacteristics": {
+        "overtakingDifficulty": 3,
+        "pitLaneLoss": 3,
+        "safetyCarRisk": 4,
+        "mechanicalStress": 3,
+        "weatherVolatility": 3,
+        "trackEvolution": 4
+      },
+      "aeroLoadProfile": "medium",
+      "traits": [
+        "fast-flowing",
+        "temporary-road-course",
+        "medium-downforce",
+        "safety-car-prone"
+      ],
+      "sortOrder": 1,
+      "cardType": "track",
+      "enabled": true,
+      "assetKeys": {
+        "circuitOutline": "/assets/tracks/albert-park/outline.svg",
+        "hero": "/assets/tracks/albert-park/hero.webp",
+        "flag": "/assets/flags/aus.svg"
+      },
+      "research": {
+        "metadataStatus": "current-2026",
+        "ratingsStatus": "initial-balance",
+        "lastReviewed": "2026-10-08",
+        "confidence": "high"
+      }
+    },
+    {
+      "id": "track-shanghai",
+      "slug": "shanghai-international-circuit",
+      "code": "CHN-SHA",
+      "circuitName": "Shanghai International Circuit",
+      "shortName": "Shanghai",
+      "locality": "Shanghai",
+      "countryName": "China",
+      "countryCode": "CHN",
+      "circuitType": "permanent",
+      "firstFormula1GrandPrixAtCircuit": 2004,
+      "trackLengthKm": 5.451,
+      "scheduledRaceLaps": 56,
+      "corners": 16,
+      "lighting": "day",
+      "headlineRatings": {
+        "speed": 4,
+        "cornering": 4,
+        "mechanicalGrip": 4,
+        "tyres": 4
+      },
+      "detailedDemands": {
+        "topSpeed": 88,
+        "accelerationDeployment": 80,
+        "highSpeedCornering": 78,
+        "lowSpeedCornering": 75,
+        "braking": 85,
+        "traction": 88,
+        "mechanicalGrip": 76,
+        "tyreDegradation": 78,
+        "tyreThermalDemand": 80
+      },
+      "raceCharacteristics": {
+        "overtakingDifficulty": 2,
+        "pitLaneLoss": 3,
+        "safetyCarRisk": 2,
+        "mechanicalStress": 3,
+        "weatherVolatility": 3,
+        "trackEvolution": 3
+      },
+      "aeroLoadProfile": "medium-high",
+      "traits": [
+        "long-straight",
+        "technical",
+        "mixed-speed",
+        "front-tyre-sensitive"
+      ],
+      "sortOrder": 2,
+      "cardType": "track",
+      "enabled": true,
+      "assetKeys": {
+        "circuitOutline": "/assets/tracks/shanghai-international-circuit/outline.svg",
+        "hero": "/assets/tracks/shanghai-international-circuit/hero.webp",
+        "flag": "/assets/flags/chn.svg"
+      },
+      "research": {
+        "metadataStatus": "current-2026",
+        "ratingsStatus": "initial-balance",
+        "lastReviewed": "2026-10-08",
+        "confidence": "high"
+      }
+    },
+    {
+      "id": "track-suzuka",
+      "slug": "suzuka",
+      "code": "JPN-SUZ",
+      "circuitName": "Suzuka Circuit",
+      "shortName": "Suzuka",
+      "locality": "Suzuka",
+      "countryName": "Japan",
+      "countryCode": "JPN",
+      "circuitType": "permanent",
+      "firstFormula1GrandPrixAtCircuit": 1987,
+      "trackLengthKm": 5.807,
+      "scheduledRaceLaps": 53,
+      "corners": 18,
+      "lighting": "day",
+      "headlineRatings": {
+        "speed": 3,
+        "cornering": 5,
+        "mechanicalGrip": 3,
+        "tyres": 5
+      },
+      "detailedDemands": {
+        "topSpeed": 72,
+        "accelerationDeployment": 75,
+        "highSpeedCornering": 100,
+        "lowSpeedCornering": 62,
+        "braking": 62,
+        "traction": 68,
+        "mechanicalGrip": 70,
+        "tyreDegradation": 88,
+        "tyreThermalDemand": 90
+      },
+      "raceCharacteristics": {
+        "overtakingDifficulty": 4,
+        "pitLaneLoss": 3,
+        "safetyCarRisk": 3,
+        "mechanicalStress": 4,
+        "weatherVolatility": 5,
+        "trackEvolution": 2
+      },
+      "aeroLoadProfile": "high",
+      "traits": [
+        "high-speed",
+        "flowing",
+        "figure-eight",
+        "weather-sensitive"
+      ],
+      "sortOrder": 3,
+      "cardType": "track",
+      "enabled": true,
+      "assetKeys": {
+        "circuitOutline": "/assets/tracks/suzuka/outline.svg",
+        "hero": "/assets/tracks/suzuka/hero.webp",
+        "flag": "/assets/flags/jpn.svg"
+      },
+      "research": {
+        "metadataStatus": "current-2026",
+        "ratingsStatus": "initial-balance",
+        "lastReviewed": "2026-10-08",
+        "confidence": "high"
+      }
+    },
+    {
+      "id": "track-miami",
+      "slug": "miami-international-autodrome",
+      "code": "USA-MIA",
+      "circuitName": "Miami International Autodrome",
+      "shortName": "Miami",
+      "locality": "Miami Gardens",
+      "countryName": "United States",
+      "countryCode": "USA",
+      "circuitType": "semi-permanent",
+      "firstFormula1GrandPrixAtCircuit": 2022,
+      "trackLengthKm": 5.412,
+      "scheduledRaceLaps": 57,
+      "corners": 19,
+      "lighting": "day",
+      "headlineRatings": {
+        "speed": 4,
+        "cornering": 4,
+        "mechanicalGrip": 5,
+        "tyres": 4
+      },
+      "detailedDemands": {
+        "topSpeed": 88,
+        "accelerationDeployment": 87,
+        "highSpeedCornering": 62,
+        "lowSpeedCornering": 90,
+        "braking": 92,
+        "traction": 92,
+        "mechanicalGrip": 88,
+        "tyreDegradation": 72,
+        "tyreThermalDemand": 82
+      },
+      "raceCharacteristics": {
+        "overtakingDifficulty": 2,
+        "pitLaneLoss": 3,
+        "safetyCarRisk": 4,
+        "mechanicalStress": 4,
+        "weatherVolatility": 4,
+        "trackEvolution": 4
+      },
+      "aeroLoadProfile": "medium",
+      "traits": [
+        "street-style",
+        "heavy-braking",
+        "traction",
+        "hot"
+      ],
+      "sortOrder": 4,
+      "cardType": "track",
+      "enabled": true,
+      "assetKeys": {
+        "circuitOutline": "/assets/tracks/miami-international-autodrome/outline.svg",
+        "hero": "/assets/tracks/miami-international-autodrome/hero.webp",
+        "flag": "/assets/flags/usa.svg"
+      },
+      "research": {
+        "metadataStatus": "current-2026",
+        "ratingsStatus": "initial-balance",
+        "lastReviewed": "2026-10-08",
+        "confidence": "high"
+      }
+    },
+    {
+      "id": "track-circuit-gilles-villeneuve",
+      "slug": "circuit-gilles-villeneuve",
+      "code": "CAN-MTL",
+      "circuitName": "Circuit Gilles-Villeneuve",
+      "shortName": "Montreal",
+      "locality": "Montreal",
+      "countryName": "Canada",
+      "countryCode": "CAN",
+      "circuitType": "semi-permanent",
+      "firstFormula1GrandPrixAtCircuit": 1978,
+      "trackLengthKm": 4.361,
+      "scheduledRaceLaps": 70,
+      "corners": 14,
+      "lighting": "day",
+      "headlineRatings": {
+        "speed": 5,
+        "cornering": 2,
+        "mechanicalGrip": 5,
+        "tyres": 3
+      },
+      "detailedDemands": {
+        "topSpeed": 96,
+        "accelerationDeployment": 95,
+        "highSpeedCornering": 55,
+        "lowSpeedCornering": 80,
+        "braking": 100,
+        "traction": 98,
+        "mechanicalGrip": 90,
+        "tyreDegradation": 60,
+        "tyreThermalDemand": 70
+      },
+      "raceCharacteristics": {
+        "overtakingDifficulty": 2,
+        "pitLaneLoss": 2,
+        "safetyCarRisk": 4,
+        "mechanicalStress": 5,
+        "weatherVolatility": 5,
+        "trackEvolution": 4
+      },
+      "aeroLoadProfile": "low-medium",
+      "traits": [
+        "stop-start",
+        "heavy-braking",
+        "traction",
+        "kerb-heavy"
+      ],
+      "sortOrder": 5,
+      "cardType": "track",
+      "enabled": true,
+      "assetKeys": {
+        "circuitOutline": "/assets/tracks/circuit-gilles-villeneuve/outline.svg",
+        "hero": "/assets/tracks/circuit-gilles-villeneuve/hero.webp",
+        "flag": "/assets/flags/can.svg"
+      },
+      "research": {
+        "metadataStatus": "current-2026",
+        "ratingsStatus": "initial-balance",
+        "lastReviewed": "2026-10-08",
+        "confidence": "high"
+      }
+    },
+    {
+      "id": "track-monaco",
+      "slug": "circuit-de-monaco",
+      "code": "MCO-MON",
+      "circuitName": "Circuit de Monaco",
+      "shortName": "Monaco",
+      "locality": "Monte Carlo",
+      "countryName": "Monaco",
+      "countryCode": "MCO",
+      "circuitType": "street",
+      "firstFormula1GrandPrixAtCircuit": 1950,
+      "trackLengthKm": 3.337,
+      "scheduledRaceLaps": 78,
+      "corners": 19,
+      "lighting": "day",
+      "headlineRatings": {
+        "speed": 1,
+        "cornering": 5,
+        "mechanicalGrip": 5,
+        "tyres": 3
+      },
+      "detailedDemands": {
+        "topSpeed": 35,
+        "accelerationDeployment": 75,
+        "highSpeedCornering": 30,
+        "lowSpeedCornering": 100,
+        "braking": 92,
+        "traction": 100,
+        "mechanicalGrip": 100,
+        "tyreDegradation": 50,
+        "tyreThermalDemand": 75
+      },
+      "raceCharacteristics": {
+        "overtakingDifficulty": 5,
+        "pitLaneLoss": 3,
+        "safetyCarRisk": 5,
+        "mechanicalStress": 4,
+        "weatherVolatility": 4,
+        "trackEvolution": 5
+      },
+      "aeroLoadProfile": "maximum",
+      "traits": [
+        "street",
+        "maximum-downforce",
+        "low-speed",
+        "qualifying-critical"
+      ],
+      "sortOrder": 6,
+      "cardType": "track",
+      "enabled": true,
+      "assetKeys": {
+        "circuitOutline": "/assets/tracks/circuit-de-monaco/outline.svg",
+        "hero": "/assets/tracks/circuit-de-monaco/hero.webp",
+        "flag": "/assets/flags/mco.svg"
+      },
+      "research": {
+        "metadataStatus": "current-2026",
+        "ratingsStatus": "initial-balance",
+        "lastReviewed": "2026-10-08",
+        "confidence": "high"
+      }
+    },
+    {
+      "id": "track-barcelona-catalunya",
+      "slug": "circuit-de-barcelona-catalunya",
+      "code": "ESP-BCN",
+      "circuitName": "Circuit de Barcelona-Catalunya",
+      "shortName": "Barcelona-Catalunya",
+      "locality": "Montmelo",
+      "countryName": "Spain",
+      "countryCode": "ESP",
+      "circuitType": "permanent",
+      "firstFormula1GrandPrixAtCircuit": 1991,
+      "trackLengthKm": 4.657,
+      "scheduledRaceLaps": 66,
+      "corners": 14,
+      "lighting": "day",
+      "headlineRatings": {
+        "speed": 3,
+        "cornering": 5,
+        "mechanicalGrip": 4,
+        "tyres": 5
+      },
+      "detailedDemands": {
+        "topSpeed": 75,
+        "accelerationDeployment": 78,
+        "highSpeedCornering": 95,
+        "lowSpeedCornering": 84,
+        "braking": 76,
+        "traction": 82,
+        "mechanicalGrip": 82,
+        "tyreDegradation": 90,
+        "tyreThermalDemand": 90
+      },
+      "raceCharacteristics": {
+        "overtakingDifficulty": 4,
+        "pitLaneLoss": 4,
+        "safetyCarRisk": 2,
+        "mechanicalStress": 3,
+        "weatherVolatility": 3,
+        "trackEvolution": 2
+      },
+      "aeroLoadProfile": "high",
+      "traits": [
+        "balanced",
+        "high-downforce",
+        "aero-sensitive",
+        "tyre-demanding"
+      ],
+      "sortOrder": 7,
+      "cardType": "track",
+      "enabled": true,
+      "assetKeys": {
+        "circuitOutline": "/assets/tracks/circuit-de-barcelona-catalunya/outline.svg",
+        "hero": "/assets/tracks/circuit-de-barcelona-catalunya/hero.webp",
+        "flag": "/assets/flags/esp.svg"
+      },
+      "research": {
+        "metadataStatus": "current-2026",
+        "ratingsStatus": "initial-balance",
+        "lastReviewed": "2026-10-08",
+        "confidence": "high"
+      }
+    },
+    {
+      "id": "track-red-bull-ring",
+      "slug": "red-bull-ring",
+      "code": "AUT-SPI",
+      "circuitName": "Red Bull Ring",
+      "shortName": "Spielberg",
+      "locality": "Spielberg",
+      "countryName": "Austria",
+      "countryCode": "AUT",
+      "circuitType": "permanent",
+      "firstFormula1GrandPrixAtCircuit": 1970,
+      "trackLengthKm": 4.318,
+      "scheduledRaceLaps": 71,
+      "corners": 10,
+      "lighting": "day",
+      "headlineRatings": {
+        "speed": 5,
+        "cornering": 4,
+        "mechanicalGrip": 4,
+        "tyres": 3
+      },
+      "detailedDemands": {
+        "topSpeed": 94,
+        "accelerationDeployment": 98,
+        "highSpeedCornering": 82,
+        "lowSpeedCornering": 65,
+        "braking": 95,
+        "traction": 98,
+        "mechanicalGrip": 75,
+        "tyreDegradation": 70,
+        "tyreThermalDemand": 75
+      },
+      "raceCharacteristics": {
+        "overtakingDifficulty": 2,
+        "pitLaneLoss": 2,
+        "safetyCarRisk": 3,
+        "mechanicalStress": 4,
+        "weatherVolatility": 4,
+        "trackEvolution": 2
+      },
+      "aeroLoadProfile": "medium",
+      "traits": [
+        "short-lap",
+        "power-sensitive",
+        "elevation",
+        "heavy-braking"
+      ],
+      "sortOrder": 8,
+      "cardType": "track",
+      "enabled": true,
+      "assetKeys": {
+        "circuitOutline": "/assets/tracks/red-bull-ring/outline.svg",
+        "hero": "/assets/tracks/red-bull-ring/hero.webp",
+        "flag": "/assets/flags/aut.svg"
+      },
+      "research": {
+        "metadataStatus": "current-2026",
+        "ratingsStatus": "initial-balance",
+        "lastReviewed": "2026-10-08",
+        "confidence": "high"
+      }
+    },
+    {
+      "id": "track-silverstone",
+      "slug": "silverstone",
+      "code": "GBR-SIL",
+      "circuitName": "Silverstone Circuit",
+      "shortName": "Silverstone",
+      "locality": "Silverstone",
+      "countryName": "United Kingdom",
+      "countryCode": "GBR",
+      "circuitType": "permanent",
+      "firstFormula1GrandPrixAtCircuit": 1950,
+      "trackLengthKm": 5.891,
+      "scheduledRaceLaps": 52,
+      "corners": 18,
+      "lighting": "day",
+      "headlineRatings": {
+        "speed": 4,
+        "cornering": 5,
+        "mechanicalGrip": 3,
+        "tyres": 5
+      },
+      "detailedDemands": {
+        "topSpeed": 85,
+        "accelerationDeployment": 80,
+        "highSpeedCornering": 100,
+        "lowSpeedCornering": 60,
+        "braking": 60,
+        "traction": 68,
+        "mechanicalGrip": 68,
+        "tyreDegradation": 90,
+        "tyreThermalDemand": 88
+      },
+      "raceCharacteristics": {
+        "overtakingDifficulty": 3,
+        "pitLaneLoss": 3,
+        "safetyCarRisk": 3,
+        "mechanicalStress": 4,
+        "weatherVolatility": 5,
+        "trackEvolution": 2
+      },
+      "aeroLoadProfile": "medium-high",
+      "traits": [
+        "high-speed",
+        "aero-sensitive",
+        "tyre-demanding",
+        "weather-sensitive"
+      ],
+      "sortOrder": 9,
+      "cardType": "track",
+      "enabled": true,
+      "assetKeys": {
+        "circuitOutline": "/assets/tracks/silverstone/outline.svg",
+        "hero": "/assets/tracks/silverstone/hero.webp",
+        "flag": "/assets/flags/gbr.svg"
+      },
+      "research": {
+        "metadataStatus": "current-2026",
+        "ratingsStatus": "initial-balance",
+        "lastReviewed": "2026-10-08",
+        "confidence": "high"
+      }
+    },
+    {
+      "id": "track-spa-francorchamps",
+      "slug": "spa-francorchamps",
+      "code": "BEL-SPA",
+      "circuitName": "Circuit de Spa-Francorchamps",
+      "shortName": "Spa-Francorchamps",
+      "locality": "Stavelot",
+      "countryName": "Belgium",
+      "countryCode": "BEL",
+      "circuitType": "permanent",
+      "firstFormula1GrandPrixAtCircuit": 1950,
+      "trackLengthKm": 7.004,
+      "scheduledRaceLaps": 44,
+      "corners": 19,
+      "lighting": "day",
+      "headlineRatings": {
+        "speed": 5,
+        "cornering": 5,
+        "mechanicalGrip": 3,
+        "tyres": 4
+      },
+      "detailedDemands": {
+        "topSpeed": 98,
+        "accelerationDeployment": 92,
+        "highSpeedCornering": 96,
+        "lowSpeedCornering": 58,
+        "braking": 78,
+        "traction": 78,
+        "mechanicalGrip": 70,
+        "tyreDegradation": 82,
+        "tyreThermalDemand": 85
+      },
+      "raceCharacteristics": {
+        "overtakingDifficulty": 2,
+        "pitLaneLoss": 3,
+        "safetyCarRisk": 3,
+        "mechanicalStress": 5,
+        "weatherVolatility": 5,
+        "trackEvolution": 2
+      },
+      "aeroLoadProfile": "medium",
+      "traits": [
+        "high-speed",
+        "low-drag",
+        "elevation",
+        "weather-sensitive"
+      ],
+      "sortOrder": 10,
+      "cardType": "track",
+      "enabled": true,
+      "assetKeys": {
+        "circuitOutline": "/assets/tracks/spa-francorchamps/outline.svg",
+        "hero": "/assets/tracks/spa-francorchamps/hero.webp",
+        "flag": "/assets/flags/bel.svg"
+      },
+      "research": {
+        "metadataStatus": "current-2026",
+        "ratingsStatus": "initial-balance",
+        "lastReviewed": "2026-10-08",
+        "confidence": "high"
+      }
+    },
+    {
+      "id": "track-hungaroring",
+      "slug": "hungaroring",
+      "code": "HUN-BUD",
+      "circuitName": "Hungaroring",
+      "shortName": "Hungaroring",
+      "locality": "Mogyorod",
+      "countryName": "Hungary",
+      "countryCode": "HUN",
+      "circuitType": "permanent",
+      "firstFormula1GrandPrixAtCircuit": 1986,
+      "trackLengthKm": 4.381,
+      "scheduledRaceLaps": 70,
+      "corners": 14,
+      "lighting": "day",
+      "headlineRatings": {
+        "speed": 2,
+        "cornering": 5,
+        "mechanicalGrip": 5,
+        "tyres": 4
+      },
+      "detailedDemands": {
+        "topSpeed": 50,
+        "accelerationDeployment": 72,
+        "highSpeedCornering": 78,
+        "lowSpeedCornering": 98,
+        "braking": 82,
+        "traction": 92,
+        "mechanicalGrip": 95,
+        "tyreDegradation": 82,
+        "tyreThermalDemand": 88
+      },
+      "raceCharacteristics": {
+        "overtakingDifficulty": 5,
+        "pitLaneLoss": 3,
+        "safetyCarRisk": 2,
+        "mechanicalStress": 3,
+        "weatherVolatility": 4,
+        "trackEvolution": 3
+      },
+      "aeroLoadProfile": "high",
+      "traits": [
+        "high-downforce",
+        "low-speed",
+        "traction",
+        "qualifying-important"
+      ],
+      "sortOrder": 11,
+      "cardType": "track",
+      "enabled": true,
+      "assetKeys": {
+        "circuitOutline": "/assets/tracks/hungaroring/outline.svg",
+        "hero": "/assets/tracks/hungaroring/hero.webp",
+        "flag": "/assets/flags/hun.svg"
+      },
+      "research": {
+        "metadataStatus": "current-2026",
+        "ratingsStatus": "initial-balance",
+        "lastReviewed": "2026-10-08",
+        "confidence": "high"
+      }
+    },
+    {
+      "id": "track-zandvoort",
+      "slug": "zandvoort",
+      "code": "NLD-ZAN",
+      "circuitName": "Circuit Zandvoort",
+      "shortName": "Zandvoort",
+      "locality": "Zandvoort",
+      "countryName": "Netherlands",
+      "countryCode": "NLD",
+      "circuitType": "permanent",
+      "firstFormula1GrandPrixAtCircuit": 1952,
+      "trackLengthKm": 4.259,
+      "scheduledRaceLaps": 72,
+      "corners": 14,
+      "lighting": "day",
+      "headlineRatings": {
+        "speed": 2,
+        "cornering": 5,
+        "mechanicalGrip": 5,
+        "tyres": 5
+      },
+      "detailedDemands": {
+        "topSpeed": 58,
+        "accelerationDeployment": 70,
+        "highSpeedCornering": 92,
+        "lowSpeedCornering": 92,
+        "braking": 72,
+        "traction": 88,
+        "mechanicalGrip": 92,
+        "tyreDegradation": 86,
+        "tyreThermalDemand": 90
+      },
+      "raceCharacteristics": {
+        "overtakingDifficulty": 5,
+        "pitLaneLoss": 3,
+        "safetyCarRisk": 4,
+        "mechanicalStress": 4,
+        "weatherVolatility": 5,
+        "trackEvolution": 4
+      },
+      "aeroLoadProfile": "high",
+      "traits": [
+        "banked",
+        "high-downforce",
+        "narrow",
+        "wind-and-sand"
+      ],
+      "sortOrder": 12,
+      "cardType": "track",
+      "enabled": true,
+      "assetKeys": {
+        "circuitOutline": "/assets/tracks/zandvoort/outline.svg",
+        "hero": "/assets/tracks/zandvoort/hero.webp",
+        "flag": "/assets/flags/nld.svg"
+      },
+      "research": {
+        "metadataStatus": "current-2026",
+        "ratingsStatus": "initial-balance",
+        "lastReviewed": "2026-10-08",
+        "confidence": "high"
+      }
+    },
+    {
+      "id": "track-monza",
+      "slug": "monza",
+      "code": "ITA-MON",
+      "circuitName": "Autodromo Nazionale Monza",
+      "shortName": "Monza",
+      "locality": "Monza",
+      "countryName": "Italy",
+      "countryCode": "ITA",
+      "circuitType": "permanent",
+      "firstFormula1GrandPrixAtCircuit": 1950,
+      "trackLengthKm": 5.793,
+      "scheduledRaceLaps": 53,
+      "corners": 11,
+      "lighting": "day",
+      "headlineRatings": {
+        "speed": 5,
+        "cornering": 2,
+        "mechanicalGrip": 5,
+        "tyres": 2
+      },
+      "detailedDemands": {
+        "topSpeed": 100,
+        "accelerationDeployment": 98,
+        "highSpeedCornering": 50,
+        "lowSpeedCornering": 60,
+        "braking": 100,
+        "traction": 92,
+        "mechanicalGrip": 85,
+        "tyreDegradation": 48,
+        "tyreThermalDemand": 65
+      },
+      "raceCharacteristics": {
+        "overtakingDifficulty": 2,
+        "pitLaneLoss": 5,
+        "safetyCarRisk": 3,
+        "mechanicalStress": 4,
+        "weatherVolatility": 3,
+        "trackEvolution": 2
+      },
+      "aeroLoadProfile": "low",
+      "traits": [
+        "low-downforce",
+        "top-speed",
+        "heavy-braking",
+        "kerb-heavy"
+      ],
+      "sortOrder": 13,
+      "cardType": "track",
+      "enabled": true,
+      "assetKeys": {
+        "circuitOutline": "/assets/tracks/monza/outline.svg",
+        "hero": "/assets/tracks/monza/hero.webp",
+        "flag": "/assets/flags/ita.svg"
+      },
+      "research": {
+        "metadataStatus": "current-2026",
+        "ratingsStatus": "initial-balance",
+        "lastReviewed": "2026-10-08",
+        "confidence": "high"
+      }
+    },
+    {
+      "id": "track-madring",
+      "slug": "madring",
+      "code": "ESP-MAD",
+      "circuitName": "Madring",
+      "shortName": "Madring",
+      "locality": "Madrid",
+      "countryName": "Spain",
+      "countryCode": "ESP",
+      "circuitType": "hybrid",
+      "firstFormula1GrandPrixAtCircuit": 2026,
+      "trackLengthKm": 5.414,
+      "scheduledRaceLaps": 57,
+      "corners": 22,
+      "lighting": "day",
+      "headlineRatings": {
+        "speed": 4,
+        "cornering": 5,
+        "mechanicalGrip": 4,
+        "tyres": 5
+      },
+      "detailedDemands": {
+        "topSpeed": 88,
+        "accelerationDeployment": 85,
+        "highSpeedCornering": 90,
+        "lowSpeedCornering": 85,
+        "braking": 88,
+        "traction": 88,
+        "mechanicalGrip": 84,
+        "tyreDegradation": 87,
+        "tyreThermalDemand": 92
+      },
+      "raceCharacteristics": {
+        "overtakingDifficulty": 3,
+        "pitLaneLoss": 3,
+        "safetyCarRisk": 4,
+        "mechanicalStress": 4,
+        "weatherVolatility": 2,
+        "trackEvolution": 5
+      },
+      "aeroLoadProfile": "medium-high",
+      "traits": [
+        "hybrid-street-permanent",
+        "banked",
+        "mixed-speed",
+        "tyre-demanding"
+      ],
+      "sortOrder": 14,
+      "cardType": "track",
+      "enabled": true,
+      "assetKeys": {
+        "circuitOutline": "/assets/tracks/madring/outline.svg",
+        "hero": "/assets/tracks/madring/hero.webp",
+        "flag": "/assets/flags/esp.svg"
+      },
+      "research": {
+        "metadataStatus": "current-2026",
+        "ratingsStatus": "initial-balance",
+        "lastReviewed": "2026-10-08",
+        "confidence": "medium"
+      }
+    },
+    {
+      "id": "track-baku",
+      "slug": "baku-city-circuit",
+      "code": "AZE-BAK",
+      "circuitName": "Baku City Circuit",
+      "shortName": "Baku",
+      "locality": "Baku",
+      "countryName": "Azerbaijan",
+      "countryCode": "AZE",
+      "circuitType": "street",
+      "firstFormula1GrandPrixAtCircuit": 2016,
+      "trackLengthKm": 6.003,
+      "scheduledRaceLaps": 51,
+      "corners": 20,
+      "lighting": "day",
+      "headlineRatings": {
+        "speed": 5,
+        "cornering": 4,
+        "mechanicalGrip": 5,
+        "tyres": 3
+      },
+      "detailedDemands": {
+        "topSpeed": 100,
+        "accelerationDeployment": 94,
+        "highSpeedCornering": 35,
+        "lowSpeedCornering": 98,
+        "braking": 100,
+        "traction": 98,
+        "mechanicalGrip": 95,
+        "tyreDegradation": 58,
+        "tyreThermalDemand": 70
+      },
+      "raceCharacteristics": {
+        "overtakingDifficulty": 2,
+        "pitLaneLoss": 3,
+        "safetyCarRisk": 5,
+        "mechanicalStress": 4,
+        "weatherVolatility": 2,
+        "trackEvolution": 5
+      },
+      "aeroLoadProfile": "low",
+      "traits": [
+        "street",
+        "top-speed",
+        "low-speed",
+        "heavy-braking"
+      ],
+      "sortOrder": 15,
+      "cardType": "track",
+      "enabled": true,
+      "assetKeys": {
+        "circuitOutline": "/assets/tracks/baku-city-circuit/outline.svg",
+        "hero": "/assets/tracks/baku-city-circuit/hero.webp",
+        "flag": "/assets/flags/aze.svg"
+      },
+      "research": {
+        "metadataStatus": "current-2026",
+        "ratingsStatus": "initial-balance",
+        "lastReviewed": "2026-10-08",
+        "confidence": "high"
+      }
+    },
+    {
+      "id": "track-sepang",
+      "slug": "sepang-international-circuit",
+      "code": "MYS-SEP",
+      "circuitName": "Sepang International Circuit",
+      "shortName": "Sepang",
+      "locality": "Sepang",
+      "countryName": "Malaysia",
+      "countryCode": "MYS",
+      "circuitType": "permanent",
+      "firstFormula1GrandPrixAtCircuit": 1999,
+      "trackLengthKm": 5.543,
+      "scheduledRaceLaps": 56,
+      "corners": 15,
+      "lighting": "day",
+      "headlineRatings": {
+        "speed": 5,
+        "cornering": 5,
+        "mechanicalGrip": 4,
+        "tyres": 5
+      },
+      "detailedDemands": {
+        "topSpeed": 92,
+        "accelerationDeployment": 90,
+        "highSpeedCornering": 92,
+        "lowSpeedCornering": 75,
+        "braking": 90,
+        "traction": 88,
+        "mechanicalGrip": 82,
+        "tyreDegradation": 88,
+        "tyreThermalDemand": 95
+      },
+      "raceCharacteristics": {
+        "overtakingDifficulty": 2,
+        "pitLaneLoss": 3,
+        "safetyCarRisk": 3,
+        "mechanicalStress": 4,
+        "weatherVolatility": 5,
+        "trackEvolution": 4
+      },
+      "aeroLoadProfile": "medium-high",
+      "traits": [
+        "high-speed",
+        "abrasive",
+        "hot-and-humid",
+        "weather-sensitive"
+      ],
+      "sortOrder": 16,
+      "cardType": "track",
+      "enabled": true,
+      "assetKeys": {
+        "circuitOutline": "/assets/tracks/sepang-international-circuit/outline.svg",
+        "hero": "/assets/tracks/sepang-international-circuit/hero.webp",
+        "flag": "/assets/flags/mys.svg"
+      },
+      "research": {
+        "metadataStatus": "current-2026",
+        "ratingsStatus": "initial-balance",
+        "lastReviewed": "2026-10-08",
+        "confidence": "high"
+      }
+    },
+    {
+      "id": "track-marina-bay",
+      "slug": "marina-bay-street-circuit",
+      "code": "SGP-SIN",
+      "circuitName": "Marina Bay Street Circuit",
+      "shortName": "Singapore",
+      "locality": "Singapore",
+      "countryName": "Singapore",
+      "countryCode": "SGP",
+      "circuitType": "street",
+      "firstFormula1GrandPrixAtCircuit": 2008,
+      "trackLengthKm": 4.94,
+      "scheduledRaceLaps": 62,
+      "corners": 19,
+      "lighting": "night",
+      "headlineRatings": {
+        "speed": 2,
+        "cornering": 5,
+        "mechanicalGrip": 5,
+        "tyres": 5
+      },
+      "detailedDemands": {
+        "topSpeed": 55,
+        "accelerationDeployment": 82,
+        "highSpeedCornering": 42,
+        "lowSpeedCornering": 100,
+        "braking": 95,
+        "traction": 100,
+        "mechanicalGrip": 100,
+        "tyreDegradation": 75,
+        "tyreThermalDemand": 95
+      },
+      "raceCharacteristics": {
+        "overtakingDifficulty": 4,
+        "pitLaneLoss": 4,
+        "safetyCarRisk": 5,
+        "mechanicalStress": 5,
+        "weatherVolatility": 4,
+        "trackEvolution": 5
+      },
+      "aeroLoadProfile": "maximum",
+      "traits": [
+        "street",
+        "maximum-downforce",
+        "traction",
+        "hot-and-humid"
+      ],
+      "sortOrder": 17,
+      "cardType": "track",
+      "enabled": true,
+      "assetKeys": {
+        "circuitOutline": "/assets/tracks/marina-bay-street-circuit/outline.svg",
+        "hero": "/assets/tracks/marina-bay-street-circuit/hero.webp",
+        "flag": "/assets/flags/sgp.svg"
+      },
+      "research": {
+        "metadataStatus": "current-2026",
+        "ratingsStatus": "initial-balance",
+        "lastReviewed": "2026-10-08",
+        "confidence": "high"
+      }
+    },
+    {
+      "id": "track-cota",
+      "slug": "circuit-of-the-americas",
+      "code": "USA-AUS",
+      "circuitName": "Circuit of The Americas",
+      "shortName": "Austin",
+      "locality": "Austin",
+      "countryName": "United States",
+      "countryCode": "USA",
+      "circuitType": "permanent",
+      "firstFormula1GrandPrixAtCircuit": 2012,
+      "trackLengthKm": 5.513,
+      "scheduledRaceLaps": 56,
+      "corners": 20,
+      "lighting": "day",
+      "headlineRatings": {
+        "speed": 4,
+        "cornering": 5,
+        "mechanicalGrip": 5,
+        "tyres": 5
+      },
+      "detailedDemands": {
+        "topSpeed": 82,
+        "accelerationDeployment": 82,
+        "highSpeedCornering": 95,
+        "lowSpeedCornering": 90,
+        "braking": 90,
+        "traction": 92,
+        "mechanicalGrip": 88,
+        "tyreDegradation": 92,
+        "tyreThermalDemand": 88
+      },
+      "raceCharacteristics": {
+        "overtakingDifficulty": 2,
+        "pitLaneLoss": 3,
+        "safetyCarRisk": 2,
+        "mechanicalStress": 4,
+        "weatherVolatility": 4,
+        "trackEvolution": 3
+      },
+      "aeroLoadProfile": "high",
+      "traits": [
+        "mixed-speed",
+        "aero-sensitive",
+        "bumpy",
+        "tyre-demanding"
+      ],
+      "sortOrder": 18,
+      "cardType": "track",
+      "enabled": true,
+      "assetKeys": {
+        "circuitOutline": "/assets/tracks/circuit-of-the-americas/outline.svg",
+        "hero": "/assets/tracks/circuit-of-the-americas/hero.webp",
+        "flag": "/assets/flags/usa.svg"
+      },
+      "research": {
+        "metadataStatus": "current-2026",
+        "ratingsStatus": "initial-balance",
+        "lastReviewed": "2026-10-08",
+        "confidence": "high"
+      }
+    },
+    {
+      "id": "track-mexico-city",
+      "slug": "autodromo-hermanos-rodriguez",
+      "code": "MEX-MEX",
+      "circuitName": "Autodromo Hermanos Rodriguez",
+      "shortName": "Mexico City",
+      "locality": "Mexico City",
+      "countryName": "Mexico",
+      "countryCode": "MEX",
+      "circuitType": "permanent",
+      "firstFormula1GrandPrixAtCircuit": 1963,
+      "trackLengthKm": 4.304,
+      "scheduledRaceLaps": 71,
+      "corners": 17,
+      "lighting": "day",
+      "headlineRatings": {
+        "speed": 5,
+        "cornering": 4,
+        "mechanicalGrip": 4,
+        "tyres": 4
+      },
+      "detailedDemands": {
+        "topSpeed": 96,
+        "accelerationDeployment": 88,
+        "highSpeedCornering": 75,
+        "lowSpeedCornering": 92,
+        "braking": 92,
+        "traction": 90,
+        "mechanicalGrip": 88,
+        "tyreDegradation": 70,
+        "tyreThermalDemand": 80
+      },
+      "raceCharacteristics": {
+        "overtakingDifficulty": 3,
+        "pitLaneLoss": 2,
+        "safetyCarRisk": 3,
+        "mechanicalStress": 5,
+        "weatherVolatility": 3,
+        "trackEvolution": 3
+      },
+      "aeroLoadProfile": "high",
+      "traits": [
+        "high-altitude",
+        "top-speed",
+        "low-speed",
+        "cooling-sensitive"
+      ],
+      "sortOrder": 19,
+      "cardType": "track",
+      "enabled": true,
+      "assetKeys": {
+        "circuitOutline": "/assets/tracks/autodromo-hermanos-rodriguez/outline.svg",
+        "hero": "/assets/tracks/autodromo-hermanos-rodriguez/hero.webp",
+        "flag": "/assets/flags/mex.svg"
+      },
+      "research": {
+        "metadataStatus": "current-2026",
+        "ratingsStatus": "initial-balance",
+        "lastReviewed": "2026-10-08",
+        "confidence": "high"
+      }
+    },
+    {
+      "id": "track-interlagos",
+      "slug": "interlagos",
+      "code": "BRA-SAO",
+      "circuitName": "Autodromo Jose Carlos Pace",
+      "shortName": "Interlagos",
+      "locality": "Sao Paulo",
+      "countryName": "Brazil",
+      "countryCode": "BRA",
+      "circuitType": "permanent",
+      "firstFormula1GrandPrixAtCircuit": 1973,
+      "trackLengthKm": 4.309,
+      "scheduledRaceLaps": 71,
+      "corners": 15,
+      "lighting": "day",
+      "headlineRatings": {
+        "speed": 4,
+        "cornering": 4,
+        "mechanicalGrip": 5,
+        "tyres": 4
+      },
+      "detailedDemands": {
+        "topSpeed": 88,
+        "accelerationDeployment": 93,
+        "highSpeedCornering": 82,
+        "lowSpeedCornering": 85,
+        "braking": 88,
+        "traction": 95,
+        "mechanicalGrip": 90,
+        "tyreDegradation": 82,
+        "tyreThermalDemand": 82
+      },
+      "raceCharacteristics": {
+        "overtakingDifficulty": 2,
+        "pitLaneLoss": 2,
+        "safetyCarRisk": 4,
+        "mechanicalStress": 4,
+        "weatherVolatility": 5,
+        "trackEvolution": 3
+      },
+      "aeroLoadProfile": "medium-high",
+      "traits": [
+        "elevation",
+        "short-lap",
+        "traction",
+        "weather-sensitive"
+      ],
+      "sortOrder": 20,
+      "cardType": "track",
+      "enabled": true,
+      "assetKeys": {
+        "circuitOutline": "/assets/tracks/interlagos/outline.svg",
+        "hero": "/assets/tracks/interlagos/hero.webp",
+        "flag": "/assets/flags/bra.svg"
+      },
+      "research": {
+        "metadataStatus": "current-2026",
+        "ratingsStatus": "initial-balance",
+        "lastReviewed": "2026-10-08",
+        "confidence": "high"
+      }
+    },
+    {
+      "id": "track-las-vegas",
+      "slug": "las-vegas-strip-circuit",
+      "code": "USA-LV",
+      "circuitName": "Las Vegas Strip Circuit",
+      "shortName": "Las Vegas",
+      "locality": "Las Vegas",
+      "countryName": "United States",
+      "countryCode": "USA",
+      "circuitType": "street",
+      "firstFormula1GrandPrixAtCircuit": 2023,
+      "trackLengthKm": 6.201,
+      "scheduledRaceLaps": 50,
+      "corners": 17,
+      "lighting": "night",
+      "headlineRatings": {
+        "speed": 5,
+        "cornering": 3,
+        "mechanicalGrip": 5,
+        "tyres": 4
+      },
+      "detailedDemands": {
+        "topSpeed": 100,
+        "accelerationDeployment": 96,
+        "highSpeedCornering": 35,
+        "lowSpeedCornering": 90,
+        "braking": 100,
+        "traction": 96,
+        "mechanicalGrip": 92,
+        "tyreDegradation": 55,
+        "tyreThermalDemand": 98
+      },
+      "raceCharacteristics": {
+        "overtakingDifficulty": 2,
+        "pitLaneLoss": 4,
+        "safetyCarRisk": 4,
+        "mechanicalStress": 4,
+        "weatherVolatility": 2,
+        "trackEvolution": 5
+      },
+      "aeroLoadProfile": "low",
+      "traits": [
+        "street",
+        "top-speed",
+        "heavy-braking",
+        "cold-tyre-warmup"
+      ],
+      "sortOrder": 21,
+      "cardType": "track",
+      "enabled": true,
+      "assetKeys": {
+        "circuitOutline": "/assets/tracks/las-vegas-strip-circuit/outline.svg",
+        "hero": "/assets/tracks/las-vegas-strip-circuit/hero.webp",
+        "flag": "/assets/flags/usa.svg"
+      },
+      "research": {
+        "metadataStatus": "current-2026",
+        "ratingsStatus": "initial-balance",
+        "lastReviewed": "2026-10-08",
+        "confidence": "high"
+      }
+    },
+    {
+      "id": "track-lusail",
+      "slug": "lusail-international-circuit",
+      "code": "QAT-LUS",
+      "circuitName": "Lusail International Circuit",
+      "shortName": "Lusail",
+      "locality": "Lusail",
+      "countryName": "Qatar",
+      "countryCode": "QAT",
+      "circuitType": "permanent",
+      "firstFormula1GrandPrixAtCircuit": 2021,
+      "trackLengthKm": 5.419,
+      "scheduledRaceLaps": 57,
+      "corners": 16,
+      "lighting": "night",
+      "headlineRatings": {
+        "speed": 4,
+        "cornering": 5,
+        "mechanicalGrip": 3,
+        "tyres": 5
+      },
+      "detailedDemands": {
+        "topSpeed": 88,
+        "accelerationDeployment": 82,
+        "highSpeedCornering": 100,
+        "lowSpeedCornering": 45,
+        "braking": 58,
+        "traction": 65,
+        "mechanicalGrip": 68,
+        "tyreDegradation": 95,
+        "tyreThermalDemand": 98
+      },
+      "raceCharacteristics": {
+        "overtakingDifficulty": 3,
+        "pitLaneLoss": 3,
+        "safetyCarRisk": 2,
+        "mechanicalStress": 5,
+        "weatherVolatility": 2,
+        "trackEvolution": 4
+      },
+      "aeroLoadProfile": "high",
+      "traits": [
+        "high-speed",
+        "high-energy",
+        "tyre-demanding",
+        "night"
+      ],
+      "sortOrder": 22,
+      "cardType": "track",
+      "enabled": true,
+      "assetKeys": {
+        "circuitOutline": "/assets/tracks/lusail-international-circuit/outline.svg",
+        "hero": "/assets/tracks/lusail-international-circuit/hero.webp",
+        "flag": "/assets/flags/qat.svg"
+      },
+      "research": {
+        "metadataStatus": "current-2026",
+        "ratingsStatus": "initial-balance",
+        "lastReviewed": "2026-10-08",
+        "confidence": "high"
+      }
+    },
+    {
+      "id": "track-yas-marina",
+      "slug": "yas-marina-circuit",
+      "code": "ARE-YAS",
+      "circuitName": "Yas Marina Circuit",
+      "shortName": "Yas Marina",
+      "locality": "Abu Dhabi",
+      "countryName": "United Arab Emirates",
+      "countryCode": "ARE",
+      "circuitType": "permanent",
+      "firstFormula1GrandPrixAtCircuit": 2009,
+      "trackLengthKm": 5.281,
+      "scheduledRaceLaps": 58,
+      "corners": 16,
+      "lighting": "twilight",
+      "headlineRatings": {
+        "speed": 4,
+        "cornering": 4,
+        "mechanicalGrip": 5,
+        "tyres": 4
+      },
+      "detailedDemands": {
+        "topSpeed": 92,
+        "accelerationDeployment": 92,
+        "highSpeedCornering": 65,
+        "lowSpeedCornering": 92,
+        "braking": 95,
+        "traction": 98,
+        "mechanicalGrip": 92,
+        "tyreDegradation": 72,
+        "tyreThermalDemand": 82
+      },
+      "raceCharacteristics": {
+        "overtakingDifficulty": 3,
+        "pitLaneLoss": 3,
+        "safetyCarRisk": 2,
+        "mechanicalStress": 3,
+        "weatherVolatility": 1,
+        "trackEvolution": 3
+      },
+      "aeroLoadProfile": "medium",
+      "traits": [
+        "traction",
+        "heavy-braking",
+        "twilight",
+        "mixed-speed"
+      ],
+      "sortOrder": 23,
+      "cardType": "track",
+      "enabled": true,
+      "assetKeys": {
+        "circuitOutline": "/assets/tracks/yas-marina-circuit/outline.svg",
+        "hero": "/assets/tracks/yas-marina-circuit/hero.webp",
+        "flag": "/assets/flags/are.svg"
+      },
+      "research": {
+        "metadataStatus": "current-2026",
+        "ratingsStatus": "initial-balance",
+        "lastReviewed": "2026-10-08",
+        "confidence": "high"
+      }
+    }
+  ],
+  "calendar": [
+    {
+      "round": 1,
+      "id": "event-australian-gp-2026",
+      "grandPrixName": "Australian Grand Prix",
+      "trackId": "track-albert-park",
+      "weekendStart": "2026-03-06",
+      "weekendEnd": "2026-03-08",
+      "sprintWeekend": false,
+      "status": "scheduled-or-completed"
+    },
+    {
+      "round": 2,
+      "id": "event-chinese-gp-2026",
+      "grandPrixName": "Chinese Grand Prix",
+      "trackId": "track-shanghai",
+      "weekendStart": "2026-03-13",
+      "weekendEnd": "2026-03-15",
+      "sprintWeekend": true,
+      "status": "scheduled-or-completed"
+    },
+    {
+      "round": 3,
+      "id": "event-japanese-gp-2026",
+      "grandPrixName": "Japanese Grand Prix",
+      "trackId": "track-suzuka",
+      "weekendStart": "2026-03-27",
+      "weekendEnd": "2026-03-29",
+      "sprintWeekend": false,
+      "status": "scheduled-or-completed"
+    },
+    {
+      "round": 4,
+      "id": "event-miami-gp-2026",
+      "grandPrixName": "Miami Grand Prix",
+      "trackId": "track-miami",
+      "weekendStart": "2026-05-01",
+      "weekendEnd": "2026-05-03",
+      "sprintWeekend": true,
+      "status": "scheduled-or-completed"
+    },
+    {
+      "round": 5,
+      "id": "event-canadian-gp-2026",
+      "grandPrixName": "Canadian Grand Prix",
+      "trackId": "track-circuit-gilles-villeneuve",
+      "weekendStart": "2026-05-22",
+      "weekendEnd": "2026-05-24",
+      "sprintWeekend": true,
+      "status": "scheduled-or-completed"
+    },
+    {
+      "round": 6,
+      "id": "event-monaco-gp-2026",
+      "grandPrixName": "Monaco Grand Prix",
+      "trackId": "track-monaco",
+      "weekendStart": "2026-06-05",
+      "weekendEnd": "2026-06-07",
+      "sprintWeekend": false,
+      "status": "scheduled-or-completed"
+    },
+    {
+      "round": 7,
+      "id": "event-barcelona-catalunya-gp-2026",
+      "grandPrixName": "Barcelona-Catalunya Grand Prix",
+      "trackId": "track-barcelona-catalunya",
+      "weekendStart": "2026-06-12",
+      "weekendEnd": "2026-06-14",
+      "sprintWeekend": false,
+      "status": "scheduled-or-completed"
+    },
+    {
+      "round": 8,
+      "id": "event-austrian-gp-2026",
+      "grandPrixName": "Austrian Grand Prix",
+      "trackId": "track-red-bull-ring",
+      "weekendStart": "2026-06-26",
+      "weekendEnd": "2026-06-28",
+      "sprintWeekend": false,
+      "status": "scheduled-or-completed"
+    },
+    {
+      "round": 9,
+      "id": "event-british-gp-2026",
+      "grandPrixName": "British Grand Prix",
+      "trackId": "track-silverstone",
+      "weekendStart": "2026-07-03",
+      "weekendEnd": "2026-07-05",
+      "sprintWeekend": true,
+      "status": "scheduled-or-completed"
+    },
+    {
+      "round": 10,
+      "id": "event-belgian-gp-2026",
+      "grandPrixName": "Belgian Grand Prix",
+      "trackId": "track-spa-francorchamps",
+      "weekendStart": "2026-07-17",
+      "weekendEnd": "2026-07-19",
+      "sprintWeekend": false,
+      "status": "scheduled-or-completed"
+    },
+    {
+      "round": 11,
+      "id": "event-hungarian-gp-2026",
+      "grandPrixName": "Hungarian Grand Prix",
+      "trackId": "track-hungaroring",
+      "weekendStart": "2026-07-24",
+      "weekendEnd": "2026-07-26",
+      "sprintWeekend": false,
+      "status": "scheduled-or-completed"
+    },
+    {
+      "round": 12,
+      "id": "event-dutch-gp-2026",
+      "grandPrixName": "Dutch Grand Prix",
+      "trackId": "track-zandvoort",
+      "weekendStart": "2026-08-21",
+      "weekendEnd": "2026-08-23",
+      "sprintWeekend": true,
+      "status": "scheduled-or-completed"
+    },
+    {
+      "round": 13,
+      "id": "event-italian-gp-2026",
+      "grandPrixName": "Italian Grand Prix",
+      "trackId": "track-monza",
+      "weekendStart": "2026-09-04",
+      "weekendEnd": "2026-09-06",
+      "sprintWeekend": false,
+      "status": "scheduled-or-completed"
+    },
+    {
+      "round": 14,
+      "id": "event-spanish-gp-2026",
+      "grandPrixName": "Spanish Grand Prix",
+      "trackId": "track-madring",
+      "weekendStart": "2026-09-11",
+      "weekendEnd": "2026-09-13",
+      "sprintWeekend": false,
+      "status": "scheduled-or-completed"
+    },
+    {
+      "round": 15,
+      "id": "event-azerbaijan-gp-2026",
+      "grandPrixName": "Azerbaijan Grand Prix",
+      "trackId": "track-baku",
+      "weekendStart": "2026-09-24",
+      "weekendEnd": "2026-09-26",
+      "sprintWeekend": false,
+      "status": "scheduled-or-completed"
+    },
+    {
+      "round": 16,
+      "id": "event-bahrain-gp-malaysia-2026",
+      "grandPrixName": "Bahrain Grand Prix in Malaysia",
+      "trackId": "track-sepang",
+      "weekendStart": "2026-10-02",
+      "weekendEnd": "2026-10-04",
+      "sprintWeekend": false,
+      "status": "scheduled-or-completed"
+    },
+    {
+      "round": 17,
+      "id": "event-singapore-gp-2026",
+      "grandPrixName": "Singapore Grand Prix",
+      "trackId": "track-marina-bay",
+      "weekendStart": "2026-10-09",
+      "weekendEnd": "2026-10-11",
+      "sprintWeekend": true,
+      "status": "scheduled-or-completed"
+    },
+    {
+      "round": 18,
+      "id": "event-united-states-gp-2026",
+      "grandPrixName": "United States Grand Prix",
+      "trackId": "track-cota",
+      "weekendStart": "2026-10-23",
+      "weekendEnd": "2026-10-25",
+      "sprintWeekend": false,
+      "status": "scheduled-or-completed"
+    },
+    {
+      "round": 19,
+      "id": "event-mexico-city-gp-2026",
+      "grandPrixName": "Mexico City Grand Prix",
+      "trackId": "track-mexico-city",
+      "weekendStart": "2026-10-30",
+      "weekendEnd": "2026-11-01",
+      "sprintWeekend": false,
+      "status": "scheduled-or-completed"
+    },
+    {
+      "round": 20,
+      "id": "event-sao-paulo-gp-2026",
+      "grandPrixName": "Sao Paulo Grand Prix",
+      "trackId": "track-interlagos",
+      "weekendStart": "2026-11-06",
+      "weekendEnd": "2026-11-08",
+      "sprintWeekend": false,
+      "status": "scheduled-or-completed"
+    },
+    {
+      "round": 21,
+      "id": "event-las-vegas-gp-2026",
+      "grandPrixName": "Las Vegas Grand Prix",
+      "trackId": "track-las-vegas",
+      "weekendStart": "2026-11-19",
+      "weekendEnd": "2026-11-21",
+      "sprintWeekend": false,
+      "status": "scheduled-or-completed"
+    },
+    {
+      "round": 22,
+      "id": "event-qatar-gp-2026",
+      "grandPrixName": "Qatar Grand Prix",
+      "trackId": "track-lusail",
+      "weekendStart": "2026-11-27",
+      "weekendEnd": "2026-11-29",
+      "sprintWeekend": false,
+      "status": "scheduled-or-completed"
+    },
+    {
+      "round": 23,
+      "id": "event-abu-dhabi-gp-2026",
+      "grandPrixName": "Abu Dhabi Grand Prix",
+      "trackId": "track-yas-marina",
+      "weekendStart": "2026-12-04",
+      "weekendEnd": "2026-12-06",
+      "sprintWeekend": false,
+      "status": "scheduled-or-completed"
+    }
+  ]
+}

@@ -1,0 +1,77 @@
+{
+  "integrationBase": "436dc3b",
+  "checks": [
+    {
+      "name": "s12-01-domain-complete.json",
+      "command": "dotnet",
+      "args": [
+        "test",
+        "tests/Game.Simulation.Tests",
+        "--filter",
+        "FullyQualifiedName~PersonnelAcquisitionTests",
+        "--no-restore",
+        "--verbosity",
+        "minimal"
+      ],
+      "cwd": "C:\\Projects\\F1Game\\.tools\\worktrees\\s12-01",
+      "pid": 34432,
+      "startedAt": "2026-10-26T09:05:54.709Z",
+      "status": "passed",
+      "exitCode": 0,
+      "elapsedMs": 4812
+    },
+    {
+      "name": "s12-01-api-integrated.json",
+      "command": "C:\\Users\\sbdev\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\node\\bin\\node.exe",
+      "args": [
+        "tools/auth-emulator/node_modules/firebase-tools/lib/bin/firebase.js",
+        "emulators:exec",
+        "--only",
+        "auth,firestore",
+        "--project",
+        "demo-f1game",
+        "--config",
+        "tools/auth-emulator/firebase.acquisition.json",
+        "--non-interactive",
+        "dotnet test tests/Game.Api.Tests --filter \"FullyQualifiedName~PersonnelAcquisitionTests|FullyQualifiedName~CampaignTests.Permanent_host_creates_frozen_short_calendar_and_recovers_same_creation_after_restart\" --verbosity minimal -p:NuGetAudit=false"
+      ],
+      "cwd": "C:\\Projects\\F1Game\\.tools\\worktrees\\s12-01",
+      "pid": 6452,
+      "startedAt": "2026-10-26T09:03:36.954Z",
+      "status": "passed",
+      "exitCode": 0,
+      "elapsedMs": 21214
+    },
+    {
+      "name": "s12-01-browser-retry-settled.json",
+      "command": "C:\\Users\\sbdev\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\node\\bin\\node.exe",
+      "args": [
+        "src/frontend/node_modules/@playwright/test/cli.js",
+        "test",
+        "--config",
+        "src/frontend/playwright.acquisition.config.ts"
+      ],
+      "cwd": "C:\\Projects\\F1Game\\.tools\\worktrees\\s12-01",
+      "pid": 29332,
+      "startedAt": "2026-10-26T09:04:22.713Z",
+      "status": "passed",
+      "exitCode": 0,
+      "elapsedMs": 32419
+    }
+  ],
+  "captures": [
+    "s12-01-offer-360.png",
+    "s12-01-hired-360.png",
+    "s12-01-campaign-1920.png"
+  ],
+  "ports": {
+    "frontend": 4691,
+    "api": 4791,
+    "auth": 21979,
+    "firestore": 21980,
+    "websocket": 9297,
+    "hub": 21981,
+    "logging": 21982
+  },
+  "processPolicy": "Bounded runners owned and stopped their process trees; ignored detailed run reports retained for cleanup."
+}

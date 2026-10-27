@@ -1,0 +1,213 @@
+:host {
+  display: block;
+  min-width: 0;
+}
+.controller {
+  max-width: 1100px;
+  margin: auto;
+}
+header {
+  margin-bottom: 24px;
+}
+h1 {
+  font-size: clamp(26px, 4vw, 38px);
+}
+h2 {
+  font-size: 22px;
+  overflow-wrap: anywhere;
+}
+h3 {
+  overflow-wrap: anywhere;
+}
+p {
+  margin: 8px 0;
+}
+.eyebrow {
+  color: var(--color-driver);
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+.state,
+.car {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-panel);
+  padding: 16px;
+}
+.state {
+  margin-bottom: 16px;
+}
+.state strong {
+  color: var(--color-warning);
+}
+.cars {
+  display: grid;
+  gap: 32px;
+}
+.car {
+  min-width: 0;
+}
+.tyres {
+  margin: 16px 0;
+}
+.tyres p {
+  font-size: 14px;
+}
+fieldset {
+  border: 0;
+  padding: 0;
+  margin: 20px 0;
+  min-width: 0;
+}
+legend {
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+.options {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+button,
+select {
+  background-color: var(--color-raised);
+  color: var(--color-ink);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-control);
+  min-height: 44px;
+  padding: 8px 12px;
+  font: inherit;
+}
+button {
+  cursor: pointer;
+}
+button[aria-pressed="true"],
+.primary {
+  background: var(--color-driver);
+  color: var(--color-canvas);
+  font-weight: 700;
+  border-color: var(--color-driver);
+}
+button:disabled,
+fieldset:disabled button,
+select:disabled {
+  opacity: 1;
+  cursor: not-allowed;
+}
+.primary:disabled {
+  background: var(--color-raised);
+  color: var(--color-muted);
+  border-color: var(--color-border);
+}
+.explanation {
+  color: var(--color-muted);
+  font-size: 14px;
+}
+.notice {
+  color: var(--color-warning);
+  border-left: 3px solid;
+  padding-left: 12px;
+}
+.selection {
+  border-top: 1px solid var(--color-border);
+  padding-top: 12px;
+  overflow-wrap: anywhere;
+}
+label {
+  display: block;
+  margin: 12px 0;
+}
+select {
+  display: block;
+  width: 100%;
+  margin-top: 6px;
+}
+.review {
+  margin-top: 40px;
+  width: 100%;
+}
+dialog {
+  margin: auto;
+  background: var(--color-surface);
+  color: var(--color-ink);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-panel);
+  padding: 24px;
+  width: min(560px, calc(100% - 32px));
+  max-height: calc(100dvh - 32px);
+  overflow: auto;
+}
+dialog::backdrop {
+  background: #000b;
+}
+.confirmed {
+  border-top: 1px solid var(--color-border);
+  margin-top: 16px;
+  padding-top: 16px;
+}
+.dialog-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 24px;
+}
+.dialog-actions button {
+  flex: 1;
+  min-width: 120px;
+}
+@media (min-width: 700px) {
+  .cars {
+    grid-template-columns: 1fr 1fr;
+  }
+  .review {
+    width: auto;
+    min-width: 240px;
+  }
+}
+@media (max-height: 500px) {
+  dialog {
+    padding: 16px;
+  }
+  dialog .confirmed {
+    margin-top: 8px;
+    padding-top: 8px;
+  }
+  dialog .dialog-actions {
+    margin-top: 12px;
+  }
+}
+.state.rejected strong {
+  color: var(--color-error);
+}
+
+@media (min-width: 1200px) {
+  header {
+    margin-bottom: 16px;
+  }
+  header h1 {
+    line-height: 1.2;
+  }
+  fieldset {
+    margin: 16px 0;
+  }
+  .car h2 {
+    line-height: 1.2;
+  }
+}
+.car app-driver-card{display:block;margin-bottom:16px;}
+
+.car app-timing-tower { margin-inline: -8px; }
+
+.car { overflow: hidden; }
+.car > app-driver-card { margin: -16px -16px 16px; }
+
+.decision-summary { color: var(--color-muted); font-size: 16px; }
+
+.race-details { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 16px; margin: 20px 0; }
+.race-details > section { min-width: 0; margin: 0; }
+.race-details h3 { margin: 0 0 12px; padding-bottom: 8px; border-bottom: 1px solid var(--color-border); font-size: 16px; }
+.race-details p, .race-details li { font-size: 14px; }
+.recent-laps ol { padding: 0; margin: 0; list-style: none; }
+.recent-laps li { margin: 8px 0; font-variant-numeric: tabular-nums; }

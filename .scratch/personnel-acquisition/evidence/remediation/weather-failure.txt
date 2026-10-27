@@ -1,0 +1,16 @@
+Game.Api.Tests.QualifyingTests.Weather_start_advice_forecasts_and_partial_locks_survive_real_Firestore_write_failure(commitFirst: True)
+
+Game.Application.SessionFault : Saved session revision changed. Reconnect and retry your command.
+
+   at Game.Api.FirestoreSessionStore.Send(HttpMethod method, String path, Object body) in C:\Projects\F1Game\.tools\worktrees\s12-review-fixes\src\backend\Game.Api\FirestoreSessionStore.cs:line 41
+   at Game.Api.FirestoreSessionStore.Write(String id, String expectedVersion, String payload, String joinCode, ScheduledWakeup wakeup) in C:\Projects\F1Game\.tools\worktrees\s12-review-fixes\src\backend\Game.Api\FirestoreSessionStore.cs:line 100
+   at Game.Api.Tests.QualifyingTests.TestSessionScope.Write(String id, String expected, String payload, String code, ScheduledWakeup wakeup) in C:\Projects\F1Game\.tools\worktrees\s12-review-fixes\tests\Game.Api.Tests\QualifyingTests.cs:line 85
+   at Game.Api.Tests.QualifyingTests.FailingStore.Write(String id, String expected, String payload, String code, ScheduledWakeup wakeup) in C:\Projects\F1Game\.tools\worktrees\s12-review-fixes\tests\Game.Api.Tests\QualifyingTests.cs:line 67
+   at Game.Application.SessionCoordinator.Persist(String id) in C:\Projects\F1Game\.tools\worktrees\s12-review-fixes\src\backend\Game.Application\SessionCoordinator.Persistence.cs:line 53
+   at Game.Application.SessionCoordinator.DeliverQualifyingWakeup(WakeupInput input) in C:\Projects\F1Game\.tools\worktrees\s12-review-fixes\src\backend\Game.Application\SessionCoordinator.QualifyingProgression.cs:line 29
+   at Game.Application.SessionCoordinator.DeliverScheduledWakeup(WakeupInput input) in C:\Projects\F1Game\.tools\worktrees\s12-review-fixes\src\backend\Game.Application\SessionCoordinator.QualifyingProgression.cs:line 10
+   at Game.Application.SessionCoordinator.SweepWakeups() in C:\Projects\F1Game\.tools\worktrees\s12-review-fixes\src\backend\Game.Application\SessionCoordinator.Progression.cs:line 114
+   at Game.Api.Tests.QualifyingTests.Weather_start_advice_forecasts_and_partial_locks_survive_real_Firestore_write_failure(Boolean commitFirst) in C:\Projects\F1Game\.tools\worktrees\s12-review-fixes\tests\Game.Api.Tests\WeatherAdviceRecoveryTests.cs:line 49
+   at Game.Api.Tests.QualifyingTests.Weather_start_advice_forecasts_and_partial_locks_survive_real_Firestore_write_failure(Boolean commitFirst) in C:\Projects\F1Game\.tools\worktrees\s12-review-fixes\tests\Game.Api.Tests\WeatherAdviceRecoveryTests.cs:line 55
+   at Game.Api.Tests.QualifyingTests.Weather_start_advice_forecasts_and_partial_locks_survive_real_Firestore_write_failure(Boolean commitFirst) in C:\Projects\F1Game\.tools\worktrees\s12-review-fixes\tests\Game.Api.Tests\WeatherAdviceRecoveryTests.cs:line 55
+--- End of stack trace from previous location ---

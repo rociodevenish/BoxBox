@@ -1,0 +1,27 @@
+{
+  "emulators": {
+    "auth": {
+      "host": "127.0.0.1",
+      "port": 19399
+    },
+    "firestore": {
+      "host": "127.0.0.1",
+      "port": 19390
+    },
+    "hub": {
+      "host": "127.0.0.1",
+      "port": 19600
+    },
+    "logging": {
+      "host": "127.0.0.1",
+      "port": 19650
+    },
+    "ui": {
+      "enabled": false
+    },
+    "singleProjectMode": true
+  },
+  "firestore": {
+    "rules": "C:\\Projects\\F1Game\\.worktrees\\s09-06\\tools\\auth-emulator\\firestore.rules"
+  }
+}

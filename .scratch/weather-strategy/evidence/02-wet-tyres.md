@@ -1,0 +1,23 @@
+# Ticket 02 evidence
+
+Implemented on `codex/s10-02` from integration `bc07d7325a19b2309214d16c2f3334e5732bbdab`. Final commit is the commit containing this record. The [runtime model](../../../docs/wet-tyres.md) records units, all version mappings, fixed-cell approximation, supplied-content provenance and eligibility semantics.
+
+Approved public seams: RaceEngine/WeekendPreparation, real session HTTP with retry/store reconstruction, rendered controller and public display. Existing WeatherTests additionally cover public SignalR forecasts. New wet eligibility is observed through race results; no separate private-method tests or extra random channel were added.
+
+Unique final checks:
+
+- **67 simulation tests passed**, including eight WetTyreTests and affected tyre/pit/incident/replay/weather/opening/preset cases. Bounded record `.tools/reports/s10-02/simulation-complete.json`, dotnet PID **21368**, 5.723 seconds. Covers dry/damp/wet crossover, bounded inputs, detailed effective attributes, stronger skill/temperature effects, fractional-origin mid-segment drying with exact equivalent-subdivision outcome/exposure, actual wet use, fitted/queued stops, unchanged service, and incident loss retention.
+- **13 API tests passed**, WetTyreTests + exact WeatherTests/SessionTests/RecoveryTests class filters. Record `.tools/reports/s10-02/api-complete.json`, dotnet PID **28740**, 11.686 seconds. Intermediate/Wet both commit, accepted retry does not add stops, and a fresh API host reconstructs the same classification. Public result omits private forecasts/attributes/exposure. No emulator-dependent household test is claimed.
+- **1 complete browser flow passed**, record `.tools/reports/s10-02/browser-final.json`, Playwright PID **23032**, 20.056 seconds. Dedicated `playwright.wet-tyres.config.ts`/`browser-wet-tyres` fixture is excluded from ordinary gallery tests. The real API fixture is enabled only with `F1_WET_TYRE_FIXTURE=1`. Full labelled two-car choices, reduced motion, confirmation, refresh and public projection checked. UI **4532**, API **4632** refused pre-existing listeners and were absent after completion. Reserved Auth19449/Firestore19440/hub19630/log19680/ws9166 were unused and had no listeners at preflight/final inspection.
+- Angular typecheck passed; Angular development compilation also passed within browser run. No separate production-build or full-root check is claimed. Node **24.19.0**, existing locked frontend cache, Chromium1234, .NET10 pinned SDK were used. `NuGetAudit=false` was invocation-only; no dependency was changed. Existing SignalR advisory is unchanged.
+
+Red/green sequence: first crossover test failed to compile on missing enum/tuning; implementation made it pass. Effective mapping test failed on missing public mapping; an incorrect assumption that Tyres setup changes temperature was corrected against the existing setup projection (temperature unchanged; Mechanical changes traction). API test failed on missing wet fixture, then passed. Later acceptance/compatibility tests passed as the slices accumulated. Browser first passed with accessible initials; visual inspection prompted full control labels and one affected browser rerun.
+
+Reviewed captures:
+
+- [360×800 complete phone controller](s10-02-controller-360.png), full page, reduced motion: clear observed versus predicted information; wet eligibility and wrong-condition explanation; Soft/Medium/Hard/Intermediate/Wet text labels wrap cleanly across rows; both cars and approval control readable with no horizontal overflow. Full page height is 3965px; no duration or pacing claim follows from this capture.
+- [1920×1080 public display](s10-02-display-1920.png), full page: Intermediate/Wet text badges and tyre-change events readable, exact classification/gaps retained, private forecast absent. Existing development facts footer extends the full capture below viewport; no new layout system was introduced.
+
+The supplied asset collection still contains 51 originals across driver/track image folders. Existing portrait manifests/packaged variants are reused, originals unchanged, live identity text/fallback retained; no new images, geographic inference or asset conversion was needed.
+
+Limits: suitability curves are continuous in wetness, evaluated in fixed one-second absolute-time cells plus rain-process knots; this is a documented bounded first-order approximation, not exact continuous dynamics. No balance, forecast calibration, complete-weekend duration, production deployment or household emulator recovery claim is made. Reaction/start lifecycle and policy work remain tickets 03–05. No live weather preset is activated by this ticket.

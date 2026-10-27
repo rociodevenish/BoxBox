@@ -1,0 +1,1574 @@
+{
+  "measuredOn": "2026-10-09",
+  "source": "ticket05 worktree based on 474110d; actual serial Playwright browser plus local API; designer measurements",
+  "purpose": "mechanics and replay checks, not human timing or a balance sweep",
+  "seedPerPreset": 123,
+  "durationTarget": "Retired by user on 2026-10-09; timing is informative only.",
+  "metricSources": {
+    "decision": "server monotonic window opening to accepted lock, includes automation and viewing/network wait",
+    "resolution": "server monotonic ResolvePhase only",
+    "readyWait": "server result readiness to authorized continuation; overlaps client presentation",
+    "presentation": "untrusted client-reported page monotonic duration; reduced-motion completion in these cases",
+    "total": "server session initialization to authoritative finish, excludes final presentation"
+  },
+  "cases": [
+    {
+      "scenario": "open-equal",
+      "preset": "open-equal",
+      "seed": 123,
+      "distance": 50,
+      "configuration": {
+        "laps": 50,
+        "track": {
+          "name": "OpenSegment",
+          "baseLapTime": 90,
+          "speedWeight": 0.5,
+          "pitLaneLoss": 20,
+          "stationaryStop": 3,
+          "passingChance": 0.4,
+          "segments": [
+            {
+              "id": "straight-1",
+              "length": 1250,
+              "baselineTime": 22.5,
+              "speedDemand": 1,
+              "corneringDemand": 0,
+              "tyreDemand": 0.9,
+              "passingAllowed": true,
+              "passingDifficulty": 0.4,
+              "passingZoneId": null
+            },
+            {
+              "id": "corner-1",
+              "length": 1250,
+              "baselineTime": 22.5,
+              "speedDemand": 0,
+              "corneringDemand": 1,
+              "tyreDemand": 1.1,
+              "passingAllowed": false,
+              "passingDifficulty": 0.4,
+              "passingZoneId": null
+            },
+            {
+              "id": "straight-2",
+              "length": 1250,
+              "baselineTime": 22.5,
+              "speedDemand": 1,
+              "corneringDemand": 0,
+              "tyreDemand": 0.9,
+              "passingAllowed": true,
+              "passingDifficulty": 0.4,
+              "passingZoneId": null
+            },
+            {
+              "id": "corner-2",
+              "length": 1250,
+              "baselineTime": 22.5,
+              "speedDemand": 0,
+              "corneringDemand": 1,
+              "tyreDemand": 1.1,
+              "passingAllowed": false,
+              "passingDifficulty": 0.4,
+              "passingZoneId": null
+            }
+          ]
+        },
+        "attributeSeconds": 1,
+        "lapVariation": 0.2,
+        "tyres": {
+          "degradationPerLap": 0.025,
+          "warmupPenalty": 0.8,
+          "degradationPenalty": 10,
+          "exhaustionPenalty": 15,
+          "pushGain": 1,
+          "pushWear": 1.65,
+          "conserveLoss": 0.8,
+          "conserveWear": 0.65,
+          "softGain": 1.1,
+          "softWear": 1.3,
+          "hardLoss": 0.8,
+          "hardWear": 0.7,
+          "softWarmup": 0.5,
+          "hardWarmup": 1.5
+        },
+        "stopVariation": 0.6,
+        "traffic": {
+          "enabled": true,
+          "followingLoss": 0.3,
+          "blueFlagLoss": 0.15,
+          "battleProximity": 3,
+          "attackMultiplier": 1.7,
+          "defendMultiplier": 0.55,
+          "battleWear": 0.2
+        },
+        "estimateError": 0.04,
+        "raceFormVariation": 0,
+        "passingVariation": 1
+      },
+      "field": "identical driver and car attributes",
+      "modelVersion": "segment-race-v1",
+      "randomnessVersion": "scoped-random-v2-segment",
+      "opponentScriptVersion": "dry-opponents-v1",
+      "recordedPhases": 10,
+      "acceptedDecisions": 220,
+      "exactReplay": true,
+      "finished": true,
+      "completedLapRange": [
+        50,
+        50
+      ],
+      "eligibleCars": 22,
+      "ownedCars": [
+        {
+          "driverId": "driver-01",
+          "completedLaps": 50,
+          "eligibleAtFinish": true
+        },
+        {
+          "driverId": "driver-02",
+          "completedLaps": 50,
+          "eligibleAtFinish": true
+        }
+      ],
+      "observedBattleOptions": [
+        "Attack",
+        "Defend",
+        "Neutral"
+      ],
+      "stopQueuedAtDecisionBoundary": false,
+      "inPitsAtDecisionBoundary": false,
+      "milliseconds": {
+        "serverWindowToAcceptanceSum": 2934.7354,
+        "engineResolutionSum": 743.9654999999999,
+        "readyWaitSum": 735.8772,
+        "serverTotalToFinish": 4581.8998,
+        "clientPresentationSamples": 10,
+        "clientPresentationSum": 2.1000001430511475
+      },
+      "decisions": [
+        {
+          "phase": 0,
+          "driverId": "driver-01",
+          "decision": {
+            "pace": "Conserve",
+            "pitCompound": null,
+            "battle": "Neutral"
+          }
+        },
+        {
+          "phase": 0,
+          "driverId": "driver-02",
+          "decision": {
+            "pace": "Push",
+            "pitCompound": null,
+            "battle": "Attack"
+          }
+        },
+        {
+          "phase": 1,
+          "driverId": "driver-01",
+          "decision": {
+            "pace": "Conserve",
+            "pitCompound": null,
+            "battle": "Attack"
+          }
+        },
+        {
+          "phase": 1,
+          "driverId": "driver-02",
+          "decision": {
+            "pace": "Push",
+            "pitCompound": null,
+            "battle": "Neutral"
+          }
+        },
+        {
+          "phase": 2,
+          "driverId": "driver-01",
+          "decision": {
+            "pace": "Conserve",
+            "pitCompound": "Hard",
+            "battle": "Attack"
+          }
+        },
+        {
+          "phase": 2,
+          "driverId": "driver-02",
+          "decision": {
+            "pace": "Push",
+            "pitCompound": "Hard",
+            "battle": "Neutral"
+          }
+        },
+        {
+          "phase": 3,
+          "driverId": "driver-01",
+          "decision": {
+            "pace": "Conserve",
+            "pitCompound": null,
+            "battle": "Neutral"
+          }
+        },
+        {
+          "phase": 3,
+          "driverId": "driver-02",
+          "decision": {
+            "pace": "Push",
+            "pitCompound": null,
+            "battle": "Neutral"
+          }
+        },
+        {
+          "phase": 4,
+          "driverId": "driver-01",
+          "decision": {
+            "pace": "Conserve",
+            "pitCompound": null,
+            "battle": "Neutral"
+          }
+        },
+        {
+          "phase": 4,
+          "driverId": "driver-02",
+          "decision": {
+            "pace": "Push",
+            "pitCompound": null,
+            "battle": "Attack"
+          }
+        },
+        {
+          "phase": 5,
+          "driverId": "driver-01",
+          "decision": {
+            "pace": "Conserve",
+            "pitCompound": null,
+            "battle": "Neutral"
+          }
+        },
+        {
+          "phase": 5,
+          "driverId": "driver-02",
+          "decision": {
+            "pace": "Push",
+            "pitCompound": null,
+            "battle": "Attack"
+          }
+        },
+        {
+          "phase": 6,
+          "driverId": "driver-01",
+          "decision": {
+            "pace": "Conserve",
+            "pitCompound": "Soft",
+            "battle": "Neutral"
+          }
+        },
+        {
+          "phase": 6,
+          "driverId": "driver-02",
+          "decision": {
+            "pace": "Push",
+            "pitCompound": "Soft",
+            "battle": "Neutral"
+          }
+        },
+        {
+          "phase": 7,
+          "driverId": "driver-01",
+          "decision": {
+            "pace": "Conserve",
+            "pitCompound": null,
+            "battle": "Neutral"
+          }
+        },
+        {
+          "phase": 7,
+          "driverId": "driver-02",
+          "decision": {
+            "pace": "Push",
+            "pitCompound": null,
+            "battle": "Attack"
+          }
+        },
+        {
+          "phase": 8,
+          "driverId": "driver-01",
+          "decision": {
+            "pace": "Conserve",
+            "pitCompound": null,
+            "battle": "Neutral"
+          }
+        },
+        {
+          "phase": 8,
+          "driverId": "driver-02",
+          "decision": {
+            "pace": "Push",
+            "pitCompound": null,
+            "battle": "Attack"
+          }
+        },
+        {
+          "phase": 9,
+          "driverId": "driver-01",
+          "decision": {
+            "pace": "Conserve",
+            "pitCompound": null,
+            "battle": "Neutral"
+          }
+        },
+        {
+          "phase": 9,
+          "driverId": "driver-02",
+          "decision": {
+            "pace": "Push",
+            "pitCompound": null,
+            "battle": "Attack"
+          }
+        }
+      ]
+    },
+    {
+      "scenario": "restricted-equal",
+      "preset": "restricted-equal",
+      "seed": 123,
+      "distance": 50,
+      "configuration": {
+        "laps": 50,
+        "track": {
+          "name": "RestrictedSegment",
+          "baseLapTime": 90,
+          "speedWeight": 0.5,
+          "pitLaneLoss": 20,
+          "stationaryStop": 3,
+          "passingChance": 0.4,
+          "segments": [
+            {
+              "id": "corner-1",
+              "length": 1000,
+              "baselineTime": 30,
+              "speedDemand": 0.1,
+              "corneringDemand": 0.9,
+              "tyreDemand": 1.15,
+              "passingAllowed": false,
+              "passingDifficulty": 0.4,
+              "passingZoneId": null
+            },
+            {
+              "id": "straight",
+              "length": 3000,
+              "baselineTime": 30,
+              "speedDemand": 1,
+              "corneringDemand": 0,
+              "tyreDemand": 0.9,
+              "passingAllowed": true,
+              "passingDifficulty": 0.4,
+              "passingZoneId": null
+            },
+            {
+              "id": "corner-2",
+              "length": 1000,
+              "baselineTime": 30,
+              "speedDemand": 0.4,
+              "corneringDemand": 0.6,
+              "tyreDemand": 1.15,
+              "passingAllowed": false,
+              "passingDifficulty": 0.4,
+              "passingZoneId": null
+            }
+          ]
+        },
+        "attributeSeconds": 1,
+        "lapVariation": 0.2,
+        "tyres": {
+          "degradationPerLap": 0.025,
+          "warmupPenalty": 0.8,
+          "degradationPenalty": 10,
+          "exhaustionPenalty": 15,
+          "pushGain": 1,
+          "pushWear": 1.65,
+          "conserveLoss": 0.8,
+          "conserveWear": 0.65,
+          "softGain": 1.1,
+          "softWear": 1.3,
+          "hardLoss": 0.8,
+          "hardWear": 0.7,
+          "softWarmup": 0.5,
+          "hardWarmup": 1.5
+        },
+        "stopVariation": 0.6,
+        "traffic": {
+          "enabled": true,
+          "followingLoss": 0.3,
+          "blueFlagLoss": 0.15,
+          "battleProximity": 3,
+          "attackMultiplier": 1.7,
+          "defendMultiplier": 0.55,
+          "battleWear": 0.2
+        },
+        "estimateError": 0.04,
+        "raceFormVariation": 0,
+        "passingVariation": 1
+      },
+      "field": "identical driver and car attributes",
+      "modelVersion": "segment-race-v1",
+      "randomnessVersion": "scoped-random-v2-segment",
+      "opponentScriptVersion": "dry-opponents-v1",
+      "recordedPhases": 10,
+      "acceptedDecisions": 220,
+      "exactReplay": true,
+      "finished": true,
+      "completedLapRange": [
+        50,
+        50
+      ],
+      "eligibleCars": 22,
+      "ownedCars": [
+        {
+          "driverId": "driver-01",
+          "completedLaps": 50,
+          "eligibleAtFinish": true
+        },
+        {
+          "driverId": "driver-02",
+          "completedLaps": 50,
+          "eligibleAtFinish": true
+        }
+      ],
+      "observedBattleOptions": [
+        "Attack",
+        "Defend",
+        "Neutral"
+      ],
+      "stopQueuedAtDecisionBoundary": false,
+      "inPitsAtDecisionBoundary": false,
+      "milliseconds": {
+        "serverWindowToAcceptanceSum": 2797.2115999999996,
+        "engineResolutionSum": 487.8523,
+        "readyWaitSum": 784.0920999999998,
+        "serverTotalToFinish": 4185.6828,
+        "clientPresentationSamples": 10,
+        "clientPresentationSum": 1.1999998092651367
+      },
+      "decisions": [
+        {
+          "phase": 0,
+          "driverId": "driver-01",
+          "decision": {
+            "pace": "Conserve",
+            "pitCompound": null,
+            "battle": "Neutral"
+          }
+        },
+        {
+          "phase": 0,
+          "driverId": "driver-02",
+          "decision": {
+            "pace": "Push",
+            "pitCompound": null,
+            "battle": "Attack"
+          }
+        },
+        {
+          "phase": 1,
+          "driverId": "driver-01",
+          "decision": {
+            "pace": "Conserve",
+            "pitCompound": null,
+            "battle": "Attack"
+          }
+        },
+        {
+          "phase": 1,
+          "driverId": "driver-02",
+          "decision": {
+            "pace": "Push",
+            "pitCompound": null,
+            "battle": "Neutral"
+          }
+        },
+        {
+          "phase": 2,
+          "driverId": "driver-01",
+          "decision": {
+            "pace": "Conserve",
+            "pitCompound": "Hard",
+            "battle": "Attack"
+          }
+        },
+        {
+          "phase": 2,
+          "driverId": "driver-02",
+          "decision": {
+            "pace": "Push",
+            "pitCompound": "Hard",
+            "battle": "Neutral"
+          }
+        },
+        {
+          "phase": 3,
+          "driverId": "driver-01",
+          "decision": {
+            "pace": "Conserve",
+            "pitCompound": null,
+            "battle": "Neutral"
+          }
+        },
+        {
+          "phase": 3,
+          "driverId": "driver-02",
+          "decision": {
+            "pace": "Push",
+            "pitCompound": null,
+            "battle": "Neutral"
+          }
+        },
+        {
+          "phase": 4,
+          "driverId": "driver-01",
+          "decision": {
+            "pace": "Conserve",
+            "pitCompound": null,
+            "battle": "Neutral"
+          }
+        },
+        {
+          "phase": 4,
+          "driverId": "driver-02",
+          "decision": {
+            "pace": "Push",
+            "pitCompound": null,
+            "battle": "Attack"
+          }
+        },
+        {
+          "phase": 5,
+          "driverId": "driver-01",
+          "decision": {
+            "pace": "Conserve",
+            "pitCompound": null,
+            "battle": "Neutral"
+          }
+        },
+        {
+          "phase": 5,
+          "driverId": "driver-02",
+          "decision": {
+            "pace": "Push",
+            "pitCompound": null,
+            "battle": "Attack"
+          }
+        },
+        {
+          "phase": 6,
+          "driverId": "driver-01",
+          "decision": {
+            "pace": "Conserve",
+            "pitCompound": "Soft",
+            "battle": "Neutral"
+          }
+        },
+        {
+          "phase": 6,
+          "driverId": "driver-02",
+          "decision": {
+            "pace": "Push",
+            "pitCompound": "Soft",
+            "battle": "Neutral"
+          }
+        },
+        {
+          "phase": 7,
+          "driverId": "driver-01",
+          "decision": {
+            "pace": "Conserve",
+            "pitCompound": null,
+            "battle": "Neutral"
+          }
+        },
+        {
+          "phase": 7,
+          "driverId": "driver-02",
+          "decision": {
+            "pace": "Push",
+            "pitCompound": null,
+            "battle": "Attack"
+          }
+        },
+        {
+          "phase": 8,
+          "driverId": "driver-01",
+          "decision": {
+            "pace": "Conserve",
+            "pitCompound": null,
+            "battle": "Attack"
+          }
+        },
+        {
+          "phase": 8,
+          "driverId": "driver-02",
+          "decision": {
+            "pace": "Push",
+            "pitCompound": null,
+            "battle": "Attack"
+          }
+        },
+        {
+          "phase": 9,
+          "driverId": "driver-01",
+          "decision": {
+            "pace": "Conserve",
+            "pitCompound": null,
+            "battle": "Attack"
+          }
+        },
+        {
+          "phase": 9,
+          "driverId": "driver-02",
+          "decision": {
+            "pace": "Push",
+            "pitCompound": null,
+            "battle": "Attack"
+          }
+        }
+      ]
+    },
+    {
+      "scenario": "open-mixed",
+      "preset": "open-mixed",
+      "seed": 123,
+      "distance": 50,
+      "configuration": {
+        "laps": 50,
+        "track": {
+          "name": "OpenSegment",
+          "baseLapTime": 90,
+          "speedWeight": 0.5,
+          "pitLaneLoss": 20,
+          "stationaryStop": 3,
+          "passingChance": 0.4,
+          "segments": [
+            {
+              "id": "straight-1",
+              "length": 1250,
+              "baselineTime": 22.5,
+              "speedDemand": 1,
+              "corneringDemand": 0,
+              "tyreDemand": 0.9,
+              "passingAllowed": true,
+              "passingDifficulty": 0.4,
+              "passingZoneId": null
+            },
+            {
+              "id": "corner-1",
+              "length": 1250,
+              "baselineTime": 22.5,
+              "speedDemand": 0,
+              "corneringDemand": 1,
+              "tyreDemand": 1.1,
+              "passingAllowed": false,
+              "passingDifficulty": 0.4,
+              "passingZoneId": null
+            },
+            {
+              "id": "straight-2",
+              "length": 1250,
+              "baselineTime": 22.5,
+              "speedDemand": 1,
+              "corneringDemand": 0,
+              "tyreDemand": 0.9,
+              "passingAllowed": true,
+              "passingDifficulty": 0.4,
+              "passingZoneId": null
+            },
+            {
+              "id": "corner-2",
+              "length": 1250,
+              "baselineTime": 22.5,
+              "speedDemand": 0,
+              "corneringDemand": 1,
+              "tyreDemand": 1.1,
+              "passingAllowed": false,
+              "passingDifficulty": 0.4,
+              "passingZoneId": null
+            }
+          ]
+        },
+        "attributeSeconds": 1,
+        "lapVariation": 0.2,
+        "tyres": {
+          "degradationPerLap": 0.025,
+          "warmupPenalty": 0.8,
+          "degradationPenalty": 10,
+          "exhaustionPenalty": 15,
+          "pushGain": 1,
+          "pushWear": 1.65,
+          "conserveLoss": 0.8,
+          "conserveWear": 0.65,
+          "softGain": 1.1,
+          "softWear": 1.3,
+          "hardLoss": 0.8,
+          "hardWear": 0.7,
+          "softWarmup": 0.5,
+          "hardWarmup": 1.5
+        },
+        "stopVariation": 0.6,
+        "traffic": {
+          "enabled": true,
+          "followingLoss": 0.3,
+          "blueFlagLoss": 0.15,
+          "battleProximity": 3,
+          "attackMultiplier": 1.7,
+          "defendMultiplier": 0.55,
+          "battleWear": 0.2
+        },
+        "estimateError": 0.04,
+        "raceFormVariation": 0,
+        "passingVariation": 1
+      },
+      "field": "mixed car fit and small driver Pace offsets",
+      "modelVersion": "segment-race-v1",
+      "randomnessVersion": "scoped-random-v2-segment",
+      "opponentScriptVersion": "dry-opponents-v1",
+      "recordedPhases": 10,
+      "acceptedDecisions": 220,
+      "exactReplay": true,
+      "finished": true,
+      "completedLapRange": [
+        50,
+        50
+      ],
+      "eligibleCars": 22,
+      "ownedCars": [
+        {
+          "driverId": "driver-01",
+          "completedLaps": 50,
+          "eligibleAtFinish": true
+        },
+        {
+          "driverId": "driver-02",
+          "completedLaps": 50,
+          "eligibleAtFinish": true
+        }
+      ],
+      "observedBattleOptions": [
+        "Attack",
+        "Defend",
+        "Neutral"
+      ],
+      "stopQueuedAtDecisionBoundary": false,
+      "inPitsAtDecisionBoundary": false,
+      "milliseconds": {
+        "serverWindowToAcceptanceSum": 2919.4518,
+        "engineResolutionSum": 614.5688,
+        "readyWaitSum": 693.9244,
+        "serverTotalToFinish": 4406.3164,
+        "clientPresentationSamples": 10,
+        "clientPresentationSum": 1
+      },
+      "decisions": [
+        {
+          "phase": 0,
+          "driverId": "driver-01",
+          "decision": {
+            "pace": "Conserve",
+            "pitCompound": null,
+            "battle": "Neutral"
+          }
+        },
+        {
+          "phase": 0,
+          "driverId": "driver-02",
+          "decision": {
+            "pace": "Push",
+            "pitCompound": null,
+            "battle": "Attack"
+          }
+        },
+        {
+          "phase": 1,
+          "driverId": "driver-01",
+          "decision": {
+            "pace": "Conserve",
+            "pitCompound": null,
+            "battle": "Neutral"
+          }
+        },
+        {
+          "phase": 1,
+          "driverId": "driver-02",
+          "decision": {
+            "pace": "Push",
+            "pitCompound": null,
+            "battle": "Neutral"
+          }
+        },
+        {
+          "phase": 2,
+          "driverId": "driver-01",
+          "decision": {
+            "pace": "Conserve",
+            "pitCompound": "Hard",
+            "battle": "Attack"
+          }
+        },
+        {
+          "phase": 2,
+          "driverId": "driver-02",
+          "decision": {
+            "pace": "Push",
+            "pitCompound": "Hard",
+            "battle": "Attack"
+          }
+        },
+        {
+          "phase": 3,
+          "driverId": "driver-01",
+          "decision": {
+            "pace": "Conserve",
+            "pitCompound": null,
+            "battle": "Neutral"
+          }
+        },
+        {
+          "phase": 3,
+          "driverId": "driver-02",
+          "decision": {
+            "pace": "Push",
+            "pitCompound": null,
+            "battle": "Neutral"
+          }
+        },
+        {
+          "phase": 4,
+          "driverId": "driver-01",
+          "decision": {
+            "pace": "Conserve",
+            "pitCompound": null,
+            "battle": "Neutral"
+          }
+        },
+        {
+          "phase": 4,
+          "driverId": "driver-02",
+          "decision": {
+            "pace": "Push",
+            "pitCompound": null,
+            "battle": "Neutral"
+          }
+        },
+        {
+          "phase": 5,
+          "driverId": "driver-01",
+          "decision": {
+            "pace": "Conserve",
+            "pitCompound": null,
+            "battle": "Neutral"
+          }
+        },
+        {
+          "phase": 5,
+          "driverId": "driver-02",
+          "decision": {
+            "pace": "Push",
+            "pitCompound": null,
+            "battle": "Attack"
+          }
+        },
+        {
+          "phase": 6,
+          "driverId": "driver-01",
+          "decision": {
+            "pace": "Conserve",
+            "pitCompound": "Soft",
+            "battle": "Neutral"
+          }
+        },
+        {
+          "phase": 6,
+          "driverId": "driver-02",
+          "decision": {
+            "pace": "Push",
+            "pitCompound": "Soft",
+            "battle": "Neutral"
+          }
+        },
+        {
+          "phase": 7,
+          "driverId": "driver-01",
+          "decision": {
+            "pace": "Conserve",
+            "pitCompound": null,
+            "battle": "Attack"
+          }
+        },
+        {
+          "phase": 7,
+          "driverId": "driver-02",
+          "decision": {
+            "pace": "Push",
+            "pitCompound": null,
+            "battle": "Attack"
+          }
+        },
+        {
+          "phase": 8,
+          "driverId": "driver-01",
+          "decision": {
+            "pace": "Conserve",
+            "pitCompound": null,
+            "battle": "Attack"
+          }
+        },
+        {
+          "phase": 8,
+          "driverId": "driver-02",
+          "decision": {
+            "pace": "Push",
+            "pitCompound": null,
+            "battle": "Attack"
+          }
+        },
+        {
+          "phase": 9,
+          "driverId": "driver-01",
+          "decision": {
+            "pace": "Conserve",
+            "pitCompound": null,
+            "battle": "Attack"
+          }
+        },
+        {
+          "phase": 9,
+          "driverId": "driver-02",
+          "decision": {
+            "pace": "Push",
+            "pitCompound": null,
+            "battle": "Attack"
+          }
+        }
+      ]
+    },
+    {
+      "scenario": "restricted-mixed",
+      "preset": "restricted-mixed",
+      "seed": 123,
+      "distance": 50,
+      "configuration": {
+        "laps": 50,
+        "track": {
+          "name": "RestrictedSegment",
+          "baseLapTime": 90,
+          "speedWeight": 0.5,
+          "pitLaneLoss": 20,
+          "stationaryStop": 3,
+          "passingChance": 0.4,
+          "segments": [
+            {
+              "id": "corner-1",
+              "length": 1000,
+              "baselineTime": 30,
+              "speedDemand": 0.1,
+              "corneringDemand": 0.9,
+              "tyreDemand": 1.15,
+              "passingAllowed": false,
+              "passingDifficulty": 0.4,
+              "passingZoneId": null
+            },
+            {
+              "id": "straight",
+              "length": 3000,
+              "baselineTime": 30,
+              "speedDemand": 1,
+              "corneringDemand": 0,
+              "tyreDemand": 0.9,
+              "passingAllowed": true,
+              "passingDifficulty": 0.4,
+              "passingZoneId": null
+            },
+            {
+              "id": "corner-2",
+              "length": 1000,
+              "baselineTime": 30,
+              "speedDemand": 0.4,
+              "corneringDemand": 0.6,
+              "tyreDemand": 1.15,
+              "passingAllowed": false,
+              "passingDifficulty": 0.4,
+              "passingZoneId": null
+            }
+          ]
+        },
+        "attributeSeconds": 1,
+        "lapVariation": 0.2,
+        "tyres": {
+          "degradationPerLap": 0.025,
+          "warmupPenalty": 0.8,
+          "degradationPenalty": 10,
+          "exhaustionPenalty": 15,
+          "pushGain": 1,
+          "pushWear": 1.65,
+          "conserveLoss": 0.8,
+          "conserveWear": 0.65,
+          "softGain": 1.1,
+          "softWear": 1.3,
+          "hardLoss": 0.8,
+          "hardWear": 0.7,
+          "softWarmup": 0.5,
+          "hardWarmup": 1.5
+        },
+        "stopVariation": 0.6,
+        "traffic": {
+          "enabled": true,
+          "followingLoss": 0.3,
+          "blueFlagLoss": 0.15,
+          "battleProximity": 3,
+          "attackMultiplier": 1.7,
+          "defendMultiplier": 0.55,
+          "battleWear": 0.2
+        },
+        "estimateError": 0.04,
+        "raceFormVariation": 0,
+        "passingVariation": 1
+      },
+      "field": "mixed car fit and small driver Pace offsets",
+      "modelVersion": "segment-race-v1",
+      "randomnessVersion": "scoped-random-v2-segment",
+      "opponentScriptVersion": "dry-opponents-v1",
+      "recordedPhases": 10,
+      "acceptedDecisions": 220,
+      "exactReplay": true,
+      "finished": true,
+      "completedLapRange": [
+        50,
+        50
+      ],
+      "eligibleCars": 22,
+      "ownedCars": [
+        {
+          "driverId": "driver-01",
+          "completedLaps": 50,
+          "eligibleAtFinish": true
+        },
+        {
+          "driverId": "driver-02",
+          "completedLaps": 50,
+          "eligibleAtFinish": true
+        }
+      ],
+      "observedBattleOptions": [
+        "Attack",
+        "Defend",
+        "Neutral"
+      ],
+      "stopQueuedAtDecisionBoundary": false,
+      "inPitsAtDecisionBoundary": false,
+      "milliseconds": {
+        "serverWindowToAcceptanceSum": 2929.7632,
+        "engineResolutionSum": 444.48240000000004,
+        "readyWaitSum": 819.6128999999999,
+        "serverTotalToFinish": 4337.3881,
+        "clientPresentationSamples": 10,
+        "clientPresentationSum": 1.1000003814697266
+      },
+      "decisions": [
+        {
+          "phase": 0,
+          "driverId": "driver-01",
+          "decision": {
+            "pace": "Conserve",
+            "pitCompound": null,
+            "battle": "Neutral"
+          }
+        },
+        {
+          "phase": 0,
+          "driverId": "driver-02",
+          "decision": {
+            "pace": "Push",
+            "pitCompound": null,
+            "battle": "Attack"
+          }
+        },
+        {
+          "phase": 1,
+          "driverId": "driver-01",
+          "decision": {
+            "pace": "Conserve",
+            "pitCompound": null,
+            "battle": "Neutral"
+          }
+        },
+        {
+          "phase": 1,
+          "driverId": "driver-02",
+          "decision": {
+            "pace": "Push",
+            "pitCompound": null,
+            "battle": "Neutral"
+          }
+        },
+        {
+          "phase": 2,
+          "driverId": "driver-01",
+          "decision": {
+            "pace": "Conserve",
+            "pitCompound": "Hard",
+            "battle": "Neutral"
+          }
+        },
+        {
+          "phase": 2,
+          "driverId": "driver-02",
+          "decision": {
+            "pace": "Push",
+            "pitCompound": "Hard",
+            "battle": "Attack"
+          }
+        },
+        {
+          "phase": 3,
+          "driverId": "driver-01",
+          "decision": {
+            "pace": "Conserve",
+            "pitCompound": null,
+            "battle": "Neutral"
+          }
+        },
+        {
+          "phase": 3,
+          "driverId": "driver-02",
+          "decision": {
+            "pace": "Push",
+            "pitCompound": null,
+            "battle": "Attack"
+          }
+        },
+        {
+          "phase": 4,
+          "driverId": "driver-01",
+          "decision": {
+            "pace": "Conserve",
+            "pitCompound": null,
+            "battle": "Neutral"
+          }
+        },
+        {
+          "phase": 4,
+          "driverId": "driver-02",
+          "decision": {
+            "pace": "Push",
+            "pitCompound": null,
+            "battle": "Attack"
+          }
+        },
+        {
+          "phase": 5,
+          "driverId": "driver-01",
+          "decision": {
+            "pace": "Conserve",
+            "pitCompound": null,
+            "battle": "Neutral"
+          }
+        },
+        {
+          "phase": 5,
+          "driverId": "driver-02",
+          "decision": {
+            "pace": "Push",
+            "pitCompound": null,
+            "battle": "Attack"
+          }
+        },
+        {
+          "phase": 6,
+          "driverId": "driver-01",
+          "decision": {
+            "pace": "Conserve",
+            "pitCompound": "Soft",
+            "battle": "Neutral"
+          }
+        },
+        {
+          "phase": 6,
+          "driverId": "driver-02",
+          "decision": {
+            "pace": "Push",
+            "pitCompound": "Soft",
+            "battle": "Attack"
+          }
+        },
+        {
+          "phase": 7,
+          "driverId": "driver-01",
+          "decision": {
+            "pace": "Conserve",
+            "pitCompound": null,
+            "battle": "Attack"
+          }
+        },
+        {
+          "phase": 7,
+          "driverId": "driver-02",
+          "decision": {
+            "pace": "Push",
+            "pitCompound": null,
+            "battle": "Attack"
+          }
+        },
+        {
+          "phase": 8,
+          "driverId": "driver-01",
+          "decision": {
+            "pace": "Conserve",
+            "pitCompound": null,
+            "battle": "Attack"
+          }
+        },
+        {
+          "phase": 8,
+          "driverId": "driver-02",
+          "decision": {
+            "pace": "Push",
+            "pitCompound": null,
+            "battle": "Attack"
+          }
+        },
+        {
+          "phase": 9,
+          "driverId": "driver-01",
+          "decision": {
+            "pace": "Conserve",
+            "pitCompound": null,
+            "battle": "Attack"
+          }
+        },
+        {
+          "phase": 9,
+          "driverId": "driver-02",
+          "decision": {
+            "pace": "Push",
+            "pitCompound": null,
+            "battle": "Neutral"
+          }
+        }
+      ]
+    },
+    {
+      "scenario": "open-equal-lapped",
+      "preset": "open-equal",
+      "seed": 123,
+      "distance": 50,
+      "configuration": {
+        "laps": 50,
+        "track": {
+          "name": "OpenSegment",
+          "baseLapTime": 90,
+          "speedWeight": 0.5,
+          "pitLaneLoss": 20,
+          "stationaryStop": 3,
+          "passingChance": 0.4,
+          "segments": [
+            {
+              "id": "straight-1",
+              "length": 1250,
+              "baselineTime": 22.5,
+              "speedDemand": 1,
+              "corneringDemand": 0,
+              "tyreDemand": 0.9,
+              "passingAllowed": true,
+              "passingDifficulty": 0.4,
+              "passingZoneId": null
+            },
+            {
+              "id": "corner-1",
+              "length": 1250,
+              "baselineTime": 22.5,
+              "speedDemand": 0,
+              "corneringDemand": 1,
+              "tyreDemand": 1.1,
+              "passingAllowed": false,
+              "passingDifficulty": 0.4,
+              "passingZoneId": null
+            },
+            {
+              "id": "straight-2",
+              "length": 1250,
+              "baselineTime": 22.5,
+              "speedDemand": 1,
+              "corneringDemand": 0,
+              "tyreDemand": 0.9,
+              "passingAllowed": true,
+              "passingDifficulty": 0.4,
+              "passingZoneId": null
+            },
+            {
+              "id": "corner-2",
+              "length": 1250,
+              "baselineTime": 22.5,
+              "speedDemand": 0,
+              "corneringDemand": 1,
+              "tyreDemand": 1.1,
+              "passingAllowed": false,
+              "passingDifficulty": 0.4,
+              "passingZoneId": null
+            }
+          ]
+        },
+        "attributeSeconds": 1,
+        "lapVariation": 0.2,
+        "tyres": {
+          "degradationPerLap": 0.025,
+          "warmupPenalty": 0.8,
+          "degradationPenalty": 10,
+          "exhaustionPenalty": 15,
+          "pushGain": 1,
+          "pushWear": 1.65,
+          "conserveLoss": 0.8,
+          "conserveWear": 0.65,
+          "softGain": 1.1,
+          "softWear": 1.3,
+          "hardLoss": 0.8,
+          "hardWear": 0.7,
+          "softWarmup": 0.5,
+          "hardWarmup": 1.5
+        },
+        "stopVariation": 0.6,
+        "traffic": {
+          "enabled": true,
+          "followingLoss": 0.3,
+          "blueFlagLoss": 0.15,
+          "battleProximity": 3,
+          "attackMultiplier": 1.7,
+          "defendMultiplier": 0.55,
+          "battleWear": 0.2
+        },
+        "estimateError": 0.04,
+        "raceFormVariation": 0,
+        "passingVariation": 1
+      },
+      "field": "identical driver and car attributes",
+      "modelVersion": "segment-race-v1",
+      "randomnessVersion": "scoped-random-v2-segment",
+      "opponentScriptVersion": "dry-opponents-v1",
+      "recordedPhases": 10,
+      "acceptedDecisions": 220,
+      "exactReplay": true,
+      "finished": true,
+      "completedLapRange": [
+        46,
+        50
+      ],
+      "eligibleCars": 21,
+      "ownedCars": [
+        {
+          "driverId": "driver-02",
+          "completedLaps": 46,
+          "eligibleAtFinish": true
+        },
+        {
+          "driverId": "driver-01",
+          "completedLaps": 46,
+          "eligibleAtFinish": false
+        }
+      ],
+      "observedBattleOptions": [
+        "Attack",
+        "Defend",
+        "Neutral"
+      ],
+      "stopQueuedAtDecisionBoundary": false,
+      "inPitsAtDecisionBoundary": false,
+      "milliseconds": {
+        "serverWindowToAcceptanceSum": 3239.4541,
+        "engineResolutionSum": 617.5735,
+        "readyWaitSum": 812.6767000000001,
+        "serverTotalToFinish": 4789.6488,
+        "clientPresentationSamples": 10,
+        "clientPresentationSum": 0.7999997138977051
+      },
+      "decisions": [
+        {
+          "phase": 0,
+          "driverId": "driver-01",
+          "decision": {
+            "pace": "Push",
+            "pitCompound": null,
+            "battle": "Neutral"
+          }
+        },
+        {
+          "phase": 0,
+          "driverId": "driver-02",
+          "decision": {
+            "pace": "Conserve",
+            "pitCompound": "Hard",
+            "battle": "Attack"
+          }
+        },
+        {
+          "phase": 1,
+          "driverId": "driver-01",
+          "decision": {
+            "pace": "Push",
+            "pitCompound": null,
+            "battle": "Neutral"
+          }
+        },
+        {
+          "phase": 1,
+          "driverId": "driver-02",
+          "decision": {
+            "pace": "Conserve",
+            "pitCompound": "Hard",
+            "battle": "Neutral"
+          }
+        },
+        {
+          "phase": 2,
+          "driverId": "driver-01",
+          "decision": {
+            "pace": "Push",
+            "pitCompound": null,
+            "battle": "Neutral"
+          }
+        },
+        {
+          "phase": 2,
+          "driverId": "driver-02",
+          "decision": {
+            "pace": "Conserve",
+            "pitCompound": "Hard",
+            "battle": "Neutral"
+          }
+        },
+        {
+          "phase": 3,
+          "driverId": "driver-01",
+          "decision": {
+            "pace": "Push",
+            "pitCompound": null,
+            "battle": "Neutral"
+          }
+        },
+        {
+          "phase": 3,
+          "driverId": "driver-02",
+          "decision": {
+            "pace": "Conserve",
+            "pitCompound": "Hard",
+            "battle": "Neutral"
+          }
+        },
+        {
+          "phase": 4,
+          "driverId": "driver-01",
+          "decision": {
+            "pace": "Push",
+            "pitCompound": null,
+            "battle": "Attack"
+          }
+        },
+        {
+          "phase": 4,
+          "driverId": "driver-02",
+          "decision": {
+            "pace": "Conserve",
+            "pitCompound": "Hard",
+            "battle": "Neutral"
+          }
+        },
+        {
+          "phase": 5,
+          "driverId": "driver-01",
+          "decision": {
+            "pace": "Push",
+            "pitCompound": null,
+            "battle": "Neutral"
+          }
+        },
+        {
+          "phase": 5,
+          "driverId": "driver-02",
+          "decision": {
+            "pace": "Conserve",
+            "pitCompound": "Hard",
+            "battle": "Neutral"
+          }
+        },
+        {
+          "phase": 6,
+          "driverId": "driver-01",
+          "decision": {
+            "pace": "Push",
+            "pitCompound": null,
+            "battle": "Attack"
+          }
+        },
+        {
+          "phase": 6,
+          "driverId": "driver-02",
+          "decision": {
+            "pace": "Conserve",
+            "pitCompound": "Hard",
+            "battle": "Neutral"
+          }
+        },
+        {
+          "phase": 7,
+          "driverId": "driver-01",
+          "decision": {
+            "pace": "Push",
+            "pitCompound": null,
+            "battle": "Attack"
+          }
+        },
+        {
+          "phase": 7,
+          "driverId": "driver-02",
+          "decision": {
+            "pace": "Conserve",
+            "pitCompound": "Hard",
+            "battle": "Neutral"
+          }
+        },
+        {
+          "phase": 8,
+          "driverId": "driver-01",
+          "decision": {
+            "pace": "Push",
+            "pitCompound": null,
+            "battle": "Neutral"
+          }
+        },
+        {
+          "phase": 8,
+          "driverId": "driver-02",
+          "decision": {
+            "pace": "Conserve",
+            "pitCompound": "Hard",
+            "battle": "Neutral"
+          }
+        },
+        {
+          "phase": 9,
+          "driverId": "driver-01",
+          "decision": {
+            "pace": "Push",
+            "pitCompound": null,
+            "battle": "Attack"
+          }
+        },
+        {
+          "phase": 9,
+          "driverId": "driver-02",
+          "decision": {
+            "pace": "Conserve",
+            "pitCompound": "Hard",
+            "battle": "Neutral"
+          }
+        }
+      ]
+    }
+  ]
+}

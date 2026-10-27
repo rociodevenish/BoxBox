@@ -15,6 +15,23 @@ internal static class JsonInput
             ValidateEntries(Required(root, "scheduled"), false);
             ValidateEntries(Required(root, "conditional"), true);
         }
+        else if (typeof(T) == typeof(RaceReplay))
+        {
+            var root = document.RootElement;
+            RequireReplayVersions(root);
+            foreach (var name in new[] { "configuration", "drivers", "plan", "seed" }) _ = Required(root, name);
+            ValidateReplayConfiguration(Required(root, "configuration"));
+            ValidatePlan(Required(root, "plan"));
+        }
+        else if (typeof(T) == typeof(ComparisonRequest))
+        {
+            var root = document.RootElement;
+            RequireReplayVersions(root);
+            foreach (var name in new[] { "configuration", "drivers", "targetDriver", "baseline", "alternative", "seeds" }) _ = Required(root, name);
+            ValidateReplayConfiguration(Required(root, "configuration"));
+            ValidatePlan(Required(root, "baseline"));
+            ValidatePlan(Required(root, "alternative"));
+        }
         else if (typeof(T) == typeof(ScheduledDecision[])) ValidateEntries(document.RootElement, false);
         else if (typeof(T) == typeof(RaceConfiguration))
         {
@@ -22,6 +39,31 @@ internal static class JsonInput
             _ = Required(document.RootElement, "track");
         }
         return JsonSerializer.Deserialize<T>(text, options) ?? throw new ArgumentException($"{path} contains a null input.");
+    }
+
+    private static void RequireReplayVersions(JsonElement root)
+    {
+        foreach (var name in new[] { "modelVersion", "randomnessVersion" })
+        {
+            var version = Required(root, name);
+            if (version.ValueKind != JsonValueKind.String || string.IsNullOrWhiteSpace(version.GetString()))
+                throw new ArgumentException("Replay requires nonempty explicit contract versions.");
+        }
+    }
+    private static void ValidatePlan(JsonElement plan)
+    {
+        ValidateEntries(Required(plan, "scheduled"), false);
+        ValidateEntries(Required(plan, "conditional"), true);
+    }
+    private static void ValidateReplayConfiguration(JsonElement config)
+    {
+        foreach (var name in new[] { "laps", "track", "attributeSeconds", "lapVariation", "tyres", "stopVariation",
+            "traffic", "estimateError", "raceFormVariation", "passingVariation" }) _ = Required(config, name);
+        if (Required(config, "tyres").ValueKind != JsonValueKind.Object || Required(config, "traffic").ValueKind != JsonValueKind.Object)
+            throw new ArgumentException("Replay requires explicit tyre and traffic tuning.");
+        var track = Required(config, "track");
+        foreach (var name in new[] { "name", "baseLapTime", "speedWeight", "pitLaneLoss", "stationaryStop", "passingChance", "segments" })
+            _ = Required(track, name);
     }
 
     private static void ValidateEntries(JsonElement entries, bool conditional)

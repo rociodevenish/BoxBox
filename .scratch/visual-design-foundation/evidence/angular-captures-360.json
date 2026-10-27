@@ -1,0 +1,29 @@
+{
+  "viewport": {
+    "width": 360,
+    "height": 800
+  },
+  "reducedMotion": true,
+  "captures": [
+    {
+      "file": "angular-compact-360.png",
+      "width": 328,
+      "height": 2050
+    },
+    {
+      "file": "angular-expanded-360.png",
+      "width": 328,
+      "height": 895
+    },
+    {
+      "file": "angular-tv-360.png",
+      "width": 328,
+      "height": 727
+    },
+    {
+      "file": "angular-dialog-360.png",
+      "width": 328,
+      "height": 358
+    }
+  ]
+}

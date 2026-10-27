@@ -1,0 +1,44 @@
+{
+  "name": "f1game-frontend",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "start": "ng serve --host 127.0.0.1 --port 4400",
+    "build": "ng build",
+    "typecheck": "ngc -p tsconfig.app.json --noEmit",
+    "test": "playwright test",
+    "capture": "playwright test tests/visual-review.spec.ts",
+    "start:race": "ng serve --host 127.0.0.1 --port 4410 --proxy-config proxy.browser.json",
+    "test:browser": "playwright test --config playwright.browser.config.ts",
+    "test:boundary": "playwright test --config playwright.boundary.config.ts",
+    "test:shared": "playwright test --config playwright.shared.config.ts"
+  },
+  "engines": {
+    "node": "^24.15.0 || >=26.0.0"
+  },
+  "dependencies": {
+    "@angular/common": "22.2.1",
+    "@angular/compiler": "22.2.1",
+    "@angular/core": "22.2.1",
+    "@angular/platform-browser": "22.2.1",
+    "@microsoft/signalr": "10.0.0",
+    "firebase": "13.0.0",
+    "qrcode": "1.5.4",
+    "rxjs": "7.8.2",
+    "tslib": "2.8.1"
+  },
+  "devDependencies": {
+    "@angular/build": "22.2.1",
+    "@angular/cli": "22.2.1",
+    "@angular/compiler-cli": "22.2.1",
+    "@playwright/test": "1.62.1",
+    "@tailwindcss/postcss": "4.3.3",
+    "@types/qrcode": "1.5.6",
+    "postcss": "8.5.29",
+    "tailwindcss": "4.3.3",
+    "typescript": "6.0.3"
+  },
+  "overrides": {
+    "@grpc/grpc-js": "1.13.6"
+  }
+}

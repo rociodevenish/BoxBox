@@ -1,0 +1,38 @@
+# S08 review remediation — current v2 opening
+
+The P2 opening-pace finding and P3 expiry-settlement duplication from the independent Spec/Standards reviews are resolved here. The original review reports remain unchanged. This remediation starts from integration `dc2d9d283eb7feb2d44f941f5ecb92f31652db06`.
+
+New `automatic-standing-start-v2` openings initialize Standard Pace and Neutral Battle before initial tyre penalties, durations and launch traversal are computed. The same live engine advances to the leader-lap-one boundary and continues to the first normal Race Phase at leader lap six. The existing rolling constructor still initializes exactly as before. Historical `automatic-standing-start-v1` is explicitly supported with its original Conserve behavior; its input is never reinterpreted as v2. Both versions retain `opening-keyed-v1` randomness. Unknown model or randomness versions are rejected. Public opening projections report their saved model version, including recovered v1 sessions.
+
+`BrowserReplay.Read/Verify`, `SimulationReplay.CreateEngine`, durable restore, and `QualifyingEvidence --replay` use the same version-dispatched public opening resolver. A new real API test restores a v1 opening through the persistence boundary, checks its reported version/time, resolves the first Race Phase, and round-trips its designer record through BrowserReplay. Existing current-version commit/retry/restart coverage passes alongside it.
+
+The shared `SettleExpiredQualifying` operation now fills only missing required locks from the already-frozen timeout policy and resolves once. Scheduled wakeup and pause callers retain their revision increments, guards and persistence placement. Existing accepted-lock, expiry, pause, restart and stale/duplicate delivery tests cover both paths.
+
+The root broad browser run also found a legacy controller-name regression: S08 consumed the public API's historical `Driver 01` instead of the frontend's previous `Driver 1`. The frontend now uses its original numeric names for sessions without opening metadata, while opening sessions retain supplied driver names. The backend public contract and existing browser locators are unchanged. The existing compact-controller test supplied the red regression and now passes.
+
+## Current evidence and historical limits
+
+The eight gzip files here contain **400 current v2, 22-car, 11-team weekends**, using the same cases as historical evidence 05: 384 Monza/Monaco × equal/mixed field × Safe/Push/All-Out × seeds 101–132, plus 16 setup controls on seeds 101–104. Each record contains all three qualifying attempts, frozen inputs, final grid, complete opening and same-engine first Race Phase. All 400 generated records passed a separate saved-file replay, without catalog access. All **400 original v1 records** under `../05` also passed exact complete-record saved-file replay with the new implementation.
+
+[Opening summary and file SHA-256 hashes](opening-summary.json) identify the current files. All current opening tyre states report Standard. All 400 openings changed compared with v1; mean leader-lap-one time is 0.799856570 seconds earlier and mean per-car opening condition is 0.008376504 lower in this finite matrix. Movement still occurs in 282/400 weekends, with maximum seven positions gained. These descriptive figures do not establish calibrated balance. Full qualifying input/result/grid values are unchanged; [risk summary](summary.json) and [setup controls](controls.json) are byte-identical to evidence 05. Its qualifying risk/fit interpretation remains applicable.
+
+Evidence **04 and 05 screenshots and gzip inputs are historical Conserve/v1 evidence**. They were not overwritten. Use this directory's four captures for the current opening/first-window appearance. The qualifying-only historical captures remain relevant to unchanged qualifying UI. No UI layout or physics beyond automatic opening pace was changed. Co-located failed-pass queues can still produce legitimate zero intervals; no fabricated timing gaps were introduced.
+
+## Verification and captures
+
+[Command/PID manifest](checks.json) preserves actual commands and bounded outcomes, including the red assertions, corrected commands, source digest, isolated ports and emulator configuration. Unique affected checks are:
+
+- 62 public simulation tests: qualifying, opening, replay and segment filters. The new public opening regression was observed red (expected Standard, actual Conserve), then green. Nonzero ConserveLoss/ConserveWear tuning demonstrates actual time/wear differences and replay/same-engine handoff.
+- 13 real Auth/Firestore API tests in `QualifyingTests`, including current opening commit/retry/recovery, expiry/pause/frozen accepted locks and the added legacy restore/BrowserReplay test. The latter was observed red (reported v2 for saved v1), then green.
+- One existing compact-controller browser test and one full preparation/Q1/Q2/Q3/opening/first-window browser flow, both passed. These overlap existing root broad coverage and are focused remediation checks, not a second broad pass.
+- 400 historical v1 saved-file replays and 400 current v2 saved-file replays, each complete opening plus first Race Phase. Generation and replay commands are recorded separately rather than counted as tests.
+
+Inspected [phone opening](phone-opening.png) and [phone first decision window](phone-first-window.png) at viewport 360×800, and [public opening](public-opening.png) and [public first decision window](public-first-window.png) at 1920×1080. Phone content scrolls vertically without horizontal overflow; named drivers, gains/losses and both independent controls remain readable. The phone flow deliberately retains its preceding portrait-failure route, so fallback cards are expected. The public opening and all 22 first-window timing rows fit. Reduced-motion and normal-motion skip preserve the authoritative Classification; handoff preserves race time and initializes the first decision deadline. Captures show real current movement (+2 for Colapinto in this browser case).
+
+Owned ports: UI4518, API4618, Auth19369, Firestore19360, hub19590, logging19640, websocket9160. Preflight found no listeners. Node 24.19.0, .NET 10.0.401, Java 21 and the existing Chromium cache were used with isolated artifact folders and cached dependency junctions. Services stop after each bounded run; junctions are removed at handoff. `NuGetAudit=false` is test-scoped for the pre-existing SignalR 10.0.12 advisory and is not its remediation. The root's remaining named integration steps run after merge.
+
+## Reproduction and acceptance
+
+From repository root, build/run `tools/QualifyingEvidence` to a new ignored output directory, use `--controls` for its controls, then run `--replay <saved.json.gz>` for each of the eight files. Explicit saved model versions select v1/v2; evidence schema and browser replay format remain v1 because their shape is unchanged. Browser reproduction uses `playwright.browser.config.ts tests/browser/compact-controller.spec.ts` and `playwright.shared.config.ts tests/shared/opening.spec.ts`, with the isolated environment/configuration in checks.json. API reproduction filters `FullyQualifiedName~QualifyingTests` on actual Auth/Firestore emulators.
+
+Household qualifying duration, separate human decision/presentation/handoff timings, two-car comprehension/start readability, hosted behavior/cost and full-weekend pacing remain unobserved acceptance items. Agent image inspection and automated elapsed times do not establish them. Incidents, broader physics, dependency upgrades and other features remain outside this remediation.

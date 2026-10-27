@@ -2,3 +2,8 @@
 **/obj/
 .tools/
 reports/
+/.worktrees/
+
+**/*-debug.log
+deploy/*.local.yaml
+deploy/*.env

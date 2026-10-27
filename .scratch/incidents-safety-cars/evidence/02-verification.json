@@ -1,0 +1,281 @@
+[
+  {
+    "command": "dotnet",
+    "args": [
+      "test",
+      "tests/Game.Simulation.Tests",
+      "--artifacts-path",
+      ".tools/artifacts/s09-02",
+      "-p:",
+      "NuGetAudit=false",
+      "--filter",
+      "FullyQualifiedName~InterruptionTests",
+      "--verbosity",
+      "quiet"
+    ],
+    "cwd": "C:\\Projects\\F1Game\\.worktrees\\s09-02",
+    "pid": 13596,
+    "startedAt": "2026-10-17T19:45:21.62Z",
+    "status": "failed",
+    "exitCode": 1,
+    "elapsedMs": 3320
+  },
+  {
+    "command": "dotnet",
+    "args": [
+      "test",
+      "tests/Game.Simulation.Tests",
+      "--artifacts-path",
+      ".tools/artifacts/s09-02",
+      "-p:",
+      "NuGetAudit=false",
+      "--filter",
+      "FullyQualifiedName~InterruptionTests",
+      "--verbosity",
+      "quiet"
+    ],
+    "cwd": "C:\\Projects\\F1Game\\.worktrees\\s09-02",
+    "pid": 22912,
+    "startedAt": "2026-10-17T19:45:45.321Z",
+    "status": "passed",
+    "exitCode": 0,
+    "elapsedMs": 3353
+  },
+  {
+    "command": "dotnet",
+    "args": [
+      "test",
+      "tests/Game.Simulation.Tests",
+      "--artifacts-path",
+      ".tools/artifacts/s09-02",
+      "-p:",
+      "NuGetAudit=false",
+      "--filter",
+      "FullyQualifiedName~InterruptionTests",
+      "--logger",
+      "console;verbosity=normal",
+      "--verbosity",
+      "quiet"
+    ],
+    "cwd": "C:\\Projects\\F1Game\\.worktrees\\s09-02",
+    "pid": 30856,
+    "startedAt": "2026-10-17T19:46:52.52Z",
+    "status": "failed",
+    "exitCode": 1,
+    "elapsedMs": 2525
+  },
+  {
+    "command": "dotnet",
+    "args": [
+      "test",
+      "tests/Game.Simulation.Tests",
+      "--artifacts-path",
+      ".tools/artifacts/s09-02",
+      "-p:",
+      "NuGetAudit=false",
+      "--filter",
+      "FullyQualifiedName~InterruptionTests",
+      "--verbosity",
+      "quiet"
+    ],
+    "cwd": "C:\\Projects\\F1Game\\.worktrees\\s09-02",
+    "pid": 29184,
+    "startedAt": "2026-10-17T19:47:01.659Z",
+    "status": "passed",
+    "exitCode": 0,
+    "elapsedMs": 3126
+  },
+  {
+    "command": "dotnet",
+    "args": [
+      "test",
+      "tests/Game.Simulation.Tests",
+      "--artifacts-path",
+      ".tools/artifacts/s09-02",
+      "-p:",
+      "NuGetAudit=false",
+      "--filter",
+      "FullyQualifiedName~InterruptionTests.Configured",
+      "--logger",
+      "console;verbosity=normal",
+      "--verbosity",
+      "quiet"
+    ],
+    "cwd": "C:\\Projects\\F1Game\\.worktrees\\s09-02",
+    "pid": 13588,
+    "startedAt": "2026-10-17T19:47:36.166Z",
+    "status": "failed",
+    "exitCode": 1,
+    "elapsedMs": 3302
+  },
+  {
+    "command": "dotnet",
+    "args": [
+      "test",
+      "tests/Game.Simulation.Tests",
+      "--artifacts-path",
+      ".tools/artifacts/s09-02",
+      "-p:",
+      "NuGetAudit=false",
+      "--filter",
+      "FullyQualifiedName~InterruptionTests",
+      "--verbosity",
+      "quiet"
+    ],
+    "cwd": "C:\\Projects\\F1Game\\.worktrees\\s09-02",
+    "pid": 32404,
+    "startedAt": "2026-10-17T19:47:46.642Z",
+    "status": "passed",
+    "exitCode": 0,
+    "elapsedMs": 2767
+  },
+  {
+    "command": "dotnet",
+    "args": [
+      "test",
+      "tests/Game.Simulation.Tests",
+      "--artifacts-path",
+      ".tools/artifacts/s09-02",
+      "-p:",
+      "NuGetAudit=false",
+      "--filter",
+      "FullyQualifiedName~InterruptionTests|FullyQualifiedName~IncidentTests|FullyQualifiedName~SegmentTests|FullyQualifiedName~SegmentTrafficTests|FullyQualifiedName~SegmentPitTests|FullyQualifiedName~SegmentPassingTests|FullyQualifiedName~ReplayTests|FullyQualifiedName~AutomaticStartTests",
+      "--verbosity",
+      "quiet"
+    ],
+    "cwd": "C:\\Projects\\F1Game\\.worktrees\\s09-02",
+    "pid": 7724,
+    "startedAt": "2026-10-17T19:48:08.869Z",
+    "status": "passed",
+    "exitCode": 0,
+    "elapsedMs": 2838
+  },
+  {
+    "command": "dotnet",
+    "args": [
+      "test",
+      "tests/Game.Simulation.Tests",
+      "--artifacts-path",
+      ".tools/artifacts/s09-02",
+      "-p:",
+      "NuGetAudit=false",
+      "--filter",
+      "FullyQualifiedName~AutomaticRaceStartTests",
+      "--verbosity",
+      "quiet"
+    ],
+    "cwd": "C:\\Projects\\F1Game\\.worktrees\\s09-02",
+    "pid": 14048,
+    "startedAt": "2026-10-17T19:48:24.28Z",
+    "status": "passed",
+    "exitCode": 0,
+    "elapsedMs": 2501
+  },
+  {
+    "command": "dotnet",
+    "args": [
+      "test",
+      "tests/Game.Simulation.Tests",
+      "--artifacts-path",
+      ".tools/artifacts/s09-02",
+      "-p:",
+      "NuGetAudit=false",
+      "--filter",
+      "FullyQualifiedName~InterruptionTests|FullyQualifiedName~ReplayTests|FullyQualifiedName~AutomaticRaceStartTests",
+      "--verbosity",
+      "quiet"
+    ],
+    "cwd": "C:\\Projects\\F1Game\\.worktrees\\s09-02",
+    "pid": 32600,
+    "startedAt": "2026-10-17T19:49:26.982Z",
+    "status": "passed",
+    "exitCode": 0,
+    "elapsedMs": 3002
+  },
+  {
+    "command": "dotnet",
+    "args": [
+      "test",
+      "tests/Game.Simulation.Tests",
+      "--artifacts-path",
+      ".tools/artifacts/s09-02",
+      "-p:",
+      "NuGetAudit=false",
+      "--filter",
+      "FullyQualifiedName~InterruptionTests",
+      "--logger",
+      "console;verbosity=normal",
+      "--verbosity",
+      "quiet"
+    ],
+    "cwd": "C:\\Projects\\F1Game\\.worktrees\\s09-02",
+    "pid": 7740,
+    "startedAt": "2026-10-17T19:49:54.441Z",
+    "status": "passed",
+    "exitCode": 0,
+    "elapsedMs": 2946
+  },
+  {
+    "command": "dotnet",
+    "args": [
+      "run",
+      "--project",
+      "tools/QualifyingEvidence",
+      "--artifacts-path",
+      ".tools/artifacts/s09-02-saved",
+      "-p:",
+      "NuGetAudit=false",
+      "--",
+      "--replay",
+      ".scratch/qualifying-race-start/evidence/05/control-track-monza-aero-2.json.gz"
+    ],
+    "cwd": "C:\\Projects\\F1Game\\.worktrees\\s09-02",
+    "pid": 22644,
+    "startedAt": "2026-10-17T19:49:15.686Z",
+    "status": "passed",
+    "exitCode": 0,
+    "elapsedMs": 3146
+  },
+  {
+    "command": "dotnet",
+    "args": [
+      "run",
+      "--project",
+      "tools/QualifyingEvidence",
+      "--artifacts-path",
+      ".tools/artifacts/s09-02-saved",
+      "-p:",
+      "NuGetAudit=false",
+      "--",
+      "--replay",
+      ".scratch/qualifying-race-start/evidence/review-remediation/control-track-monaco-aero--2.json.gz"
+    ],
+    "cwd": "C:\\Projects\\F1Game\\.worktrees\\s09-02",
+    "pid": 10844,
+    "startedAt": "2026-10-17T19:49:32.515Z",
+    "status": "passed",
+    "exitCode": 0,
+    "elapsedMs": 2349
+  },
+  {
+    "command": "dotnet",
+    "args": [
+      "run",
+      "--project",
+      "tools/QualifyingEvidence",
+      "--artifacts-path",
+      ".tools/artifacts/s09-02-saved",
+      "-p:",
+      "NuGetAudit=false",
+      "--",
+      "--replay",
+      ".scratch/qualifying-race-start/evidence/05/control-track-monza-aero-2.json.gz"
+    ],
+    "cwd": "C:\\Projects\\F1Game\\.worktrees\\s09-02",
+    "pid": 1360,
+    "startedAt": "2026-10-17T19:48:57.414Z",
+    "status": "failed",
+    "exitCode": 3762504530,
+    "elapsedMs": 2577
+  }
+]

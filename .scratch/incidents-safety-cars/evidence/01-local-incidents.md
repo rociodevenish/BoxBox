@@ -1,0 +1,19 @@
+# Ticket 01 local incident evidence
+
+Worktree `s09-01`, branch `codex/s09-01`, S08 baseline `285277d715c938b656b36c5adb0a99a8970b86d9`; integration documentation tip `f80999d677a0da0b74a90c920412ae900ae548eb` merged before completion. No live incident configuration was enabled.
+
+The approved seam is the public `RaceEngine.ResolvePhase`/observation/designer-laboratory operations and public replay operations. Eleven focused incident scenarios passed. The affected regression selection passed 53 tests when the incident suite contained six tests: 47 distinct existing segment/traffic/pit/replay/start tests plus six incident tests. The final eleven incident scenarios therefore give 58 unique passing tests, not the sum of repeated invocations.
+
+Coverage includes exact-time spin consequences applied once, tyres-only pit preservation, all-retired stable progress/order and no instructions, elapsed component wear excluding pits, nonzero condition-dependent hazard/wear equivalence under segment subdivision and repeated observation, forced contact requiring actual encounters, diagnostic replay round-trip, zero-channel legacy equivalence, detailed source mapping, Pace/Error Control/Reliability/tyre/stress sensitivity, and paired Attack/Defend contact effects. The 64 paired contact seeds isolate the authored risk multiplier with passing/battle-wear modifiers held fixed; this is a rule check, not event-frequency calibration.
+
+TDD evidence includes the expected failing rate-bound test (`Assert.Throws` received no exception) followed by green after restricting unsafe error hazards. Initial contract/build iterations and one sandboxed VSTest IPC timeout remain in ignored task reports; bounded escalated VSTest runs passed. NuGetAudit=false was a test-only command override for the existing SignalR advisory, with no dependency change. SDK: global.json 10.0.401; pinned Node 24 runtime; isolated `.tools/artifacts/s09-01` and `s09-01-evidence`.
+
+Compatibility used the existing `tools/QualifyingEvidence --replay` verifier against every gzip file under both `.scratch/qualifying-race-start/evidence/05` and `evidence/review-remediation`: four 96-run risk files plus four four-run control files per directory, 400 v1 and 400 v2 complete saved full-field qualifying/opening/first-phase runs. All serialized outcomes matched exactly without catalog access. Historical evidence was preserved.
+
+[Command/PID records](01-verification.json) contain the bounded final incident test, focused regression, red/green guard and all sixteen legacy saved-file verifiers. No API, browser, emulator or persistent preview service was started. No phone/display assessment applies to this pure simulation ticket; integration UI checks remain with later tickets/root verification.
+
+[Model rules, coefficients, source units and versions](../../../docs/local-incidents.md) define the explicit lap-entry condition approximation, initial component condition, zeroable channels and authored ordinal stress normalization. Persistent component condition is exact only through designer diagnostics; public phase results contain factual incident/damage/retirement and own-team observations contain bands. Null optional fields are omitted from legacy JSON; incident opt-in replay versions have explicit model/randomness suffixes.
+
+Ticket 02 integration seam: `NextEvent` takes the minimum of ordinary and incident candidates before shared time advances. `AdvanceIncidentExposure` integrates every running car to that timestamp; `ResolveIncident` then applies one local consequence. Ticket 02 must return coherent interruption state from this loop after simultaneous drainage, implement finish precedence across competing cars, and preserve queued/ongoing pit commitments. No Safety Car deployment or special-window policy is implemented in 01.
+
+Human comprehensibility, event-frequency balance, household timing, hosted acceptance and real-world rate calibration remain unobserved.

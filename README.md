@@ -63,3 +63,7 @@ The current model uses track-weighted whole-lap pace, with linear movement betwe
 catch, lap-crossing and pit-exit events. Cornering changes aggregate lap time;
 there are no individual corners or passing zones. Sector-specific pace and passing
 remain a modelling question before treating this as the final race model.
+
+## Verification
+
+Run `node tools/verify.mjs` after installing the locked dependencies and Chromium. See [verification workflow](docs/agents/verification-workflow.md) for setup, isolated ports, focused reruns, bounded command records, CI and explicit evidence publishing.

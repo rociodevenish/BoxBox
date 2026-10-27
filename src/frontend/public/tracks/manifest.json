@@ -1,0 +1,191 @@
+{
+  "schemaVersion": "1.0.0",
+  "dataVersion": "2026.10.08-initial-balance",
+  "provenance": "Repository supplied assets/track images; no additional licensing or geographic accuracy claims.",
+  "tracks": [
+    {
+      "id": "track-albert-park",
+      "slug": "albert-park",
+      "name": "Albert Park Grand Prix Circuit",
+      "source": "assets/track images/albert-park.png",
+      "sourceSha256": "deee9733627002c24ae4b551557a9d6efcd4b4d5f4a0271a40724a2b355e74ee",
+      "url": "/tracks/albert-park-960.webp"
+    },
+    {
+      "id": "track-shanghai",
+      "slug": "shanghai-international-circuit",
+      "name": "Shanghai International Circuit",
+      "source": "assets/track images/shanghai-international-circuit.png",
+      "sourceSha256": "80a5a75f4907c7bdd163f5ba13324437622363ccc9a15c8eaba06271cb565dc5",
+      "url": "/tracks/shanghai-international-circuit-960.webp"
+    },
+    {
+      "id": "track-suzuka",
+      "slug": "suzuka",
+      "name": "Suzuka Circuit",
+      "source": "assets/track images/suzuka.png",
+      "sourceSha256": "c6d345de914c08da41bb5c68c7153fd85dcf23132397e48c094b70845b713cc5",
+      "url": "/tracks/suzuka-960.webp"
+    },
+    {
+      "id": "track-miami",
+      "slug": "miami-international-autodrome",
+      "name": "Miami International Autodrome",
+      "source": "assets/track images/miami-international-autodrome.png",
+      "sourceSha256": "abd87865ca3f7aa75ea5bb4f0cb0bb2abfa832816ae152c0f9ef7cec1aefc1e0",
+      "url": "/tracks/miami-international-autodrome-960.webp"
+    },
+    {
+      "id": "track-circuit-gilles-villeneuve",
+      "slug": "circuit-gilles-villeneuve",
+      "name": "Circuit Gilles-Villeneuve",
+      "source": "assets/track images/circuit-gilles-villeneuve.png",
+      "sourceSha256": "3cafda534cab24579c533c79d512f4f7691399e6ee2f4399a233cf22df81d4c8",
+      "url": "/tracks/circuit-gilles-villeneuve-960.webp"
+    },
+    {
+      "id": "track-monaco",
+      "slug": "circuit-de-monaco",
+      "name": "Circuit de Monaco",
+      "source": "assets/track images/circuit-de-monaco.png",
+      "sourceSha256": "441849b8af0b5586abe36764c0907a583c193b53bf02dbf494070ec4d5a159ec",
+      "url": "/tracks/circuit-de-monaco-960.webp"
+    },
+    {
+      "id": "track-barcelona-catalunya",
+      "slug": "circuit-de-barcelona-catalunya",
+      "name": "Circuit de Barcelona-Catalunya",
+      "source": "assets/track images/circuit-de-barcelona-catalunya.png",
+      "sourceSha256": "b3f2e8d51bfb585fb816c2eabfccc2cedfec32b36dde58b85050abd7adfb3994",
+      "url": "/tracks/circuit-de-barcelona-catalunya-960.webp"
+    },
+    {
+      "id": "track-red-bull-ring",
+      "slug": "red-bull-ring",
+      "name": "Red Bull Ring",
+      "source": "assets/track images/red-bull-ring.png",
+      "sourceSha256": "22ae2c8094781bdc2fa6633f8fdcd0ff49c8a1b26ebe068de21a690b3ae96162",
+      "url": "/tracks/red-bull-ring-960.webp"
+    },
+    {
+      "id": "track-silverstone",
+      "slug": "silverstone",
+      "name": "Silverstone Circuit",
+      "source": "assets/track images/silverstone.png",
+      "sourceSha256": "13ba34da66b5c2d3ac193e27f30fd37a9313463ebc100e92ddf9ddeb3aed580d",
+      "url": "/tracks/silverstone-960.webp"
+    },
+    {
+      "id": "track-spa-francorchamps",
+      "slug": "spa-francorchamps",
+      "name": "Circuit de Spa-Francorchamps",
+      "source": "assets/track images/spa-francorchamps.png",
+      "sourceSha256": "bad849b08204d35e4c8c4cd8a755194cef78da60cdfc5aa635d24550d8fbec1c",
+      "url": "/tracks/spa-francorchamps-960.webp"
+    },
+    {
+      "id": "track-hungaroring",
+      "slug": "hungaroring",
+      "name": "Hungaroring",
+      "source": "assets/track images/hungaroring.png",
+      "sourceSha256": "71e4ce8f66381d925b0feb94322a3be6d721ea8f9a122ec49a890468459026f5",
+      "url": "/tracks/hungaroring-960.webp"
+    },
+    {
+      "id": "track-zandvoort",
+      "slug": "zandvoort",
+      "name": "Circuit Zandvoort",
+      "source": "assets/track images/zandvoort.png",
+      "sourceSha256": "b671c6a6f5d94b940c92f464a4dc93875366954b9704ab6937192c4d3c61af8d",
+      "url": "/tracks/zandvoort-960.webp"
+    },
+    {
+      "id": "track-monza",
+      "slug": "monza",
+      "name": "Autodromo Nazionale Monza",
+      "source": "assets/track images/monza.png",
+      "sourceSha256": "6d0e8871860416d774aec81956190b59b0169314c325ba2341364fead6bb1af5",
+      "url": "/tracks/monza-960.webp"
+    },
+    {
+      "id": "track-madring",
+      "slug": "madring",
+      "name": "Madring",
+      "source": "assets/track images/madring.png",
+      "sourceSha256": "d23bd88a4b2a8b495a0fcef14ebd3c5572c5bf27063d2550138a5a3688c7b22b",
+      "url": "/tracks/madring-960.webp"
+    },
+    {
+      "id": "track-baku",
+      "slug": "baku-city-circuit",
+      "name": "Baku City Circuit",
+      "source": "assets/track images/baku-city-circuit.png",
+      "sourceSha256": "cc6e8da62fd1c82e36ac28670e4f2b6261f1cae8b7d9d13a2c374c3378f567bd",
+      "url": "/tracks/baku-city-circuit-960.webp"
+    },
+    {
+      "id": "track-sepang",
+      "slug": "sepang-international-circuit",
+      "name": "Sepang International Circuit",
+      "source": "assets/track images/sepang-international-circuit.png",
+      "sourceSha256": "596212f8caae577ec8de95c9fa9bfdc0b71a60be2620f9e01ffe3eb53063242c",
+      "url": "/tracks/sepang-international-circuit-960.webp"
+    },
+    {
+      "id": "track-marina-bay",
+      "slug": "marina-bay-street-circuit",
+      "name": "Marina Bay Street Circuit",
+      "source": "assets/track images/marina-bay-street-circuit.png",
+      "sourceSha256": "0c2e84f5b2849eb84bab1831a53049a4a3a5aba28d6367ab967f525559b3762f",
+      "url": "/tracks/marina-bay-street-circuit-960.webp"
+    },
+    {
+      "id": "track-cota",
+      "slug": "circuit-of-the-americas",
+      "name": "Circuit of The Americas",
+      "source": "assets/track images/circuit-of-the-americas.png",
+      "sourceSha256": "2f424b96fa2e790d30c50506326420252cdec7b4641e8b92b03925958efd3cee",
+      "url": "/tracks/circuit-of-the-americas-960.webp"
+    },
+    {
+      "id": "track-mexico-city",
+      "slug": "autodromo-hermanos-rodriguez",
+      "name": "Autodromo Hermanos Rodriguez",
+      "source": "assets/track images/autodromo-hermanos-rodriguez.png",
+      "sourceSha256": "f623cc85beb2f756c5ada85be07ffb76a04c0851ed53c889cebeb5656020f35e",
+      "url": "/tracks/autodromo-hermanos-rodriguez-960.webp"
+    },
+    {
+      "id": "track-interlagos",
+      "slug": "interlagos",
+      "name": "Autodromo Jose Carlos Pace",
+      "source": "assets/track images/interlagos.png",
+      "sourceSha256": "5ac3e6a2844fe3861d07eea80244c38e4c64b85e50fdf3ac726d15a1df1b76aa",
+      "url": "/tracks/interlagos-960.webp"
+    },
+    {
+      "id": "track-las-vegas",
+      "slug": "las-vegas-strip-circuit",
+      "name": "Las Vegas Strip Circuit",
+      "source": "assets/track images/las-vegas-strip-circuit.png",
+      "sourceSha256": "83afb07e49cc308d3396a38e6c5f790c495639860592733d778eed7cfe94c546",
+      "url": "/tracks/las-vegas-strip-circuit-960.webp"
+    },
+    {
+      "id": "track-lusail",
+      "slug": "lusail-international-circuit",
+      "name": "Lusail International Circuit",
+      "source": "assets/track images/lusail-international-circuit.png",
+      "sourceSha256": "b29bb4fb438eb81cdbc8ce2f13068dfd22b97d2f86defd2b6f8fdb294b4e7cd3",
+      "url": "/tracks/lusail-international-circuit-960.webp"
+    },
+    {
+      "id": "track-yas-marina",
+      "slug": "yas-marina-circuit",
+      "name": "Yas Marina Circuit",
+      "source": "assets/track images/yas-marina-circuit.png",
+      "sourceSha256": "c271dd471e13413b6d975b0f40d6592cf6064e0a62f7844848b6f31aeefc2232",
+      "url": "/tracks/yas-marina-circuit-960.webp"
+    }
+  ]
+}

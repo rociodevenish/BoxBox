@@ -1,0 +1,17 @@
+{
+  "command": "dotnet",
+  "args": [
+    "test",
+    "tests/Game.Api.Tests",
+    "--filter",
+    "FullyQualifiedName~CampaignRecoveryTests|FullyQualifiedName~CampaignNextEventTests|FullyQualifiedName~CampaignResultsTests",
+    "--nologo",
+    "-p:NuGetAudit=false"
+  ],
+  "cwd": "C:\\Projects\\F1Game\\.worktrees\\s11-review-fixes",
+  "pid": 34136,
+  "startedAt": "2026-10-25T21:26:29.219Z",
+  "status": "passed",
+  "exitCode": 0,
+  "elapsedMs": 54267
+}

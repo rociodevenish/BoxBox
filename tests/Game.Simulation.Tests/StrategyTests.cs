@@ -58,7 +58,7 @@ public class StrategyTests
         var observation = race.GetTeamObservation("A");
         Assert.Equal("a", Assert.Single(observation.TeamTyres).DriverId);
         Assert.Equal(2, observation.Classification.Count);
-        Assert.Equal(observation.TeamTyres, race.GetTeamObservation("A").TeamTyres);
+        Assert.Equal(System.Text.Json.JsonSerializer.Serialize(observation.TeamTyres), System.Text.Json.JsonSerializer.Serialize(race.GetTeamObservation("A").TeamTyres));
         Assert.NotEqual(race.GetState().Tyres[0].Condition, observation.TeamTyres[0].EstimatedCondition);
         Assert.Equal(new[] { "a" }, observation.BattleOptions.Keys);
     }

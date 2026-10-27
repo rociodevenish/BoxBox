@@ -1,0 +1,29 @@
+{
+  "viewport": {
+    "width": 1920,
+    "height": 1080
+  },
+  "reducedMotion": true,
+  "captures": [
+    {
+      "file": "angular-compact-1920.png",
+      "width": 1216,
+      "height": 701
+    },
+    {
+      "file": "angular-expanded-1920.png",
+      "width": 384,
+      "height": 895
+    },
+    {
+      "file": "angular-tv-1920.png",
+      "width": 1216,
+      "height": 502
+    },
+    {
+      "file": "angular-dialog-1920.png",
+      "width": 700,
+      "height": 240
+    }
+  ]
+}

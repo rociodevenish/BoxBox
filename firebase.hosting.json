@@ -1,0 +1,8 @@
+{
+  "hosting": {
+    "public": "src/frontend/dist/gallery/browser",
+    "ignore": ["firebase.hosting.json", "**/.*", "**/node_modules/**"],
+    "headers": [{"source":"/runtime-config.js","headers":[{"key":"Cache-Control","value":"no-store"}]}],
+    "rewrites": [{"source":"**","destination":"/index.html"}]
+  }
+}
