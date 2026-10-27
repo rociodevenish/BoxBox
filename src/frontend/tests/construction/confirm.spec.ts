@@ -16,11 +16,11 @@ test('confirmation retries retain one locked car and hand off only after all tea
  await page.getByRole('button',{name:'Refresh campaign',exact:true}).click();await expect(page.getByRole('heading',{name:'Base Car construction',exact:true})).toBeVisible();
  const candidates=await Promise.all(season.teams.map(async(team:{teamId:string;constructorName:string})=>({team,own:await get('/api/campaigns/'+campaignId+'/construction/teams/'+team.teamId+'?deviceId='+device)})));candidates.sort((a,b)=>a.own.preview.balance-b.own.preview.balance);const team=candidates[0].team;const teamName=team.constructorName;expect(candidates[0].own.preview.balance).toBeLessThan(24);
  await page.getByRole('button',{name:'Open construction for '+teamName,exact:true}).click();const panel=page.getByRole('region',{name:'Your private construction'});
- await expect(panel.getByText('Saved draft revision 1',{exact:false})).toBeVisible();await expect(panel.getByRole('combobox')).toHaveCount(4);await expect(panel.getByRole('heading',{name:'Both-driver compatibility',exact:true})).toBeVisible();
+ await expect(panel.getByText('Saved draft revision 1',{exact:false})).toBeVisible();await expect(panel.locator('.construction-categories').getByRole('combobox')).toHaveCount(4);await expect(panel.getByRole('heading',{name:'Both-driver compatibility',exact:true})).toBeVisible();
  const path='/api/campaigns/'+campaignId+'/construction/teams/'+team.teamId+'?deviceId='+device;const original=await get(path);const ledgerBefore=await get('/api/campaigns/'+campaignId+'/acquisition/teams/'+team.teamId+'?deviceId='+device);
-  for(const [index,category] of original.catalogue.categories.entries()){const expensive=category.options.find((option:{cost:number})=>option.cost===6);await panel.getByRole('combobox').nth(index).selectOption(expensive.id);}
+  for(const [index,category] of original.catalogue.categories.entries()){const expensive=category.options.find((option:{cost:number})=>option.cost===6);await panel.locator('.construction-categories').getByRole('combobox').nth(index).selectOption(expensive.id);}
  await expect(panel.getByRole('button',{name:'Save free draft and compare',exact:true})).toBeDisabled();await expect(panel.getByRole('status')).toContainText('exceeds your available credits');expect((await get(path)).draft.revision).toBe(1);
- for(const [index,id] of original.draft.optionIds.entries())await panel.getByRole('combobox').nth(index).selectOption(id);
+ for(const [index,id] of original.draft.optionIds.entries())await panel.locator('.construction-categories').getByRole('combobox').nth(index).selectOption(id);
  await panel.getByLabel('Aero Concept choice').selectOption('car-aero-high-downforce');
  await page.route('**/construction/teams/*/draft?*',async route=>{await route.fetch();await route.abort('connectionfailed');},{times:1});
  await panel.getByRole('button',{name:'Save free draft and compare',exact:true}).click();await expect(page.getByRole('alert')).toBeVisible();
@@ -37,9 +37,10 @@ test('confirmation retries retain one locked car and hand off only after all tea
  const frozen=(await get(path)).confirmed;expect(frozen.cost).toBe(18);
  await page.reload();await page.getByRole('button',{name:'Open construction for '+teamName,exact:true}).click();
  await panel.getByRole('button',{name:'Retry Base Car confirmation',exact:true}).click();
- await expect(panel.getByRole('status')).toContainText('Base Car confirmed');await expect(panel.getByRole('combobox').first()).toBeDisabled();
+ await expect(panel.getByRole('status')).toContainText('Base Car confirmed');await expect(panel.locator('.construction-categories').getByRole('combobox').first()).toBeDisabled();
  expect((await get('/api/campaigns/'+campaignId+'/acquisition/teams/'+team.teamId+'?deviceId='+device)).ledger.filter((entry:{reason:string})=>entry.reason==='base-car-construction')).toHaveLength(1);
  await panel.getByRole('status').scrollIntoViewIfNeeded();expect(await page.evaluate(()=>document.documentElement.scrollWidth)).toBeLessThanOrEqual(360);await page.screenshot({path:captures+'/s13-02-confirmed-360.png'});
- for(const candidate of candidates.filter(candidate=>candidate.team.teamId!==team.teamId)){const own=candidate.own;await post('/api/campaigns/'+campaignId+'/construction/teams/'+candidate.team.teamId+'/confirm?deviceId='+device,{commandId:crypto.randomUUID(),revision:own.draft.revision,teamId:candidate.team.teamId,catalogueVersion:own.catalogue.version});}
- await page.getByRole('button',{name:'Refresh campaign',exact:true}).click();await expect(page.getByRole('heading',{name:'Campaign created',exact:true})).toBeVisible();
+ for(const candidate of candidates.filter(candidate=>candidate.team.teamId!==team.teamId))await post('/api/lobbies/'+weekend+'/assignments',{teamId:candidate.team.teamId,playerId:null,deviceId:device,control:'Private'});
+ await page.getByRole('button',{name:'Build untouched unclaimed teams automatically',exact:true}).click();await expect(panel).toHaveCount(0);const built=await get('/api/campaigns/'+campaignId+'?deviceId='+device);expect(built.constructionReadiness.filter((entry:{source:string})=>entry.source==='unclaimed-ai')).toHaveLength(10);
+ await page.getByRole('button',{name:'Refresh campaign',exact:true}).click();await expect(page.getByRole('heading',{name:'Campaign created',exact:true})).toBeVisible();await expect(page.getByRole('button',{name:'Refresh campaign',exact:true})).toBeEnabled();
  await page.setViewportSize({width:1920,height:1080});await page.evaluate(()=>window.scrollTo(0,0));await page.screenshot({path:captures+'/s13-02-handoff-1920.png'});});

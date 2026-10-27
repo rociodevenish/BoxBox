@@ -7,8 +7,9 @@ public sealed partial class CampaignCoordinator
  {
   lock(gate)
   {
-   var saved=CompletePersonnel(Require(id));var record=saved.Record;
+   var saved=Require(id);var record=saved.Record;
    weekends.AuthoriseCampaignPersonnel(record.Calendar[0].SessionId,identity,deviceId,teamId);
+   saved=CompletePersonnel(saved);record=saved.Record;
    if(command is null||command.TeamId!=teamId)throw new SessionFault(SessionFailure.InvalidInput,"Choose the authorised construction team.");
    if(record.Construction is null||record.Acquisition is null)throw new SessionFault(SessionFailure.Conflict,"Base Car construction is not open.");
    ConstructionConfirmation next;
@@ -43,8 +44,9 @@ public sealed partial class CampaignCoordinator
  {
   lock(gate)
   {
-   var record=CompletePersonnel(Require(id)).Record;
+   var saved=Require(id);var record=saved.Record;
    weekends.AuthoriseCampaignPersonnel(record.Calendar[0].SessionId,identity,deviceId,teamId);
+   record=CompletePersonnel(saved).Record;
    return ProjectConstruction(record,teamId);
   }
  }
@@ -52,8 +54,9 @@ public sealed partial class CampaignCoordinator
  {
   lock(gate)
   {
-   var saved=CompletePersonnel(Require(id));var record=saved.Record;
+   var saved=Require(id);var record=saved.Record;
    weekends.AuthoriseCampaignPersonnel(record.Calendar[0].SessionId,identity,deviceId,teamId);
+   saved=CompletePersonnel(saved);record=saved.Record;
    if(record.Lifecycle!="constructing"||record.Construction is null||record.Acquisition is null)throw new SessionFault(SessionFailure.Conflict,"Base Car draft editing is not open.");
    if(command is null||command.TeamId!=teamId)throw new SessionFault(SessionFailure.InvalidInput,"Choose the authorised construction team.");
    ConstructionState next;
@@ -69,6 +72,7 @@ public sealed partial class CampaignCoordinator
   var state=record.Construction??throw new SessionFault(SessionFailure.Conflict,"Complete personnel acquisition before construction previews.");
   if(!state.Drafts.TryGetValue(teamId,out var draft))throw new SessionFault(SessionFailure.InvalidInput,"Choose a campaign construction team.");
   var preset=record.FrozenPresets[record.Calendar[0].EventId].Single(p=>p.Cars[0].TeamId==teamId);
-  return new(record.CampaignId,teamId,state.Catalogue,draft,ConstructionPreview.Preview(state.Catalogue,draft.OptionIds,preset,PersonnelAcquisition.Balance(record.Acquisition!,teamId)),state.Confirmed?.GetValueOrDefault(teamId));
+  var confirmed=state.Confirmed?.GetValueOrDefault(teamId);
+  return new(record.CampaignId,teamId,state.Catalogue,draft,ConstructionPreview.Preview(state.Catalogue,draft.OptionIds,preset,PersonnelAcquisition.Balance(record.Acquisition!,teamId)),confirmed,confirmed is null?ConstructionDecisionPolicy.Evaluate(ObserveConstruction(record,teamId)):null,(record.ConstructionChoices??[]).Where(c=>c.TeamId==teamId).ToArray());
  }
 }

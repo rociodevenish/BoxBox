@@ -6,3 +6,5 @@
 
 .personnel-offers .personnel-portrait{width:100%;height:180px;object-fit:contain}li.current{outline-offset:2px;margin-block:6px}
 .construction-categories,.construction-drivers,.construction-tracks{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,250px),1fr));gap:1rem}.construction-categories article,.construction-drivers article,.construction-tracks article{background:#101c2d;border:1px solid #3a4c64;border-radius:.65rem;padding:1rem;min-width:0}.construction-categories select{width:100%;max-width:100%;font-size:1rem}.construction-track{width:100%;max-height:180px;object-fit:contain;background:#e9eff5;border-radius:.5rem}.construction-categories h3{margin-top:0}dd{font-variant-numeric:tabular-nums}
+
+.construction-guidance{border:1px solid #7797be;border-radius:.65rem;padding:1rem;margin-block:1rem;background:#15263a}.construction-guidance select{display:block;width:100%;max-width:32rem;font-size:1rem;margin-block:.5rem}.asset-fallback{font-size:.85rem;color:#c4d2e4}
