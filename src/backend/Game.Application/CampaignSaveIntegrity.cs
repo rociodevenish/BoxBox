@@ -27,6 +27,17 @@ public static class CampaignSaveIntegrity
    {
     if(record.Acquisition is not {} personnel||choice.Source is not("unclaimed-ai" or "deadline-absence-ai")||choice.Recommendation.Version!=PersonnelDecisionPolicy.Version||PersonnelDecisionPolicy.Evaluate(choice.Observation)!=choice.Recommendation||!personnel.Commands.Any(c=>c.CommandId==choice.CommandId&&c.Fingerprint==$"hire/{choice.Revision}/{personnel.Hires.Single(h=>h.CommandId==choice.CommandId).TeamId}/{choice.Recommendation.PersonId}"))throw new ArgumentException();
    }
+   foreach(var choice in record.ConstructionChoices??[])
+   {
+    if(record.Construction is not {} state||record.Acquisition is not {} personnel||choice.Source is not("assisted" or "unclaimed-ai")||!state.Drafts.TryGetValue(choice.TeamId,out var draft)||choice.Revision<1||choice.Revision>=draft.Revision||choice.Recommendation.Version!=ConstructionDecisionPolicy.Version||JsonSerializer.Serialize(choice.Observation.Catalogue)!=JsonSerializer.Serialize(state.Catalogue)||JsonSerializer.Serialize(ConstructionDecisionPolicy.Evaluate(choice.Observation))!=JsonSerializer.Serialize(choice.Recommendation))throw new ArgumentException();
+    var ownDrivers=record.FrozenPresets[record.Calendar[0].EventId].Single(p=>p.Cars[0].TeamId==choice.TeamId).Cars.Select(c=>c.Driver).ToArray();
+    if(JsonSerializer.Serialize(ownDrivers)!=JsonSerializer.Serialize(choice.Observation.Drivers)||choice.Observation.Balance!=PersonnelAcquisition.Balance(personnel,choice.TeamId)+(state.Confirmed?.GetValueOrDefault(choice.TeamId)?.Cost??0)||!draft.Commands.Any(c=>c.CommandId==choice.CommandId&&c.Fingerprint==$"{choice.Revision}/{state.Catalogue.Version}/{string.Join('/',choice.Recommendation.OptionIds)}"))throw new ArgumentException();
+    if(choice.Source=="unclaimed-ai"&&(choice.Revision!=1||state.Confirmed?.GetValueOrDefault(choice.TeamId) is not {} automatic||!automatic.OptionIds.SequenceEqual(choice.Recommendation.OptionIds)))throw new ArgumentException();
+   }
+   var automaticCommands=record.ConstructionAutomaticCommands??[];
+   if(automaticCommands.Select(c=>c.CommandId).Distinct().Count()!=automaticCommands.Length||(record.ConstructionChoices??[]).Select(c=>c.CommandId).Distinct().Count()!=(record.ConstructionChoices??[]).Length)throw new ArgumentException();
+   foreach(var command in automaticCommands)
+    if(!Guid.TryParse(command.CommandId,out var key)||key==Guid.Empty||command.CommandId!=key.ToString("D")||command.Version!=ConstructionDecisionPolicy.Version||command.TeamIds.Distinct().Count()!=command.TeamIds.Length||command.TeamIds.Any(team=>!(record.ConstructionChoices??[]).Any(c=>c.TeamId==team&&c.Source=="unclaimed-ai")))throw new ArgumentException();
    if(record.Input.PersonnelMode is not("preset" or "acquisition"))throw new ArgumentException();
    if(record.Input.PersonnelMode=="acquisition"&&record.Acquisition is null||record.Input.PersonnelMode=="preset"&&record.Acquisition is not null)throw new ArgumentException();
    CampaignRules.ValidateShortCalendar(record.Calendar.Select(e=>e.TrackId).ToArray());
