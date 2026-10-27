@@ -1,0 +1,61 @@
+{
+  "source": "api-manual-probe.trx",
+  "times": {
+    "creation": "2026-10-28T07:12:07.2141957+11:00",
+    "queuing": "2026-10-28T07:12:07.2141958+11:00",
+    "start": "2026-10-28T07:11:51.0877018+11:00",
+    "finish": "2026-10-28T07:12:27.6275962+11:00"
+  },
+  "counts": {
+    "total": "4",
+    "executed": "4",
+    "passed": "4",
+    "failed": "0",
+    "error": "0",
+    "timeout": "0",
+    "aborted": "0",
+    "inconclusive": "0",
+    "passedButRunAborted": "0",
+    "notRunnable": "0",
+    "notExecuted": "0",
+    "disconnected": "0",
+    "warning": "0",
+    "completed": "0",
+    "inProgress": "0",
+    "pending": "0"
+  },
+  "results": [
+    {
+      "name": "Game.Api.Tests.ConstructionConfirmationTests.Confirmed_car_and_exact_debit_survive_uncertain_acknowledgement_and_open_only_after_all_teams(committed: False, handoff: False)",
+      "outcome": "Passed",
+      "duration": "00:00:08.9813199",
+      "startedAt": "2026-10-28T07:12:18.5858239+11:00",
+      "endedAt": "2026-10-28T07:12:27.5669995+11:00",
+      "error": null
+    },
+    {
+      "name": "Game.Api.Tests.ConstructionConfirmationTests.Confirmed_car_and_exact_debit_survive_uncertain_acknowledgement_and_open_only_after_all_teams(committed: False, handoff: True)",
+      "outcome": "Passed",
+      "duration": "00:00:05.8544444",
+      "startedAt": "2026-10-28T07:12:07.2034817+11:00",
+      "endedAt": "2026-10-28T07:12:13.0502864+11:00",
+      "error": null
+    },
+    {
+      "name": "Game.Api.Tests.ConstructionConfirmationTests.Confirmed_car_and_exact_debit_survive_uncertain_acknowledgement_and_open_only_after_all_teams(committed: True, handoff: True)",
+      "outcome": "Passed",
+      "duration": "00:00:05.5347985",
+      "startedAt": "2026-10-28T07:12:13.0517769+11:00",
+      "endedAt": "2026-10-28T07:12:18.5853868+11:00",
+      "error": null
+    },
+    {
+      "name": "Game.Api.Tests.ConstructionConfirmationTests.Confirmed_car_and_exact_debit_survive_uncertain_acknowledgement_and_open_only_after_all_teams(committed: True, handoff: False)",
+      "outcome": "Passed",
+      "duration": "00:00:15.6293189",
+      "startedAt": "2026-10-28T07:11:51.5608693+11:00",
+      "endedAt": "2026-10-28T07:12:07.1948554+11:00",
+      "error": null
+    }
+  ]
+}

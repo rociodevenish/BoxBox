@@ -9,7 +9,6 @@ public static class ConstructionPreview
  public const string Version="construction-preview-v1";
  public static ConstructionPreviewResult Preview(ConstructionCatalogue catalogue,ImmutableArray<string> choices,WeekendPreset roster,int balance)
  {
-  var selected=CarConstruction.Selected(catalogue,choices);
   var ratings=CarConstruction.Ratings(catalogue,choices);
   var cost=CarConstruction.Cost(catalogue,choices);
   // Locked source headlineDerivation weights summarize detailed points; they never
@@ -22,9 +21,7 @@ public static class ConstructionPreview
    {"Reliability",ratings["reliability"]}}.ToImmutableDictionary();
   // Supported directional compatibility is one existing mechanical axis. Six authored
   // handling labels do not create six new physics inputs. No staff pace effects.
-  double Handling(string key)=>selected.Sum(o=>o.HandlingProfile.GetValueOrDefault(key));
-  var direction=Math.Clamp((Handling("rearStability")+Handling("tractionConfidence")-Handling("frontResponse")-Handling("rotation"))/2,-2,2);
-  var mechanical=(int)Math.Round(direction,MidpointRounding.AwayFromZero);
+  var mechanical=CarConstruction.MechanicalAxis(catalogue,choices);
   if(roster.Cars.Length!=2)throw new ArgumentException("Preview requires both acquired drivers.");
   var fits=roster.Cars.Select(c=>WeekendSetupTuning.Fit(c.Driver,new(Mechanical:mechanical)) with{Description="Indicative Base Car compatibility using the supported responsive/stable preference axis. Adaptability moderates mismatch; not a lap-time prediction."}).ToImmutableArray();
   var tracks=new[]{"track-monza","track-monaco"}.Select(id=>

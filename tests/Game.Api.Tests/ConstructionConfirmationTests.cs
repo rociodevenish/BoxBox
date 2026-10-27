@@ -4,6 +4,8 @@ using System.Net.Http.Json;
 using Game.Application;
 using Game.Domain;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Xunit;
@@ -21,7 +23,7 @@ public sealed class ConstructionConfirmationTests
   var durable=new FirestoreSessionStore("demo-f1game",Environment.GetEnvironmentVariable("F1_RECOVERY_HOST")!);
   var interrupted=new ConfirmationFailure(durable,committed);
   string id,device,weekend,path;ConstructionTeamSnapshot own;ConstructionConfirm edit;AcquisitionTeamSnapshot before;
-  await using(var server=LobbyTests.Server().WithWebHostBuilder(b=>b.ConfigureServices(s=>s.Replace(ServiceDescriptor.Singleton<ISessionStore>(interrupted)))))
+  await using(var server=Server().WithWebHostBuilder(b=>b.ConfigureServices(s=>s.Replace(ServiceDescriptor.Singleton<ISessionStore>(interrupted)))))
   {
    using var client=server.CreateClient();client.DefaultRequestHeaders.Authorization=new("Bearer",token);
    var response=await client.PostAsJsonAsync("/api/campaigns",new{commandId=Guid.NewGuid().ToString(),name="Construction host",personnelMode="acquisition",seed=1});response.EnsureSuccessStatusCode();
@@ -52,7 +54,7 @@ public sealed class ConstructionConfirmationTests
    Assert.Equal(HttpStatusCode.Conflict,(await client.PostAsJsonAsync(path.Replace("?","/confirm?"),edit with{Revision=0})).StatusCode);
    if(!handoff){interrupted.Armed=true;Assert.Equal(HttpStatusCode.ServiceUnavailable,(await client.PostAsJsonAsync(path.Replace("?","/confirm?"),edit)).StatusCode);}
   }
-  await using var recovered=LobbyTests.Server().WithWebHostBuilder(b=>b.ConfigureServices(s=>s.Replace(ServiceDescriptor.Singleton<ISessionStore>(interrupted))));using var retry=recovered.CreateClient();retry.DefaultRequestHeaders.Authorization=new("Bearer",token);
+  await using var recovered=Server().WithWebHostBuilder(b=>b.ConfigureServices(s=>s.Replace(ServiceDescriptor.Singleton<ISessionStore>(interrupted))));using var retry=recovered.CreateClient();retry.DefaultRequestHeaders.Authorization=new("Bearer",token);
   (await retry.PostAsJsonAsync(path.Replace("?","/confirm?"),edit)).EnsureSuccessStatusCode();
   var accepted=(await retry.GetFromJsonAsync<ConstructionTeamSnapshot>(path))!;Assert.NotNull(accepted.Confirmed);Assert.Equal(before.Balance-18,accepted.Preview.Balance);
   (await retry.PostAsJsonAsync(path.Replace("?","/confirm?"),edit)).EnsureSuccessStatusCode();
@@ -70,7 +72,7 @@ public sealed class ConstructionConfirmationTests
   Assert.Equal("created",(await retry.GetFromJsonAsync<CampaignSnapshot>($"/api/campaigns/{id}?deviceId={device}"))!.Lifecycle);
   interrupted.Lobby=true;interrupted.Armed=true;
   Assert.Equal(HttpStatusCode.ServiceUnavailable,(await retry.PostAsJsonAsync($"/api/campaigns/{id}/prepare",new{})).StatusCode);
-  await using(var restarted=LobbyTests.Server().WithWebHostBuilder(b=>b.ConfigureServices(s=>s.Replace(ServiceDescriptor.Singleton<ISessionStore>(durable)))))
+  await using(var restarted=Server().WithWebHostBuilder(b=>b.ConfigureServices(s=>s.Replace(ServiceDescriptor.Singleton<ISessionStore>(durable)))))
   {
    using var restored=restarted.CreateClient();restored.DefaultRequestHeaders.Authorization=new("Bearer",token);
    (await restored.PostAsJsonAsync($"/api/campaigns/{id}/prepare",new{})).EnsureSuccessStatusCode();
@@ -84,7 +86,7 @@ public sealed class ConstructionConfirmationTests
   if(!handoff)
   {
    var clock=new DeadlineTests.ControlledClock();
-   await using(var racing=LobbyTests.Server().WithWebHostBuilder(b=>b.ConfigureServices(s=>{s.Replace(ServiceDescriptor.Singleton<ISessionStore>(interrupted));s.Replace(ServiceDescriptor.Singleton<TimeProvider>(clock));})))
+   await using(var racing=Server().WithWebHostBuilder(b=>b.ConfigureServices(s=>{s.Replace(ServiceDescriptor.Singleton<ISessionStore>(interrupted));s.Replace(ServiceDescriptor.Singleton<TimeProvider>(clock));})))
    {
     using var host=racing.CreateClient();host.DefaultRequestHeaders.Authorization=new("Bearer",token);
     for(var n=1;n<=11;n++)(await host.PostAsJsonAsync($"/api/campaigns/{id}/absent/prepare",new CampaignAbsentInput($"team-{n:00}"))).EnsureSuccessStatusCode();
@@ -98,7 +100,7 @@ public sealed class ConstructionConfirmationTests
     }
     Assert.True(failed,"The constructed race initialization must reach the injected persistence interruption.");
    }
-   await using var raceRestart=LobbyTests.Server().WithWebHostBuilder(b=>b.ConfigureServices(s=>{s.Replace(ServiceDescriptor.Singleton<ISessionStore>(interrupted));s.Replace(ServiceDescriptor.Singleton<TimeProvider>(clock));}));
+   await using var raceRestart=Server().WithWebHostBuilder(b=>b.ConfigureServices(s=>{s.Replace(ServiceDescriptor.Singleton<ISessionStore>(interrupted));s.Replace(ServiceDescriptor.Singleton<TimeProvider>(clock));}));
    using var raceClient=raceRestart.CreateClient();raceClient.DefaultRequestHeaders.Authorization=new("Bearer",token);
    for(var n=0;n<12;n++){var state=await raceClient.GetAsync($"/api/sessions/{weekend}");if(state.IsSuccessStatusCode)break;clock.Advance(TimeSpan.FromHours(1));await raceRestart.Services.GetRequiredService<SessionCoordinator>().SweepWakeups();}
    (await raceClient.GetAsync($"/api/sessions/{weekend}")).EnsureSuccessStatusCode();
@@ -107,6 +109,9 @@ public sealed class ConstructionConfirmationTests
    Assert.Single(finalLedger.Ledger,e=>e.Reason=="base-car-construction");Assert.Equal(before.Balance-18,finalLedger.Balance);
   }
  }
+ // This fixture advances its own clock and must observe the injected write failure
+ // in its explicit sweep, before any background delivery can consume it.
+ private static WebApplicationFactory<Program> Server()=>LobbyTests.Server().WithWebHostBuilder(b=>b.ConfigureAppConfiguration((_,config)=>config.AddInMemoryCollection(new Dictionary<string,string?>{["Wakeups:Mode"]="manual"})));
  private sealed class ConfirmationFailure(ISessionStore inner,bool committed):ISessionStore
  {
   public bool Armed;public bool Lobby;public bool Race;public string? Target;

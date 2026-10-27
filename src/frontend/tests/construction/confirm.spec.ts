@@ -43,4 +43,14 @@ test('confirmation retries retain one locked car and hand off only after all tea
  for(const candidate of candidates.filter(candidate=>candidate.team.teamId!==team.teamId))await post('/api/lobbies/'+weekend+'/assignments',{teamId:candidate.team.teamId,playerId:null,deviceId:device,control:'Private'});
  await page.getByRole('button',{name:'Build untouched unclaimed teams automatically',exact:true}).click();await expect(panel).toHaveCount(0);const built=await get('/api/campaigns/'+campaignId+'?deviceId='+device);expect(built.constructionReadiness.filter((entry:{source:string})=>entry.source==='unclaimed-ai')).toHaveLength(10);
  await page.getByRole('button',{name:'Refresh campaign',exact:true}).click();await expect(page.getByRole('heading',{name:'Campaign created',exact:true})).toBeVisible();await expect(page.getByRole('button',{name:'Refresh campaign',exact:true})).toBeEnabled();
+ await page.getByRole('button',{name:'Open personnel for '+teamName,exact:true}).click();
+ const personnel=page.getByRole('region',{name:'Your private personnel',exact:true});
+ const ledger=personnel.getByRole('region',{name:'Your personnel ledger',exact:true});
+ await expect(personnel.getByText('0 credits remaining',{exact:true})).toBeVisible();
+ await expect(ledger.getByText('-18 credits · Car construction',{exact:true})).toHaveCount(1);
+ await expect(ledger.getByText(/Personnel hire/)).toHaveCount(7);
+ await expect(personnel.getByRole('region',{name:'Final personnel roster',exact:true})).toContainText('Your Base Car is already paid.');
+ await expect(personnel).not.toContainText('Your minimum car reserve remains protected.');
+ await ledger.scrollIntoViewIfNeeded();await page.screenshot({path:captures+'/s13-remediation-personnel-360.png'});
+ await page.getByRole('button',{name:'Hide private personnel',exact:true}).click();
  await page.setViewportSize({width:1920,height:1080});await page.evaluate(()=>window.scrollTo(0,0));await page.screenshot({path:captures+'/s13-02-handoff-1920.png'});});

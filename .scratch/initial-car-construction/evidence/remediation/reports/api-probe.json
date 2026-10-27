@@ -1,0 +1,21 @@
+{
+  "command": "C:/Users/sbdev/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+  "args": [
+    "tools/auth-emulator/node_modules/firebase-tools/lib/bin/firebase.js",
+    "emulators:exec",
+    "--only",
+    "auth,firestore",
+    "--project",
+    "demo-f1game",
+    "--config",
+    "tools/auth-emulator/firebase.remediation.local.json",
+    "--non-interactive",
+    "\"C:/Users/sbdev/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe\" .tools/reports/remediation/run-api-probe.mjs"
+  ],
+  "cwd": "C:\\Projects\\F1Game\\.tools\\worktrees\\s13-review-fixes",
+  "pid": 21588,
+  "startedAt": "2026-10-27T20:10:37.695Z",
+  "status": "failed",
+  "exitCode": 1,
+  "elapsedMs": 50205
+}

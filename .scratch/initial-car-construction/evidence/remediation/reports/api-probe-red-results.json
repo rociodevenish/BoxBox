@@ -1,0 +1,61 @@
+{
+  "source": "api-probe-red.trx",
+  "times": {
+    "creation": "2026-10-28T07:11:05.3747870+11:00",
+    "queuing": "2026-10-28T07:11:05.3747873+11:00",
+    "start": "2026-10-28T07:10:47.8820317+11:00",
+    "finish": "2026-10-28T07:11:26.8638364+11:00"
+  },
+  "counts": {
+    "total": "4",
+    "executed": "4",
+    "passed": "2",
+    "failed": "2",
+    "error": "0",
+    "timeout": "0",
+    "aborted": "0",
+    "inconclusive": "0",
+    "passedButRunAborted": "0",
+    "notRunnable": "0",
+    "notExecuted": "0",
+    "disconnected": "0",
+    "warning": "0",
+    "completed": "0",
+    "inProgress": "0",
+    "pending": "0"
+  },
+  "results": [
+    {
+      "name": "Game.Api.Tests.ConstructionConfirmationTests.Confirmed_car_and_exact_debit_survive_uncertain_acknowledgement_and_open_only_after_all_teams(committed: True, handoff: True)",
+      "outcome": "Passed",
+      "duration": "00:00:05.4519515",
+      "startedAt": "2026-10-28T07:11:11.2926994+11:00",
+      "endedAt": "2026-10-28T07:11:16.7428098+11:00",
+      "error": null
+    },
+    {
+      "name": "Game.Api.Tests.ConstructionConfirmationTests.Confirmed_car_and_exact_debit_survive_uncertain_acknowledgement_and_open_only_after_all_teams(committed: False, handoff: False)",
+      "outcome": "Failed",
+      "duration": "00:00:10.0471144",
+      "startedAt": "2026-10-28T07:11:16.7437353+11:00",
+      "endedAt": "2026-10-28T07:11:26.7904891+11:00",
+      "error": "The constructed race initialization must reach the injected persistence interruption."
+    },
+    {
+      "name": "Game.Api.Tests.ConstructionConfirmationTests.Confirmed_car_and_exact_debit_survive_uncertain_acknowledgement_and_open_only_after_all_teams(committed: True, handoff: False)",
+      "outcome": "Failed",
+      "duration": "00:00:16.9630727",
+      "startedAt": "2026-10-28T07:10:48.3387455+11:00",
+      "endedAt": "2026-10-28T07:11:05.3279775+11:00",
+      "error": "The constructed race initialization must reach the injected persistence interruption."
+    },
+    {
+      "name": "Game.Api.Tests.ConstructionConfirmationTests.Confirmed_car_and_exact_debit_survive_uncertain_acknowledgement_and_open_only_after_all_teams(committed: False, handoff: True)",
+      "outcome": "Passed",
+      "duration": "00:00:05.9606525",
+      "startedAt": "2026-10-28T07:11:05.3573345+11:00",
+      "endedAt": "2026-10-28T07:11:11.2906915+11:00",
+      "error": null
+    }
+  ]
+}
