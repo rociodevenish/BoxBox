@@ -1,3 +1,4 @@
+using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
 using Game.Application;
@@ -51,9 +52,7 @@ public sealed class PersonnelDeadlineTests
   Assert.Equal(after.ToString(),(await retry.GetFromJsonAsync<JsonElement>($"/api/campaigns/{id}?deviceId={device}")).ToString());
   // Every future actual offer uses the same legal policy and retained fixed pool until completion.
   for(var pick=1;pick<77;pick++){clock.Advance();Assert.Equal(1,campaigns.SweepPersonnelWakeups());}
-  var final=await retry.GetFromJsonAsync<JsonElement>($"/api/campaigns/{id}?deviceId={device}");Assert.Equal("created",final.GetProperty("lifecycle").GetString());Assert.True(final.GetProperty("acquisition").GetProperty("allRostersReady").GetBoolean());
-  (await retry.PostAsJsonAsync($"/api/campaigns/{id}/prepare",new{})).EnsureSuccessStatusCode();
+  var final=await retry.GetFromJsonAsync<JsonElement>($"/api/campaigns/{id}?deviceId={device}");Assert.Equal("constructing",final.GetProperty("lifecycle").GetString());Assert.True(final.GetProperty("acquisition").GetProperty("allRostersReady").GetBoolean());
+  Assert.Equal(HttpStatusCode.Conflict,(await retry.PostAsJsonAsync($"/api/campaigns/{id}/prepare",new{})).StatusCode);
  }
 }
-
-

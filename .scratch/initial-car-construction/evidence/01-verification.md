@@ -1,0 +1,21 @@
+# Ticket 01 verification and visual assessment
+
+Approved seams: public `CarConstruction`/`ConstructionPreview` operations, authenticated campaign HTTP endpoints, actual Auth/Firestore persistence emulators, and focused browser interactions. No private coefficient tests, database-side assertions or invented full-calendar fixtures.
+
+- Red/green: initial minimum-catalogue test failed because the public construction interface did not exist, then passed. Preview test failed on the missing public preview operation, then passed. The source-weighted Simple summary test failed on four groups, then passed with all five locked weighted groups and literal expected values (84.75 Speed, 81.45 Cornering, 82.7 Mechanical Grip, 81.55 Tyres, 82 Reliability for the straight-line fixture).
+- Focused simulation checks: 8 passed, covering all 625 complete combinations, no scarcity, cheapest build 18 credits, actual-credit editing, duplicate/stale revision handling, bounded values, representative circuit comparisons, both-driver fit and unchanged personnel mapping. `.tools/reports/s13-01-domain-final.json`.
+- Focused authenticated API/emulator checks: 15 passed, including both construction draft interrupted-save scenarios (before commit and lost acknowledgement after commit), restart/retry/non-spending, invalid/expensive/stale rejection, equal catalogue access, outsider rejection, and affected personnel handoff/deadline cases. `.tools/reports/s13-01-api-final.json`. The initial attempts before emulator readiness failed to connect; the owned ready-emulator rerun passed. This was environment sequencing, not a product failure.
+- Angular template/typecheck passed. The focused browser build also compiles the actual template.
+- Focused browser: 1 passed (40.4 seconds), bounded report `.tools/reports/s13-01-browser-verified.json`. compares and edits all four categories, shows an 18-credit team's unaffordable 24-credit selection, saves a free draft, aborts an acknowledgement after durable commit, reloads and retries the same command, verifies revision and unchanged personnel ledger, reads optional detail, displays both supplied portraits and checks both campaign and direct lobby preparation guards. Construction tests have their own Playwright config and are excluded from the default gallery.
+
+## Reviewed screens
+
+Viewports: 360×800 phone and 1920×1080 public display. Captures are the explicitly named `s13-01-draft-360.png` (complete flow), `s13-01-fit-360.png`, `s13-01-public-1920.png` and `s13-01-draft-1920.png` under ignored gallery reports, preserved alongside the root reports for handoff.
+
+The first rendered retry test found native select values restoring incorrectly after reload despite a correctly saved model. Per-option selected binding repaired the visible control. Review also found native select text clipping on the four-column desktop layout; full selected names and prices now appear as wrapping live text below each control. The Simple summary includes all five locked groups with optional detailed values. Phone content stays within 360px, controls and labels are readable, and both acquired drivers' different fit scores remain explicit (reviewed example: 94/100 and 81/100), alongside their names and packaged portraits. Monza/Monaco illustrations remain atmospheric; textual strengths/compromises stay live. Public capture hides private drafts. Acquisition controls no longer crowd the active construction step.
+
+No final spending/confirmation or AI construction was implemented in this ticket. These remain tickets 02/03; the construction guard deliberately stays closed. Reliability is clearly a displayed design margin without adding an unimplemented failure process. Full-calendar comparisons remain deferred pending validated circuit content.
+
+## Owned runtime
+
+Node 24.22.1; .NET SDK 10.0.401; existing dependency caches and Java 21. UI 4697, API 4797; Auth 22509, Firestore 22500, websocket 22550, hub 22510 and logging 22560. Emulator rules are alongside the config. Bounded reports record launched parent PIDs and cleanup; no existing previews are reused. Successful browser runs own and stop their servers. Manual emulator processes were also stopped after API verification.

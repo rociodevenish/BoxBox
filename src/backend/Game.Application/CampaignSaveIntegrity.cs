@@ -14,8 +14,10 @@ public static class CampaignSaveIntegrity
   {
    if(record.Schema!=CampaignCoordinator.Schema||record.CampaignId!=id||string.IsNullOrWhiteSpace(record.HostUid)||record.Revision<1||record.Input is null||string.IsNullOrWhiteSpace(record.ContentVersion)||string.IsNullOrWhiteSpace(record.CalendarVersion))throw new ArgumentException();
    if(record.Calendar is null||record.Teams is null||record.FrozenPresets is null||record.EventConditions is null||record.Calendar.Length<2||record.Teams.Length==0||record.EventIndex<0||record.EventIndex>=record.Calendar.Length)throw new ArgumentException();
-   if(record.Lifecycle is not("acquiring" or "created" or "event-preparation" or "active-weekend" or "event-result-committed" or "season-complete"))throw new ArgumentException();
+   if(record.Lifecycle is not("acquiring" or "constructing" or "created" or "event-preparation" or "active-weekend" or "event-result-committed" or "season-complete"))throw new ArgumentException();
    if(record.Acquisition is {} acquisition)PersonnelAcquisition.Validate(acquisition);
+   if(record.Construction is {} construction)CarConstruction.Validate(construction,record.Teams.Select(t=>t.TeamId).ToArray());
+   if(record.ConstructionRequired&&(record.Acquisition is null||record.Lifecycle!="acquiring"&&record.Construction is null)||record.Lifecycle=="constructing"&&(!record.ConstructionRequired||record.Construction is null))throw new ArgumentException();
    if(record.AcquisitionWakeup is {} wakeup&&(record.Acquisition is null||!record.AcquisitionAutomatic||record.Lifecycle is not("acquiring" or "created")||wakeup.SessionId!="campaign-"+id||wakeup.Kind!="personnel"||!Guid.TryParse(wakeup.Generation,out _)))throw new ArgumentException();
    foreach(var choice in record.PersonnelChoices??[])
    {

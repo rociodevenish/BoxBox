@@ -9,7 +9,9 @@ interface Standing {id:string;position:number;points:number}
 interface Result {eventId:string;result:{hash:string;classification:{personId:string;position:number;status:string;laps:number;eligible:boolean}[]};awards:{personId:string;points:number}[]}
 interface PersonnelCard {id:string;name:string;role:string;price:number;effectLabel:string;attributes:Record<string,number>|null;driver?:{slug:string;ratings:Record<string,number>;preferences:{key:string;label:string}[]}}
 interface AcquisitionTeam {advice:{version:string;personId:string;reason:string}|null;teamId:string;revision:number;balance:number;startingCredit:number;minimumCarReserve:number;slot:string|null;activeTeamId:string|null;poolVersion:string;priceVersion:string;offers:PersonnelCard[];hires:{slot:string;personId:string}[];ledger:{commandId:string;credits:number;reason:string;personId:string|null}[];requiredSlots:string[];roster:PersonnelCard[];scoutTokens:number;scoutUnavailable:string|null;cursor:number;totalPicks:number;drawCount:number;completionReserve:number;remainingSlots:string[];rosterReady:boolean;hireOptions:{personId:string;canHire:boolean;reserveAfterHire:number;unavailable:string|null}[];reserveVersion:string;constructionMapping:{version:string;sourceVersion:string;minimumBudgetUnits:number;creditsPerBudgetUnit:number}}
-interface Campaign {acquisition:{automaticEnabled:boolean;deadline:string|null;timeoutPolicy:string;version:string;activeTeamId:string|null;slot:string|null;requiredSlots:number;filledSlots:number;scheduleVersion:string;initialOrder:string[];picks:{teamId:string;slot:string}[];cursor:number;allRostersReady:boolean}|null;campaignId:string;lifecycle:string;contentVersion:string;calendarVersion:string;mode:string;calendar:Event[];teams:Team[];eventIndex:number;weekendId:string;canStart:boolean;readiness:{teamId:string;finalReady:boolean;source:string}[];points:{version:string;byPosition:number[]};standings:{drivers:Standing[];constructors:Standing[]};results:Result[];nextPreparation:{eventId:string;sessionId:string;trackName:string;canStart:boolean;missingTeamPolicy:string;readiness:{teamId:string;finalReady:boolean;source:string}[]}|null}
+interface Campaign {constructionRequired:boolean;acquisition:{automaticEnabled:boolean;deadline:string|null;timeoutPolicy:string;version:string;activeTeamId:string|null;slot:string|null;requiredSlots:number;filledSlots:number;scheduleVersion:string;initialOrder:string[];picks:{teamId:string;slot:string}[];cursor:number;allRostersReady:boolean}|null;campaignId:string;lifecycle:string;contentVersion:string;calendarVersion:string;mode:string;calendar:Event[];teams:Team[];eventIndex:number;weekendId:string;canStart:boolean;readiness:{teamId:string;finalReady:boolean;source:string}[];points:{version:string;byPosition:number[]};standings:{drivers:Standing[];constructors:Standing[]};results:Result[];nextPreparation:{eventId:string;sessionId:string;trackName:string;canStart:boolean;missingTeamPolicy:string;readiness:{teamId:string;finalReady:boolean;source:string}[]}|null}
+interface ConstructionOption {id:string;name:string;cost:number;summary:string;modifiers:Record<string,number>}
+interface ConstructionTeam {teamId:string;catalogue:{version:string;sourceVersion:string;mappingVersion:string;categories:{id:string;label:string;options:ConstructionOption[]}[]};draft:{revision:number;optionIds:string[]};preview:{cost:number;balance:number;remainingCredits:number;affordable:boolean;ratings:Record<string,number>;groups:Record<string,number>;driverFits:{driverId:string;name:string;compatibility:number;description:string}[];tracks:{trackId:string;name:string;strengths:string[];compromises:string[];demandSummary:string}[];explanation:string}}
 interface Joined {campaign:Campaign;weekend:{lobby:{sessionId:string};membership:{deviceId:string}}}
 @Component({selector:'app-campaign-page',templateUrl:'./campaign-page.html',styleUrl:'./campaign-page.css'})
 export class CampaignPage {
@@ -21,6 +23,7 @@ export class CampaignPage {
  previousPoints(result:Result,id:string){let total=0;for(const report of this.campaign()?.results??[]){if(report.eventId===result.eventId)break;total+=this.awarded(report,id);}return total;}
  trackImage(id:string){return tracks.tracks.find(track=>track.id===id)?.url??'';}
  portrait(id:string){const asset=portraits.portraits.find(driver=>'driver-'+driver.driverId===id);return asset?'/'+asset.runtimeUrl:'';}
+ readonly construction=signal<ConstructionTeam|null>(null);readonly constructionSelections=signal<string[]>([]);private constructionGeneration=0;
  readonly personnel=signal<AcquisitionTeam|null>(null);readonly controlledTeams=signal<string[]>([]);
  readonly campaign=signal<Campaign|null>(null);readonly user=signal<User|null>(null);readonly error=signal('');readonly busy=signal(false);readonly ready=signal(false);
  private device='';private personnelGeneration=0;private creation=localStorage.getItem('campaign-create-command')??crypto.randomUUID();private start=crypto.randomUUID();
@@ -70,7 +73,7 @@ export class CampaignPage {
  }
  async activatePersonnel(){await this.change('/acquisition/activate',{});}
  async prepare(){await this.change('/prepare',{});}
- async refresh(){this.closePersonnel();await this.run(async()=>{this.campaign.set(await this.request<Campaign>('/api/campaigns/'+this.campaign()!.campaignId+'?deviceId='+encodeURIComponent(this.device)));await this.loadControllers();});}
+ async refresh(){this.closePersonnel();this.closeConstruction();await this.run(async()=>{this.campaign.set(await this.request<Campaign>('/api/campaigns/'+this.campaign()!.campaignId+'?deviceId='+encodeURIComponent(this.device)));await this.loadControllers();});}
  async begin(){await this.change('/start',{commandId:this.start});}
  private remember(id:string,joined:Joined['weekend'],current=true){if(current){this.device=joined.membership.deviceId;localStorage.setItem('campaign-weekend:'+id,joined.lobby.sessionId);}localStorage.setItem('household-device:'+this.user()!.uid+':'+joined.lobby.sessionId,joined.membership.deviceId);localStorage.setItem('weekend-campaign:'+joined.lobby.sessionId,id);}
  async prepareNext(){await this.change('/next/prepare',{});}
@@ -78,4 +81,18 @@ export class CampaignPage {
  async openNext(){await this.run(async()=>{const id=this.campaign()!.campaignId;const joined=await this.request<Joined['weekend']>('/api/campaigns/'+id+'/return',{nextEvent:true});this.remember(id,joined,false);location.href='/shared/lobby/'+joined.lobby.sessionId;});}
  async startNext(){await this.change('/next/start',{commandId:this.start});const season=this.campaign();if(season){const device=localStorage.getItem('household-device:'+this.user()!.uid+':'+season.weekendId);if(device){this.device=device;localStorage.setItem('campaign-weekend:'+season.campaignId,season.weekendId);}}}
  private async change(path:string,input:unknown){await this.run(async()=>{this.campaign.set(await this.request<Campaign>('/api/campaigns/'+this.campaign()!.campaignId+path,input));});}
-}
+ async openConstruction(teamId:string){this.closePersonnel();const generation=++this.constructionGeneration;this.construction.set(null);await this.run(async()=>{const own=await this.request<ConstructionTeam>('/api/campaigns/'+this.campaign()!.campaignId+'/construction/teams/'+teamId+'?deviceId='+encodeURIComponent(this.device));if(generation===this.constructionGeneration){this.construction.set(own);this.constructionSelections.set(own.draft.optionIds);}});}
+ closeConstruction(){this.constructionGeneration++;this.construction.set(null);this.constructionSelections.set([]);}
+ constructionOption(index:number){const own=this.construction();return own?.catalogue.categories[index].options.find(o=>o.id===this.constructionSelections()[index]);}
+ chooseConstruction(index:number,id:string){this.constructionSelections.update(values=>values.map((value,i)=>i===index?id:value));}
+ constructionCost(){return this.constructionSelections().reduce((cost,_,i)=>cost+(this.constructionOption(i)?.cost??0),0);}
+ constructionAttributes(values:Record<string,number>){return Object.entries(values);}
+ private draftKey(){return 'campaign-car-draft:'+this.campaign()!.campaignId+':'+this.construction()!.teamId;}
+ pendingDraft(){return this.construction()?localStorage.getItem(this.draftKey())!==null:false;}
+ async saveConstruction(){await this.run(async()=>{
+  const own=this.construction()!;const generation=this.constructionGeneration;const key=this.draftKey();let saved=localStorage.getItem(key);
+  if(!saved){saved=JSON.stringify({commandId:crypto.randomUUID(),revision:own.draft.revision,teamId:own.teamId,catalogueVersion:own.catalogue.version,optionIds:this.constructionSelections()});localStorage.setItem(key,saved);}
+  try{const next=await this.request<ConstructionTeam>('/api/campaigns/'+this.campaign()!.campaignId+'/construction/teams/'+own.teamId+'/draft?deviceId='+encodeURIComponent(this.device),JSON.parse(saved));if(generation===this.constructionGeneration){this.construction.set(next);this.constructionSelections.set(next.draft.optionIds);}}
+  catch(error){const status=(error as {status?:number}).status;if(status&&status>=400&&status<500)localStorage.removeItem(key);throw error;}
+  localStorage.removeItem(key);
+ });}}

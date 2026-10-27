@@ -13,7 +13,7 @@
   </section>
  }
  @if(campaign();as season){
-  <section><h2>{{season.lifecycle==='acquiring'?'Personnel acquisition':season.lifecycle==='season-complete'?'Season complete':season.lifecycle==='event-result-committed'?'Event result committed':season.lifecycle==='active-weekend'?'Weekend active':season.lifecycle==='event-preparation'?'Event preparation':'Campaign created'}}</h2>
+  <section><h2>{{season.lifecycle==='constructing'?'Base Car construction':season.lifecycle==='acquiring'?'Personnel acquisition':season.lifecycle==='season-complete'?'Season complete':season.lifecycle==='event-result-committed'?'Event result committed':season.lifecycle==='active-weekend'?'Weekend active':season.lifecycle==='event-preparation'?'Event preparation':'Campaign created'}}</h2>
    <p>{{season.mode}} privacy · {{season.acquisition?'Fixed-price personnel. Constructor identity stays yours.':'Preset rosters and neutral cars remain fixed.'}}</p>
    <p class="version">Short fixture · Provisional game content</p>
    <button (click)="refresh()" [disabled]="busy()">Refresh campaign</button>
@@ -27,13 +27,13 @@
     @if(event.order===season.eventIndex+2){<p>Upcoming circuit · Saved preparation opens after the current result is committed.</p>}
    </article>
   }</div></section>
-  @if(season.lifecycle==='created'||season.lifecycle==='acquiring'){
+  @if(season.lifecycle==='created'||season.lifecycle==='acquiring'||(season.lifecycle==='constructing'&&!controlledTeams().length)){
    <section><h2>Choose your constructor</h2><p>Claim one team. Add other players through household assignments. {{season.acquisition?'Every team needs a complete acquired roster before preparation.':'Unclaimed teams use the disclosed automatic preparation policy.'}}</p>
     <div class="teams">@for(team of season.teams;track team.teamId){<button (click)="claim(team.teamId)" [disabled]="busy()">Claim {{team.constructorName}}</button>}</div>
     @if(season.lifecycle==='created'){<button (click)="prepare()" [disabled]="busy()">Begin event preparation</button>}
    </section>
   }
-  @if(season.acquisition;as acquisition){
+  @if(season.lifecycle==='constructing'?null:season.acquisition;as acquisition){
    <section aria-label="Acquisition progress"><h2>Build your roster</h2><p>One Manager · Two Drivers · Two Race Engineers · Two Technical Engineers. Pit Crew remains a team attribute.</p><p>{{acquisition.filledSlots}} / {{acquisition.requiredSlots}} mandatory places filled across the household.</p><p>Provisional fixed prices · 100 starting credits per team. No auctions or transfers.</p>
     @if(acquisition.allRostersReady){<p role="status">All required rosters are ready.</p><p>Rosters and printed prices are saved for the season.</p>}
     <p>{{acquisition.timeoutPolicy}}</p>@if(season.lifecycle==='acquiring'&&!acquisition.automaticEnabled){<button (click)="activatePersonnel()" [disabled]="busy()">Host: activate AI and pick deadlines</button><p>Claim and assign human teams before activating.</p>}@if(acquisition.deadline){<p>Current pick deadline: {{acquisition.deadline}}</p>}
@@ -44,7 +44,7 @@
    </section>
   }
   @if(personnel();as own){
-   <section aria-label="Your private personnel"><h2>{{teamName(own.teamId)}} personnel</h2><button (click)="closePersonnel()">Hide private personnel</button><p class="funds">{{own.balance}} credits remaining</p><p>Starting credit {{own.startingCredit}} · Minimum future car cost {{own.minimumCarReserve}} credits. Car construction is not active yet.</p><p>{{own.hires.length}} / {{own.requiredSlots.length}} required places filled</p>
+   <section aria-label="Your private personnel"><h2>{{teamName(own.teamId)}} personnel</h2><button (click)="closePersonnel()">Hide private personnel</button><p class="funds">{{own.balance}} credits remaining</p><p>Starting credit {{own.startingCredit}} · Minimum future car cost {{own.minimumCarReserve}} credits. Base Car construction follows roster completion.</p><p>{{own.hires.length}} / {{own.requiredSlots.length}} required places filled</p>
     <p class="funds">Completion reserve: {{own.completionReserve}} credits</p><p>Protected for remaining mandatory personnel and the minimum car. Each hire must leave its displayed reserve available.</p><p>{{own.remainingSlots.length}} mandatory places remaining</p><p>Construction conversion: {{own.constructionMapping.creditsPerBudgetUnit}} credit per budget unit · Provisional.</p>
     <p>{{own.scoutTokens}} Scout tokens remaining</p>
     @if(pendingScout()){<button (click)="scout()" [disabled]="busy()">Retry saved Scout</button><p>The same saved Scout is retried after a lost connection.</p>}
@@ -60,6 +60,19 @@
     <details><summary>Remaining mandatory places</summary>@for(slot of own.requiredSlots;track slot){<p>{{slotLabel(slot)}} · {{filledSlot(slot)?'Filled':'Required'}}</p>}</details>
     <div role="region" aria-label="Your personnel ledger"><h3>Saved credit ledger</h3>@for(entry of own.ledger;track entry.commandId){<p><span>{{entry.credits>0?'+':''}}{{entry.credits}} credits</span> · {{entry.reason==='starting-credit'?'Starting credit':'Personnel hire'}}</p>}</div>
     <p class="version">{{own.poolVersion}} · {{own.priceVersion}} · {{own.reserveVersion}} · {{own.constructionMapping.version}}</p>
+   </section>
+  }
+  @if(season.lifecycle==='constructing'){
+   <section aria-label="Construction progress"><h2>Choose your Base Car</h2><p>All teams have the same four-category menu. Choose a specialisation, compare both drivers and keep credits for later development. Draft edits are free; each team still needs a final confirmed build before the first weekend.</p><p>One budget unit maps to one credit. The source's provisional 20-unit envelope is replaced by your actual remaining credit balance; builds cost 18–24 credits. All 625 combinations exist, but only affordable choices can be saved.</p><div class="teams">@for(teamId of controlledTeams();track teamId){<button (click)="openConstruction(teamId)" [disabled]="busy()">Open construction for {{teamName(teamId)}}</button>}</div>@if(!controlledTeams().length){<p>Claim a constructor or use household assignments, then refresh.</p>}</section>
+  }
+  @if(construction();as own){
+   <section aria-label="Your private construction"><h2>{{teamName(own.teamId)}} Base Car draft</h2><button (click)="closeConstruction()">Hide private construction</button><p class="funds">{{own.preview.balance}} credits available · No construction spending yet</p><p>Saved draft revision {{own.draft.revision}} · Saved cost {{own.preview.cost}} credits · {{own.preview.remainingCredits}} credits after a future purchase</p>
+    <div class="construction-categories">@for(category of own.catalogue.categories;track category.id;let index=$index){<article><h3>{{category.label}}</h3><label>{{category.label}} choice<select (change)="chooseConstruction(index,$any($event.target).value)" [disabled]="busy()||pendingDraft()">@for(option of category.options;track option.id){<option [value]="option.id" [selected]="option.id===constructionSelections()[index]">{{option.name}} · {{option.cost}} credits</option>}</select></label>@if(constructionOption(index);as selected){<p><strong>{{selected.name}}</strong> · {{selected.cost}} credits</p><p>{{selected.summary}}</p><details><summary>Authored option modifiers</summary><dl>@for(attribute of constructionAttributes(selected.modifiers);track attribute[0]){<div><dt>{{attributeLabel(attribute[0])}}</dt><dd>{{attribute[1]>0?'+':''}}{{attribute[1]}}</dd></div>}</dl><p>Before bounded stacking; detailed design points, not card stars.</p></details>}</article>}</div>
+    <p class="funds">Selected cost: {{constructionCost()}} credits · {{own.preview.balance-constructionCost()}} credits remaining after a future purchase</p>@if(constructionCost()>own.preview.balance){<p role="status">Selected build exceeds your available credits. Choose a cheaper compromise; your saved draft is unchanged.</p>}
+    <button (click)="saveConstruction()" [disabled]="busy()||(!pendingDraft()&&constructionCost()>own.preview.balance)">{{pendingDraft()?'Retry saved draft':'Save free draft and compare'}}</button><p>Comparison below uses saved revision {{own.draft.revision}}. Select options and save to update it. Saving never purchases the car.</p>
+    <h3>Saved draft · Simple groups</h3><dl aria-label="Simple car attribute groups">@for(attribute of constructionAttributes(own.preview.groups);track attribute[0]){<div><dt>{{attribute[0]}}</dt><dd>{{attribute[1].toFixed(1)}} / 100</dd></div>}</dl><details><summary>Saved draft · Detailed attributes</summary><dl>@for(attribute of constructionAttributes(own.preview.ratings);track attribute[0]){<div><dt>{{attributeLabel(attribute[0])}}</dt><dd>{{attribute[1].toFixed(1)}} / 100</dd></div>}</dl></details>
+    <h3>Both-driver compatibility</h3><div class="construction-drivers">@for(fit of own.preview.driverFits;track fit.driverId){<article><img class="portrait" [src]="portrait(fit.driverId)" alt="" (error)="$any($event.target).hidden=true"><h4>{{fit.name}}</h4><p>{{fit.compatibility.toFixed(0)}} / 100 indicative compatibility</p><p>{{fit.description}}</p></article>}</div>
+    <h3>Representative circuit trade-offs</h3><div class="construction-tracks">@for(track of own.preview.tracks;track track.trackId){<article><img class="construction-track" [src]="trackImage(track.trackId)" alt="" (error)="$any($event.target).hidden=true"><h4>{{track.name}}</h4><p>{{track.demandSummary}}</p><p>Strengths against baseline: {{track.strengths.join(', ')||'No directional gain'}}</p><p>Compromises: {{track.compromises.join(', ')||'Higher cost or no directional weakness'}}</p></article>}</div><p>{{own.preview.explanation}}</p><p>The six source handling labels are summarized through the supported responsive/stable preference axis. No extra staff performance bonuses apply. Full-calendar comparisons await validated circuit content.</p><p class="version">{{own.catalogue.version}} · {{own.catalogue.mappingVersion}}</p><p>Final purchase confirmation follows this draft step. The first weekend remains closed until every team has a confirmed Base Car.</p>
    </section>
   }
   @if(season.lifecycle==='event-preparation'){
