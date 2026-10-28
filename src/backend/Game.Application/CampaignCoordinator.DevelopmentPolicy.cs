@@ -23,8 +23,9 @@ public sealed partial class CampaignCoordinator
   {
    var saved=Require(id);var record=saved.Record;var opportunity=AuthoriseDevelopment(record,identity,deviceId,teamId);
    if(input is null||!Guid.TryParse(input.CommandId,out var key)||key==Guid.Empty)throw new SessionFault(SessionFailure.InvalidInput,"Supply a recommendation command identity.");
+   if(weekends.CampaignDevelopmentHelp(record.Calendar[(record.PreparationEventIndex??record.EventIndex)].SessionId,teamId).Settings.HelpLevel=="Standard")throw new SessionFault(SessionFailure.Forbidden,"Standard Help Privileges do not include strategic recommendations.");
    var commandId=key.ToString("D");var prior=(record.DevelopmentChoices??[]).SingleOrDefault(c=>c.DraftCommandId==commandId);
-   if(prior is not null){if(prior.Source!="assisted"||prior.TeamId!=teamId||prior.OpportunityId!=input.OpportunityId||prior.Revision!=input.Revision||opportunity.Receipts.Single(r=>r.CommandId==commandId).Fingerprint!=JsonSerializer.Serialize(new{team=teamId,command=new DevelopmentEdit(commandId,input.OpportunityId,input.Revision,prior.Recommendation.ActionKind,prior.Recommendation.OptionId,prior.Recommendation.QuoteId,input.AssignmentRevision)}))throw new SessionFault(SessionFailure.Conflict,"Recommendation identity belongs to different inputs.");return ProjectDevelopment(record,teamId,weekends.DevelopmentAssignmentRevision(record.Calendar[(record.PreparationEventIndex??record.EventIndex)].SessionId,identity,deviceId,teamId));}
+   if(prior is not null){if(prior.Source!="assisted"||prior.TeamId!=teamId||prior.OpportunityId!=input.OpportunityId||prior.Revision!=input.Revision||opportunity.Receipts.Single(r=>r.CommandId==commandId).Fingerprint!=JsonSerializer.Serialize(new{team=teamId,command=new DevelopmentEdit(commandId,input.OpportunityId,input.Revision,prior.Recommendation.ActionKind,prior.Recommendation.OptionId,prior.Recommendation.QuoteId,input.AssignmentRevision)}))throw new SessionFault(SessionFailure.Conflict,"Recommendation identity belongs to different inputs.");return ProjectDevelopment(record,teamId,weekends.DevelopmentAssignmentRevision(record.Calendar[(record.PreparationEventIndex??record.EventIndex)].SessionId,identity,deviceId,teamId),identity);}
    if((record.DevelopmentAutomaticCommands??[]).Any(c=>c.CommandId==commandId)||(record.DevelopmentCloses??[]).Any(c=>c.CommandId==commandId))throw new SessionFault(SessionFailure.Conflict,"Command identity already belongs to another operation.");
    var assignment=weekends.DevelopmentAssignmentRevision(record.Calendar[(record.PreparationEventIndex??record.EventIndex)].SessionId,identity,deviceId,teamId);
    if(input.AssignmentRevision!=assignment)throw new SessionFault(SessionFailure.Conflict,"Controller changed. Refresh development.");
@@ -35,7 +36,7 @@ public sealed partial class CampaignCoordinator
    catch(InvalidOperationException error){throw new SessionFault(SessionFailure.Conflict,error.Message);}
    if(ReferenceEquals(next,opportunity))throw new SessionFault(SessionFailure.Conflict,"Command identity already belongs to another operation.");
    record=WithDevelopment(record,next) with{DevelopmentChoices=[..record.DevelopmentChoices??[],new(teamId,opportunity.Id,"assisted",input.Revision,observation,plan,commandId)]};Write(id,saved.Version,record);
-   return ProjectDevelopment(record,teamId,assignment);
+   return ProjectDevelopment(record,teamId,assignment,identity);
   }
  }
  public CampaignSnapshot DevelopUnclaimed(string id,AuthIdentity identity,DevelopmentAutomaticInput input)
@@ -66,4 +67,3 @@ public sealed partial class CampaignCoordinator
   }
  }
 }
-
