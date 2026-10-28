@@ -38,6 +38,7 @@ public sealed partial class SessionCoordinator
         try { lock (gate)
         {
             var lobby = RequireLobby(id); RequireHost(lobby, identity);
+            if(lobby.ModuleState.ContainsKey("campaign-development-pending-v1"))throw new SessionFault(SessionFailure.Conflict,"Close campaign development before preparation and practice.");
             if(lobby.ModuleState.ContainsKey("campaign-construction-pending-v1"))throw new SessionFault(SessionFailure.Conflict,"Complete Base Car construction before preparation.");
             if(lobby.ModuleState.ContainsKey("campaign-personnel-pending-v1"))throw new SessionFault(SessionFailure.Conflict,"Complete campaign personnel acquisition before preparation.");
             if(lobby.CampaignPresets is {} campaignPresets)

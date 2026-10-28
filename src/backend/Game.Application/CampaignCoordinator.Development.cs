@@ -1,0 +1,89 @@
+using System.Collections.Immutable;
+using Game.Domain;
+namespace Game.Application;
+public sealed partial class CampaignCoordinator
+{
+ private static DevelopmentOpportunity? CurrentDevelopment(CampaignRecord record)=>record.PreparationEventIndex is {} index?record.Development?.Opportunities.SingleOrDefault(o=>o.TargetEventId==record.Calendar[index].EventId):null;
+ private static bool DevelopmentPending(CampaignRecord record)=>CurrentDevelopment(record) is {Closed:false};
+ private static DevelopmentPublicSnapshot? DevelopmentProjection(CampaignRecord record)
+ {
+  if(CurrentDevelopment(record) is not {} opportunity)return null;
+  var ready=record.Teams.Select(t=>new DevelopmentReadiness(t.TeamId,opportunity.Decisions.Any(d=>d.TeamId==t.TeamId),opportunity.Decisions.SingleOrDefault(d=>d.TeamId==t.TeamId)?.Source??"awaiting-choice")).ToArray();
+  return new(opportunity.Id,opportunity.FromEventId,opportunity.TargetEventId,opportunity.Closed?"closed":"open",ready,!opportunity.Closed&&ready.All(t=>t.Committed));
+ }
+ private static DevelopmentPersonnel DevelopmentStaff(CampaignRecord record,string teamId)
+ {
+  if(record.Acquisition is not {} acquisition)return new("preset-development-neutral-v1",0,0,0,0);
+  var people=acquisition.Hires.Where(h=>h.TeamId==teamId).Select(h=>acquisition.Pool.People.Single(p=>p.Id==h.PersonId)).ToArray();
+  var manager=people.Single(p=>p.Role=="Manager");var technical=people.Where(p=>p.Role=="Technical Engineer").ToArray();
+  return new(acquisition.Pool.Version+"/"+string.Join("/",people.Select(p=>p.Id).Order()),manager.Attributes!["Efficiency"],manager.Attributes["Development"],(int)technical.Average(p=>p.Attributes!["Development Efficiency"]),(int)technical.Average(p=>new[]{"Aerodynamics","Mechanical / Chassis","Power Systems","Reliability"}.Average(k=>p.Attributes![k])));
+ }
+ private DevelopmentOpportunity AuthoriseDevelopment(CampaignRecord record,AuthIdentity identity,string deviceId,string teamId)
+ {
+  var opportunity=CurrentDevelopment(record)??throw new SessionFault(SessionFailure.Conflict,"Open next-event development first.");
+  var index=record.PreparationEventIndex!.Value;
+  weekends.AuthoriseCampaignPersonnel(record.Calendar[index].SessionId,identity,deviceId,teamId);
+  return opportunity;
+ }
+ private static DevelopmentTeamSnapshot ProjectDevelopment(CampaignRecord record,string teamId,long assignmentRevision)
+ {
+  var opportunity=CurrentDevelopment(record)??throw new SessionFault(SessionFailure.Conflict,"No development opportunity is open.");
+  var staff=DevelopmentStaff(record,teamId);
+  return new(record.CampaignId,teamId,opportunity.Id,opportunity.Revision,assignmentRevision,CampaignEconomy.Ledger(record).Where(e=>e.TeamId==teamId).Sum(e=>e.Credits),PermanentDevelopment.Options.Select(o=>PermanentDevelopment.Quote(o.Id,staff)).ToArray(),opportunity.Drafts[teamId],opportunity.Decisions.SingleOrDefault(d=>d.TeamId==teamId));
+ }
+ public DevelopmentTeamSnapshot DevelopmentTeam(string id,AuthIdentity identity,string deviceId,string teamId)
+ {
+  lock(gate){var record=Require(id).Record;_=AuthoriseDevelopment(record,identity,deviceId,teamId);return ProjectDevelopment(record,teamId,weekends.DevelopmentAssignmentRevision(record.Calendar[record.PreparationEventIndex!.Value].SessionId,identity,deviceId,teamId));}
+ }
+ public DevelopmentTeamSnapshot EditDevelopment(string id,AuthIdentity identity,string deviceId,string teamId,DevelopmentEdit command)
+ {
+  lock(gate)
+  {
+   var saved=Require(id);var record=saved.Record;var opportunity=AuthoriseDevelopment(record,identity,deviceId,teamId);
+   if(command is null||!opportunity.Receipts.Any(r=>r.CommandId==command.CommandId)&&command.AssignmentRevision!=weekends.DevelopmentAssignmentRevision(record.Calendar[record.PreparationEventIndex!.Value].SessionId,identity,deviceId,teamId))throw new SessionFault(SessionFailure.Conflict,"Controller changed. Refresh development.");
+   DevelopmentOpportunity next;
+   try{next=PermanentDevelopment.Edit(opportunity,teamId,command,DevelopmentStaff(record,teamId));}
+   catch(ArgumentException error){throw new SessionFault(SessionFailure.InvalidInput,error.Message);}
+   catch(InvalidOperationException error){throw new SessionFault(SessionFailure.Conflict,error.Message);}
+   if(!ReferenceEquals(next,opportunity)){record=WithDevelopment(record,next);Write(id,saved.Version,record);}
+   return ProjectDevelopment(record,teamId,weekends.DevelopmentAssignmentRevision(record.Calendar[record.PreparationEventIndex!.Value].SessionId,identity,deviceId,teamId));
+  }
+ }
+ public DevelopmentTeamSnapshot CommitDevelopment(string id,AuthIdentity identity,string deviceId,string teamId,DevelopmentCommit command)
+ {
+  lock(gate)
+  {
+   var saved=Require(id);var record=saved.Record;var opportunity=AuthoriseDevelopment(record,identity,deviceId,teamId);
+   if(command is null||!opportunity.Decisions.Any(r=>r.CommandId==command.CommandId)&&command.AssignmentRevision!=weekends.DevelopmentAssignmentRevision(record.Calendar[record.PreparationEventIndex!.Value].SessionId,identity,deviceId,teamId))throw new SessionFault(SessionFailure.Conflict,"Controller changed. Refresh development.");
+   DevelopmentCommitment next;
+   try{next=PermanentDevelopment.Commit(opportunity,CampaignEconomy.Ledger(record),teamId,command,DevelopmentStaff(record,teamId));}
+   catch(ArgumentException error){throw new SessionFault(SessionFailure.InvalidInput,error.Message);}
+   catch(InvalidOperationException error){throw new SessionFault(SessionFailure.Conflict,error.Message);}
+   if(!ReferenceEquals(next.State,opportunity))
+   {
+    record=WithDevelopment(record,next.State);
+    record=record.Acquisition is {} acquisition?record with{Acquisition=acquisition with{Ledger=next.Ledger}}:record with{PresetLedger=next.Ledger.ToArray()};
+    Write(id,saved.Version,record);
+   }
+   return ProjectDevelopment(record,teamId,weekends.DevelopmentAssignmentRevision(record.Calendar[record.PreparationEventIndex!.Value].SessionId,identity,deviceId,teamId));
+  }
+ }
+ private static CampaignRecord WithDevelopment(CampaignRecord record,DevelopmentOpportunity opportunity)=>record with{Revision=record.Revision+1,Development=record.Development! with{Opportunities=record.Development.Opportunities.Select(o=>o.Id==opportunity.Id?opportunity:o).ToImmutableArray()}};
+}
+public sealed partial class SessionCoordinator
+{
+ public long DevelopmentAssignmentRevision(string id,AuthIdentity identity,string deviceId,string teamId)
+ {lock(gate){return AuthorisePreparationController(id,identity,deviceId,teamId).Assignment.Revision;}}
+ public void CommitCampaignDevelopment(string sessionId,WeekendPreset[] frozen)
+ {
+  lock(gate)
+  {
+   RefreshCampaignWeekend(sessionId);var lobby=RequireLobby(sessionId);
+   if(!lobby.ModuleState.ContainsKey("campaign-development-pending-v1"))return;
+   if(lobby.Lifecycle!="lobby")throw new SessionFault(SessionFailure.Conflict,"Development handoff must precede preparation.");
+   lobby.CampaignPresets=frozen;lobby.ModuleState.Remove("campaign-development-pending-v1");lobby.Revision++;Persist(sessionId);
+  }
+ }
+}
+
+

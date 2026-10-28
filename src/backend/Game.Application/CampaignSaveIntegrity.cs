@@ -40,6 +40,7 @@ public static class CampaignSaveIntegrity
     if(!Guid.TryParse(command.CommandId,out var key)||key==Guid.Empty||command.CommandId!=key.ToString("D")||command.Version!=ConstructionDecisionPolicy.Version||command.TeamIds.Distinct().Count()!=command.TeamIds.Length||command.TeamIds.Any(team=>!(record.ConstructionChoices??[]).Any(c=>c.TeamId==team&&c.Source=="unclaimed-ai")))throw new ArgumentException();
    if(record.Input.PersonnelMode is not("preset" or "acquisition"))throw new ArgumentException();
    if(record.Input.PersonnelMode=="acquisition"&&record.Acquisition is null||record.Input.PersonnelMode=="preset"&&record.Acquisition is not null)throw new ArgumentException();
+   CampaignDevelopmentIntegrity.Validate(record);
    CampaignRules.ValidateShortCalendar(record.Calendar.Select(e=>e.TrackId).ToArray());
    if(record.Calendar.Select(e=>e.EventId).Distinct().Count()!=record.Calendar.Length||record.Calendar.Select(e=>e.SessionId).Distinct().Count()!=record.Calendar.Length||record.Teams.Select(t=>t.TeamId).Distinct().Count()!=record.Teams.Length)throw new ArgumentException();
    var drivers=record.Teams.SelectMany(t=>t.Drivers).ToArray();
