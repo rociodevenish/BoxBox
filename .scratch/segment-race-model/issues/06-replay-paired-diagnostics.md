@@ -1,5 +1,7 @@
 # 06: Publish versioned replay and paired diagnostics
 
+> GitHub issue: [#80](https://github.com/rociodevenish/BoxBox/issues/80) — canonical ticket. This file is a local snapshot; track status and discussion on GitHub.
+
 **What to build:** A designer reproduces segmented races and compares strategies using inspectable histories and valid outcome groups.
 
 **Blocked by:** 04: Resolve pit rejoining and race-boundary events; 05: Add controlled driver form and named random channels

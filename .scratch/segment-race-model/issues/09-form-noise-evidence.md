@@ -1,5 +1,7 @@
 # 09: Measure persistent form and lap-noise effects
 
+> GitHub issue: [#83](https://github.com/rociodevenish/BoxBox/issues/83) — canonical ticket. This file is a local snapshot; track status and discussion on GitHub.
+
 **What to build:** Designers distinguish sustained driver performance from independent lap noise and assess strategy uncertainty.
 
 **Blocked by:** 06: Publish versioned replay and paired diagnostics
@@ -24,4 +26,3 @@ Diagnostics pool adjacent effective modifier pairs from the same driver/race, wi
 Normal combined profile strategy time intervals cross zero in every layout/field, so those mean effects remain inconclusive. Higher combined variability changes the strategy distributions and encounter sets, with earlier-stop mean time gains in this sample; it is not a final tuning recommendation. Every eligibility/distance group, sample variability, per-seed persistence result, actual pass/attempt/traffic/blue-flag counter and matched/unmatched exogenous scope count is published. Exact corresponding diagnostic values are verified within paired plans; all mismatches are zero. Persistence belongs to one driver in one race, with no shared team/field latent factor or carryover across weekends. Mixed-car-fit explicitly includes varied base driver Pace.
 
 Validation: observed unsupported CLI suite red before implementation; actual 20-case sweep completed and validated with 20 samples per counter/persistence series and group totals 20. Full test suite 98 passed. Runner smoke passed, including exact replay and form-suite sample-size rejection before reports. No simulation formula or base driver attribute changed.
-

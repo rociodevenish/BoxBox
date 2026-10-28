@@ -1,5 +1,7 @@
 # 01: Create a campaign from a reviewed content pack
 
+> GitHub issue: [#21](https://github.com/rociodevenish/BoxBox/issues/21) — canonical ticket. This file is a local snapshot; track status and discussion on GitHub.
+
 **What to build:** Start a representative campaign using a validated immutable release-content candidate with readable source-backed identities.
 
 **Blocked by:** campaign-championships 01; personnel-acquisition 04; initial-car-construction 03; race-packages 04; weather-strategy 05; visual-design-foundation 06.

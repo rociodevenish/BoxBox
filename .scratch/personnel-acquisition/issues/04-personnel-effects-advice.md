@@ -1,5 +1,7 @@
 # 04: Use acquired personnel and fair acquisition advice
 
+> GitHub issue: [#39](https://github.com/rociodevenish/BoxBox/issues/39) — canonical ticket. This file is a local snapshot; track status and discussion on GitHub.
+
 **What to build:** Take acquired people into weekend preparation with truthful card effects, AI picks and helpful comparisons.
 
 **Blocked by:** 03: Guarantee affordable required-slot completion; weekend-preparation 05; campaign-championships 03.

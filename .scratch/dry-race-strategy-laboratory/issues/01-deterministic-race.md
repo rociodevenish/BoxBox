@@ -1,5 +1,7 @@
 # 01: Run a deterministic race from fixed starting conditions
 
+> GitHub issue: [#13](https://github.com/rociodevenish/BoxBox/issues/13) — canonical ticket. This file is a local snapshot; track status and discussion on GitHub.
+
 **What to build:** A designer can run a complete local race from fixed starting conditions and inspect reproducible Classification and finish results.
 
 **Blocked by:** None (can start immediately).

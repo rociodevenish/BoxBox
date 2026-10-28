@@ -1,5 +1,7 @@
 # 01: Create a durable short campaign and first event
 
+> GitHub issue: [#8](https://github.com/rociodevenish/BoxBox/issues/8) — canonical ticket. This file is a local snapshot; track status and discussion on GitHub.
+
 **What to build:** Create an authorised preset campaign with a short immutable calendar and start its first weekend.
 
 **Blocked by:** weather-strategy 06; shared-sessions 06; race-continuity-ai-assistance 07.

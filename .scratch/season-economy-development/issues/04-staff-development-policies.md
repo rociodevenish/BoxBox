@@ -1,5 +1,7 @@
 # 04: Use personnel effects and fair development guidance
 
+> GitHub issue: [#73](https://github.com/rociodevenish/BoxBox/issues/73) — canonical ticket. This file is a local snapshot; track status and discussion on GitHub.
+
 **What to build:** Understand bounded staff value and receive honest development/Save advice while AI obeys the same economy.
 
 **Blocked by:** 03: Resolve refinement outcomes and delayed projects; personnel-acquisition 04; campaign-championships 03.

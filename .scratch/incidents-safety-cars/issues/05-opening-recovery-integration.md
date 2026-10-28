@@ -1,5 +1,7 @@
 # 05: Recover opening and mid-race disruptions
 
+> GitHub issue: [#30](https://github.com/rociodevenish/BoxBox/issues/30) — canonical ticket. This file is a local snapshot; track status and discussion on GitHub.
+
 **What to build:** Handle opening incidents and server interruption through the same durable Safety Car flow.
 
 **Blocked by:** 04: Run the Safety Car period and restart coherently; qualifying-race-start 03.

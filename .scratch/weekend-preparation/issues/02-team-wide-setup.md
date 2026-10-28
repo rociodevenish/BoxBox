@@ -1,5 +1,7 @@
 # 02: Choose a team-wide Weekend Setup
 
+> GitHub issue: [#104](https://github.com/rociodevenish/BoxBox/issues/104) — canonical ticket. This file is a local snapshot; track status and discussion on GitHub.
+
 **What to build:** Choose and save Aero, Mechanical and Tyres settings for both cars with understandable bounded compromises.
 
 **Blocked by:** 01: Prepare a weekend with effective attributes.

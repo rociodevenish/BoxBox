@@ -1,5 +1,7 @@
 # 05: Offer Assisted and Guided decisions
 
+> GitHub issue: [#50](https://github.com/rociodevenish/BoxBox/issues/50) — canonical ticket. This file is a local snapshot; track status and discussion on GitHub.
+
 **What to build:** Each player receives the selected help level with understandable, executable two-car advice based only on their team's legitimate information.
 
 **Blocked by:** 02 — Race against fair, observation-driven AI; 03 — Continue through deadlines and missed decisions, for the included timeout auto-accept flow.

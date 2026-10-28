@@ -1,5 +1,7 @@
 # 02: Interrupt a Race Phase at the actual incident time
 
+> GitHub issue: [#27](https://github.com/rociodevenish/BoxBox/issues/27) — canonical ticket. This file is a local snapshot; track status and discussion on GitHub.
+
 **What to build:** Stop at a qualifying major incident with every car in coherent shared-clock state.
 
 **Blocked by:** 01: Resolve contextual incidents and reliability consequences.

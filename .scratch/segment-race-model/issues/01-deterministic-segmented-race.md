@@ -1,5 +1,7 @@
 # 01: Run a deterministic segmented solo race
 
+> GitHub issue: [#75](https://github.com/rociodevenish/BoxBox/issues/75) â€” canonical ticket. This file is a local snapshot; track status and discussion on GitHub.
+
 **What to build:** A designer runs a complete solo race on ordered track segments through the laboratory and inspects spatial progress and tyre behaviour.
 
 **Blocked by:** None (can start immediately)
@@ -21,4 +23,4 @@ Implement the approved segment race model spec. Test through the confirmed publi
 
 Implemented ordered validated layouts, immutable engine layout snapshots, the shared pure `SegmentSimulation` public seam with bounded catch prediction, segment exit scheduling/history and cumulative distance-derived Classification. Solo races preserve five-leader-lap phase boundaries, pace changes inside segments, distributed warm-up and distance/demand wear. Aggregate inputs retain their compatibility path; equivalent explicit one-segment clear-air controls match aggregate outputs.
 
-Evidence: `dotnet test --no-restore` passed all 51 tests, including 9 segment contract/integration tests. Validation covers empty layouts, identity collisions, nonfinite values/totals, independent demands and snapshot stability. Documentation: `docs/segment-simulation.md`. Spatial following and passing remain assigned to dependent tickets 02–03.
+Evidence: `dotnet test --no-restore` passed all 51 tests, including 9 segment contract/integration tests. Validation covers empty layouts, identity collisions, nonfinite values/totals, independent demands and snapshot stability. Documentation: `docs/segment-simulation.md`. Spatial following and passing remain assigned to dependent tickets 02ï¿½03.

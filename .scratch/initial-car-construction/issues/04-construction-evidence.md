@@ -1,5 +1,7 @@
 # 04: Verify construction choices and circuit trade-offs
 
+> GitHub issue: [#35](https://github.com/rociodevenish/BoxBox/issues/35) — canonical ticket. This file is a local snapshot; track status and discussion on GitHub.
+
 **What to build:** Publish replayable evidence for construction philosophies and reviewed player comprehension.
 
 **Blocked by:** 03: Guide construction and open the first weekend; personnel-acquisition 05.

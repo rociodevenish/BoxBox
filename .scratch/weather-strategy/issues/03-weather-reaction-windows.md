@@ -1,5 +1,7 @@
 # 03: React to significant weather changes
 
+> GitHub issue: [#99](https://github.com/rociodevenish/BoxBox/issues/99) — canonical ticket. This file is a local snapshot; track status and discussion on GitHub.
+
 **What to build:** Stop at meaningful condition changes and submit simultaneous two-car strategy updates.
 
 **Blocked by:** 02: Race with Intermediate and Wet compounds; incidents-safety-cars 04.

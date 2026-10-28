@@ -1,5 +1,7 @@
 # 03: Switch Simple and Full views without changing play
 
+> GitHub issue: [#60](https://github.com/rociodevenish/BoxBox/issues/60) — canonical ticket. This file is a local snapshot; track status and discussion on GitHub.
+
 **What to build:** Inspect supported grouped or detailed information while keeping drafts, help settings and legal decisions intact.
 
 **Blocked by:** 01: Display a representative authoritative race board; weekend-preparation 04; race-packages 01.

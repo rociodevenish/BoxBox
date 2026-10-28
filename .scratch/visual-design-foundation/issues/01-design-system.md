@@ -1,5 +1,7 @@
 # 01: Establish and validate the visual design system
 
+> GitHub issue: [#91](https://github.com/rociodevenish/BoxBox/issues/91) — canonical ticket. This file is a local snapshot; track status and discussion on GitHub.
+
 **What to build:** A designer can review one coherent Broadcast visual system applied to representative driver cards, a public timing tower and a two-car controller before production components are built.
 
 **Blocked by:** None (can start immediately).

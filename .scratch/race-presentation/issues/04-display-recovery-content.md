@@ -1,5 +1,7 @@
 # 04: Recover playback and adopt the full circuit assets
 
+> GitHub issue: [#61](https://github.com/rociodevenish/BoxBox/issues/61) — canonical ticket. This file is a local snapshot; track status and discussion on GitHub.
+
 **What to build:** Reconnect to current state and show full-calendar circuits with robust renderer fallback.
 
 **Blocked by:** 02: Play, skip and replay race highlights; 03: Switch Simple and Full views without changing play; full-calendar-content 04.

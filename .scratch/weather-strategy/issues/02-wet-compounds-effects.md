@@ -1,5 +1,7 @@
 # 02: Race with Intermediate and Wet compounds
 
+> GitHub issue: [#98](https://github.com/rociodevenish/BoxBox/issues/98) — canonical ticket. This file is a local snapshot; track status and discussion on GitHub.
+
 **What to build:** Choose wet-weather tyres and observe coherent suitability, pace, wear and risk trade-offs.
 
 **Blocked by:** 01: Observe evolving weather and stable forecasts; incidents-safety-cars 01.

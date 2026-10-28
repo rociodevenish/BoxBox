@@ -1,5 +1,7 @@
 # 05: Verify economy recovery and season trade-offs
 
+> GitHub issue: [#74](https://github.com/rociodevenish/BoxBox/issues/74) — canonical ticket. This file is a local snapshot; track status and discussion on GitHub.
+
 **What to build:** Publish reproducible economic evidence and complete spending, saving and delayed-work browser flows.
 
 **Blocked by:** 04: Use personnel effects and fair development guidance; campaign-championships 05; initial-car-construction 04.

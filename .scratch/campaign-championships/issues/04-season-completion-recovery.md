@@ -1,5 +1,7 @@
 # 04: Recover multi-day campaigns and conclude the season
 
+> GitHub issue: [#11](https://github.com/rociodevenish/BoxBox/issues/11) — canonical ticket. This file is a local snapshot; track status and discussion on GitHub.
+
 **What to build:** Resume a multi-day campaign safely and show final champions after its last event.
 
 **Blocked by:** 03: Review results and prepare asynchronously for the next event.

@@ -1,5 +1,7 @@
 # 06: Verify disruption rules and strategic evidence
 
+> GitHub issue: [#31](https://github.com/rociodevenish/BoxBox/issues/31) — canonical ticket. This file is a local snapshot; track status and discussion on GitHub.
+
 **What to build:** Publish reproducible risk and Safety Car strategy findings and reviewed household pacing.
 
 **Blocked by:** 05: Recover opening and mid-race disruptions; qualifying-race-start 05.

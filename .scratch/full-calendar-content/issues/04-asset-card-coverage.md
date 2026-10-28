@@ -1,5 +1,7 @@
 # 04: Complete card and supplied asset coverage
 
+> GitHub issue: [#24](https://github.com/rociodevenish/BoxBox/issues/24) — canonical ticket. This file is a local snapshot; track status and discussion on GitHub.
+
 **What to build:** Use coherent readable cards for all content types with catalogued supplied imagery and deliberate fallbacks.
 
 **Blocked by:** 02: Enable the complete validated circuit calendar; 03: Complete affordable personnel and car/package content.

@@ -1,5 +1,7 @@
 # 06: Verify complete weather weekends and crossover evidence
 
+> GitHub issue: [#102](https://github.com/rociodevenish/BoxBox/issues/102) — canonical ticket. This file is a local snapshot; track status and discussion on GitHub.
+
 **What to build:** Publish replayable dry/wet/drying/changeable weekend evidence and actual clarity/pacing findings.
 
 **Blocked by:** 05: Guide and recover weather decisions; incidents-safety-cars 06; qualifying-race-start 05.

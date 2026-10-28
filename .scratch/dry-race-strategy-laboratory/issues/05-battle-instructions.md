@@ -1,5 +1,7 @@
 # 05: Influence nearby battles with Attack and Defend
 
+> GitHub issue: [#17](https://github.com/rociodevenish/BoxBox/issues/17) — canonical ticket. This file is a local snapshot; track status and discussion on GitHub.
+
 **What to build:** A strategist can select contextual Battle Instructions and observe passing benefits and tyre costs during relevant battles.
 
 **Blocked by:** 04 — Make traffic and track difficulty constrain overtaking.

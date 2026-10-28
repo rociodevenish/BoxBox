@@ -1,5 +1,7 @@
 # 06: Rehearse hosted recovery, costs and safe updates
 
+> GitHub issue: [#68](https://github.com/rociodevenish/BoxBox/issues/68) — canonical ticket. This file is a local snapshot; track status and discussion on GitHub.
+
 **What to build:** Recover retained campaigns through hosted failures and rehearse deployment/rollback without losing committed play.
 
 **Blocked by:** 01: Freeze a replayable integrated release candidate.

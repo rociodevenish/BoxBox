@@ -1,5 +1,7 @@
 # 02: Make submissions and recovery reliable
 
+> GitHub issue: [#4](https://github.com/rociodevenish/BoxBox/issues/4) — canonical ticket. This file is a local snapshot; track status and discussion on GitHub.
+
 **What to build:** A player can retry, correct rejected input or refresh the controller without partially committing choices or advancing the race twice.
 
 **Blocked by:** 01 — Play one authoritative Race Phase.

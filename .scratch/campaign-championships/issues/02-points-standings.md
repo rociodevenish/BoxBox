@@ -1,5 +1,7 @@
 # 02: Commit points and rebuild championship standings
 
+> GitHub issue: [#9](https://github.com/rociodevenish/BoxBox/issues/9) — canonical ticket. This file is a local snapshot; track status and discussion on GitHub.
+
 **What to build:** Finish an event and see authoritative Drivers' and Constructors' standings with explained scoring.
 
 **Blocked by:** 01: Create a durable short campaign and first event.

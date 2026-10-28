@@ -1,5 +1,7 @@
 # 03: Handle qualifying assistance and missed choices
 
+> GitHub issue: [#43](https://github.com/rociodevenish/BoxBox/issues/43) — canonical ticket. This file is a local snapshot; track status and discussion on GitHub.
+
 **What to build:** Keep qualifying moving with fair AI, Assisted/Guided advice and disclosed fallback.
 
 **Blocked by:** 02: Complete Q2, Q3 and the final grid; weekend-preparation 05.

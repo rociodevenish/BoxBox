@@ -1,6 +1,6 @@
-# Triage labels
+# GitHub issue triage labels
 
-| Role | Tracker status |
+| Role | GitHub label |
 | --- | --- |
 | Needs evaluation | needs-triage |
 | Waiting for information | needs-info |

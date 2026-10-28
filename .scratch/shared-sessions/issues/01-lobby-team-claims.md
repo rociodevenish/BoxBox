@@ -1,5 +1,7 @@
 # 01: Join a household lobby and claim a team
 
+> GitHub issue: [#85](https://github.com/rociodevenish/BoxBox/issues/85) — canonical ticket. This file is a local snapshot; track status and discussion on GitHub.
+
 **What to build:** A host creates a family lobby and players join as accounts or guests, claim teams and prepare a complete grid.
 
 **Blocked by:** Browser dry-race vertical slice, including its verified session contracts.

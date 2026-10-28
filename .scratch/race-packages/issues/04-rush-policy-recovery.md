@@ -1,5 +1,7 @@
 # 04: Rush package work with explicit cost and risk
 
+> GitHub issue: [#56](https://github.com/rociodevenish/BoxBox/issues/56) — canonical ticket. This file is a local snapshot; track status and discussion on GitHub.
+
 **What to build:** Choose Rush deliberately, recover its outcome and receive honest package investment/selection advice.
 
 **Blocked by:** 03: Refine packages and expose richer project outcomes.

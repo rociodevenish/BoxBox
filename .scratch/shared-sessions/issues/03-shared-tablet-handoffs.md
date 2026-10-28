@@ -1,5 +1,7 @@
 # 03: Share a tablet with private handoffs
 
+> GitHub issue: [#87](https://github.com/rociodevenish/BoxBox/issues/87) — canonical ticket. This file is a local snapshot; track status and discussion on GitHub.
+
 **What to build:** Several household players use one authorised tablet, revealing only the active team's private screen after an explicit handoff.
 
 **Blocked by:** 02 — Lock multiple teams and resolve together.

@@ -1,5 +1,7 @@
 # 04: Present events and continue through a complete race
 
+> GitHub issue: [#6](https://github.com/rociodevenish/BoxBox/issues/6) — canonical ticket. This file is a local snapshot; track status and discussion on GitHub.
+
 **What to build:** A player follows short race-event feedback, continues successive Race Phases and finishes a complete dry race with clear results and eligibility.
 
 **Blocked by:** 03 — Integrate the production race screens; visual foundation 05 — Present phase outcomes and race finish.

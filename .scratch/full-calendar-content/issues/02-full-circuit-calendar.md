@@ -1,5 +1,7 @@
 # 02: Enable the complete validated circuit calendar
 
+> GitHub issue: [#22](https://github.com/rociodevenish/BoxBox/issues/22) — canonical ticket. This file is a local snapshot; track status and discussion on GitHub.
+
 **What to build:** Select a full-season calendar whose every event points to a playable circuit profile and readable summary.
 
 **Blocked by:** 01: Create a campaign from a reviewed content pack.

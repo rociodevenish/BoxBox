@@ -1,5 +1,7 @@
 # 04: Complete wet qualifying and select starting tyres
 
+> GitHub issue: [#100](https://github.com/rociodevenish/BoxBox/issues/100) — canonical ticket. This file is a local snapshot; track status and discussion on GitHub.
+
 **What to build:** Qualify in shared authoritative conditions and choose both starting compounds before automatic opening.
 
 **Blocked by:** 02: Race with Intermediate and Wet compounds; qualifying-race-start 04.

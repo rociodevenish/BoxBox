@@ -1,5 +1,7 @@
 # 02: Create a specialised package using the development opportunity
 
+> GitHub issue: [#54](https://github.com/rociodevenish/BoxBox/issues/54) — canonical ticket. This file is a local snapshot; track status and discussion on GitHub.
+
 **What to build:** Invest in a bounded circuit-focused package instead of permanent work or Save.
 
 **Blocked by:** 01: Select exactly one package for a weekend; season-economy-development 04.

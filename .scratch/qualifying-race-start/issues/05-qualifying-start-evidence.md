@@ -1,5 +1,7 @@
 # 05: Verify the complete qualifying and start experience
 
+> GitHub issue: [#45](https://github.com/rociodevenish/BoxBox/issues/45) — canonical ticket. This file is a local snapshot; track status and discussion on GitHub.
+
 **What to build:** Complete a replayable preparation-to-race flow and report qualifying risk and pacing evidence.
 
 **Blocked by:** 03: Handle qualifying assistance and missed choices; 04: Resolve the automatic opening into the race; weekend-preparation 06.

@@ -1,5 +1,7 @@
 # 03: Resolve refinement outcomes and delayed projects
 
+> GitHub issue: [#72](https://github.com/rociodevenish/BoxBox/issues/72) — canonical ticket. This file is a local snapshot; track status and discussion on GitHub.
+
 **What to build:** See success, partial or delayed work become immutable gains for future weekends.
 
 **Blocked by:** 02: Commit one permanent refinement or Save.

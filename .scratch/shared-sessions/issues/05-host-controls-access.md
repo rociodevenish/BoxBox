@@ -1,5 +1,7 @@
 # 05: Manage host controls and controller access
 
+> GitHub issue: [#89](https://github.com/rociodevenish/BoxBox/issues/89) — canonical ticket. This file is a local snapshot; track status and discussion on GitHub.
+
 **What to build:** A host pauses and resumes shared play, revokes controller access and lets authorised devices refresh to current state safely.
 
 **Blocked by:** 03 — Share a tablet with private handoffs; 04 — Play in Family and Mixed privacy modes.

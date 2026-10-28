@@ -1,5 +1,7 @@
 # 05: Present phase outcomes and race finish
 
+> GitHub issue: [#95](https://github.com/rociodevenish/BoxBox/issues/95) — canonical ticket. This file is a local snapshot; track status and discussion on GitHub.
+
 **What to build:** A viewer can follow fixture-driven resolution, concise overtake and pit feedback, phase results and an unmistakable finished-race state.
 
 **Blocked by:** 03 — Build the public timing tower.

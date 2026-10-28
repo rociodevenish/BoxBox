@@ -1,5 +1,7 @@
 # 04: Resolve pit rejoining and race-boundary events
 
+> GitHub issue: [#78](https://github.com/rociodevenish/BoxBox/issues/78) — canonical ticket. This file is a local snapshot; track status and discussion on GitHub.
+
 **What to build:** Stops rejoin real spatial traffic and complete segmented races retain coherent phase and finish semantics.
 
 **Blocked by:** 03: Resolve eligible passing opportunities

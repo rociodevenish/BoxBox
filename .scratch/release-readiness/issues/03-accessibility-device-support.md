@@ -1,5 +1,7 @@
 # 03: Complete accessible flows and document supported devices
 
+> GitHub issue: [#65](https://github.com/rociodevenish/BoxBox/issues/65) — canonical ticket. This file is a local snapshot; track status and discussion on GitHub.
+
 **What to build:** Complete core game flows with keyboard, touch, text alternatives and usable household display layouts.
 
 **Blocked by:** 02: Teach a household to join and make its first decisions.

@@ -1,5 +1,7 @@
 # 01: Resolve contextual incidents and reliability consequences
 
+> GitHub issue: [#26](https://github.com/rociodevenish/BoxBox/issues/26) — canonical ticket. This file is a local snapshot; track status and discussion on GitHub.
+
 **What to build:** Experience local mistakes, encounter contact and mechanical failures with explained damage or retirement.
 
 **Blocked by:** weekend-preparation 01; qualifying-race-start 04; race-continuity-ai-assistance 06.

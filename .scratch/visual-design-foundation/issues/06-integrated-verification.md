@@ -1,5 +1,7 @@
 # 06: Verify and document the integrated foundation
 
+> GitHub issue: [#96](https://github.com/rociodevenish/BoxBox/issues/96) — canonical ticket. This file is a local snapshot; track status and discussion on GitHub.
+
 **What to build:** Developers can adopt a documented, reviewed visual foundation for the browser race, with reproducible gallery checks and explicit remaining limitations.
 
 **Blocked by:** 04 — Build the two-car decision controller; 05 — Present phase outcomes and race finish.

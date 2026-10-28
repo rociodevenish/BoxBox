@@ -1,5 +1,7 @@
 # 08: Demonstrate and explain the three strategy stories
 
+> GitHub issue: [#20](https://github.com/rociodevenish/BoxBox/issues/20) — canonical ticket. This file is a local snapshot; track status and discussion on GitHub.
+
 **What to build:** A designer can run a documented set of experiments and inspect evidence that pace, tyres, stops and traffic produce meaningful strategic trade-offs.
 
 **Blocked by:** 05 — Influence nearby battles with Attack and Defend; 07 — Compare strategies across paired seeds.

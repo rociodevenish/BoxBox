@@ -1,5 +1,7 @@
 # 06: Resume live progression after idle or interruption
 
+> GitHub issue: [#51](https://github.com/rociodevenish/BoxBox/issues/51) — canonical ticket. This file is a local snapshot; track status and discussion on GitHub.
+
 **What to build:** A family race continues through bounded presentation and scheduled deadlines even when displays disconnect or the server idles, and recovers without racing ahead unattended.
 
 **Blocked by:** 03 — Continue through deadlines and missed decisions.

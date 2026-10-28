@@ -1,5 +1,7 @@
 # 03: Execute pit strategies and enforce compound eligibility
 
+> GitHub issue: [#15](https://github.com/rociodevenish/BoxBox/issues/15) — canonical ticket. This file is a local snapshot; track status and discussion on GitHub.
+
 **What to build:** A designer can script pit and pace decisions, run complete races with tyre changes and inspect stop costs and compound eligibility.
 
 **Blocked by:** 02 — Make pace and tyre choices affect stint performance.

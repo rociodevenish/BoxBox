@@ -1,5 +1,7 @@
 # 02: Make pace and tyre choices affect stint performance
 
+> GitHub issue: [#14](https://github.com/rociodevenish/BoxBox/issues/14) — canonical ticket. This file is a local snapshot; track status and discussion on GitHub.
+
 **What to build:** A designer can run different compounds and Pace Instructions and observe their immediate pace and later tyre consequences in a complete race.
 
 **Blocked by:** 01 — Run a deterministic race from fixed starting conditions.

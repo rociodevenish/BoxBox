@@ -1,5 +1,7 @@
 # 07: Compare strategies across paired seeds
 
+> GitHub issue: [#19](https://github.com/rociodevenish/BoxBox/issues/19) — canonical ticket. This file is a local snapshot; track status and discussion on GitHub.
+
 **What to build:** A designer can compare two strategies for one driver over matching seeds and inspect paired results and variation through the local runner.
 
 **Blocked by:** 06 — Run conditional strategies using team information.

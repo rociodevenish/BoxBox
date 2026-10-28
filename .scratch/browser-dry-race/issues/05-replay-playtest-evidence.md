@@ -1,5 +1,7 @@
 # 05: Record replay and browser playtest evidence
 
+> GitHub issue: [#7](https://github.com/rociodevenish/BoxBox/issues/7) — canonical ticket. This file is a local snapshot; track status and discussion on GitHub.
+
 **What to build:** A designer can reproduce browser race outcomes and assess whether two-car decisions, feedback and race pacing work for players.
 
 **Blocked by:** 04 — Present events and continue through a complete race; segment-model evidence review and integration readiness; visual foundation 06 — Verify and document the integrated foundation.

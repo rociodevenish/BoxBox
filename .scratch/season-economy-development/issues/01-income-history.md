@@ -1,5 +1,7 @@
 # 01: Receive event income and inspect the shared ledger
 
+> GitHub issue: [#70](https://github.com/rociodevenish/BoxBox/issues/70) — canonical ticket. This file is a local snapshot; track status and discussion on GitHub.
+
 **What to build:** See preseason spending retained and a modest one-time event grant in readable transaction history.
 
 **Blocked by:** campaign-championships 02; initial-car-construction 02; personnel-acquisition 01.

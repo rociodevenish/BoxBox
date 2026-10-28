@@ -1,5 +1,7 @@
 # 01: Play one authoritative Race Phase
 
+> GitHub issue: [#3](https://github.com/rociodevenish/BoxBox/issues/3) — canonical ticket. This file is a local snapshot; track status and discussion on GitHub.
+
 **What to build:** A local playtester opens separate browser display and controller views, chooses instructions for both cars and sees one complete authoritative Race Phase against ten scripted teams.
 
 **Blocked by:** None (can start immediately using fixtures while segment evidence is reviewed).

@@ -1,5 +1,7 @@
 # 02: Race against fair, observation-driven AI
 
+> GitHub issue: [#47](https://github.com/rociodevenish/BoxBox/issues/47) — canonical ticket. This file is a local snapshot; track status and discussion on GitHub.
+
 **What to build:** Unclaimed teams make credible two-car decisions from the same legitimate observations and legal choices available to human players.
 
 **Blocked by:** 01 — Persist locks and recover an interrupted race; reviewed race-model evidence.

@@ -1,5 +1,7 @@
 # 05: Verify full-calendar campaigns and historical content recovery
 
+> GitHub issue: [#25](https://github.com/rociodevenish/BoxBox/issues/25) — canonical ticket. This file is a local snapshot; track status and discussion on GitHub.
+
 **What to build:** Complete and replay a full-calendar campaign and publish content coverage/provenance evidence.
 
 **Blocked by:** 04: Complete card and supplied asset coverage; campaign-championships 05; personnel-acquisition 05; initial-car-construction 04; race-packages 05.

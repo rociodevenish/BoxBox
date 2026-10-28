@@ -1,5 +1,7 @@
 # 02: Complete Q2, Q3 and the final grid
 
+> GitHub issue: [#42](https://github.com/rociodevenish/BoxBox/issues/42) — canonical ticket. This file is a local snapshot; track status and discussion on GitHub.
+
 **What to build:** Advance eligible cars through qualifying and display a unique complete 22-car grid.
 
 **Blocked by:** 01: Lock preparation and complete Q1.

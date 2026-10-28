@@ -1,5 +1,7 @@
 # 02: Build reusable driver cards and the executable gallery
 
+> GitHub issue: [#92](https://github.com/rociodevenish/BoxBox/issues/92) — canonical ticket. This file is a local snapshot; track status and discussion on GitHub.
+
 **What to build:** Players and designers can run an Angular gallery and interact with compact, expanded and TV driver cards using the established visual system.
 
 **Blocked by:** 01 — Establish and validate the visual design system.

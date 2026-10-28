@@ -1,5 +1,7 @@
 # 05: Guide and recover weather decisions
 
+> GitHub issue: [#101](https://github.com/rociodevenish/BoxBox/issues/101) — canonical ticket. This file is a local snapshot; track status and discussion on GitHub.
+
 **What to build:** Use fair AI and uncertain Assisted/Guided advice throughout a recoverable wet weekend.
 
 **Blocked by:** 03: React to significant weather changes; 04: Complete wet qualifying and select starting tyres; qualifying-race-start 03.

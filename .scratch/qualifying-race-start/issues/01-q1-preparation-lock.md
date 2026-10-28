@@ -1,5 +1,7 @@
 # 01: Lock preparation and complete Q1
 
+> GitHub issue: [#41](https://github.com/rociodevenish/BoxBox/issues/41) — canonical ticket. This file is a local snapshot; track status and discussion on GitHub.
+
 **What to build:** Start qualifying from final-ready teams and complete simultaneous Q1 risk choices with recorded results.
 
 **Blocked by:** weekend-preparation 04; race-continuity-ai-assistance 06; shared-sessions 02, 03.

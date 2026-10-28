@@ -1,5 +1,7 @@
 # 02: Lock multiple teams and resolve together
 
+> GitHub issue: [#86](https://github.com/rociodevenish/BoxBox/issues/86) — canonical ticket. This file is a local snapshot; track status and discussion on GitHub.
+
 **What to build:** Several players privately manage both cars and the race resolves exactly once after every required team locks.
 
 **Blocked by:** 01 — Join a household lobby and claim a team.

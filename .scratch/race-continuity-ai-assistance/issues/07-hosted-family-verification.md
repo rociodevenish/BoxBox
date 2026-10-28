@@ -1,5 +1,7 @@
 # 07: Host and verify the family race
 
+> GitHub issue: [#52](https://github.com/rociodevenish/BoxBox/issues/52) — canonical ticket. This file is a local snapshot; track status and discussion on GitHub.
+
 **What to build:** A household can join and finish a hosted dry race with durable recovery, deadlines, AI and assistance, backed by measured reliability and cost findings.
 
 **Blocked by:** 04 — Transfer control at safe phase boundaries; 05 — Offer Assisted and Guided decisions; 06 — Resume live progression after idle or interruption.
