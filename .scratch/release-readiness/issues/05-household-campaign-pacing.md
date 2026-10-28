@@ -1,5 +1,7 @@
 # 05: Validate actual multi-day household campaigns
 
+> GitHub issue: [#67](https://github.com/rociodevenish/BoxBox/issues/67) — canonical ticket. This file is a local snapshot; track status and discussion on GitHub.
+
 **What to build:** Complete actual household campaigns and improve joining, decisions and pacing using recorded player findings.
 
 **Blocked by:** 02: Teach a household to join and make its first decisions; 03: Complete accessible flows and document supported devices; 04: Evaluate full-season strategy and AI fairness.

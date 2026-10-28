@@ -1,5 +1,7 @@
 # 03: Complete affordable personnel and car/package content
 
+> GitHub issue: [#23](https://github.com/rociodevenish/BoxBox/issues/23) — canonical ticket. This file is a local snapshot; track status and discussion on GitHub.
+
 **What to build:** Acquire complete unique rosters and choose supported car/package options for eleven teams from release candidate content.
 
 **Blocked by:** 01: Create a campaign from a reviewed content pack.

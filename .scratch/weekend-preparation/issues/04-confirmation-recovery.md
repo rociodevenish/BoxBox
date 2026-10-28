@@ -1,5 +1,7 @@
 # 04: Confirm and recover preparation
 
+> GitHub issue: [#106](https://github.com/rociodevenish/BoxBox/issues/106) — canonical ticket. This file is a local snapshot; track status and discussion on GitHub.
+
 **What to build:** Confirm final-ready preparation, recover it after restart and provide the atomic freeze operation for qualifying.
 
 **Blocked by:** 03: Run one practice assessment.

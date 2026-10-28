@@ -1,5 +1,7 @@
 # 01: Compare and draft an affordable Base Car
 
+> GitHub issue: [#32](https://github.com/rociodevenish/BoxBox/issues/32) — canonical ticket. This file is a local snapshot; track status and discussion on GitHub.
+
 **What to build:** Choose from the equal-access construction menu and preview a free editable car draft.
 
 **Blocked by:** personnel-acquisition 03; campaign-championships 01; weekend-preparation 01.

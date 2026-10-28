@@ -1,5 +1,7 @@
 # 03: Review results and prepare asynchronously for the next event
 
+> GitHub issue: [#10](https://github.com/rociodevenish/BoxBox/issues/10) — canonical ticket. This file is a local snapshot; track status and discussion on GitHub.
+
 **What to build:** Inspect historical event reports, save next-circuit preparation and launch the next weekend when ready.
 
 **Blocked by:** 02: Commit points and rebuild championship standings.

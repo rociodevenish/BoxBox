@@ -1,5 +1,7 @@
 # 06: Run conditional strategies using team information
 
+> GitHub issue: [#18](https://github.com/rociodevenish/BoxBox/issues/18) — canonical ticket. This file is a local snapshot; track status and discussion on GitHub.
+
 **What to build:** A designer can run reproducible strategies that react to public race state and imperfect team tyre estimates instead of following only a fixed schedule.
 
 **Blocked by:** 03 — Execute pit strategies and enforce compound eligibility.

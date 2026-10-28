@@ -1,5 +1,7 @@
 # 05: Verify race presentation on household devices
 
+> GitHub issue: [#62](https://github.com/rociodevenish/BoxBox/issues/62) — canonical ticket. This file is a local snapshot; track status and discussion on GitHub.
+
 **What to build:** Publish reviewed race-board clarity and measured performance across supported household surfaces.
 
 **Blocked by:** 04: Recover playback and adopt the full circuit assets; full-calendar-content 05.

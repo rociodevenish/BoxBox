@@ -1,5 +1,7 @@
 # 01: Display a representative authoritative race board
 
+> GitHub issue: [#58](https://github.com/rociodevenish/BoxBox/issues/58) — canonical ticket. This file is a local snapshot; track status and discussion on GitHub.
+
 **What to build:** View a stylised representative circuit and cars alongside the exact timing tower without changing race truth.
 
 **Blocked by:** weather-strategy 05; visual-design-foundation 06; full-calendar-content 01.

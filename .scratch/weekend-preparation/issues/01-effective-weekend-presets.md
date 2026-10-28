@@ -1,5 +1,7 @@
 # 01: Prepare a weekend with effective attributes
 
+> GitHub issue: [#103](https://github.com/rociodevenish/BoxBox/issues/103) — canonical ticket. This file is a local snapshot; track status and discussion on GitHub.
+
 **What to build:** Open a preset weekend with circuit and two-car summaries whose supported effective attributes produce reproducible race behaviour.
 
 **Blocked by:** race-continuity-ai-assistance 07; segment-race-model 07, 08, 09, 10; browser-dry-race 05 (reviewed evidence).

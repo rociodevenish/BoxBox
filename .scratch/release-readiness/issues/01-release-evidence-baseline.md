@@ -1,5 +1,7 @@
 # 01: Freeze a replayable integrated release candidate
 
+> GitHub issue: [#63](https://github.com/rociodevenish/BoxBox/issues/63) — canonical ticket. This file is a local snapshot; track status and discussion on GitHub.
+
 **What to build:** Run a complete candidate campaign and retain a versioned baseline that supports reproducible release checks.
 
 **Blocked by:** weekend-preparation 06; qualifying-race-start 05; incidents-safety-cars 06; weather-strategy 06; campaign-championships 05; personnel-acquisition 05; initial-car-construction 04; season-economy-development 05; race-packages 05; full-calendar-content 05; race-presentation 05; race-continuity-ai-assistance 07; shared-sessions 06; visual-design-foundation 06; browser-dry-race 05; segment-race-model 10; dry-race-strategy-laboratory 08.

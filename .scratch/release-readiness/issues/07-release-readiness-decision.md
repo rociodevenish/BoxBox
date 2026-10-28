@@ -1,5 +1,7 @@
 # 07: Resolve material findings and publish release evidence
 
+> GitHub issue: [#69](https://github.com/rociodevenish/BoxBox/issues/69) — canonical ticket. This file is a local snapshot; track status and discussion on GitHub.
+
 **What to build:** Present a versioned release readiness result supported by corrected defects, hosted evidence and household findings.
 
 **Blocked by:** 03: Complete accessible flows and document supported devices; 04: Evaluate full-season strategy and AI fairness; 05: Validate actual multi-day household campaigns; 06: Rehearse hosted recovery, costs and safe updates.

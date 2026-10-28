@@ -1,5 +1,7 @@
 # 05: Support AI, Assisted and Guided preparation
 
+> GitHub issue: [#107](https://github.com/rociodevenish/BoxBox/issues/107) — canonical ticket. This file is a local snapshot; track status and discussion on GitHub.
+
 **What to build:** Prepare AI teams and give human players legitimate, understandable setup guidance.
 
 **Blocked by:** 04: Confirm and recover preparation; race-continuity-ai-assistance 02, 05.

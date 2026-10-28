@@ -1,5 +1,7 @@
 # 03: Guarantee affordable required-slot completion
 
+> GitHub issue: [#38](https://github.com/rociodevenish/BoxBox/issues/38) — canonical ticket. This file is a local snapshot; track status and discussion on GitHub.
+
 **What to build:** Understand purchase reserves and finish every mandatory roster without financial dead ends.
 
 **Blocked by:** 02: Complete rotating carousel picks and limited scouting.

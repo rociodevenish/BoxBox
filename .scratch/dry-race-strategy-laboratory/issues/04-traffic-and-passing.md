@@ -1,5 +1,7 @@
 # 04: Make traffic and track difficulty constrain overtaking
 
+> GitHub issue: [#16](https://github.com/rociodevenish/BoxBox/issues/16) — canonical ticket. This file is a local snapshot; track status and discussion on GitHub.
+
 **What to build:** A designer can observe cars catching without automatically passing, losing time in traffic and rejoining battles after stops.
 
 **Blocked by:** 03 — Execute pit strategies and enforce compound eligibility.

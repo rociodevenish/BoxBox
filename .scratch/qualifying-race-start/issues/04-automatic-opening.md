@@ -1,5 +1,7 @@
 # 04: Resolve the automatic opening into the race
 
+> GitHub issue: [#44](https://github.com/rociodevenish/BoxBox/issues/44) — canonical ticket. This file is a local snapshot; track status and discussion on GitHub.
+
 **What to build:** Show automatic standing-start gains/losses and reach the first Race Phase with coherent authoritative state.
 
 **Blocked by:** 02: Complete Q2, Q3 and the final grid; weekend-preparation 01.

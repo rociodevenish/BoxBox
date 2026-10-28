@@ -1,5 +1,7 @@
 # 05: Verify short campaigns and returning-player clarity
 
+> GitHub issue: [#12](https://github.com/rociodevenish/BoxBox/issues/12) — canonical ticket. This file is a local snapshot; track status and discussion on GitHub.
+
 **What to build:** Publish reproducible campaign evidence and a reviewed household experience across separate days.
 
 **Blocked by:** 04: Recover multi-day campaigns and conclude the season.

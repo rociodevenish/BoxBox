@@ -1,5 +1,7 @@
 # 03: Resolve eligible passing opportunities
 
+> GitHub issue: [#77](https://github.com/rociodevenish/BoxBox/issues/77) — canonical ticket. This file is a local snapshot; track status and discussion on GitHub.
+
 **What to build:** A following car attempts passes only at eligible zones, with reproducible encounter outcomes and contextual Battle Instructions.
 
 **Blocked by:** 02: Resolve spatial catches and restricted following

@@ -1,0 +1,758 @@
+[
+  {
+    "number": 3,
+    "url": "https://github.com/rociodevenish/BoxBox/issues/3",
+    "spec": "S04",
+    "title": "[S04 01] Play one authoritative Race Phase",
+    "status": "resolved"
+  },
+  {
+    "number": 4,
+    "url": "https://github.com/rociodevenish/BoxBox/issues/4",
+    "spec": "S04",
+    "title": "[S04 02] Make submissions and recovery reliable",
+    "status": "resolved"
+  },
+  {
+    "number": 5,
+    "url": "https://github.com/rociodevenish/BoxBox/issues/5",
+    "spec": "S04",
+    "title": "[S04 03] Integrate the production race screens",
+    "status": "resolved"
+  },
+  {
+    "number": 6,
+    "url": "https://github.com/rociodevenish/BoxBox/issues/6",
+    "spec": "S04",
+    "title": "[S04 04] Present events and continue through a complete race",
+    "status": "resolved"
+  },
+  {
+    "number": 7,
+    "url": "https://github.com/rociodevenish/BoxBox/issues/7",
+    "spec": "S04",
+    "title": "[S04 05] Record replay and browser playtest evidence",
+    "status": "resolved"
+  },
+  {
+    "number": 8,
+    "url": "https://github.com/rociodevenish/BoxBox/issues/8",
+    "spec": "S11",
+    "title": "[S11 01] Create a durable short campaign and first event",
+    "status": "ready-for-agent"
+  },
+  {
+    "number": 9,
+    "url": "https://github.com/rociodevenish/BoxBox/issues/9",
+    "spec": "S11",
+    "title": "[S11 02] Commit points and rebuild championship standings",
+    "status": "resolved"
+  },
+  {
+    "number": 10,
+    "url": "https://github.com/rociodevenish/BoxBox/issues/10",
+    "spec": "S11",
+    "title": "[S11 03] Review results and prepare asynchronously for the next event",
+    "status": "resolved — claimed and implemented by s11_next_event on codex/s11-03"
+  },
+  {
+    "number": 11,
+    "url": "https://github.com/rociodevenish/BoxBox/issues/11",
+    "spec": "S11",
+    "title": "[S11 04] Recover multi-day campaigns and conclude the season",
+    "status": "resolved (s11-04)"
+  },
+  {
+    "number": 12,
+    "url": "https://github.com/rociodevenish/BoxBox/issues/12",
+    "spec": "S11",
+    "title": "[S11 05] Verify short campaigns and returning-player clarity",
+    "status": "ready-for-human"
+  },
+  {
+    "number": 13,
+    "url": "https://github.com/rociodevenish/BoxBox/issues/13",
+    "spec": "S01",
+    "title": "[S01 01] Run a deterministic race from fixed starting conditions",
+    "status": "resolved"
+  },
+  {
+    "number": 14,
+    "url": "https://github.com/rociodevenish/BoxBox/issues/14",
+    "spec": "S01",
+    "title": "[S01 02] Make pace and tyre choices affect stint performance",
+    "status": "resolved"
+  },
+  {
+    "number": 15,
+    "url": "https://github.com/rociodevenish/BoxBox/issues/15",
+    "spec": "S01",
+    "title": "[S01 03] Execute pit strategies and enforce compound eligibility",
+    "status": "resolved"
+  },
+  {
+    "number": 16,
+    "url": "https://github.com/rociodevenish/BoxBox/issues/16",
+    "spec": "S01",
+    "title": "[S01 04] Make traffic and track difficulty constrain overtaking",
+    "status": "resolved"
+  },
+  {
+    "number": 17,
+    "url": "https://github.com/rociodevenish/BoxBox/issues/17",
+    "spec": "S01",
+    "title": "[S01 05] Influence nearby battles with Attack and Defend",
+    "status": "resolved"
+  },
+  {
+    "number": 18,
+    "url": "https://github.com/rociodevenish/BoxBox/issues/18",
+    "spec": "S01",
+    "title": "[S01 06] Run conditional strategies using team information",
+    "status": "resolved"
+  },
+  {
+    "number": 19,
+    "url": "https://github.com/rociodevenish/BoxBox/issues/19",
+    "spec": "S01",
+    "title": "[S01 07] Compare strategies across paired seeds",
+    "status": "resolved"
+  },
+  {
+    "number": 20,
+    "url": "https://github.com/rociodevenish/BoxBox/issues/20",
+    "spec": "S01",
+    "title": "[S01 08] Demonstrate and explain the three strategy stories",
+    "status": "resolved"
+  },
+  {
+    "number": 21,
+    "url": "https://github.com/rociodevenish/BoxBox/issues/21",
+    "spec": "S16",
+    "title": "[S16 01] Create a campaign from a reviewed content pack",
+    "status": "ready-for-agent"
+  },
+  {
+    "number": 22,
+    "url": "https://github.com/rociodevenish/BoxBox/issues/22",
+    "spec": "S16",
+    "title": "[S16 02] Enable the complete validated circuit calendar",
+    "status": "ready-for-agent"
+  },
+  {
+    "number": 23,
+    "url": "https://github.com/rociodevenish/BoxBox/issues/23",
+    "spec": "S16",
+    "title": "[S16 03] Complete affordable personnel and car/package content",
+    "status": "ready-for-agent"
+  },
+  {
+    "number": 24,
+    "url": "https://github.com/rociodevenish/BoxBox/issues/24",
+    "spec": "S16",
+    "title": "[S16 04] Complete card and supplied asset coverage",
+    "status": "ready-for-agent"
+  },
+  {
+    "number": 25,
+    "url": "https://github.com/rociodevenish/BoxBox/issues/25",
+    "spec": "S16",
+    "title": "[S16 05] Verify full-calendar campaigns and historical content recovery",
+    "status": "ready-for-agent"
+  },
+  {
+    "number": 26,
+    "url": "https://github.com/rociodevenish/BoxBox/issues/26",
+    "spec": "S09",
+    "title": "[S09 01] Resolve contextual incidents and reliability consequences",
+    "status": "resolved"
+  },
+  {
+    "number": 27,
+    "url": "https://github.com/rociodevenish/BoxBox/issues/27",
+    "spec": "S09",
+    "title": "[S09 02] Interrupt a Race Phase at the actual incident time",
+    "status": "resolved"
+  },
+  {
+    "number": 28,
+    "url": "https://github.com/rociodevenish/BoxBox/issues/28",
+    "spec": "S09",
+    "title": "[S09 03] Open a simultaneous Safety Car pit window",
+    "status": "resolved"
+  },
+  {
+    "number": 29,
+    "url": "https://github.com/rociodevenish/BoxBox/issues/29",
+    "spec": "S09",
+    "title": "[S09 04] Run the Safety Car period and restart coherently",
+    "status": "resolved"
+  },
+  {
+    "number": 30,
+    "url": "https://github.com/rociodevenish/BoxBox/issues/30",
+    "spec": "S09",
+    "title": "[S09 05] Recover opening and mid-race disruptions",
+    "status": "resolved"
+  },
+  {
+    "number": 31,
+    "url": "https://github.com/rociodevenish/BoxBox/issues/31",
+    "spec": "S09",
+    "title": "[S09 06] Verify disruption rules and strategic evidence",
+    "status": "ready-for-human"
+  },
+  {
+    "number": 32,
+    "url": "https://github.com/rociodevenish/BoxBox/issues/32",
+    "spec": "S13",
+    "title": "[S13 01] Compare and draft an affordable Base Car",
+    "status": "done"
+  },
+  {
+    "number": 33,
+    "url": "https://github.com/rociodevenish/BoxBox/issues/33",
+    "spec": "S13",
+    "title": "[S13 02] Confirm and recover an immutable Base Car",
+    "status": "resolved"
+  },
+  {
+    "number": 34,
+    "url": "https://github.com/rociodevenish/BoxBox/issues/34",
+    "spec": "S13",
+    "title": "[S13 03] Guide construction and open the first weekend",
+    "status": "resolved"
+  },
+  {
+    "number": 35,
+    "url": "https://github.com/rociodevenish/BoxBox/issues/35",
+    "spec": "S13",
+    "title": "[S13 04] Verify construction choices and circuit trade-offs",
+    "status": "ready-for-human (engineering complete; choice comprehension unmeasured)"
+  },
+  {
+    "number": 36,
+    "url": "https://github.com/rociodevenish/BoxBox/issues/36",
+    "spec": "S12",
+    "title": "[S12 01] Hire personnel with unique ownership and a shared budget",
+    "status": "done"
+  },
+  {
+    "number": 37,
+    "url": "https://github.com/rociodevenish/BoxBox/issues/37",
+    "spec": "S12",
+    "title": "[S12 02] Complete rotating carousel picks and limited scouting",
+    "status": "done"
+  },
+  {
+    "number": 38,
+    "url": "https://github.com/rociodevenish/BoxBox/issues/38",
+    "spec": "S12",
+    "title": "[S12 03] Guarantee affordable required-slot completion",
+    "status": "done"
+  },
+  {
+    "number": 39,
+    "url": "https://github.com/rociodevenish/BoxBox/issues/39",
+    "spec": "S12",
+    "title": "[S12 04] Use acquired personnel and fair acquisition advice",
+    "status": "done"
+  },
+  {
+    "number": 40,
+    "url": "https://github.com/rociodevenish/BoxBox/issues/40",
+    "spec": "S12",
+    "title": "[S12 05] Verify acquisition fairness and recovery",
+    "status": "done"
+  },
+  {
+    "number": 41,
+    "url": "https://github.com/rociodevenish/BoxBox/issues/41",
+    "spec": "S08",
+    "title": "[S08 01] Lock preparation and complete Q1",
+    "status": "resolved"
+  },
+  {
+    "number": 42,
+    "url": "https://github.com/rociodevenish/BoxBox/issues/42",
+    "spec": "S08",
+    "title": "[S08 02] Complete Q2, Q3 and the final grid",
+    "status": "resolved"
+  },
+  {
+    "number": 43,
+    "url": "https://github.com/rociodevenish/BoxBox/issues/43",
+    "spec": "S08",
+    "title": "[S08 03] Handle qualifying assistance and missed choices",
+    "status": "resolved"
+  },
+  {
+    "number": 44,
+    "url": "https://github.com/rociodevenish/BoxBox/issues/44",
+    "spec": "S08",
+    "title": "[S08 04] Resolve the automatic opening into the race",
+    "status": "resolved"
+  },
+  {
+    "number": 45,
+    "url": "https://github.com/rociodevenish/BoxBox/issues/45",
+    "spec": "S08",
+    "title": "[S08 05] Verify the complete qualifying and start experience",
+    "status": "resolved — local engineering; human/external acceptance pending"
+  },
+  {
+    "number": 46,
+    "url": "https://github.com/rociodevenish/BoxBox/issues/46",
+    "spec": "S06",
+    "title": "[S06 01] Persist locks and recover an interrupted race",
+    "status": "resolved"
+  },
+  {
+    "number": 47,
+    "url": "https://github.com/rociodevenish/BoxBox/issues/47",
+    "spec": "S06",
+    "title": "[S06 02] Race against fair, observation-driven AI",
+    "status": "resolved"
+  },
+  {
+    "number": 48,
+    "url": "https://github.com/rociodevenish/BoxBox/issues/48",
+    "spec": "S06",
+    "title": "[S06 03] Continue through deadlines and missed decisions",
+    "status": "resolved"
+  },
+  {
+    "number": 49,
+    "url": "https://github.com/rociodevenish/BoxBox/issues/49",
+    "spec": "S06",
+    "title": "[S06 04] Transfer control at safe phase boundaries",
+    "status": "resolved"
+  },
+  {
+    "number": 50,
+    "url": "https://github.com/rociodevenish/BoxBox/issues/50",
+    "spec": "S06",
+    "title": "[S06 05] Offer Assisted and Guided decisions",
+    "status": "resolved"
+  },
+  {
+    "number": 51,
+    "url": "https://github.com/rociodevenish/BoxBox/issues/51",
+    "spec": "S06",
+    "title": "[S06 06] Resume live progression after idle or interruption",
+    "status": "implemented locally; hosted scheduling validation pending ticket 07"
+  },
+  {
+    "number": 52,
+    "url": "https://github.com/rociodevenish/BoxBox/issues/52",
+    "spec": "S06",
+    "title": "[S06 07] Host and verify the family race",
+    "status": "ready-for-human"
+  },
+  {
+    "number": 53,
+    "url": "https://github.com/rociodevenish/BoxBox/issues/53",
+    "spec": "S15",
+    "title": "[S15 01] Select exactly one package for a weekend",
+    "status": "ready-for-agent"
+  },
+  {
+    "number": 54,
+    "url": "https://github.com/rociodevenish/BoxBox/issues/54",
+    "spec": "S15",
+    "title": "[S15 02] Create a specialised package using the development opportunity",
+    "status": "ready-for-agent"
+  },
+  {
+    "number": 55,
+    "url": "https://github.com/rociodevenish/BoxBox/issues/55",
+    "spec": "S15",
+    "title": "[S15 03] Refine packages and expose richer project outcomes",
+    "status": "ready-for-agent"
+  },
+  {
+    "number": 56,
+    "url": "https://github.com/rociodevenish/BoxBox/issues/56",
+    "spec": "S15",
+    "title": "[S15 04] Rush package work with explicit cost and risk",
+    "status": "ready-for-agent"
+  },
+  {
+    "number": 57,
+    "url": "https://github.com/rociodevenish/BoxBox/issues/57",
+    "spec": "S15",
+    "title": "[S15 05] Verify package alternatives and campaign trade-offs",
+    "status": "ready-for-agent"
+  },
+  {
+    "number": 58,
+    "url": "https://github.com/rociodevenish/BoxBox/issues/58",
+    "spec": "S17",
+    "title": "[S17 01] Display a representative authoritative race board",
+    "status": "ready-for-agent"
+  },
+  {
+    "number": 59,
+    "url": "https://github.com/rociodevenish/BoxBox/issues/59",
+    "spec": "S17",
+    "title": "[S17 02] Play, skip and replay race highlights",
+    "status": "ready-for-agent"
+  },
+  {
+    "number": 60,
+    "url": "https://github.com/rociodevenish/BoxBox/issues/60",
+    "spec": "S17",
+    "title": "[S17 03] Switch Simple and Full views without changing play",
+    "status": "ready-for-agent"
+  },
+  {
+    "number": 61,
+    "url": "https://github.com/rociodevenish/BoxBox/issues/61",
+    "spec": "S17",
+    "title": "[S17 04] Recover playback and adopt the full circuit assets",
+    "status": "ready-for-agent"
+  },
+  {
+    "number": 62,
+    "url": "https://github.com/rociodevenish/BoxBox/issues/62",
+    "spec": "S17",
+    "title": "[S17 05] Verify race presentation on household devices",
+    "status": "ready-for-agent"
+  },
+  {
+    "number": 63,
+    "url": "https://github.com/rociodevenish/BoxBox/issues/63",
+    "spec": "S18",
+    "title": "[S18 01] Freeze a replayable integrated release candidate",
+    "status": "ready-for-agent"
+  },
+  {
+    "number": 64,
+    "url": "https://github.com/rociodevenish/BoxBox/issues/64",
+    "spec": "S18",
+    "title": "[S18 02] Teach a household to join and make its first decisions",
+    "status": "ready-for-agent"
+  },
+  {
+    "number": 65,
+    "url": "https://github.com/rociodevenish/BoxBox/issues/65",
+    "spec": "S18",
+    "title": "[S18 03] Complete accessible flows and document supported devices",
+    "status": "ready-for-agent"
+  },
+  {
+    "number": 66,
+    "url": "https://github.com/rociodevenish/BoxBox/issues/66",
+    "spec": "S18",
+    "title": "[S18 04] Evaluate full-season strategy and AI fairness",
+    "status": "ready-for-agent"
+  },
+  {
+    "number": 67,
+    "url": "https://github.com/rociodevenish/BoxBox/issues/67",
+    "spec": "S18",
+    "title": "[S18 05] Validate actual multi-day household campaigns",
+    "status": "ready-for-agent"
+  },
+  {
+    "number": 68,
+    "url": "https://github.com/rociodevenish/BoxBox/issues/68",
+    "spec": "S18",
+    "title": "[S18 06] Rehearse hosted recovery, costs and safe updates",
+    "status": "ready-for-agent"
+  },
+  {
+    "number": 69,
+    "url": "https://github.com/rociodevenish/BoxBox/issues/69",
+    "spec": "S18",
+    "title": "[S18 07] Resolve material findings and publish release evidence",
+    "status": "ready-for-agent"
+  },
+  {
+    "number": 70,
+    "url": "https://github.com/rociodevenish/BoxBox/issues/70",
+    "spec": "S14",
+    "title": "[S14 01] Receive event income and inspect the shared ledger",
+    "status": "ready-for-agent"
+  },
+  {
+    "number": 71,
+    "url": "https://github.com/rociodevenish/BoxBox/issues/71",
+    "spec": "S14",
+    "title": "[S14 02] Commit one permanent refinement or Save",
+    "status": "ready-for-agent"
+  },
+  {
+    "number": 72,
+    "url": "https://github.com/rociodevenish/BoxBox/issues/72",
+    "spec": "S14",
+    "title": "[S14 03] Resolve refinement outcomes and delayed projects",
+    "status": "ready-for-agent"
+  },
+  {
+    "number": 73,
+    "url": "https://github.com/rociodevenish/BoxBox/issues/73",
+    "spec": "S14",
+    "title": "[S14 04] Use personnel effects and fair development guidance",
+    "status": "ready-for-agent"
+  },
+  {
+    "number": 74,
+    "url": "https://github.com/rociodevenish/BoxBox/issues/74",
+    "spec": "S14",
+    "title": "[S14 05] Verify economy recovery and season trade-offs",
+    "status": "ready-for-agent"
+  },
+  {
+    "number": 75,
+    "url": "https://github.com/rociodevenish/BoxBox/issues/75",
+    "spec": "S02",
+    "title": "[S02 01] Run a deterministic segmented solo race",
+    "status": "resolved"
+  },
+  {
+    "number": 76,
+    "url": "https://github.com/rociodevenish/BoxBox/issues/76",
+    "spec": "S02",
+    "title": "[S02 02] Resolve spatial catches and restricted following",
+    "status": "resolved"
+  },
+  {
+    "number": 77,
+    "url": "https://github.com/rociodevenish/BoxBox/issues/77",
+    "spec": "S02",
+    "title": "[S02 03] Resolve eligible passing opportunities",
+    "status": "resolved"
+  },
+  {
+    "number": 78,
+    "url": "https://github.com/rociodevenish/BoxBox/issues/78",
+    "spec": "S02",
+    "title": "[S02 04] Resolve pit rejoining and race-boundary events",
+    "status": "resolved"
+  },
+  {
+    "number": 79,
+    "url": "https://github.com/rociodevenish/BoxBox/issues/79",
+    "spec": "S02",
+    "title": "[S02 05] Add controlled driver form and named random channels",
+    "status": "resolved"
+  },
+  {
+    "number": 80,
+    "url": "https://github.com/rociodevenish/BoxBox/issues/80",
+    "spec": "S02",
+    "title": "[S02 06] Publish versioned replay and paired diagnostics",
+    "status": "resolved"
+  },
+  {
+    "number": 81,
+    "url": "https://github.com/rociodevenish/BoxBox/issues/81",
+    "spec": "S02",
+    "title": "[S02 07] Measure track fit and passing frequency",
+    "status": "resolved"
+  },
+  {
+    "number": 82,
+    "url": "https://github.com/rociodevenish/BoxBox/issues/82",
+    "spec": "S02",
+    "title": "[S02 08] Measure tyre and pit-window sensitivity",
+    "status": "resolved"
+  },
+  {
+    "number": 83,
+    "url": "https://github.com/rociodevenish/BoxBox/issues/83",
+    "spec": "S02",
+    "title": "[S02 09] Measure persistent form and lap-noise effects",
+    "status": "resolved"
+  },
+  {
+    "number": 84,
+    "url": "https://github.com/rociodevenish/BoxBox/issues/84",
+    "spec": "S02",
+    "title": "[S02 10] Benchmark simulation and recommend the next playtest",
+    "status": "resolved"
+  },
+  {
+    "number": 85,
+    "url": "https://github.com/rociodevenish/BoxBox/issues/85",
+    "spec": "S05",
+    "title": "[S05 01] Join a household lobby and claim a team",
+    "status": "resolved"
+  },
+  {
+    "number": 86,
+    "url": "https://github.com/rociodevenish/BoxBox/issues/86",
+    "spec": "S05",
+    "title": "[S05 02] Lock multiple teams and resolve together",
+    "status": "resolved"
+  },
+  {
+    "number": 87,
+    "url": "https://github.com/rociodevenish/BoxBox/issues/87",
+    "spec": "S05",
+    "title": "[S05 03] Share a tablet with private handoffs",
+    "status": "resolved"
+  },
+  {
+    "number": 88,
+    "url": "https://github.com/rociodevenish/BoxBox/issues/88",
+    "spec": "S05",
+    "title": "[S05 04] Play in Family and Mixed privacy modes",
+    "status": "resolved"
+  },
+  {
+    "number": 89,
+    "url": "https://github.com/rociodevenish/BoxBox/issues/89",
+    "spec": "S05",
+    "title": "[S05 05] Manage host controls and controller access",
+    "status": "resolved"
+  },
+  {
+    "number": 90,
+    "url": "https://github.com/rociodevenish/BoxBox/issues/90",
+    "spec": "S05",
+    "title": "[S05 06] Verify household play across devices",
+    "status": "ready-for-human"
+  },
+  {
+    "number": 91,
+    "url": "https://github.com/rociodevenish/BoxBox/issues/91",
+    "spec": "S03",
+    "title": "[S03 01] Establish and validate the visual design system",
+    "status": "resolved"
+  },
+  {
+    "number": 92,
+    "url": "https://github.com/rociodevenish/BoxBox/issues/92",
+    "spec": "S03",
+    "title": "[S03 02] Build reusable driver cards and the executable gallery",
+    "status": "resolved"
+  },
+  {
+    "number": 93,
+    "url": "https://github.com/rociodevenish/BoxBox/issues/93",
+    "spec": "S03",
+    "title": "[S03 03] Build the public timing tower",
+    "status": "resolved"
+  },
+  {
+    "number": 94,
+    "url": "https://github.com/rociodevenish/BoxBox/issues/94",
+    "spec": "S03",
+    "title": "[S03 04] Build the two-car decision controller",
+    "status": "resolved"
+  },
+  {
+    "number": 95,
+    "url": "https://github.com/rociodevenish/BoxBox/issues/95",
+    "spec": "S03",
+    "title": "[S03 05] Present phase outcomes and race finish",
+    "status": "resolved"
+  },
+  {
+    "number": 96,
+    "url": "https://github.com/rociodevenish/BoxBox/issues/96",
+    "spec": "S03",
+    "title": "[S03 06] Verify and document the integrated foundation",
+    "status": "resolved"
+  },
+  {
+    "number": 97,
+    "url": "https://github.com/rociodevenish/BoxBox/issues/97",
+    "spec": "S10",
+    "title": "[S10 01] Observe evolving weather and stable forecasts",
+    "status": "resolved"
+  },
+  {
+    "number": 98,
+    "url": "https://github.com/rociodevenish/BoxBox/issues/98",
+    "spec": "S10",
+    "title": "[S10 02] Race with Intermediate and Wet compounds",
+    "status": "resolved"
+  },
+  {
+    "number": 99,
+    "url": "https://github.com/rociodevenish/BoxBox/issues/99",
+    "spec": "S10",
+    "title": "[S10 03] React to significant weather changes",
+    "status": "resolved"
+  },
+  {
+    "number": 100,
+    "url": "https://github.com/rociodevenish/BoxBox/issues/100",
+    "spec": "S10",
+    "title": "[S10 04] Complete wet qualifying and select starting tyres",
+    "status": "resolved"
+  },
+  {
+    "number": 101,
+    "url": "https://github.com/rociodevenish/BoxBox/issues/101",
+    "spec": "S10",
+    "title": "[S10 05] Guide and recover weather decisions",
+    "status": "resolved"
+  },
+  {
+    "number": 102,
+    "url": "https://github.com/rociodevenish/BoxBox/issues/102",
+    "spec": "S10",
+    "title": "[S10 06] Verify complete weather weekends and crossover evidence",
+    "status": "ready-for-human"
+  },
+  {
+    "number": 103,
+    "url": "https://github.com/rociodevenish/BoxBox/issues/103",
+    "spec": "S07",
+    "title": "[S07 01] Prepare a weekend with effective attributes",
+    "status": "resolved"
+  },
+  {
+    "number": 104,
+    "url": "https://github.com/rociodevenish/BoxBox/issues/104",
+    "spec": "S07",
+    "title": "[S07 02] Choose a team-wide Weekend Setup",
+    "status": "resolved"
+  },
+  {
+    "number": 105,
+    "url": "https://github.com/rociodevenish/BoxBox/issues/105",
+    "spec": "S07",
+    "title": "[S07 03] Run one practice assessment",
+    "status": "resolved"
+  },
+  {
+    "number": 106,
+    "url": "https://github.com/rociodevenish/BoxBox/issues/106",
+    "spec": "S07",
+    "title": "[S07 04] Confirm and recover preparation",
+    "status": "resolved"
+  },
+  {
+    "number": 107,
+    "url": "https://github.com/rociodevenish/BoxBox/issues/107",
+    "spec": "S07",
+    "title": "[S07 05] Support AI, Assisted and Guided preparation",
+    "status": "resolved"
+  },
+  {
+    "number": 108,
+    "url": "https://github.com/rociodevenish/BoxBox/issues/108",
+    "spec": "S07",
+    "title": "[S07 06] Verify preparation and setup trade-offs",
+    "status": "resolved (local engineering evidence; hosted/human acceptance pending)"
+  },
+  {
+    "number": 109,
+    "url": "https://github.com/rociodevenish/BoxBox/issues/109",
+    "spec": "S19",
+    "title": "[S19 01] Verification and agent workflow",
+    "status": "resolved"
+  },
+  {
+    "number": 110,
+    "url": "https://github.com/rociodevenish/BoxBox/issues/110",
+    "spec": "S19",
+    "title": "[S19 02] Compact controller presentation",
+    "status": "resolved"
+  }
+]

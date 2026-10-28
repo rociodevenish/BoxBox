@@ -1,5 +1,7 @@
 # 03: Build the public timing tower
 
+> GitHub issue: [#93](https://github.com/rociodevenish/BoxBox/issues/93) — canonical ticket. This file is a local snapshot; track status and discussion on GitHub.
+
 **What to build:** A viewer can inspect an accessible broadcast-style Classification with clear driver identity, gaps, tyres and stop status in the gallery.
 
 **Blocked by:** 01 — Establish and validate the visual design system; 02 — Build reusable driver cards and the executable gallery.

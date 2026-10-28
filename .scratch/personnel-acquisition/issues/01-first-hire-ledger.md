@@ -1,5 +1,7 @@
 # 01: Hire personnel with unique ownership and a shared budget
 
+> GitHub issue: [#36](https://github.com/rociodevenish/BoxBox/issues/36) — canonical ticket. This file is a local snapshot; track status and discussion on GitHub.
+
 **What to build:** Enter preseason and make a fixed-price hire from a small offer with an atomic budget and roster update.
 
 **Blocked by:** campaign-championships 01; weekend-preparation 01.

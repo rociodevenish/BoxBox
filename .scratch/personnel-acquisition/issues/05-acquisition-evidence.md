@@ -1,5 +1,7 @@
 # 05: Verify acquisition fairness and recovery
 
+> GitHub issue: [#40](https://github.com/rociodevenish/BoxBox/issues/40) — canonical ticket. This file is a local snapshot; track status and discussion on GitHub.
+
 **What to build:** Publish reproducible completion and priority evidence plus an accessible complete acquisition flow.
 
 **Blocked by:** 04: Use acquired personnel and fair acquisition advice; campaign-championships 05.

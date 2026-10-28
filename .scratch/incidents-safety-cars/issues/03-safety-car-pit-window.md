@@ -1,5 +1,7 @@
 # 03: Open a simultaneous Safety Car pit window
 
+> GitHub issue: [#28](https://github.com/rociodevenish/BoxBox/issues/28) — canonical ticket. This file is a local snapshot; track status and discussion on GitHub.
+
 **What to build:** React to Safety Car deployment with quick legal Stay Out or Pit/compound choices for both active cars.
 
 **Blocked by:** 02: Interrupt a Race Phase at the actual incident time; race-continuity-ai-assistance 03, 05, 06.

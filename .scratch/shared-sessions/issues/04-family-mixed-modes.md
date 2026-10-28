@@ -1,5 +1,7 @@
 # 04: Play in Family and Mixed privacy modes
 
+> GitHub issue: [#88](https://github.com/rociodevenish/BoxBox/issues/88) — canonical ticket. This file is a local snapshot; track status and discussion on GitHub.
+
 **What to build:** A household chooses intentionally open TV decisions for designated teams while private teams keep their own information boundaries.
 
 **Blocked by:** 02 — Lock multiple teams and resolve together.

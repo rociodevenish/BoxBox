@@ -1,5 +1,7 @@
 # 02: Resolve spatial catches and restricted following
 
+> GitHub issue: [#76](https://github.com/rociodevenish/BoxBox/issues/76) — canonical ticket. This file is a local snapshot; track status and discussion on GitHub.
+
 **What to build:** Cars gain and lose locally, catch only within valid trajectory bounds and follow restricted sections without overlap.
 
 **Blocked by:** 01: Run a deterministic segmented solo race

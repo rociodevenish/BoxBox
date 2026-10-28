@@ -1,5 +1,7 @@
 # 05: Verify package alternatives and campaign trade-offs
 
+> GitHub issue: [#57](https://github.com/rociodevenish/BoxBox/issues/57) — canonical ticket. This file is a local snapshot; track status and discussion on GitHub.
+
 **What to build:** Publish replayable package evidence and reviewed creation, refinement, Rush and selection flows.
 
 **Blocked by:** 04: Rush package work with explicit cost and risk; season-economy-development 05.

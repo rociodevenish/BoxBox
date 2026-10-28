@@ -1,5 +1,7 @@
 # 02: Complete rotating carousel picks and limited scouting
 
+> GitHub issue: [#37](https://github.com/rociodevenish/BoxBox/issues/37) — canonical ticket. This file is a local snapshot; track status and discussion on GitHub.
+
 **What to build:** Acquire successive roster slots with fair scheduled priority and Scout replacements.
 
 **Blocked by:** 01: Hire personnel with unique ownership and a shared budget.

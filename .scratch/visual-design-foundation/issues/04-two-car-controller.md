@@ -1,5 +1,7 @@
 # 04: Build the two-car decision controller
 
+> GitHub issue: [#94](https://github.com/rociodevenish/BoxBox/issues/94) — canonical ticket. This file is a local snapshot; track status and discussion on GitHub.
+
 **What to build:** A player can choose instructions for both cars, review the complete team plan and understand its submitted or locked state in the gallery.
 
 **Blocked by:** 02 — Build reusable driver cards and the executable gallery.

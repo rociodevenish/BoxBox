@@ -1,5 +1,7 @@
 # 03: Guide construction and open the first weekend
 
+> GitHub issue: [#34](https://github.com/rociodevenish/BoxBox/issues/34) — canonical ticket. This file is a local snapshot; track status and discussion on GitHub.
+
 **What to build:** Use fair AI or Assisted/Guided construction choices and start only from ready teams.
 
 **Blocked by:** 02: Confirm and recover an immutable Base Car; personnel-acquisition 04; weekend-preparation 05.

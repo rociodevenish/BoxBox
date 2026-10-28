@@ -1,5 +1,7 @@
 # 10: Benchmark simulation and recommend the next playtest
 
+> GitHub issue: [#84](https://github.com/rociodevenish/BoxBox/issues/84) — canonical ticket. This file is a local snapshot; track status and discussion on GitHub.
+
 **What to build:** Developers inspect simulation costs and designers receive an evidence-based scope for the next browser playtest.
 
 **Blocked by:** 07: Measure track fit and passing frequency; 08: Measure tyre and pit-window sensitivity; 09: Measure persistent form and lap-noise effects
@@ -26,4 +28,3 @@ Final phase mean/p95/max milliseconds: previous 7.556/21.334/26.818; current agg
 Recommendation: exploratory coarse-layout strategy playtesting focused on estimated tyre feedback, queued next-lap-end stops, warm-up/rejoin queues and distinguishing actual passes from pit-cycle ranks. Measure intended 20–25 minute real player sessions rather than equating the virtual clock with play time. Sparse equal-all overtaking, tuning-sensitive pit/form results, inactive default exhaustion controls and large cumulative designer reports remain explicit limitations. Compact player transport/retention and concurrent responsiveness require separate work.
 
 Validation: benchmark CLI observed unsupported red before implementation. Actual reproduction script passed, verifying all five sample sets, full legal field/distance, configured shared passing identities and unchanged historical source. Full tests 98 passed. Runner smoke passed, including exact replay and benchmark sample-size rejection before reports. No latency threshold assertions or simulation formula changes. Parent spec resolution remains for integration review.
-

@@ -1,5 +1,7 @@
 # 06: Verify preparation and setup trade-offs
 
+> GitHub issue: [#108](https://github.com/rociodevenish/BoxBox/issues/108) — canonical ticket. This file is a local snapshot; track status and discussion on GitHub.
+
 **What to build:** Publish reproducible setup evidence and a reviewed complete preparation experience.
 
 **Blocked by:** 05: Support AI, Assisted and Guided preparation.

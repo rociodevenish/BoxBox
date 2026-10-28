@@ -1,5 +1,7 @@
 # 05: Add controlled driver form and named random channels
 
+> GitHub issue: [#79](https://github.com/rociodevenish/BoxBox/issues/79) — canonical ticket. This file is a local snapshot; track status and discussion on GitHub.
+
 **What to build:** Designers isolate persistent driver form from lap noise and execution/information uncertainty without recalculation affecting outcomes.
 
 **Blocked by:** 01: Run a deterministic segmented solo race

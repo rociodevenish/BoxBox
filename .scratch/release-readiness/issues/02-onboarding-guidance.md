@@ -1,5 +1,7 @@
 # 02: Teach a household to join and make its first decisions
 
+> GitHub issue: [#64](https://github.com/rociodevenish/BoxBox/issues/64) — canonical ticket. This file is a local snapshot; track status and discussion on GitHub.
+
 **What to build:** Join without technical documents and learn two-car locks, privacy and major strategy rules through real flows.
 
 **Blocked by:** 01: Freeze a replayable integrated release candidate.

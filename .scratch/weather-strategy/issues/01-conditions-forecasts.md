@@ -1,5 +1,7 @@
 # 01: Observe evolving weather and stable forecasts
 
+> GitHub issue: [#97](https://github.com/rociodevenish/BoxBox/issues/97) — canonical ticket. This file is a local snapshot; track status and discussion on GitHub.
+
 **What to build:** View current circuit-wide conditions and uncertain forecasts that evolve on authoritative simulation time.
 
 **Blocked by:** incidents-safety-cars 02; weekend-preparation 03.

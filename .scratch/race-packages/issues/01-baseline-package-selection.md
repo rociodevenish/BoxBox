@@ -1,5 +1,7 @@
 # 01: Select exactly one package for a weekend
 
+> GitHub issue: [#53](https://github.com/rociodevenish/BoxBox/issues/53) — canonical ticket. This file is a local snapshot; track status and discussion on GitHub.
+
 **What to build:** Inspect a neutral baseline library entry, select one completed package and freeze it with setup at qualifying.
 
 **Blocked by:** season-economy-development 03; weekend-preparation 04; qualifying-race-start 01.

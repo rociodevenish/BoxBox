@@ -1,5 +1,7 @@
 # 04: Transfer control at safe phase boundaries
 
+> GitHub issue: [#49](https://github.com/rociodevenish/BoxBox/issues/49) — canonical ticket. This file is a local snapshot; track status and discussion on GitHub.
+
 **What to build:** A host assigns temporary or permanent AI control to an unavailable player's team and an authorised player can return without replacing committed choices.
 
 **Blocked by:** 03 — Continue through deadlines and missed decisions.

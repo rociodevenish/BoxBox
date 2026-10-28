@@ -1,5 +1,7 @@
 # 06: Verify household play across devices
 
+> GitHub issue: [#90](https://github.com/rociodevenish/BoxBox/issues/90) — canonical ticket. This file is a local snapshot; track status and discussion on GitHub.
+
 **What to build:** A household can follow documented local setup and complete shared dry-race play with measured findings about joining, privacy and handoffs.
 
 **Blocked by:** 05 — Manage host controls and controller access; visual foundation 06 — Verify and document the integrated foundation.

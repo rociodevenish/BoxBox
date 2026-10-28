@@ -1,5 +1,7 @@
 # 03: Refine packages and expose richer project outcomes
 
+> GitHub issue: [#55](https://github.com/rociodevenish/BoxBox/issues/55) — canonical ticket. This file is a local snapshot; track status and discussion on GitHub.
+
 **What to build:** Improve an existing package and understand normal, partial, breakthrough, compromised or delayed project results.
 
 **Blocked by:** 02: Create a specialised package using the development opportunity.

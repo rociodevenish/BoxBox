@@ -1,5 +1,7 @@
 # 08: Measure tyre and pit-window sensitivity
 
+> GitHub issue: [#82](https://github.com/rociodevenish/BoxBox/issues/82) — canonical ticket. This file is a local snapshot; track status and discussion on GitHub.
+
 **What to build:** Designers inspect how fresh-tyre payoff and stop timing vary across layouts and fields.
 
 **Blocked by:** 06: Publish versioned replay and paired diagnostics
@@ -24,4 +26,3 @@ Default fresh-stop diagnostic controls are slower on average: open equal-all +3.
 Both layouts have distance-weighted TyreDemand 1.0 and different local demands/zones. Spatial histories expose substantial following loss after rejoin; seed 7 restricted/high-degradation gives target traffic loss 416.91s after stopping despite ten actual passes, versus 0.38s without the stop. Exhaustion-off/high at default degradation reaches zero condition only at the final crossing, so its neutral result leaves exhaustion sensitivity inconclusive. Warm-up response need not be monotonic when both initial tyres and encounters change. No new curves or final tuning adopted.
 
 Validation: unsupported suite request observed red at the runner seam before implementation; implemented suite enforces at least 20 seeds before writing. Full test suite 98 passed; actual runner smoke passed, including exact race/comparison replay and tyre-suite sample-size rejection. All 36 cases verified with 20 race samples per counter and group sample totals of 20. Corrected ticket 07's mixed-field label to explicitly include varied base driver Pace; its measured metrics remain unchanged.
-

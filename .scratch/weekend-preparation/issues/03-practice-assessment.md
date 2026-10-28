@@ -1,5 +1,7 @@
 # 03: Run one practice assessment
 
+> GitHub issue: [#105](https://github.com/rociodevenish/BoxBox/issues/105) — canonical ticket. This file is a local snapshot; track status and discussion on GitHub.
+
 **What to build:** Confirm a provisional setup, receive one stable two-driver practice assessment and revise the final setup.
 
 **Blocked by:** 02: Choose a team-wide Weekend Setup.

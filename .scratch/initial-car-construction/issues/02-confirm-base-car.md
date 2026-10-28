@@ -1,5 +1,7 @@
 # 02: Confirm and recover an immutable Base Car
 
+> GitHub issue: [#33](https://github.com/rociodevenish/BoxBox/issues/33) — canonical ticket. This file is a local snapshot; track status and discussion on GitHub.
+
 **What to build:** Confirm a car once and carry its saved identity and attributes into weekend preparation.
 
 **Blocked by:** 01: Compare and draft an affordable Base Car.

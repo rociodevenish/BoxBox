@@ -1,5 +1,7 @@
 # 02: Commit one permanent refinement or Save
 
+> GitHub issue: [#71](https://github.com/rociodevenish/BoxBox/issues/71) — canonical ticket. This file is a local snapshot; track status and discussion on GitHub.
+
 **What to build:** Compare bounded refinements and commit one affordable investment or explicit Save between events.
 
 **Blocked by:** 01: Receive event income and inspect the shared ledger; initial-car-construction 03.

@@ -1,5 +1,7 @@
 # 04: Evaluate full-season strategy and AI fairness
 
+> GitHub issue: [#66](https://github.com/rociodevenish/BoxBox/issues/66) — canonical ticket. This file is a local snapshot; track status and discussion on GitHub.
+
 **What to build:** Publish a bounded reproducible season experiment matrix and correct material financial or strategy failures.
 
 **Blocked by:** 01: Freeze a replayable integrated release candidate.

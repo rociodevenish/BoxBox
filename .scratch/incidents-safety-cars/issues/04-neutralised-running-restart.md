@@ -1,5 +1,7 @@
 # 04: Run the Safety Car period and restart coherently
 
+> GitHub issue: [#29](https://github.com/rociodevenish/BoxBox/issues/29) — canonical ticket. This file is a local snapshot; track status and discussion on GitHub.
+
 **What to build:** Resolve actual neutralised travel, reduced Pit Loss and a return to normal racing.
 
 **Blocked by:** 03: Open a simultaneous Safety Car pit window.

@@ -1,5 +1,7 @@
 # 03: Integrate the production race screens
 
+> GitHub issue: [#5](https://github.com/rociodevenish/BoxBox/issues/5) — canonical ticket. This file is a local snapshot; track status and discussion on GitHub.
+
 **What to build:** A player manages both cars using the visual foundation while a separate public display shows accurate race information without leaking private or diagnostic state.
 
 **Blocked by:** 02 — Make submissions and recovery reliable; visual foundation 03 — Build the public timing tower; visual foundation 04 — Build the two-car decision controller.

@@ -1,5 +1,7 @@
 # 03: Continue through deadlines and missed decisions
 
+> GitHub issue: [#48](https://github.com/rociodevenish/BoxBox/issues/48) — canonical ticket. This file is a local snapshot; track status and discussion on GitHub.
+
 **What to build:** A live family race uses visible deadlines and fair missing-player fallback while preserving every timely accepted team lock.
 
 **Blocked by:** 02 — Race against fair, observation-driven AI.

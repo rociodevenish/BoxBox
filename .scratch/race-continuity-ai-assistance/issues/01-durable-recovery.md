@@ -1,5 +1,7 @@
 # 01: Persist locks and recover an interrupted race
 
+> GitHub issue: [#46](https://github.com/rociodevenish/BoxBox/issues/46) — canonical ticket. This file is a local snapshot; track status and discussion on GitHub.
+
 **What to build:** A household can resume a saved dry race after server restart with the same accepted choices and authoritative results.
 
 **Blocked by:** Shared sessions and controller ownership, including its household verification; browser dry-race replay contracts.

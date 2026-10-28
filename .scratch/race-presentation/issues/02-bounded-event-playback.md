@@ -1,5 +1,7 @@
 # 02: Play, skip and replay race highlights
 
+> GitHub issue: [#59](https://github.com/rociodevenish/BoxBox/issues/59) — canonical ticket. This file is a local snapshot; track status and discussion on GitHub.
+
 **What to build:** Follow starts, passing, stops and supported disruption highlights with equivalent text and exact final reconciliation.
 
 **Blocked by:** 01: Display a representative authoritative race board.
