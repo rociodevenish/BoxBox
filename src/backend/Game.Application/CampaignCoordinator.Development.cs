@@ -1,5 +1,6 @@
 using System.Collections.Immutable;
 using Game.Domain;
+using Game.Simulation;
 namespace Game.Application;
 public sealed partial class CampaignCoordinator
 {
@@ -11,10 +12,11 @@ public sealed partial class CampaignCoordinator
   var ready=record.Teams.Select(t=>new DevelopmentReadiness(t.TeamId,opportunity.Decisions.Any(d=>d.TeamId==t.TeamId),opportunity.Decisions.SingleOrDefault(d=>d.TeamId==t.TeamId)?.Source??"awaiting-choice")).ToArray();
   return new(opportunity.Id,opportunity.FromEventId,opportunity.TargetEventId,opportunity.Closed?"closed":"open",ready,!opportunity.Closed&&ready.All(t=>t.Committed),opportunity.Revision);
  }
- private static DevelopmentPersonnel DevelopmentStaff(CampaignRecord record,string teamId)
+ private static DevelopmentPersonnel DevelopmentStaff(CampaignRecord record,string teamId,string? optionId=null)
  {
   if(record.Acquisition is not {} acquisition)return new("preset-development-neutral-v1",0,0,0,0);
   var people=acquisition.Hires.Where(h=>h.TeamId==teamId).Select(h=>acquisition.Pool.People.Single(p=>p.Id==h.PersonId)).ToArray();
+  if(optionId is not null)return DevelopmentPersonnelMapping.Map(people,acquisition.Pool.Version,optionId);
   var manager=people.Single(p=>p.Role=="Manager");var technical=people.Where(p=>p.Role=="Technical Engineer").ToArray();
   return new(acquisition.Pool.Version+"/"+string.Join("/",people.Select(p=>p.Id).Order()),manager.Attributes!["Efficiency"],manager.Attributes["Development"],(int)technical.Average(p=>p.Attributes!["Development Efficiency"]),(int)technical.Average(p=>new[]{"Aerodynamics","Mechanical / Chassis","Power Systems","Reliability"}.Average(k=>p.Attributes![k])));
  }
@@ -28,9 +30,9 @@ public sealed partial class CampaignCoordinator
  private DevelopmentTeamSnapshot ProjectDevelopment(CampaignRecord record,string teamId,long assignmentRevision)
  {
   var opportunity=CurrentDevelopment(record)??throw new SessionFault(SessionFailure.Conflict,"No development opportunity is open.");
-  var staff=DevelopmentStaff(record,teamId);
+
   var projects=(record.Development!.Outcomes.IsDefault?[]:record.Development.Outcomes).Where(o=>o.TeamId==teamId).Select(o=>new DevelopmentProjectSummary(o.ProjectId,o.Kind,(record.Development.Modifiers.IsDefault?[]:record.Development.Modifiers).Any(m=>m.ProjectId==o.ProjectId)?"completed":"pending",o.CompletionEventId,o.CompletionEventId is null?"Delayed beyond the final preparation in this short season; no further payment or event is requested.":o.Kind=="delay"?"Delayed work completes at the following preparation close without another charge.":"Saved bounded outcome; completed gains apply to the next weekend.")).ToArray();
-  return new(record.CampaignId,teamId,opportunity.Id,opportunity.Revision,assignmentRevision,CampaignEconomy.Ledger(record).Where(e=>e.TeamId==teamId).Sum(e=>e.Credits),PermanentDevelopment.Options.Select(o=>PermanentDevelopment.Quote(o.Id,staff,developmentControls)).ToArray(),opportunity.Drafts[teamId],opportunity.Decisions.SingleOrDefault(d=>d.TeamId==teamId),Projects:projects,CurrentCar:EventPresets(record,record.Calendar[record.EventIndex].EventId).Single(p=>p.Cars[0].TeamId==teamId).Cars[0].Car.Ratings,NextCar:EventPresets(record,opportunity.TargetEventId).Single(p=>p.Cars[0].TeamId==teamId).Cars[0].Car.Ratings);
+  return new(record.CampaignId,teamId,opportunity.Id,opportunity.Revision,assignmentRevision,CampaignEconomy.Ledger(record).Where(e=>e.TeamId==teamId).Sum(e=>e.Credits),DevelopmentQuotes(record,teamId),opportunity.Drafts[teamId],opportunity.Decisions.SingleOrDefault(d=>d.TeamId==teamId),Projects:projects,CurrentCar:EventPresets(record,record.Calendar[record.EventIndex].EventId).Single(p=>p.Cars[0].TeamId==teamId).Cars[0].Car.Ratings,NextCar:EventPresets(record,opportunity.TargetEventId).Single(p=>p.Cars[0].TeamId==teamId).Cars[0].Car.Ratings,Advice:opportunity.Closed||opportunity.Decisions.Any(d=>d.TeamId==teamId)?null:DevelopmentDecisionPolicy.Evaluate(ObserveDevelopment(record,teamId)),PolicyChoices:(record.DevelopmentChoices??[]).Where(c=>c.TeamId==teamId).ToArray(),CurrentEventId:record.Calendar[record.EventIndex].EventId,NextEventId:opportunity.TargetEventId);
  }
  public DevelopmentTeamSnapshot DevelopmentTeam(string id,AuthIdentity identity,string deviceId,string teamId)
  {
@@ -43,7 +45,7 @@ public sealed partial class CampaignCoordinator
    var saved=Require(id);var record=saved.Record;var opportunity=AuthoriseDevelopment(record,identity,deviceId,teamId);
    if(command is null||!opportunity.Receipts.Any(r=>r.CommandId==command.CommandId)&&command.AssignmentRevision!=weekends.DevelopmentAssignmentRevision(record.Calendar[(record.PreparationEventIndex??record.EventIndex)].SessionId,identity,deviceId,teamId))throw new SessionFault(SessionFailure.Conflict,"Controller changed. Refresh development.");
    DevelopmentOpportunity next;
-   try{next=PermanentDevelopment.Edit(opportunity,teamId,command,DevelopmentStaff(record,teamId),developmentControls);}
+   try{next=PermanentDevelopment.Edit(opportunity,teamId,command,DevelopmentStaff(record,teamId,command.OptionId),developmentControls);}
    catch(ArgumentException error){throw new SessionFault(SessionFailure.InvalidInput,error.Message);}
    catch(InvalidOperationException error){throw new SessionFault(SessionFailure.Conflict,error.Message);}
    if(!ReferenceEquals(next,opportunity)){record=WithDevelopment(record,next);Write(id,saved.Version,record);}
@@ -57,7 +59,7 @@ public sealed partial class CampaignCoordinator
    var saved=Require(id);var record=saved.Record;var opportunity=AuthoriseDevelopment(record,identity,deviceId,teamId);
    if(command is null||!opportunity.Decisions.Any(r=>r.CommandId==command.CommandId)&&command.AssignmentRevision!=weekends.DevelopmentAssignmentRevision(record.Calendar[(record.PreparationEventIndex??record.EventIndex)].SessionId,identity,deviceId,teamId))throw new SessionFault(SessionFailure.Conflict,"Controller changed. Refresh development.");
    DevelopmentCommitment next;
-   try{next=PermanentDevelopment.Commit(opportunity,CampaignEconomy.Ledger(record),teamId,command,DevelopmentStaff(record,teamId));}
+   try{next=PermanentDevelopment.Commit(opportunity,CampaignEconomy.Ledger(record),teamId,command,DevelopmentCommitStaff(record,teamId,opportunity.Drafts[teamId]));}
    catch(ArgumentException error){throw new SessionFault(SessionFailure.InvalidInput,error.Message);}
    catch(InvalidOperationException error){throw new SessionFault(SessionFailure.Conflict,error.Message);}
    if(!ReferenceEquals(next.State,opportunity))
@@ -69,6 +71,8 @@ public sealed partial class CampaignCoordinator
    return ProjectDevelopment(record,teamId,weekends.DevelopmentAssignmentRevision(record.Calendar[(record.PreparationEventIndex??record.EventIndex)].SessionId,identity,deviceId,teamId));
   }
  }
+ private static DevelopmentPersonnel DevelopmentCommitStaff(CampaignRecord record,string teamId,DevelopmentDraft draft)=>DevelopmentStaff(record,teamId,draft.Quote?.Personnel.RosterVersion.StartsWith(DevelopmentPersonnelMapping.Version+"/",StringComparison.Ordinal)==true?draft.OptionId:null);
+ private DevelopmentQuote[] DevelopmentQuotes(CampaignRecord record,string teamId)=>PermanentDevelopment.Options.Select(o=>PermanentDevelopment.Quote(o.Id,DevelopmentStaff(record,teamId,o.Id),developmentControls)).ToArray();
  private static CampaignRecord WithDevelopment(CampaignRecord record,DevelopmentOpportunity opportunity)=>record with{Revision=record.Revision+1,Development=record.Development! with{Opportunities=record.Development.Opportunities.Select(o=>o.Id==opportunity.Id?opportunity:o).ToImmutableArray()}};
 }
 public sealed partial class SessionCoordinator

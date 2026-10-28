@@ -60,7 +60,7 @@ test('one private development draft and commitment before practice',async({page:
  await page.getByRole('button',{name:'Review private project summary for McLaren',exact:true}).click();
  await expect(own.getByRole('heading',{name:/Completed refinement|Pending refinement/})).toBeVisible();
  if(process.env['F1_DEVELOPMENT_DELAY_FIXTURE']==='1')await expect(own.getByText('Delayed beyond the final preparation in this short season; no further payment or event is requested.',{exact:true})).toBeVisible();
- await own.getByText('Current and next-weekend car',{exact:true}).click();
+ await own.getByText('Full current and target attributes',{exact:true}).click();
  await expect(own.getByText(/Top Speed: current 82/)).toBeVisible();
  expect(await page.evaluate(()=>document.documentElement.scrollWidth)).toBeLessThanOrEqual(360);
  await own.screenshot({path:captures+'/s14-03-outcome-'+(process.env['F1_DEVELOPMENT_DELAY_FIXTURE']==='1'?'delay':'normal')+'-360.png'});
