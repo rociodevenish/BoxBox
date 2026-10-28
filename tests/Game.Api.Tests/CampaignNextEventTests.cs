@@ -48,6 +48,7 @@ public sealed class CampaignNextEventTests
   if(interrupted is 1 or 2){store.Match=interrupted==1?"campaign-":"event-02-weekend";store.Remaining=1;store.CommitFirst=committedFirst;var lost=await client.PostAsJsonAsync($"/api/campaigns/{id}/next/prepare",new{});Assert.Equal(HttpStatusCode.ServiceUnavailable,lost.StatusCode);}
   var next=await client.PostAsJsonAsync($"/api/campaigns/{id}/next/prepare",new{});next.EnsureSuccessStatusCode();
   var state=(await next.Content.ReadFromJsonAsync<CampaignSnapshot>())!;Assert.Equal(0,state.EventIndex);Assert.Single(state.Results!);
+  (await client.PostAsJsonAsync($"/api/campaigns/{id}/development/close",new CloseDevelopmentInput(Guid.NewGuid().ToString(),state.Development!.OpportunityId,state.Development.Revision,true))).EnsureSuccessStatusCode();
   await using var observing=LobbyTests.Server().WithWebHostBuilder(b=>b.ConfigureServices(s=>{s.Replace(ServiceDescriptor.Singleton<TimeProvider>(clock));s.Replace(ServiceDescriptor.Singleton<ISessionStore>(store));}));
   using var observer=observing.CreateClient();observer.DefaultRequestHeaders.Authorization=new("Bearer",token);
   (await observer.GetAsync($"/api/lobbies/{state.NextPreparation!.SessionId}/preparation/teams/team-01?deviceId={device}")).EnsureSuccessStatusCode();
@@ -72,7 +73,7 @@ public sealed class CampaignNextEventTests
   if(interrupted==3){store.Match="campaign-";store.Remaining=1;store.CommitFirst=committedFirst;var lost=await retry.PostAsJsonAsync($"/api/campaigns/{id}/next/start",new CampaignStartInput(Guid.NewGuid().ToString()));Assert.Equal(HttpStatusCode.ServiceUnavailable,lost.StatusCode);}
   var starts=await Task.WhenAll(retry.PostAsJsonAsync($"/api/campaigns/{id}/next/start",new CampaignStartInput(Guid.NewGuid().ToString())),observer.PostAsJsonAsync($"/api/campaigns/{id}/next/start",new CampaignStartInput(Guid.NewGuid().ToString())));foreach(var response in starts)response.EnsureSuccessStatusCode();
   state=(await starts[0].Content.ReadFromJsonAsync<CampaignSnapshot>())!;Assert.Equal(1,state.EventIndex);Assert.Equal(second,state.WeekendId);Assert.Single(state.Results!);Assert.Equal(101,state.Standings!.Drivers.Sum(r=>r.Points));
-  var resumed=recovered.Services.GetRequiredService<SessionCoordinator>();for(var n=0;n<80&&resumed.CommittedCampaignResult(second) is null;n++){clock.Advance();await resumed.SweepWakeups();}
+  var resumed=recovered.Services.GetRequiredService<SessionCoordinator>();resumed.RefreshCampaignWeekend(second);for(var n=0;n<80&&resumed.CommittedCampaignResult(second) is null;n++){clock.Advance();await resumed.SweepWakeups();}
   if(interrupted==4){store.Match="campaign-";store.Remaining=1;store.CommitFirst=committedFirst;var lost=await retry.PostAsJsonAsync($"/api/campaigns/{id}/commit-result?deviceId={nextDevice}",new{});Assert.Equal(committedFirst?HttpStatusCode.OK:HttpStatusCode.ServiceUnavailable,lost.StatusCode);}
   var committed=await retry.PostAsJsonAsync($"/api/campaigns/{id}/commit-result?deviceId={nextDevice}",new{});committed.EnsureSuccessStatusCode();state=(await committed.Content.ReadFromJsonAsync<CampaignSnapshot>())!;
   Assert.Equal(2,state.Results!.Count);Assert.Equal(202,state.Standings!.Drivers.Sum(r=>r.Points));
@@ -92,3 +93,4 @@ public sealed class CampaignNextEventTests
   foreach(var operation in new[]{"practice","confirm"}){var own=(await client.GetFromJsonAsync<PreparationTeamSnapshot>(uri))!;(await client.PostAsJsonAsync(uri.Replace("?","/"+operation+"?"),new PracticeCommand(Guid.NewGuid().ToString(),own.Revision,own.AssignmentRevision))).EnsureSuccessStatusCode();}
  }
 }
+

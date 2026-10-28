@@ -6,7 +6,7 @@ using Game.Simulation;
 namespace Game.Application;
 
 /// <summary>Durable campaign orchestration over the public household weekend operations.</summary>
-public sealed partial class CampaignCoordinator(SessionCoordinator weekends,ICampaignStore store,TimeProvider? timeProvider=null,IScheduledWakeups? scheduledWakeups=null)
+public sealed partial class CampaignCoordinator(SessionCoordinator weekends,ICampaignStore store,TimeProvider? timeProvider=null,IScheduledWakeups? scheduledWakeups=null,DevelopmentOutcomeControls? developmentControls=null)
 {
     public const string Schema="campaign-record-v1";
     public const string ContentVersion="preset-campaign-v1/provisional-2026.10.08";
@@ -51,7 +51,7 @@ public sealed partial class CampaignCoordinator(SessionCoordinator weekends,ICam
             if(record.Lifecycle=="season-complete")throw new SessionFault(SessionFailure.Conflict,"Season complete. Its results are retained; create a new campaign to race again.");
             EnsureWeekend(record,identity);
             var current=record.Calendar[record.EventIndex];
-            weekends.BeginCampaignPreparation(current.SessionId,identity,record.FrozenPresets[current.EventId]);
+            weekends.BeginCampaignPreparation(current.SessionId,identity,EventPresets(record,current.EventId));
             if(record.Lifecycle=="created"){record=record with{Lifecycle="event-preparation",Revision=record.Revision+1};Write(id,saved.Version,record);}
             return Project(record);
         }
@@ -78,7 +78,7 @@ public sealed partial class CampaignCoordinator(SessionCoordinator weekends,ICam
         }
     }
     private JoinedLobby EnsureWeekend(CampaignRecord record,AuthIdentity identity)=>weekends.EnsureCampaignLobby(record.Calendar[record.EventIndex].SessionId,identity,
-        new("open-equal",record.Input.Laps,record.Input.Seed,record.Input.Mode,record.Input.Name),record.FrozenPresets[record.Calendar[record.EventIndex].EventId],record.EventConditions[record.Calendar[record.EventIndex].EventId],record.Lifecycle=="acquiring",record.ConstructionRequired&&record.Construction is null||record.Lifecycle=="constructing");
+        new("open-equal",record.Input.Laps,record.Input.Seed,record.Input.Mode,record.Input.Name),EventPresets(record,record.Calendar[record.EventIndex].EventId),record.EventConditions[record.Calendar[record.EventIndex].EventId],record.Lifecycle=="acquiring",record.ConstructionRequired&&record.Construction is null||record.Lifecycle=="constructing");
     private CampaignSnapshot Project(CampaignRecord record)
     {
         var current=record.Calendar[record.EventIndex];var lobby=weekends.LobbyPublic(current.SessionId);

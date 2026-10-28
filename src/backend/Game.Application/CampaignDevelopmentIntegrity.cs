@@ -1,4 +1,7 @@
 using Game.Domain;
+using Game.Simulation;
+using System.Collections.Immutable;
+using System.Text.Json;
 namespace Game.Application;
 public static class CampaignDevelopmentIntegrity
 {
@@ -16,7 +19,7 @@ public static class CampaignDevelopmentIntegrity
    foreach(var draft in opportunity.Drafts.Values)
    {
     if(draft.Revision<0||draft.ActionKind is not("Save" or "PermanentRefinement")||draft.ActionKind=="Save"&&(draft.Quote is not null||draft.OptionId is not null)||draft.ActionKind=="PermanentRefinement"&&(draft.Quote is null||draft.OptionId!=draft.Quote.Option.Id))throw new ArgumentException("Invalid development draft.");
-    if(draft.Quote is {} quote&&PermanentDevelopment.Quote(quote.Option.Id,quote.Personnel)!=quote)throw new ArgumentException("Invalid saved quote.");
+    if(draft.Quote is {} quote&&PermanentDevelopment.Quote(quote.Option.Id,quote.Personnel,quote.Controls)!=quote)throw new ArgumentException("Invalid saved quote.");
    }
    foreach(var decision in opportunity.Decisions)
    {
@@ -27,6 +30,14 @@ public static class CampaignDevelopmentIntegrity
     else if(own.Length!=0)throw new ArgumentException("Save cannot spend credits.");
    }
   }
+  var replay=new DevelopmentState(development.Version,development.Opportunities.Select(o=>o with{Closed=false}).ToImmutableArray(),development.EntropyKey);
+  foreach(var opportunity in development.Opportunities.Where(o=>o.Closed))replay=PermanentDevelopment.Close(replay,opportunity.Id,record.Calendar.Select(e=>e.EventId).ToArray());
+  string Enc<T>(T value)=>JsonSerializer.Serialize(value,BrowserReplay.JsonOptions);
+  if(Enc(replay.Outcomes.IsDefault?[]:replay.Outcomes)!=Enc(development.Outcomes.IsDefault?[]:development.Outcomes)||Enc(replay.Modifiers.IsDefault?[]:replay.Modifiers)!=Enc(development.Modifiers.IsDefault?[]:development.Modifiers))throw new ArgumentException("Saved development outcome or modifier is incompatible.");
+  var snapshots=record.EffectiveEventPresets??new();
+  if(snapshots.Count!=development.Opportunities.Count(o=>o.Closed))throw new ArgumentException("Every closed opportunity needs its frozen effective event input.");
+  foreach(var (eventId,presets) in snapshots){var index=Array.FindIndex(record.Calendar,e=>e.EventId==eventId);if(index<1)throw new ArgumentException("Unknown development target.");var eligible=(development.Modifiers.IsDefault?[]:development.Modifiers).Where(m=>Array.FindIndex(record.Calendar,e=>e.EventId==m.CompletionEventId)<=index);var expected=record.FrozenPresets[eventId].Select(p=>DevelopedCar.Apply(p,eligible)).ToArray();if(Enc(expected)!=Enc(presets))throw new ArgumentException("Effective event input differs from its permanent modifiers.");}
+  if((record.DevelopmentCloses??[]).Select(c=>c.CommandId).Distinct().Count()!=(record.DevelopmentCloses??[]).Length||(record.DevelopmentCloses??[]).Length!=development.Opportunities.Count(o=>o.Closed))throw new ArgumentException("Invalid development close receipts.");
   if(debits.Length!=decisions.Count(d=>d.Quote is not null))throw new ArgumentException("Unmatched development debit.");
  }
 }

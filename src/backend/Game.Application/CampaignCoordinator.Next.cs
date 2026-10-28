@@ -35,9 +35,10 @@ public sealed partial class CampaignCoordinator
   if(record.PreparationEventIndex is not {} index)return;
   var next=record.Calendar[index];
   weekends.EnsureNextCampaignLobby(record.Calendar[index-1].SessionId,next.SessionId,identity,
-   record.FrozenPresets[next.EventId],record.EventConditions[next.EventId],DevelopmentPending(record));
+   EventPresets(record,next.EventId),record.EventConditions[next.EventId],DevelopmentPending(record));
   if(DevelopmentPending(record))return;
-  weekends.BeginCampaignPreparation(next.SessionId,identity,record.FrozenPresets[next.EventId]);
+  if(CurrentDevelopment(record) is {Closed:true})weekends.CommitCampaignDevelopment(next.SessionId,EventPresets(record,next.EventId));
+  weekends.BeginCampaignPreparation(next.SessionId,identity,EventPresets(record,next.EventId));
  }
  public JoinedLobby Return(string id,AuthIdentity identity,CampaignReturnInput input)
  {

@@ -11,16 +11,16 @@ public sealed class DevelopmentCommitmentTests
  private sealed class Clock:TimeProvider {private DateTimeOffset now=DateTimeOffset.Parse("2026-10-25T00:00:00Z");public override DateTimeOffset GetUtcNow()=>now;public void Advance()=>now=now.AddHours(1);}
  private sealed class InterruptedStore(ISessionStore inner):ISessionStore
  {
-  public bool Armed;public bool CommitFirst;
+  public bool Armed;public bool CommitFirst;public string? Target;
   public StoredSession? Read(string id)=>inner.Read(id);
   public IReadOnlyList<string> FindByJoinCode(string code)=>inner.FindByJoinCode(code);
   public IReadOnlyList<string> ListSessions()=>inner.ListSessions();
   public string Write(string id,string? version,string payload,string? code)=>Write(id,version,payload,code,null);
   public string Write(string id,string? version,string payload,string? code,ScheduledWakeup? wakeup)
-  {if(Armed&&id.StartsWith("campaign-")){Armed=false;if(CommitFirst)inner.Write(id,version,payload,code,wakeup);throw new IOException("Lost campaign acknowledgement");}return inner.Write(id,version,payload,code,wakeup);}
+  {if(Armed&&(Target is null?id.StartsWith("campaign-"):id==Target)){Armed=false;if(CommitFirst)inner.Write(id,version,payload,code,wakeup);throw new IOException("Lost campaign acknowledgement");}return inner.Write(id,version,payload,code,wakeup);}
  }
- [Theory][InlineData(false)][InlineData(true)]
- public async Task Development_is_private_guarded_and_same_commit_survives_failed_write_or_lost_ack(bool commitFirst)
+ [Theory][InlineData(false,false)][InlineData(true,false)][InlineData(false,true)][InlineData(true,true)]
+ public async Task Development_is_private_guarded_and_same_commit_survives_failed_write_or_lost_ack(bool commitFirst,bool handoff)
  {
   var token=await LobbyTests.Identity(false);var clock=new Clock();
   var store=new InterruptedStore(new CampaignTestSessionScope(new FirestoreSessionStore("demo-f1game",Environment.GetEnvironmentVariable("F1_RECOVERY_HOST")??"127.0.0.1:19600")));
@@ -57,7 +57,17 @@ public sealed class DevelopmentCommitmentTests
   Assert.Equal(90,accepted.Balance);Assert.NotNull(accepted.Commitment);Assert.Equal(quote.Id,accepted.Commitment.Quote!.Id);
   var again=await retry.PostAsJsonAsync(endpoint.Replace("?","/commit?"),command);again.EnsureSuccessStatusCode();Assert.Equal(90,(await again.Content.ReadFromJsonAsync<DevelopmentTeamSnapshot>())!.Balance);
   Assert.Equal(HttpStatusCode.Conflict,(await retry.PostAsJsonAsync(endpoint.Replace("?","/commit?"),command with{CommandId=Guid.NewGuid().ToString()})).StatusCode);
-  var ledger=(await retry.GetFromJsonAsync<EconomyTeamSnapshot>($"/api/campaigns/{id}/economy/teams/team-01?deviceId={joined.Weekend.Membership.DeviceId}"))!;Assert.Single(ledger.Ledger,e=>e.Reason=="permanent-development");
+  var ledger=(await retry.GetFromJsonAsync<EconomyTeamSnapshot>($"/api/campaigns/{id}/economy/teams/team-01?deviceId={joined.Weekend.Membership.DeviceId}"))!;Assert.Single(ledger.Ledger,e=>e.Reason=="permanent-development");  var close=new CloseDevelopmentInput(Guid.NewGuid().ToString(),accepted.OpportunityId,accepted.Revision,true);
+  store.Armed=true;store.CommitFirst=commitFirst;store.Target=handoff?second:null;
+  Assert.Equal(HttpStatusCode.ServiceUnavailable,(await retry.PostAsJsonAsync($"/api/campaigns/{id}/development/close",close)).StatusCode);
+  await using var recovered=LobbyTests.Server().WithWebHostBuilder(b=>b.ConfigureServices(s=>{s.Replace(ServiceDescriptor.Singleton<TimeProvider>(clock));s.Replace(ServiceDescriptor.Singleton<ISessionStore>(store));}));
+  using var recoveredClient=recovered.CreateClient();recoveredClient.DefaultRequestHeaders.Authorization=new("Bearer",token);
+  var closed=await recoveredClient.PostAsJsonAsync($"/api/campaigns/{id}/development/close",close);closed.EnsureSuccessStatusCode();
+  Assert.Equal("closed",(await closed.Content.ReadFromJsonAsync<CampaignSnapshot>())!.Development!.Status);
+  (await recoveredClient.PostAsJsonAsync($"/api/campaigns/{id}/development/close",close)).EnsureSuccessStatusCode();
+  var completed=(await recoveredClient.GetFromJsonAsync<DevelopmentTeamSnapshot>(endpoint))!;
+  Assert.Single(completed.Projects!);Assert.Equal(90,completed.Balance);
+  var ready=await recoveredClient.GetAsync($"/api/lobbies/{second}/preparation/teams/team-01?deviceId={device}");ready.EnsureSuccessStatusCode();
+  Assert.DoesNotContain("entropy",await closed.Content.ReadAsStringAsync(),StringComparison.OrdinalIgnoreCase);
  }
 }
-
