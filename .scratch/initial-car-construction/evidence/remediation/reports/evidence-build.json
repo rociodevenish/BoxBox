@@ -1,0 +1,19 @@
+{
+  "command": "C:/Program Files/dotnet/dotnet.exe",
+  "args": [
+    "build",
+    "tools/ConstructionEvidence",
+    "-c",
+    "Release",
+    "-p:",
+    "NuGetAudit=false",
+    "--artifacts-path",
+    ".tools/reports/remediation/dotnet-evidence"
+  ],
+  "cwd": "C:\\Projects\\F1Game\\.tools\\worktrees\\s13-review-fixes",
+  "pid": 37812,
+  "startedAt": "2026-10-27T20:08:33.309Z",
+  "status": "passed",
+  "exitCode": 0,
+  "elapsedMs": 2421
+}

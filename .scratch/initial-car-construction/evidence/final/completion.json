@@ -1,0 +1,164 @@
+{
+  "schema": "s13-completion-v1",
+  "recordedAt": "2026-10-27T20:24:28.6623975Z",
+  "branch": "codex/initial-car-construction",
+  "baseline": "05ae54c3ca4e67e57e99be7865e1348488260425",
+  "implementationRevision": "5bf1b3926e27539a2d970e7ebd3a717b12298f86",
+  "engineering": "complete",
+  "acceptance": "ready-for-human: actual choice comprehension unmeasured",
+  "runtime": {
+    "node": "24.22.1",
+    "dotnet": "10.0.401",
+    "java": "21.0.12.1"
+  },
+  "runs": [
+    {
+      "runId": "2026-10-27T20-03-55-244Z-0d2b3f60-8f0e-4f74-8055-6403f4f470ec",
+      "reusedStage": "tooling",
+      "manifest": "initial-verification.json",
+      "retainedResult": "239 simulation passed; API223passed1failed due background-consumed injection in recovery fixture"
+    },
+    {
+      "result": "all11selectedstagespassed",
+      "runId": "2026-10-27T20-15-42-316Z-a1196a7b-60fd-4604-a42d-0f725570284b",
+      "manifest": "verification-completion.json"
+    }
+  ],
+  "stages": [
+    {
+      "name": "tooling",
+      "status": "passed",
+      "cases": 3
+    },
+    {
+      "name": "typecheck",
+      "status": "passed",
+      "pid": 10504,
+      "exitCode": 0
+    },
+    {
+      "name": "build",
+      "status": "passed",
+      "pid": 30416,
+      "exitCode": 0
+    },
+    {
+      "name": "backend",
+      "status": "passed",
+      "pid": 19652,
+      "exitCode": 0
+    },
+    {
+      "name": "gallery",
+      "status": "passed",
+      "pid": 17312,
+      "exitCode": 0
+    },
+    {
+      "name": "browser",
+      "status": "passed",
+      "pid": 12512,
+      "exitCode": 0
+    },
+    {
+      "name": "boundary",
+      "status": "passed",
+      "pid": 27920,
+      "exitCode": 0
+    },
+    {
+      "name": "shared",
+      "status": "passed",
+      "pid": 32500,
+      "exitCode": 0
+    },
+    {
+      "name": "assistance",
+      "status": "passed",
+      "pid": 8152,
+      "exitCode": 0
+    },
+    {
+      "name": "control",
+      "status": "passed",
+      "pid": 9112,
+      "exitCode": 0
+    },
+    {
+      "name": "deadlines",
+      "status": "passed",
+      "pid": 7312,
+      "exitCode": 0
+    },
+    {
+      "name": "hosted",
+      "status": "passed",
+      "pid": 11912,
+      "exitCode": 0
+    }
+  ],
+  "testCounts": {
+    "api": 224,
+    "control": 1,
+    "assistance": 1,
+    "hosted": 1,
+    "shared": 14,
+    "boundary": 2,
+    "deadlines": 1,
+    "gallery": 34,
+    "browser": 22,
+    "simulation": 239
+  },
+  "experiments": {
+    "archiveSha256": "BE0A5D69FB5468923AE785EE5F0A4E2169C7DCB907635B8845EFDEF4C1609782",
+    "diagnosticIncidentRaces": 1000,
+    "findings": "low-drag local dominance; no observed diagnostic target-retirement reduction; no final balance claim",
+    "normalRaces": 300,
+    "legacyAcquisitionSha256": "DAD8BDFE5385D6A514A329118CFEBEC84E916D13CA185319A651C43DDF0FB564",
+    "pairwiseComparisons": 40,
+    "legacyCampaignSha256": "6A5CC13A5F29ABA900527D85875C55646518D879F05A89558106EEDB0B24F842",
+    "races": 1300,
+    "entriesPerRace": 22
+  },
+  "reviews": {
+    "reports": [
+      "standards-review.md",
+      "standards-recheck.md",
+      "spec-review.md",
+      "spec-recheck.md"
+    ],
+    "specUnresolvedImplementation": 0,
+    "standardsUnresolved": 0
+  },
+  "inspectedCaptures": [
+    {
+      "path": ".scratch/initial-car-construction/evidence/04-compare-viewport-360.png",
+      "sha256": "3912ACF8FBAE2E3A44728901990D8BD133E12F99473EF5236153E8B99C6447BF",
+      "assessment": "Reviewed actual360x800 phone viewport or actual1920x1080 public top; complete flow and scrolling limits recorded in browser evidence."
+    },
+    {
+      "path": ".scratch/initial-car-construction/evidence/04-confirmed-base-360.png",
+      "sha256": "2B2D50AD8A7C661945BD63C4F8EB829CB611D72BB31EE77D74A667C5F64F6258",
+      "assessment": "Reviewed actual360x800 phone viewport or actual1920x1080 public top; complete flow and scrolling limits recorded in browser evidence."
+    },
+    {
+      "path": ".scratch/initial-car-construction/evidence/04-guidance-public-1920.png",
+      "sha256": "E49EB1F28DF4679A4F4A2A6297DE81591A54801BC88FBC2AAC386ABBBB172274",
+      "assessment": "Reviewed actual360x800 phone viewport or actual1920x1080 public top; complete flow and scrolling limits recorded in browser evidence."
+    },
+    {
+      "path": ".scratch/initial-car-construction/evidence/remediation/s13-remediation-personnel-360.png",
+      "sha256": "95D50AE74ED433DC5666E0CCAF3574754AC6C2E524D56156096780F5BF5A21D3",
+      "assessment": "Reviewed actual360x800 phone viewport or actual1920x1080 public top; complete flow and scrolling limits recorded in browser evidence."
+    }
+  ],
+  "listeners": "listeners.json",
+  "workerEvidence": ".tools/reports/s13",
+  "cleanup": "All merged worker worktrees removed; shared dependency targets preserved",
+  "limitations": [
+    "Actual human choice comprehension unmeasured",
+    "Two representative circuits/one roster/grid/strategy do not establish full-calendar balance",
+    "Provisional prices, coefficients and specialisation; no measured reliability benefit in this sample",
+    "No actual hosted deployment or S14 work"
+  ]
+}

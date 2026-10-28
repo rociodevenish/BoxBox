@@ -1,0 +1,16 @@
+{
+  "command": "C:/Users/sbdev/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+  "args": [
+    "node_modules/@playwright/test/cli.js",
+    "test",
+    "--config",
+    "playwright.construction.config.ts",
+    "confirm.spec.ts"
+  ],
+  "cwd": "C:\\Projects\\F1Game\\.tools\\worktrees\\s13-review-fixes\\src\\frontend",
+  "pid": 37208,
+  "startedAt": "2026-10-27T20:07:16.426Z",
+  "status": "failed",
+  "exitCode": 1,
+  "elapsedMs": 37930
+}

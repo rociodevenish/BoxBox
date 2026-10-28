@@ -77,12 +77,14 @@ public static class WeekendPreparation
     {
         ArgumentNullException.ThrowIfNull(preset);
         setup?.Validate();
+        var constructed = ConstructedBaseCar.TryAxis(preset, out var constructionAxis);
+        var fitSetup = constructed ? (setup ?? new WeekendSetup()) with { Mechanical = Math.Clamp(constructionAxis + (setup?.Mechanical ?? 0), -2, 2) } : setup;
         // Source metadata identifies the frozen materialised values, not the currently
         // bundled catalogue. Compatibility is governed by the model and typed bounds.
         if (preset.Version != ModelVersion || !SupportsSource(preset.Circuit.Version,"1.0.0/")
             || preset.Engineer.Version != "authored-engineer-v1"
-            || preset.Cars.Any(c => !SupportsSource(c.Car.Version,"car-spec/1.0.0/") || !SupportsSource(c.Driver.Version,"1.0.0/"))
-            || preset.BaseCarId != "neutral-base-v1"
+            || preset.Cars.Any(c => (!constructed && !SupportsSource(c.Car.Version,"car-spec/1.0.0/")) || !SupportsSource(c.Driver.Version,"1.0.0/"))
+            || (!constructed && preset.BaseCarId != "neutral-base-v1")
             || preset.PackageId != "neutral-package-v1" || preset.SetupId != "neutral-setup-v1"
             || preset.Cars.Length != 2 || preset.Cars.Select(c => c.EntryId).Distinct().Count() != 2
             || preset.Cars.Select(c => c.TeamId).Distinct().Count() != 1 || laps < 1)
@@ -109,7 +111,7 @@ public static class WeekendPreparation
             var cornering = (Contribution("highSpeedAero", "highSpeedCornering") + Contribution("lowSpeedAero", "lowSpeedCornering")
                 + Contribution("mechanicalGrip", "mechanicalGrip") + Contribution("braking", "braking") + Contribution("traction", "traction")) / 5;
             var raceDriver = new Driver(source.EntryId, source.TeamId, Speed: speed, Cornering: cornering,
-                Pace: (driver["racePace"] - 82) / 10 - (setup is null ? 0 : WeekendSetupTuning.Mismatch(source.Driver, setup) * .15), Gap: index * .5,
+                Pace: (driver["racePace"] - 82) / 10 - (fitSetup is null ? 0 : WeekendSetupTuning.Mismatch(source.Driver, fitSetup) * .15), Gap: index * .5,
                 TyrePreservation: ((car["tyreWear"] - 82) * demand["tyreDegradation"] / 100 + driver["tyrePreservation"] - 82) / 20,
                 TyreManagement: (car["tyreTemperature"] - 82) * demand["tyreThermalDemand"] / 100 / 10,
                 Racecraft: (driver["overtaking"] + driver["defending"] - 164) / 20,
@@ -121,15 +123,15 @@ public static class WeekendPreparation
         return new(ModelVersion, preset with { Circuit = preset.Circuit with { Track = configuration.Track } }, configuration, cars,
             $"{preset.Circuit.Name}: speed demand {(preset.Circuit.Demands["topSpeed"] + preset.Circuit.Demands["accelerationDeployment"]) / 2:0}/100; "
             + $"high-speed aero demand {preset.Circuit.Demands["highSpeedCornering"]:0}/100; low-speed aero demand {preset.Circuit.Demands["lowSpeedCornering"]:0}/100. "
-            + (setup is null ? "Neutral Base Car, Race Package and Weekend Setup. "
+            + (constructed ? $"Confirmed Base Car {preset.BaseCarId}; neutral Race Package; construction handling and Weekend Setup compose once. " : setup is null ? "Neutral Base Car, Race Package and Weekend Setup. "
                 : $"Neutral Base Car and Race Package; Weekend Setup Aero {setup.Aero}, Mechanical {setup.Mechanical}, Tyres {setup.Tyres}. ")
             + string.Join("; ", cars.Select(c => $"{c.Source.Driver.Name}: race pace {c.Source.Driver.Ratings["racePace"]:0}/100, "
                 + $"car Top Speed {c.Source.Car.Ratings["topSpeed"]:0}/100, High-Speed Aero {c.Source.Car.Ratings["highSpeedAero"]:0}/100, "
                 + $"preferences {string.Join(", ", c.Source.Driver.Preferences.Select(p => p.Label))}"))
-            + (setup is null ? ". Provisional tuning; preferences and engineer advice are inactive in this slice."
+            + (constructed ? ". Provisional construction compatibility; reliability uses the existing explicit incident policy. Engineer information has no pace effect." : setup is null ? ". Provisional tuning; preferences and engineer advice are inactive in this slice."
                 : ". Speed trades straight pace for aero; Responsive trades grip for traction and preservation; Warm-Up trades first-lap readiness for stint life. Engineer Setup and driver Setup Feedback affect information only."),
             setup, setup is null ? "neutral-setup-v1" : WeekendSetup.Version,
-            setup is null ? [] : preset.Cars.Select(c => WeekendSetupTuning.Fit(c.Driver, setup)).ToImmutableArray());
+            fitSetup is null ? [] : preset.Cars.Select(c => WeekendSetupTuning.Fit(c.Driver, fitSetup)).ToImmutableArray());
     }
 
     private static bool SupportsSource(string version,string schema)=>version is not null&&version.StartsWith(schema,StringComparison.Ordinal)&&!string.IsNullOrWhiteSpace(version[schema.Length..]);

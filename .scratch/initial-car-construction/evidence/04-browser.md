@@ -1,0 +1,56 @@
+# S13-04 focused browser and asset evidence
+
+Reviewed 2026-10-28 (Australia/Hobart) against production source at `1531b9721ceab0a72f46ba8f0a1547ba0213f17b`. The initial captures below predate the subsequent private confirmed-car wording refinement described below; all other production behavior is unchanged. This is an engineering interaction/layout review. Human comprehension is **UNMEASURED**; the slice is ready for human review, not a completed comprehension study.
+
+## Focused checks
+
+The existing construction draft and confirmation tests were copied into the isolated `src/frontend/evidence/construction/` helper directory, retaining their public API/browser checks. `src/frontend/playwright.construction-evidence.config.ts` owns only these helpers; the normal gallery does not discover them. Additional checks capture actual viewports, force missing artwork, and continue through shared-tablet preparation, practice, final readiness and first-weekend startup/reload. No broad verifier was run by this helper.
+
+- Draft flow passed (9.6s) in `.tools/reports/s13-04-browser/bounded-final.json` (PID 28536). It exercises four complete category menus, unaffordable edits without saved-revision change, free comparison without balance/ledger spending, lost-response retry/reload, Assisted/Guided recommendation persistence without duplicate policy choices, privacy clearing and a late recommendation response after closing the private view.
+- Confirmation plus first-weekend flow passed (19.2s test; 37.364s bounded run), `.tools/reports/s13-04-browser/bounded-confirm-final.json` (PID 32912, exit 0). It exercises the same edit/compare foundation, forced portrait/circuit failures, preparation blocked before all cars are ready, lost confirmation response/reload/retry with exactly one debit, disabled locked controls, 10 disclosed automatic builds, shared-tablet setup/practice/final confirmation, private-view clearing, first-weekend start and reload preserving `Weekend active`.
+- Failed records are retained: `bounded.json` (PID 7216, sandbox server startup failure); `bounded-elevated.json` (PID 30980, stopped only that recorded tree to correct helper private-link selection for SharedTablet); `bounded-final.json` includes one passing draft test and a confirmation helper failure because shared-tablet final confirmation deliberately clears private final-ready text. The affected confirmation helper alone was corrected to assert the public confirmation/cleared status and rerun successfully. These were environment/helper issues; no production changes were made.
+- After moving helpers outside default gallery discovery, `--list` finds exactly two focused tests. The move preserves both relative import depths and test bodies.
+
+Runtime: Node 24.22.1, Java 21.0.12.1, repository-selected .NET SDK. Existing locked dependency caches were linked into this worktree. UI 4700, API 4800; Auth 22809, Firestore 22800, WebSocket 22850, hub 22810, logging 22860. Servers belong to Playwright (`reuseExistingServer:false`); bounded wrapper deadline 540000ms. Dotnet artifacts are isolated under `.tools/reports/s13-04-browser/dotnet`. Chromium cache and Firebase configuration use repository `.tools` paths. The retained `run.ps1` / `run-confirm.ps1` records provide exact environment/command replay; final helper config defaults now name the matching 228xx evidence configuration.
+
+## Actual viewport review
+
+All published phone images below are **360 x 800 actual viewport captures** (no `fullPage:true`). The public display is **1920 x 1080 at scroll top**. The unpublished tall full-page captures are not used as viewport evidence.
+
+| Capture | Engineering assessment |
+| --- | --- |
+| [04-private-top-360.png](04-private-top-360.png) | Private title, available balance, saved revision and guidance are legible and contained. Advice is long and requires scrolling before the option menus. |
+| [04-affordability-360.png](04-affordability-360.png) | 24-credit selection versus 18 available shows a live negative remainder, explicit over-budget explanation, and disabled save/confirmation. No overflow. |
+| [04-compare-viewport-360.png](04-compare-viewport-360.png) | Saved comparison and permanent purchase are separately named; revision, cost, remaining credits and simple groups remain live text. |
+| [04-fit-360.png](04-fit-360.png) | Both named drivers and indicative compatibility are visible with portraits. The second description continues below this viewport; scrolling is necessary and no simultaneous single-screen comparison is claimed. |
+| [04-tracks-360.png](04-tracks-360.png) | Track identity/artwork, demand summary, strengths and compromises remain readable. Representative track cards are vertically stacked. |
+| [04-fallback-360.png](04-fallback-360.png) | Failed portraits retain explicit unavailable labels, live driver names and compatibility. The test asserts all four portrait/circuit unavailable elements. |
+| [04-confirmed-360.png](04-confirmed-360.png) | Earlier production wording: paid-once amount, final revision and locked-car wording are legible, but simple/detail sections still said Saved draft. Superseded for the locked-state labels by the fresh capture below. |
+| [04-guidance-360.png](04-guidance-360.png) | Guided reasons name each category, alternatives and future-credit trade-off without promising lap-time gains. |
+| [04-guidance-public-1920.png](04-guidance-public-1920.png) | Actual top of public campaign display shows readiness and the calendar with supplied artwork. Private construction panel is absent; no private balance, fit or option values appear. |
+| [04-first-preparation-360.png](04-first-preparation-360.png) | Actual top of the first preparation page shows return navigation, shared-tablet context and Monza artwork/live identity; setup controls are farther down the page. This is a transition capture, not proof of all setup controls fitting one viewport. |
+| [04-first-weekend-360.png](04-first-weekend-360.png) | After startup and reload, `Weekend active` and public car-ready sources remain legible at phone width. |
+
+The complete automated flow traversed edits, affordability, save/compare, fit, confirmation, first preparation/practice and first weekend. Width assertions at comparison and confirmation passed. No text overlap or horizontal clipping was seen in the reviewed captures. Long guidance, vertically stacked cards and readiness lists create substantial scrolling; their effect on actual player understanding remains unmeasured.
+
+## Supplied artwork and mapping
+
+Current `assets/` inventory is 51 PNG originals: 28 driver portraits and 23 circuit illustrations; no car artwork or new asset category exists. Visually inspected original Max Verstappen portrait (1024 x 1536) and Monza illustration (1536 x 1024): portrait/atmosphere only, no geometry or physics inferred. Originals were not edited.
+
+`src/frontend/public/portraits/manifest.json` has 28 stable identity mappings and all 28 source/runtime paths exist. Its provenance states user-supplied shared repository assets, original creator/redistribution licence not supplied, local design fixtures only; variants are 384 x 576 WebP quality 82. `src/frontend/public/tracks/manifest.json` has 23 stable circuit identities with explicit source paths, SHA-256 and runtime URLs; all source/runtime paths exist and all 23 source hashes match. Track schema `1.0.0`, data `2026.10.08-initial-balance`; runtime variants 960 x 640 WebP quality 82. Track provenance makes no additional licensing/geographic-accuracy claim. Campaign/construction runtime mapping uses retained identities, including `track-monaco` to `circuit-de-monaco`, not inferred ID trimming. Artwork failure retains live textual identity and fit/trade-offs. No generated replacement car image was introduced.
+
+Human follow-up should test whether players can explain free draft versus permanent confirmation, identify each driver's fit, articulate Monza/Monaco compromises and navigate the long phone guidance before purchase. Full-calendar claims remain deferred to validated content.
+
+
+## Confirmed-car wording refinement and affected rerun
+
+The private Simple groups heading and Detailed attributes disclosure now use `Confirmed Base Car` when the car is confirmed, and retain `Saved draft` beforehand. This resolves the reviewed mismatch between the locked-car confirmation text and draft labels. Only these two conditional labels changed in production (campaign-page.html SHA-256 `fb0dda01cadae38f6a4e41055c7bc563c17aadb482c744a9cd793bbedf8122ab`).
+
+The affected full confirmation-through-first-weekend flow passed again, including exact assertions for both confirmed labels: 21.5s test, 39.800s bounded run, PID 2148, exit 0; record `.tools/reports/s13-04-browser/bounded-confirm-copy.json` and replay `run-confirm-copy.ps1`. Reviewed and published [04-confirmed-base-360.png](04-confirmed-base-360.png), an actual 360 x 800 viewport after the refinement: both Confirmed Base Car labels, cost/debit/final revision and live simple groups are readable without overlap or width overflow. The previously published 1920 x 1080 public-top capture remains explicitly prior-production evidence; the wording change affects only the private confirmed panel. Historical 01–03 captures and the initial 04 captures are untouched. Human comprehension remains **UNMEASURED**, ready for human review.
+
+
+## Numeric right-edge inspection
+
+A reviewer queried whether the new confirmed-label screenshot clipped `/ 100`. Replayed the real confirmation scenario before changing CSS and measured each Simple groups numeric text using DOM Range bounds, alongside its `dd`, list, section content and viewport bounds. The symptom did **not** reproduce: every full string (including `85.0 / 100`) has text bounds x=261.828125–333; the numeric box, list and section content each end at x=333, inside the 360px viewport with a 27px outer gutter. All five per-value containment assertions passed. The list remains a flex-row layout; the longer section heading has not expanded its content width. The page-width assertion alone was insufficient evidence, so these direct child/text assertions are now part of the isolated confirmation helper.
+
+Reviewed fresh [04-confirmed-bounds-360.png](04-confirmed-bounds-360.png) at its original actual 360 x 800 resolution and supplemental native element capture [04-confirmed-numeric-probe.png](04-confirmed-numeric-probe.png) (306 x 146; **not a viewport capture**): all five values visibly include the complete `/ 100`. Exact measurements are published in [04-confirmed-numeric-bounds.json](04-confirmed-numeric-bounds.json). No CSS change was made because the alleged clipping was not reproduced. The affected flow plus numeric geometry assertions passed: 19.2s test, 35.508s bounded run, PID 28560, exit 0; record `.tools/reports/s13-04-browser/bounded-confirm-bounds.json`, replay `run-confirm-bounds.ps1`. No added diagnostic console logging or temporary production instrumentation remains; the retained helper geometry check is scoped to the actual symptom. Production source remains the same private-label-only refinement SHA-256 recorded above. Human comprehension remains UNMEASURED.

@@ -18,7 +18,7 @@ public record PersonnelReceipt(string CommandId,string Fingerprint);
 public record PersonnelPick(string TeamId,string Slot);
 public record PersonnelCarousel(string Version,int Seed,ImmutableArray<string> InitialOrder,ImmutableArray<PersonnelPick> Picks,int Cursor);
 public record AcquisitionState(string Version,long Revision,PersonnelPool Pool,ImmutableArray<string> TeamIds,PersonnelOffer? Offer,
- ImmutableArray<PersonnelAssignment> Hires,ImmutableArray<CreditEntry> Ledger,ImmutableArray<PersonnelReceipt> Commands,PersonnelCarousel? Carousel=null,ScoutAllocation? ScoutAllocation=null,ImmutableDictionary<string,int>? ScoutTokens=null,ImmutableArray<PersonnelDraw> Draws=default);
+ ImmutableArray<PersonnelAssignment> Hires,ImmutableArray<CreditEntry> Ledger,ImmutableArray<PersonnelReceipt> Commands,PersonnelCarousel? Carousel=null,ScoutAllocation? ScoutAllocation=null,ImmutableDictionary<string,int>? ScoutTokens=null,ImmutableArray<PersonnelDraw> Draws=default,ImmutableDictionary<string,ConfirmedBaseCar>? ConstructedCars=null);
 
 /// <summary>Frozen content and integer-credit ownership transactions. No persistence or identity services.</summary>
 public static class PersonnelAcquisition
@@ -92,7 +92,7 @@ public static class PersonnelAcquisition
  }
  public static int Balance(AcquisitionState state,string team)=>checked(state.Ledger.Where(e=>e.TeamId==team).Sum(e=>e.Credits));
  public static ImmutableArray<string> RemainingSlots(AcquisitionState state,string team)=>RequiredSlots.Where(slot=>!state.Hires.Any(h=>h.TeamId==team&&h.Slot==slot)).ToImmutableArray();
- public static bool RosterReady(AcquisitionState state,string team)=>RemainingSlots(state,team).IsEmpty&&Balance(state,team)>=state.Pool.MinimumCarReserve;
+ public static bool RosterReady(AcquisitionState state,string team)=>RemainingSlots(state,team).IsEmpty&&Balance(state,team)>=(state.ConstructedCars?.ContainsKey(team)==true?0:state.Pool.MinimumCarReserve);
  // The Nth cheapest unowned person backs N remaining places globally. Removing any
  // person while reducing demand by one can never raise that bound. No cheap identity
  // is promised twice; every remaining place can be filled at or below its role bound.
@@ -111,7 +111,7 @@ public static class PersonnelAcquisition
  public static int CompletionReserve(AcquisitionState state,string team)
  {
   var bounds=RoleBounds(state.Pool,state.TeamIds.Length,state.Hires);
-  return checked(state.Pool.MinimumCarReserve+RemainingSlots(state,team).Sum(slot=>bounds[Role(slot)]));
+  return checked((state.ConstructedCars?.ContainsKey(team)==true?0:state.Pool.MinimumCarReserve)+RemainingSlots(state,team).Sum(slot=>bounds[Role(slot)]));
  }
  public static int ReserveAfterHire(AcquisitionState state,string team,string personId)
  {
@@ -187,7 +187,13 @@ public static class PersonnelAcquisition
    var initial=state.Ledger.Where(e=>e.TeamId==team&&e.Reason=="starting-credit").ToArray();
    if(initial.Length!=1||initial[0].Credits!=state.Pool.StartingCredit||Balance(state,team)<CompletionReserve(state,team))throw new ArgumentException("Invalid starting credit, debit or affordable completion reserve.");
   }
-  if(state.Ledger.Length!=state.TeamIds.Length+state.Hires.Length||state.Ledger.Any(e=>!state.TeamIds.Contains(e.TeamId)))throw new ArgumentException("Unrecognised ledger entries.");
+  var cars=state.ConstructedCars??ImmutableDictionary<string,ConfirmedBaseCar>.Empty;
+  if(state.Ledger.Length!=state.TeamIds.Length+state.Hires.Length+cars.Count||state.Ledger.Any(e=>!state.TeamIds.Contains(e.TeamId)))throw new ArgumentException("Unrecognised ledger entries.");
+  foreach(var (team,car) in cars)
+  {
+   CarConstruction.ValidateConfirmed(car);
+   if(team!=car.TeamId||!state.TeamIds.Contains(team)||!RemainingSlots(state,team).IsEmpty||state.Commands.Any(c=>c.CommandId==car.CommandId)||state.Ledger.Count(e=>e.TeamId==team&&e.CommandId==car.CommandId&&e.Credits==-car.Cost&&e.Reason=="base-car-construction"&&e.PersonId==car.Id)!=1)throw new ArgumentException("Construction and its exact accepted debit must agree.");
+  }
   foreach(var hire in state.Hires)
   {
    var card=state.Pool.People.Single(p=>p.Id==hire.PersonId);

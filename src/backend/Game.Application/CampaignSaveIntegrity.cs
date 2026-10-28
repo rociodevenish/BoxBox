@@ -14,13 +14,30 @@ public static class CampaignSaveIntegrity
   {
    if(record.Schema!=CampaignCoordinator.Schema||record.CampaignId!=id||string.IsNullOrWhiteSpace(record.HostUid)||record.Revision<1||record.Input is null||string.IsNullOrWhiteSpace(record.ContentVersion)||string.IsNullOrWhiteSpace(record.CalendarVersion))throw new ArgumentException();
    if(record.Calendar is null||record.Teams is null||record.FrozenPresets is null||record.EventConditions is null||record.Calendar.Length<2||record.Teams.Length==0||record.EventIndex<0||record.EventIndex>=record.Calendar.Length)throw new ArgumentException();
-   if(record.Lifecycle is not("acquiring" or "created" or "event-preparation" or "active-weekend" or "event-result-committed" or "season-complete"))throw new ArgumentException();
+   if(record.Lifecycle is not("acquiring" or "constructing" or "created" or "event-preparation" or "active-weekend" or "event-result-committed" or "season-complete"))throw new ArgumentException();
    if(record.Acquisition is {} acquisition)PersonnelAcquisition.Validate(acquisition);
+   if(record.Construction is {} construction)CarConstruction.Validate(construction,record.Teams.Select(t=>t.TeamId).ToArray());
+   var confirmed=record.Construction?.Confirmed;
+   var debited=record.Acquisition?.ConstructedCars;
+   if((confirmed?.Count??0)!=(debited?.Count??0)||confirmed is not null&&confirmed.Any(p=>debited is null||!debited.TryGetValue(p.Key,out var car)||JsonSerializer.Serialize(p.Value)!=JsonSerializer.Serialize(car)))throw new ArgumentException();
+   if(record.ConstructionRequired&&record.Lifecycle is not("acquiring" or "constructing")&&(confirmed?.Count??0)!=record.Teams.Length)throw new ArgumentException();
+   if(record.ConstructionRequired&&(record.Acquisition is null||record.Lifecycle!="acquiring"&&record.Construction is null)||record.Lifecycle=="constructing"&&(!record.ConstructionRequired||record.Construction is null))throw new ArgumentException();
    if(record.AcquisitionWakeup is {} wakeup&&(record.Acquisition is null||!record.AcquisitionAutomatic||record.Lifecycle is not("acquiring" or "created")||wakeup.SessionId!="campaign-"+id||wakeup.Kind!="personnel"||!Guid.TryParse(wakeup.Generation,out _)))throw new ArgumentException();
    foreach(var choice in record.PersonnelChoices??[])
    {
     if(record.Acquisition is not {} personnel||choice.Source is not("unclaimed-ai" or "deadline-absence-ai")||choice.Recommendation.Version!=PersonnelDecisionPolicy.Version||PersonnelDecisionPolicy.Evaluate(choice.Observation)!=choice.Recommendation||!personnel.Commands.Any(c=>c.CommandId==choice.CommandId&&c.Fingerprint==$"hire/{choice.Revision}/{personnel.Hires.Single(h=>h.CommandId==choice.CommandId).TeamId}/{choice.Recommendation.PersonId}"))throw new ArgumentException();
    }
+   foreach(var choice in record.ConstructionChoices??[])
+   {
+    if(record.Construction is not {} state||record.Acquisition is not {} personnel||choice.Source is not("assisted" or "unclaimed-ai")||!state.Drafts.TryGetValue(choice.TeamId,out var draft)||choice.Revision<1||choice.Revision>=draft.Revision||choice.Recommendation.Version!=ConstructionDecisionPolicy.Version||JsonSerializer.Serialize(choice.Observation.Catalogue)!=JsonSerializer.Serialize(state.Catalogue)||JsonSerializer.Serialize(ConstructionDecisionPolicy.Evaluate(choice.Observation))!=JsonSerializer.Serialize(choice.Recommendation))throw new ArgumentException();
+    var ownDrivers=record.FrozenPresets[record.Calendar[0].EventId].Single(p=>p.Cars[0].TeamId==choice.TeamId).Cars.Select(c=>c.Driver).ToArray();
+    if(JsonSerializer.Serialize(ownDrivers)!=JsonSerializer.Serialize(choice.Observation.Drivers)||choice.Observation.Balance!=PersonnelAcquisition.Balance(personnel,choice.TeamId)+(state.Confirmed?.GetValueOrDefault(choice.TeamId)?.Cost??0)||!draft.Commands.Any(c=>c.CommandId==choice.CommandId&&c.Fingerprint==$"{choice.Revision}/{state.Catalogue.Version}/{string.Join('/',choice.Recommendation.OptionIds)}"))throw new ArgumentException();
+    if(choice.Source=="unclaimed-ai"&&(choice.Revision!=1||state.Confirmed?.GetValueOrDefault(choice.TeamId) is not {} automatic||!automatic.OptionIds.SequenceEqual(choice.Recommendation.OptionIds)))throw new ArgumentException();
+   }
+   var automaticCommands=record.ConstructionAutomaticCommands??[];
+   if(automaticCommands.Select(c=>c.CommandId).Distinct().Count()!=automaticCommands.Length||(record.ConstructionChoices??[]).Select(c=>c.CommandId).Distinct().Count()!=(record.ConstructionChoices??[]).Length)throw new ArgumentException();
+   foreach(var command in automaticCommands)
+    if(!Guid.TryParse(command.CommandId,out var key)||key==Guid.Empty||command.CommandId!=key.ToString("D")||command.Version!=ConstructionDecisionPolicy.Version||command.TeamIds.Distinct().Count()!=command.TeamIds.Length||command.TeamIds.Any(team=>!(record.ConstructionChoices??[]).Any(c=>c.TeamId==team&&c.Source=="unclaimed-ai")))throw new ArgumentException();
    if(record.Input.PersonnelMode is not("preset" or "acquisition"))throw new ArgumentException();
    if(record.Input.PersonnelMode=="acquisition"&&record.Acquisition is null||record.Input.PersonnelMode=="preset"&&record.Acquisition is not null)throw new ArgumentException();
    CampaignRules.ValidateShortCalendar(record.Calendar.Select(e=>e.TrackId).ToArray());
@@ -38,6 +55,12 @@ public static class CampaignSaveIntegrity
     foreach(var (team,teamIndex) in record.Teams.Select((t,i)=>(t,i)))
     {
      var preset=presets[teamIndex];
+     if(confirmed?.GetValueOrDefault(team.TeamId) is {} car)
+     {
+      var materialised=ConstructedBaseCar.Apply(preset,car.Id,car.Catalogue.Version,car.Ratings,car.MechanicalAxis);
+      if(JsonSerializer.Serialize(preset)!=JsonSerializer.Serialize(materialised))throw new ArgumentException();
+     }
+     else if(record.ConstructionRequired&&preset.BaseCarId!="neutral-base-v1")throw new ArgumentException();
      if(record.Acquisition is {} acquired&&record.Lifecycle!="acquiring")
      {
       if(!PersonnelAcquisition.RosterReady(acquired,team.TeamId))throw new ArgumentException();

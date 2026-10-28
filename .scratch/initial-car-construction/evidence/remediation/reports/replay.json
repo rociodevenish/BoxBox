@@ -1,0 +1,14 @@
+{
+  "command": "C:/Program Files/dotnet/dotnet.exe",
+  "args": [
+    ".tools/reports/remediation/dotnet-evidence/bin/ConstructionEvidence/release/ConstructionEvidence.dll",
+    "--replay",
+    ".scratch/initial-car-construction/evidence/04-experiments/construction.json.gz"
+  ],
+  "cwd": "C:\\Projects\\F1Game\\.tools\\worktrees\\s13-review-fixes",
+  "pid": 35516,
+  "startedAt": "2026-10-27T20:08:46.426Z",
+  "status": "passed",
+  "exitCode": 0,
+  "elapsedMs": 74547
+}

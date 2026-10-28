@@ -84,13 +84,10 @@ public sealed class PersonnelAcquisitionTests
   Assert.True(after.GetProperty("rosterReady").GetBoolean());Assert.Equal(18,after.GetProperty("completionReserve").GetInt32());Assert.Empty(after.GetProperty("remainingSlots").EnumerateArray());Assert.Equal(7,after.GetProperty("roster").GetArrayLength());Assert.Equal(8,after.GetProperty("ledger").GetArrayLength());
   var duplicate=await retry.PostAsJsonAsync(path.Replace("?","/hire?"),finalCommand);duplicate.EnsureSuccessStatusCode();Assert.Equal(after.ToString(),(await duplicate.Content.ReadFromJsonAsync<JsonElement>()).ToString());
   var final=await retry.GetFromJsonAsync<JsonElement>($"/api/campaigns/{id}?deviceId={device}");
-  Assert.Equal("created",final.GetProperty("lifecycle").GetString());Assert.True(final.GetProperty("acquisition").GetProperty("allRostersReady").GetBoolean());Assert.Equal(77,final.GetProperty("acquisition").GetProperty("filledSlots").GetInt32());
+  Assert.Equal("constructing",final.GetProperty("lifecycle").GetString());Assert.True(final.GetProperty("acquisition").GetProperty("allRostersReady").GetBoolean());Assert.Equal(77,final.GetProperty("acquisition").GetProperty("filledSlots").GetInt32());
   var finalTeam=final.GetProperty("teams").EnumerateArray().Single(t=>t.GetProperty("teamId").GetString()==after.GetProperty("teamId").GetString());
   Assert.Equal(after.GetProperty("roster").EnumerateArray().Where(p=>p.GetProperty("role").GetString()=="Driver").Select(p=>p.GetProperty("id").GetString()).Order(),finalTeam.GetProperty("drivers").EnumerateArray().Select(p=>p.GetProperty("personId").GetString()).Order());
-  (await retry.PostAsJsonAsync($"/api/campaigns/{id}/prepare",new{})).EnsureSuccessStatusCode();
-  var preparation=await retry.GetFromJsonAsync<JsonElement>($"/api/lobbies/{final.GetProperty("weekendId").GetString()}/preparation/teams/{after.GetProperty("teamId").GetString()}?deviceId={device}");
-  Assert.Equal(finalTeam.GetProperty("drivers").EnumerateArray().Select(d=>d.GetProperty("personId").GetString()),preparation.GetProperty("preset").GetProperty("cars").EnumerateArray().Select(c=>c.GetProperty("driver").GetProperty("id").GetString()));
-  Assert.All(preparation.GetProperty("preset").GetProperty("cars").EnumerateArray(),car=>Assert.StartsWith("staff-race-engineer-",car.GetProperty("engineer").GetProperty("id").GetString()));
+  Assert.Equal(HttpStatusCode.Conflict,(await retry.PostAsJsonAsync($"/api/campaigns/{id}/prepare",new{})).StatusCode);
  }
  [Theory]
  [InlineData(false)]

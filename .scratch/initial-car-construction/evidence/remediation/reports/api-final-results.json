@@ -1,0 +1,93 @@
+{
+  "source": "api-final.trx",
+  "times": {
+    "creation": "2026-10-28T07:13:00.6210718+11:00",
+    "queuing": "2026-10-28T07:13:00.6210718+11:00",
+    "start": "2026-10-28T07:12:48.6187959+11:00",
+    "finish": "2026-10-28T07:13:24.0654967+11:00"
+  },
+  "counts": {
+    "total": "8",
+    "executed": "8",
+    "passed": "8",
+    "failed": "0",
+    "error": "0",
+    "timeout": "0",
+    "aborted": "0",
+    "inconclusive": "0",
+    "passedButRunAborted": "0",
+    "notRunnable": "0",
+    "notExecuted": "0",
+    "disconnected": "0",
+    "warning": "0",
+    "completed": "0",
+    "inProgress": "0",
+    "pending": "0"
+  },
+  "results": [
+    {
+      "name": "Game.Api.Tests.ConstructionDraftTests.Free_authorised_draft_survives_uncertain_save_restart_and_retry_without_spending(committed: False)",
+      "outcome": "Passed",
+      "duration": "00:00:06.0436881",
+      "startedAt": "2026-10-28T07:13:00.6090232+11:00",
+      "endedAt": "2026-10-28T07:13:06.6431057+11:00",
+      "error": null
+    },
+    {
+      "name": "Game.Api.Tests.ConstructionDraftTests.Free_authorised_draft_survives_uncertain_save_restart_and_retry_without_spending(committed: True)",
+      "outcome": "Passed",
+      "duration": "00:00:11.5058824",
+      "startedAt": "2026-10-28T07:12:49.0837654+11:00",
+      "endedAt": "2026-10-28T07:13:00.5964755+11:00",
+      "error": null
+    },
+    {
+      "name": "Game.Api.Tests.ConstructionConfirmationTests.Confirmed_car_and_exact_debit_survive_uncertain_acknowledgement_and_open_only_after_all_teams(committed: False, handoff: False)",
+      "outcome": "Passed",
+      "duration": "00:00:06.6770188",
+      "startedAt": "2026-10-28T07:13:17.3248262+11:00",
+      "endedAt": "2026-10-28T07:13:24.0014470+11:00",
+      "error": null
+    },
+    {
+      "name": "Game.Api.Tests.ConstructionConfirmationTests.Confirmed_car_and_exact_debit_survive_uncertain_acknowledgement_and_open_only_after_all_teams(committed: True, handoff: False)",
+      "outcome": "Passed",
+      "duration": "00:00:15.6722165",
+      "startedAt": "2026-10-28T07:12:49.0838043+11:00",
+      "endedAt": "2026-10-28T07:13:04.7587640+11:00",
+      "error": null
+    },
+    {
+      "name": "Game.Api.Tests.ConstructionPolicyTests.Recorded_policy_recovers_atomic_automatic_builds_and_preserves_private_manual_choices(committed: True)",
+      "outcome": "Passed",
+      "duration": "00:00:15.6784715",
+      "startedAt": "2026-10-28T07:12:49.0830342+11:00",
+      "endedAt": "2026-10-28T07:13:04.7648577+11:00",
+      "error": null
+    },
+    {
+      "name": "Game.Api.Tests.ConstructionConfirmationTests.Confirmed_car_and_exact_debit_survive_uncertain_acknowledgement_and_open_only_after_all_teams(committed: False, handoff: True)",
+      "outcome": "Passed",
+      "duration": "00:00:06.3807469",
+      "startedAt": "2026-10-28T07:13:04.7608464+11:00",
+      "endedAt": "2026-10-28T07:13:11.1398105+11:00",
+      "error": null
+    },
+    {
+      "name": "Game.Api.Tests.ConstructionConfirmationTests.Confirmed_car_and_exact_debit_survive_uncertain_acknowledgement_and_open_only_after_all_teams(committed: True, handoff: True)",
+      "outcome": "Passed",
+      "duration": "00:00:06.1839662",
+      "startedAt": "2026-10-28T07:13:11.1406023+11:00",
+      "endedAt": "2026-10-28T07:13:17.3240806+11:00",
+      "error": null
+    },
+    {
+      "name": "Game.Api.Tests.ConstructionPolicyTests.Recorded_policy_recovers_atomic_automatic_builds_and_preserves_private_manual_choices(committed: False)",
+      "outcome": "Passed",
+      "duration": "00:00:08.3437787",
+      "startedAt": "2026-10-28T07:13:04.7650273+11:00",
+      "endedAt": "2026-10-28T07:13:13.1090785+11:00",
+      "error": null
+    }
+  ]
+}

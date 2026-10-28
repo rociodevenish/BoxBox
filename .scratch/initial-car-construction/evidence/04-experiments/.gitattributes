@@ -1,0 +1,2 @@
+# Preserve the published byte hashes across checkouts.
+*.json -text whitespace=cr-at-eol

@@ -63,17 +63,17 @@ public sealed partial class CampaignCoordinator
    var frozen=record.FrozenPresets.ToDictionary(pair=>pair.Key,pair=>pair.Value.Select(p=>PersonnelWeekendMapping.Apply(acquisition,p.Cars[0].TeamId,p)).ToArray());
    var first=frozen[record.Calendar[0].EventId];
    var teams=record.Teams.Select((team,index)=>team with{Drivers=first[index].Cars.Select(car=>new CampaignDriver(car.Driver.Id,car.Driver.Name,car.Driver.Slug,car.EntryId,car.Driver.Version)).ToArray()}).ToArray();
-   record=record with{FrozenPresets=frozen,Teams=teams,Lifecycle="created",Revision=record.Revision+1};
+   record=record with{FrozenPresets=frozen,Teams=teams,Lifecycle=record.ConstructionRequired?"constructing":"created",Construction=record.ConstructionRequired?CarConstruction.Open(ConstructionCatalog.Open(),record.Teams.Select(t=>t.TeamId).ToArray()):null,AcquisitionWakeup=null,Revision=record.Revision+1};
    Write(record.CampaignId,saved.Version,record);saved=Require(record.CampaignId);
   }
   // Campaign roster commit precedes the independently durable lobby update. Any read/retry repairs
   // an interrupted handoff; the lobby guard stays closed until its own roster save succeeds.
-  weekends.CommitCampaignPersonnel(record.Calendar[0].SessionId,record.FrozenPresets[record.Calendar[0].EventId]);
+  weekends.CommitCampaignPersonnel(record.Calendar[0].SessionId,record.FrozenPresets[record.Calendar[0].EventId],record.Lifecycle=="constructing");
   if(record.AcquisitionWakeup is not null)
   {
    record=record with{AcquisitionWakeup=null,Revision=record.Revision+1};Write(record.CampaignId,saved.Version,record);saved=Require(record.CampaignId);
   }
-  return saved;
+  return CompleteConstruction(saved);
  }
  private static PersonnelPolicyObservation ObservePersonnel(AcquisitionState state,string teamId)=>new(state.Offer!.Slot,PersonnelAcquisition.Balance(state,teamId),PersonnelAcquisition.CompletionReserve(state,teamId),state.Offer.PersonIds.Select(id=>{var card=state.Pool.People.Single(p=>p.Id==id);return new PersonnelPolicyOffer(id,card.Name,card.Price,PersonnelAcquisition.HireUnavailable(state,teamId,id) is null,PersonnelAcquisition.ReserveAfterHire(state,teamId,id));}).ToImmutableArray());
  private static AcquisitionTeamSnapshot ProjectAcquisition(CampaignRecord record,string teamId)

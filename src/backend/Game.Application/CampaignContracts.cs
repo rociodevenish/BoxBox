@@ -7,7 +7,7 @@ public record CampaignDriver(string PersonId,string Name,string Slug,string Entr
 public record CampaignTeam(string TeamId,string ConstructorId,string ConstructorName,IReadOnlyList<CampaignDriver> Drivers);
 public record CampaignSnapshot(string CampaignId,long Revision,string Lifecycle,string ContentVersion,string CalendarVersion,
     string Mode,IReadOnlyList<CampaignEvent> Calendar,IReadOnlyList<CampaignTeam> Teams,int EventIndex,string WeekendId,
-    IReadOnlyList<PreparationReadiness> Readiness,bool CanStart,bool FullCalendarAvailable=false,ChampionshipPoints? Points=null,ChampionshipTable? Standings=null,IReadOnlyList<CampaignEventContribution>? Results=null,CampaignNextPreparation? NextPreparation=null,AcquisitionPublicSnapshot? Acquisition=null);
+    IReadOnlyList<PreparationReadiness> Readiness,bool CanStart,bool FullCalendarAvailable=false,ChampionshipPoints? Points=null,ChampionshipTable? Standings=null,IReadOnlyList<CampaignEventContribution>? Results=null,CampaignNextPreparation? NextPreparation=null,AcquisitionPublicSnapshot? Acquisition=null,bool ConstructionRequired=false,IReadOnlyList<ConstructionReadiness>? ConstructionReadiness=null);
 public record CampaignJoined(CampaignSnapshot Campaign,JoinedLobby Weekend);
 public record CampaignStartInput(string CommandId);
 public record CampaignReturnInput(bool NextEvent=false,string? DeviceId=null);
@@ -17,7 +17,7 @@ public record CampaignNextPreparation(string EventId,string SessionId,string Tra
 // Only typed application contracts cross this persistence boundary. The adapter owns serialization and namespacing.
 public record CampaignRecord(string Schema,string CampaignId,string HostUid,string CreationFingerprint,CreateCampaignInput Input,
     long Revision,string Lifecycle,string ContentVersion,string CalendarVersion,CampaignEvent[] Calendar,CampaignTeam[] Teams,
-    Dictionary<string,WeekendPreset[]> FrozenPresets,Dictionary<string,RaceConfiguration> EventConditions,int EventIndex=0,string? StartCommandId=null,ChampionshipPoints? Points=null,CampaignEventContribution[]? Contributions=null,int? PreparationEventIndex=null,string? AdvanceCommandId=null,CampaignVersions? Versions=null,AcquisitionState? Acquisition=null,bool AcquisitionAutomatic=false,ScheduledWakeup? AcquisitionWakeup=null,RecordedPersonnelChoice[]? PersonnelChoices=null);
+    Dictionary<string,WeekendPreset[]> FrozenPresets,Dictionary<string,RaceConfiguration> EventConditions,int EventIndex=0,string? StartCommandId=null,ChampionshipPoints? Points=null,CampaignEventContribution[]? Contributions=null,int? PreparationEventIndex=null,string? AdvanceCommandId=null,CampaignVersions? Versions=null,AcquisitionState? Acquisition=null,bool AcquisitionAutomatic=false,ScheduledWakeup? AcquisitionWakeup=null,RecordedPersonnelChoice[]? PersonnelChoices=null,bool ConstructionRequired=false,ConstructionState? Construction=null,RecordedConstructionChoice[]? ConstructionChoices=null,ConstructionAutomaticReceipt[]? ConstructionAutomaticCommands=null);
 public record CampaignEventVersions(string Model,string Randomness);
 public record CampaignVersions(string Lifecycle,string Scoring,string Replay,string Preparation,string Practice,Dictionary<string,CampaignEventVersions> Events);
 public record StoredCampaign(string Version,CampaignRecord Record);
@@ -38,3 +38,10 @@ public record AcquisitionTeamSnapshot(string CampaignId,string TeamId,long Revis
  string? ActiveTeamId,string? Slot,IReadOnlyList<PersonnelCard> Offers,IReadOnlyList<PersonnelAssignment> Hires,IReadOnlyList<CreditEntry> Ledger,IReadOnlyList<string> RequiredSlots,IReadOnlyList<PersonnelCard> Roster,int ScoutTokens,string? ScoutUnavailable,int Cursor,int TotalPicks,int DrawCount,string ScheduleVersion,string ScoutVersion,
  int CompletionReserve,IReadOnlyList<string> RemainingSlots,bool RosterReady,IReadOnlyList<PersonnelHireOption> HireOptions,string ReserveVersion,ConstructionCreditMapping ConstructionMapping,Game.Simulation.PersonnelRecommendation? Advice=null,IReadOnlyList<RecordedPersonnelChoice>? AutomaticChoices=null);
 public record RecordedPersonnelChoice(string Source,long Revision,Game.Simulation.PersonnelPolicyObservation Observation,Game.Simulation.PersonnelRecommendation Recommendation,string CommandId);
+
+public sealed record ConstructionTeamSnapshot(string CampaignId,string TeamId,ConstructionCatalogue Catalogue,ConstructionDraft Draft,Game.Simulation.ConstructionPreviewResult Preview,ConfirmedBaseCar? Confirmed=null,Game.Simulation.ConstructionRecommendation? Recommendation=null,IReadOnlyList<RecordedConstructionChoice>? PolicyChoices=null);
+public sealed record ConstructionRecommendationRequest(string CommandId,long Revision,string TeamId,string CatalogueVersion);
+public sealed record ConstructionAutomaticRequest(string CommandId);
+public sealed record RecordedConstructionChoice(string TeamId,string Source,long Revision,Game.Simulation.ConstructionPolicyObservation Observation,Game.Simulation.ConstructionRecommendation Recommendation,string CommandId);
+public sealed record ConstructionAutomaticReceipt(string CommandId,string Version,string[] TeamIds);
+public sealed record ConstructionReadiness(string TeamId,bool Ready,string Source);
