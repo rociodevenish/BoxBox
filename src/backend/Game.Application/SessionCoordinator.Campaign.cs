@@ -51,7 +51,7 @@ public sealed partial class SessionCoordinator
             lobbies.Remove(id);if(active?.Id==id)active=null;Restore(id,saved);
         }
     }
-    public void EnsureNextCampaignLobby(string previousId,string nextId,AuthIdentity identity,WeekendPreset[] frozen,RaceConfiguration conditions)
+    public void EnsureNextCampaignLobby(string previousId,string nextId,AuthIdentity identity,WeekendPreset[] frozen,RaceConfiguration conditions,bool developmentPending=false)
     {
         lock(gate)
         {
@@ -59,6 +59,7 @@ public sealed partial class SessionCoordinator
             if(lobbies.TryGetValue(nextId,out var existing)){RequireHost(existing,identity);return;}
             var lobby=new Lobby(nextId,Convert.ToHexString(System.Security.Cryptography.RandomNumberGenerator.GetBytes(4)),previous.Host,previous.Input);
             lobby.CampaignPresets=frozen;lobby.CampaignConditions=conditions;lobby.ModuleState["campaign-standby-v1"]=previousId;
+            if(developmentPending)lobby.ModuleState["campaign-development-pending-v1"]="pending";
             lobby.Players.AddRange(previous.Players);lobby.Devices.AddRange(previous.Devices);
             foreach(var pair in previous.Assignments)lobby.Assignments.Add(pair.Key,pair.Value);
             // Weekend preparation is a new boundary: complete any authenticated device return,

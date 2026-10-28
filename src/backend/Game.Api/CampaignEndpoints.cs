@@ -6,6 +6,9 @@ public static class CampaignEndpoints
 {
     public static void MapCampaignEndpoints(this WebApplication app)
     {
+        app.MapGet("/api/campaigns/{id}/development/teams/{teamId}",async(string id,string teamId,string deviceId,HttpRequest request,FirebaseIdentity auth,CampaignCoordinator campaigns)=>campaigns.DevelopmentTeam(id,await auth.Verify(LobbyEndpoints.Token(request)),deviceId,teamId));
+        app.MapPost("/api/campaigns/{id}/development/teams/{teamId}/draft",async(string id,string teamId,string deviceId,DevelopmentEdit input,HttpRequest request,FirebaseIdentity auth,CampaignCoordinator campaigns)=>campaigns.EditDevelopment(id,await auth.Verify(LobbyEndpoints.Token(request)),deviceId,teamId,input));
+        app.MapPost("/api/campaigns/{id}/development/teams/{teamId}/commit",async(string id,string teamId,string deviceId,DevelopmentCommit input,HttpRequest request,FirebaseIdentity auth,CampaignCoordinator campaigns)=>campaigns.CommitDevelopment(id,await auth.Verify(LobbyEndpoints.Token(request)),deviceId,teamId,input));
         app.MapGet("/api/campaigns/{id}/economy/teams/{teamId}",async(string id,string teamId,string deviceId,HttpRequest request,FirebaseIdentity auth,CampaignCoordinator campaigns)=>campaigns.EconomyTeam(id,await auth.Verify(LobbyEndpoints.Token(request)),deviceId,teamId));
         app.MapPost("/api/campaigns/{id}/construction/automatic",async(string id,ConstructionAutomaticRequest input,HttpRequest request,FirebaseIdentity auth,CampaignCoordinator campaigns)=>campaigns.BuildUnclaimedConstruction(id,await auth.Verify(LobbyEndpoints.Token(request)),input));
         app.MapPost("/api/campaigns/{id}/construction/teams/{teamId}/recommend",async(string id,string teamId,string deviceId,ConstructionRecommendationRequest input,HttpRequest request,FirebaseIdentity auth,CampaignCoordinator campaigns)=>campaigns.RecommendConstruction(id,await auth.Verify(LobbyEndpoints.Token(request)),deviceId,teamId,input));
