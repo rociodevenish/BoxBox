@@ -4,6 +4,13 @@ using Xunit;
 namespace Game.Simulation.Tests;
 public sealed class PermanentDevelopmentTests
 {
+ [Fact] public void Accepted_commit_identity_cannot_edit_another_teams_free_draft()
+ {
+  var staff=new DevelopmentPersonnel("preset",0,0,0,0);var op=PermanentDevelopment.Open("op","from","next",["a","b"]);
+  var id=Guid.NewGuid().ToString();var paid=PermanentDevelopment.Commit(op,[new("start","a",100,"starting-credit")],"a",new(id,"op",1,0,null),staff);
+  Assert.Throws<InvalidOperationException>(()=>PermanentDevelopment.Edit(paid.State,"b",new(id,"op",paid.State.Revision,"Save",null,null),staff));
+  Assert.Single(paid.State.Decisions);Assert.Equal(0,paid.State.Drafts["b"].Revision);Assert.Single(paid.Ledger);
+ }
  [Fact] public void Draft_is_free_and_one_committed_investment_debits_once_with_frozen_quote()
  {
   var state=PermanentDevelopment.Open("op-1","event-1","event-2",["a"]);

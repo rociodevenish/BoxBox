@@ -45,6 +45,7 @@ public static partial class PermanentDevelopment
   if(command is null)throw new ArgumentException("Supply a development draft command.");
   var fingerprint=JsonSerializer.Serialize(new{team,command});
   var key=Key(command.CommandId);
+  if(state.Decisions.Any(d=>d.CommandId==key))throw new InvalidOperationException("Command identity already belongs to an accepted decision.");
   if(state.Receipts.FirstOrDefault(r=>r.CommandId==key) is {} prior)return prior.Fingerprint==fingerprint?state:throw new InvalidOperationException("Command identity already accepted with different inputs.");
   Check(state,team,command.OpportunityId,command.Revision);
   var quote=command.ActionKind switch{"Save" when command.OptionId is null&&command.QuoteId is null=>null,"PermanentRefinement"=>Quote(command.OptionId??"",personnel,controls),_=>throw new ArgumentException("Choose Save or PermanentRefinement explicitly.")};
