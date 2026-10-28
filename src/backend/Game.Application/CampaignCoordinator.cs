@@ -28,7 +28,7 @@ public sealed partial class CampaignCoordinator(SessionCoordinator weekends,ICam
             if(saved is null)
             {
                 var content=weekends.FreezeCampaignContent(id,input.Laps);
-                var record=new CampaignRecord(Schema,id,identity.Uid,fingerprint,input,1,input.PersonnelMode=="acquisition"?"acquiring":"created",ContentVersion,CalendarVersion,content.Calendar,content.Teams,content.Presets,content.Conditions,Points:input.Points??ChampionshipScoring.Default,Versions:CampaignSaveIntegrity.Versions(content.Conditions),Acquisition:input.PersonnelMode=="acquisition"?PersonnelAcquisition.Open(PersonnelCatalog.Open(),content.Teams.Select(t=>t.TeamId).ToArray(),input.Seed):null,ConstructionRequired:input.PersonnelMode=="acquisition");
+                var record=new CampaignRecord(Schema,id,identity.Uid,fingerprint,input,1,input.PersonnelMode=="acquisition"?"acquiring":"created",ContentVersion,CalendarVersion,content.Calendar,content.Teams,content.Presets,content.Conditions,Points:input.Points??ChampionshipScoring.Default,Versions:CampaignSaveIntegrity.Versions(content.Conditions),Acquisition:input.PersonnelMode=="acquisition"?PersonnelAcquisition.Open(PersonnelCatalog.Open(),content.Teams.Select(t=>t.TeamId).ToArray(),input.Seed):null,ConstructionRequired:input.PersonnelMode=="acquisition",Income:SeasonIncome.Default,PresetLedger:input.PersonnelMode=="preset"?content.Teams.Select(t=>new CreditEntry("starting-credit",t.TeamId,100,"starting-credit",Version:"preset-starting-credit-v1")).ToArray():null);
                 try{Write(id,null,record);}catch(SessionFault fault) when(fault.Failure==SessionFailure.Conflict){ }
                 saved=Require(id);
             }

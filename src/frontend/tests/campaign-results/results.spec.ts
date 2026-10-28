@@ -32,7 +32,18 @@ test('finished first weekend has durable explained standings and report',async({
   if(i===29)throw new Error('Real weekend did not finish');
  }
  await page.goto(campaign);await expect(page.getByRole('heading',{name:'Championship standings',exact:true})).toBeVisible();await expect(page.getByRole('heading',{name:'Event report',exact:true})).toBeVisible();await expect(page.getByText('Lando Norris',{exact:false}).first()).toBeVisible();
+ await page.getByRole('button',{name:'View credit history for McLaren',exact:true}).click();
+ const history=page.getByRole('region',{name:'Your private credit history',exact:true});
+ await expect(history.getByText('106 credits available',{exact:true})).toBeVisible();
+ await expect(history.getByText('Starting credit · +100 credits · Balance 100',{exact:true})).toBeVisible();
+ await expect(history.getByText('Event income · Autodromo Nazionale Monza · +6 credits · Balance 106',{exact:true})).toBeVisible();
+ expect(await page.evaluate(()=>document.documentElement.scrollWidth)).toBeLessThanOrEqual(360);
+ await page.screenshot({path:captures+'/s14-01-income-history-360.png',fullPage:true});
+ await history.screenshot({path:captures+'/s14-01-income-detail-360.png'});
+ await page.getByRole('button',{name:'Hide private credit history',exact:true}).click();await expect(history).toHaveCount(0);
  expect(await page.evaluate(()=>document.documentElement.scrollWidth)).toBeLessThanOrEqual(360);await page.screenshot({path:captures+'/s11-02-standings-360.png',fullPage:true});
  await page.reload();await expect(page.getByRole('heading',{name:'Championship standings',exact:true})).toBeVisible();
+ await page.getByRole('button',{name:'View credit history for McLaren',exact:true}).click();await expect(page.getByText('106 credits available',{exact:true})).toBeVisible();
+ await page.getByRole('button',{name:'Hide private credit history',exact:true}).click();
  await page.setViewportSize({width:1920,height:1080});await page.screenshot({path:captures+'/s11-02-standings-1920.png',fullPage:true});expect(await page.evaluate(()=>document.documentElement.scrollWidth)).toBeLessThanOrEqual(1920);
 });

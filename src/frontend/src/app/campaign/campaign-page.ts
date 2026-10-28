@@ -4,6 +4,8 @@ import {Component,signal} from '@angular/core';
 import type {User} from 'firebase/auth';
 import {apiUrl} from '../api-url';
 interface Event {eventId:string;order:number;trackId:string;trackName:string;trackSlug:string}
+interface CreditEntry {commandId:string;credits:number;reason:string;personId:string|null;version:string|null;eventId:string|null}
+interface EconomyTeam {personnelNames:Record<string,string>;teamId:string;balance:number;configuration:{version:string;creditsPerEvent:number};ledger:CreditEntry[]}
 interface Team {teamId:string;constructorName:string;drivers:{personId:string;name:string;slug:string}[]}
 interface Standing {id:string;position:number;points:number}
 interface Result {eventId:string;result:{hash:string;classification:{personId:string;position:number;status:string;laps:number;eligible:boolean}[]};awards:{personId:string;points:number}[]}
@@ -16,6 +18,11 @@ interface ConstructionTeam {recommendation?:ConstructionRecommendation|null;conf
 interface Joined {campaign:Campaign;weekend:{lobby:{sessionId:string};membership:{deviceId:string}}}
 @Component({selector:'app-campaign-page',templateUrl:'./campaign-page.html',styleUrl:'./campaign-page.css'})
 export class CampaignPage {
+ readonly economy=signal<EconomyTeam|null>(null);private economyGeneration=0;
+ async openEconomy(teamId:string){this.closePersonnel();this.closeConstruction();const generation=++this.economyGeneration;this.economy.set(null);await this.run(async()=>{const own=await this.request<EconomyTeam>('/api/campaigns/'+this.campaign()!.campaignId+'/economy/teams/'+teamId+'?deviceId='+encodeURIComponent(this.device));if(generation===this.economyGeneration)this.economy.set(own);});}
+ closeEconomy(){this.economyGeneration++;this.economy.set(null);}
+ creditLabel(entry:CreditEntry){return entry.reason==='starting-credit'?'Starting credit':entry.reason==='base-car-construction'?'Base Car construction':entry.reason==='event-income'?'Event income · '+this.reportName(entry.eventId!):entry.reason==='personnel-hire'?'Personnel hire · '+(this.economy()?.personnelNames[entry.personId!]??entry.personId):entry.reason;}
+ creditBalance(index:number){return this.economy()!.ledger.slice(0,index+1).reduce((balance,entry)=>balance+entry.credits,0);}
  driverName(id:string){return this.campaign()?.teams.flatMap(t=>t.drivers).find(d=>d.personId===id)?.name??id;}
  teamName(id:string){return this.campaign()?.teams.find(t=>t.teamId===id)?.constructorName??id;}
  awarded(result:Result,id:string){return result.awards.find(a=>a.personId===id)?.points??0;}
@@ -51,7 +58,7 @@ export class CampaignPage {
   history.replaceState(null,'','/campaigns/'+joined.campaign.campaignId);this.campaign.set(joined.campaign);await this.loadControllers();
  });}
  async claim(teamId:string){await this.run(async()=>{await this.request('/api/lobbies/'+this.campaign()!.weekendId+'/claims',{teamId,deviceId:this.device});await this.loadControllers();});}
- private async loadControllers(){const season=this.campaign();if(!season?.acquisition)return;const teams=await this.request<{teamId:string}[]>('/api/lobbies/'+season.weekendId+'/controllers?deviceId='+encodeURIComponent(this.device));this.controlledTeams.set(teams.map(t=>t.teamId));}
+ private async loadControllers(){const season=this.campaign();if(!season)return;const teams=await this.request<{teamId:string}[]>('/api/lobbies/'+season.weekendId+'/controllers?deviceId='+encodeURIComponent(this.device));this.controlledTeams.set(teams.map(t=>t.teamId));}
  async openPersonnel(teamId:string){const generation=++this.personnelGeneration;this.personnel.set(null);await this.run(async()=>{const own=await this.request<AcquisitionTeam>('/api/campaigns/'+this.campaign()!.campaignId+'/acquisition/teams/'+teamId+'?deviceId='+encodeURIComponent(this.device));if(generation===this.personnelGeneration)this.personnel.set(own);});}
  closePersonnel(){this.personnelGeneration++;this.personnel.set(null);}
  attributes(card:PersonnelCard){return Object.entries(card.driver?.ratings??card.attributes??{});}
@@ -79,7 +86,7 @@ export class CampaignPage {
  pendingAutomaticConstruction(){return !!this.campaign()&&localStorage.getItem('campaign-car-automatic:'+this.campaign()!.campaignId)!==null;}
  async automaticConstruction(){if(this.busy())return;this.closeConstruction();await this.run(async()=>{const key='campaign-car-automatic:'+this.campaign()!.campaignId;const commandId=localStorage.getItem(key)??crypto.randomUUID();localStorage.setItem(key,commandId);try{this.campaign.set(await this.request<Campaign>('/api/campaigns/'+this.campaign()!.campaignId+'/construction/automatic',{commandId}));localStorage.removeItem(key);}catch(error){const status=(error as {status?:number}).status;if(status&&status>=400&&status<500)localStorage.removeItem(key);throw error;}});}
  async prepare(){await this.change('/prepare',{});}
- async refresh(){this.closePersonnel();this.closeConstruction();await this.run(async()=>{this.campaign.set(await this.request<Campaign>('/api/campaigns/'+this.campaign()!.campaignId+'?deviceId='+encodeURIComponent(this.device)));await this.loadControllers();});}
+ async refresh(){this.closeEconomy();this.closePersonnel();this.closeConstruction();await this.run(async()=>{this.campaign.set(await this.request<Campaign>('/api/campaigns/'+this.campaign()!.campaignId+'?deviceId='+encodeURIComponent(this.device)));await this.loadControllers();});}
  async begin(){await this.change('/start',{commandId:this.start});}
  private remember(id:string,joined:Joined['weekend'],current=true){if(current){this.device=joined.membership.deviceId;localStorage.setItem('campaign-weekend:'+id,joined.lobby.sessionId);}localStorage.setItem('household-device:'+this.user()!.uid+':'+joined.lobby.sessionId,joined.membership.deviceId);localStorage.setItem('weekend-campaign:'+joined.lobby.sessionId,id);}
  async prepareNext(){await this.change('/next/prepare',{});}

@@ -6,6 +6,7 @@ public static class CampaignEndpoints
 {
     public static void MapCampaignEndpoints(this WebApplication app)
     {
+        app.MapGet("/api/campaigns/{id}/economy/teams/{teamId}",async(string id,string teamId,string deviceId,HttpRequest request,FirebaseIdentity auth,CampaignCoordinator campaigns)=>campaigns.EconomyTeam(id,await auth.Verify(LobbyEndpoints.Token(request)),deviceId,teamId));
         app.MapPost("/api/campaigns/{id}/construction/automatic",async(string id,ConstructionAutomaticRequest input,HttpRequest request,FirebaseIdentity auth,CampaignCoordinator campaigns)=>campaigns.BuildUnclaimedConstruction(id,await auth.Verify(LobbyEndpoints.Token(request)),input));
         app.MapPost("/api/campaigns/{id}/construction/teams/{teamId}/recommend",async(string id,string teamId,string deviceId,ConstructionRecommendationRequest input,HttpRequest request,FirebaseIdentity auth,CampaignCoordinator campaigns)=>campaigns.RecommendConstruction(id,await auth.Verify(LobbyEndpoints.Token(request)),deviceId,teamId,input));
         app.MapGet("/api/campaigns/{id}/construction/teams/{teamId}",async(string id,string teamId,string deviceId,HttpRequest request,FirebaseIdentity auth,CampaignCoordinator campaigns)=>campaigns.ConstructionTeam(id,await auth.Verify(LobbyEndpoints.Token(request)),deviceId,teamId));
