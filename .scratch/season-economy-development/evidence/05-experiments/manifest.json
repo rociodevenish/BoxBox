@@ -1,0 +1,36 @@
+{
+  "schema": "short-season-economy-evidence-v1",
+  "policyVersion": "legal-offer-paired-refinements-v1",
+  "seeds": [
+    101,
+    102,
+    103,
+    104,
+    105,
+    106,
+    107,
+    108,
+    109,
+    110,
+    111,
+    112,
+    113,
+    114,
+    115,
+    116,
+    117,
+    118,
+    119,
+    120,
+    121,
+    122,
+    123,
+    124
+  ],
+  "calendar": [
+    "track-monza",
+    "track-monaco"
+  ],
+  "scenarios": 432,
+  "sha256": "1262D9CB7E479709667EF387647B5CEA7E9F542EA79A5A449F3F7CE661EA68E4"
+}

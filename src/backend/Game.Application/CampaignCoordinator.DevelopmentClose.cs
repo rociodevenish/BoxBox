@@ -22,6 +22,7 @@ public sealed partial class CampaignCoordinator
     EnsureNext(record,identity);return Project(record);
    }
    var opportunity=CurrentDevelopment(record)??throw new SessionFault(SessionFailure.Conflict,"No next-event development is open.");
+   if((record.DevelopmentAutomaticCommands??[]).Any(c=>c.CommandId==key.ToString("D"))||record.Development!.Opportunities.Any(o=>o.Receipts.Any(r=>r.CommandId==key.ToString("D"))||o.Decisions.Any(d=>d.CommandId==key.ToString("D"))))throw new SessionFault(SessionFailure.Conflict,"Command identity already belongs to another operation.");
    if(opportunity.Closed||opportunity.Id!=input.OpportunityId||opportunity.Revision!=input.Revision)throw new SessionFault(SessionFailure.Conflict,"Development changed. Refresh before closing.");
    var missing=record.Teams.Where(t=>!opportunity.Decisions.Any(d=>d.TeamId==t.TeamId)).ToArray();
    if(missing.Length>0&&!input.ApplyMissingSave)throw new SessionFault(SessionFailure.Conflict,"Wait for every team or explicitly apply the disclosed missing-team Save policy.");

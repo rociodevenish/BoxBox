@@ -43,6 +43,7 @@ public sealed partial class CampaignCoordinator
   lock(gate)
   {
    var saved=Require(id);var record=saved.Record;var opportunity=AuthoriseDevelopment(record,identity,deviceId,teamId);
+   if(command is not null&&ReservedDevelopmentCommand(record,command.CommandId))throw new SessionFault(SessionFailure.Conflict,"Command identity already belongs to another operation.");
    if(command is null||!opportunity.Receipts.Any(r=>r.CommandId==command.CommandId)&&command.AssignmentRevision!=weekends.DevelopmentAssignmentRevision(record.Calendar[(record.PreparationEventIndex??record.EventIndex)].SessionId,identity,deviceId,teamId))throw new SessionFault(SessionFailure.Conflict,"Controller changed. Refresh development.");
    DevelopmentOpportunity next;
    try{next=PermanentDevelopment.Edit(opportunity,teamId,command,DevelopmentStaff(record,teamId,command.OptionId),developmentControls);}
@@ -57,6 +58,7 @@ public sealed partial class CampaignCoordinator
   lock(gate)
   {
    var saved=Require(id);var record=saved.Record;var opportunity=AuthoriseDevelopment(record,identity,deviceId,teamId);
+   if(command is not null&&ReservedDevelopmentCommand(record,command.CommandId))throw new SessionFault(SessionFailure.Conflict,"Command identity already belongs to another operation.");
    if(command is null||!opportunity.Decisions.Any(r=>r.CommandId==command.CommandId)&&command.AssignmentRevision!=weekends.DevelopmentAssignmentRevision(record.Calendar[(record.PreparationEventIndex??record.EventIndex)].SessionId,identity,deviceId,teamId))throw new SessionFault(SessionFailure.Conflict,"Controller changed. Refresh development.");
    DevelopmentCommitment next;
    try{next=PermanentDevelopment.Commit(opportunity,CampaignEconomy.Ledger(record),teamId,command,DevelopmentCommitStaff(record,teamId,opportunity.Drafts[teamId]));}
@@ -74,6 +76,7 @@ public sealed partial class CampaignCoordinator
  private static DevelopmentPersonnel DevelopmentCommitStaff(CampaignRecord record,string teamId,DevelopmentDraft draft)=>DevelopmentStaff(record,teamId,draft.Quote?.Personnel.RosterVersion.StartsWith(DevelopmentPersonnelMapping.Version+"/",StringComparison.Ordinal)==true?draft.OptionId:null);
  private DevelopmentQuote[] DevelopmentQuotes(CampaignRecord record,string teamId)=>PermanentDevelopment.Options.Select(o=>PermanentDevelopment.Quote(o.Id,DevelopmentStaff(record,teamId,o.Id),developmentControls)).ToArray();
  private static CampaignRecord WithDevelopment(CampaignRecord record,DevelopmentOpportunity opportunity)=>record with{Revision=record.Revision+1,Development=record.Development! with{Opportunities=record.Development.Opportunities.Select(o=>o.Id==opportunity.Id?opportunity:o).ToImmutableArray()}};
+ private static bool ReservedDevelopmentCommand(CampaignRecord record,string id)=>Guid.TryParse(id,out var key)&&((record.DevelopmentAutomaticCommands??[]).Any(c=>c.CommandId==key.ToString("D"))||(record.DevelopmentCloses??[]).Any(c=>c.CommandId==key.ToString("D")));
 }
 public sealed partial class SessionCoordinator
 {

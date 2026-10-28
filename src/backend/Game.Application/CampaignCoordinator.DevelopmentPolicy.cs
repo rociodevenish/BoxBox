@@ -48,7 +48,7 @@ public sealed partial class CampaignCoordinator
    if(prior is not null){if(prior.OpportunityId!=input.OpportunityId||prior.Revision!=input.Revision)throw new SessionFault(SessionFailure.Conflict,"Automatic command belongs to different inputs.");return Project(record);}
    var opportunity=CurrentDevelopment(record)??throw new SessionFault(SessionFailure.Conflict,"Open development first.");
    if(opportunity.Closed||opportunity.Id!=input.OpportunityId||opportunity.Revision!=input.Revision)throw new SessionFault(SessionFailure.Conflict,"Development changed. Refresh before automatic choices.");
-   if((record.DevelopmentChoices??[]).Any(c=>c.DraftCommandId==commandId||c.CommitCommandId==commandId)||opportunity.Receipts.Any(r=>r.CommandId==commandId)||opportunity.Decisions.Any(d=>d.CommandId==commandId))throw new SessionFault(SessionFailure.Conflict,"Command identity already belongs to another operation.");
+   if((record.DevelopmentCloses??[]).Any(c=>c.CommandId==commandId)||(record.DevelopmentChoices??[]).Any(c=>c.DraftCommandId==commandId||c.CommitCommandId==commandId)||opportunity.Receipts.Any(r=>r.CommandId==commandId)||opportunity.Decisions.Any(d=>d.CommandId==commandId))throw new SessionFault(SessionFailure.Conflict,"Command identity already belongs to another operation.");
    var completed=new List<string>();var ledger=CampaignEconomy.Ledger(record);
    foreach(var team in record.Teams.OrderBy(t=>t.TeamId,StringComparer.Ordinal))
    {

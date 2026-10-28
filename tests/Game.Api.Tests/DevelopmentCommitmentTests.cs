@@ -1,5 +1,6 @@
 using System.Net;
 using System.Net.Http.Json;
+using System.Text.Json;
 using Game.Application;
 using Game.Domain;
 using Microsoft.Extensions.DependencyInjection;
@@ -57,6 +58,10 @@ public sealed class DevelopmentCommitmentTests
   Assert.Equal(90,accepted.Balance);Assert.NotNull(accepted.Commitment);Assert.Equal(quote.Id,accepted.Commitment.Quote!.Id);
   var again=await retry.PostAsJsonAsync(endpoint.Replace("?","/commit?"),command);again.EnsureSuccessStatusCode();Assert.Equal(90,(await again.Content.ReadFromJsonAsync<DevelopmentTeamSnapshot>())!.Balance);
   Assert.Equal(HttpStatusCode.Conflict,(await retry.PostAsJsonAsync(endpoint.Replace("?","/commit?"),command with{CommandId=Guid.NewGuid().ToString()})).StatusCode);
+  var beforeConflict=await retry.GetStringAsync($"/api/campaigns/{id}?deviceId={device}");
+  Assert.Equal(HttpStatusCode.Conflict,(await retry.PostAsJsonAsync($"/api/campaigns/{id}/development/automatic",new DevelopmentAutomaticInput(command.CommandId,accepted.OpportunityId,accepted.Revision))).StatusCode);
+  Assert.Equal(HttpStatusCode.Conflict,(await retry.PostAsJsonAsync($"/api/campaigns/{id}/development/close",new CloseDevelopmentInput(command.CommandId,accepted.OpportunityId,accepted.Revision,true))).StatusCode);
+  Assert.Equal(beforeConflict,await retry.GetStringAsync($"/api/campaigns/{id}?deviceId={device}"));
   var ledger=(await retry.GetFromJsonAsync<EconomyTeamSnapshot>($"/api/campaigns/{id}/economy/teams/team-01?deviceId={joined.Weekend.Membership.DeviceId}"))!;Assert.Single(ledger.Ledger,e=>e.Reason=="permanent-development");  var close=new CloseDevelopmentInput(Guid.NewGuid().ToString(),accepted.OpportunityId,accepted.Revision,true);
   store.Armed=true;store.CommitFirst=commitFirst;store.Target=handoff?second:null;
   Assert.Equal(HttpStatusCode.ServiceUnavailable,(await retry.PostAsJsonAsync($"/api/campaigns/{id}/development/close",close)).StatusCode);
@@ -69,5 +74,28 @@ public sealed class DevelopmentCommitmentTests
   Assert.Single(completed.Projects!);Assert.Equal(90,completed.Balance);
   var ready=await recoveredClient.GetAsync($"/api/lobbies/{second}/preparation/teams/team-01?deviceId={device}");ready.EnsureSuccessStatusCode();
   Assert.DoesNotContain("entropy",await closed.Content.ReadAsStringAsync(),StringComparison.OrdinalIgnoreCase);
+  if(!commitFirst&&!handoff)
+  {
+   (await recoveredClient.PostAsJsonAsync($"/api/campaigns/{id}/absent/prepare",new CampaignAbsentInput("team-01",true))).EnsureSuccessStatusCode();
+   (await recoveredClient.PostAsJsonAsync($"/api/campaigns/{id}/next/start",new CampaignStartInput(Guid.NewGuid().ToString()))).EnsureSuccessStatusCode();
+   var frozen=await recoveredClient.GetStringAsync(endpoint);
+   var qualifying=await recoveredClient.GetStringAsync($"/api/lobbies/{second}/qualifying");
+   await using var lateHost=LobbyTests.Server().WithWebHostBuilder(b=>b.ConfigureServices(s=>{s.Replace(ServiceDescriptor.Singleton<TimeProvider>(clock));s.Replace(ServiceDescriptor.Singleton<ISessionStore>(store));}));
+   using var late=lateHost.CreateClient();late.DefaultRequestHeaders.Authorization=new("Bearer",token);
+   (await late.PostAsJsonAsync($"/api/campaigns/{id}/development/close",close)).EnsureSuccessStatusCode();
+   Assert.Equal(frozen,await late.GetStringAsync(endpoint));
+   Assert.Equal(qualifying,await late.GetStringAsync($"/api/lobbies/{second}/qualifying"));
+   var resumed=lateHost.Services.GetRequiredService<SessionCoordinator>();
+   for(var n=0;n<80&&resumed.CommittedCampaignResult(second) is null;n++){clock.Advance();await resumed.SweepWakeups();}
+   for(var retryCount=0;retryCount<2;retryCount++)(await late.PostAsJsonAsync($"/api/campaigns/{id}/commit-result?deviceId={device}",new{})).EnsureSuccessStatusCode();
+   (await late.PostAsJsonAsync($"/api/campaigns/{id}/development/close",close)).EnsureSuccessStatusCode();
+   var final=(await late.GetFromJsonAsync<CampaignSnapshot>($"/api/campaigns/{id}?deviceId={device}"))!;
+   Assert.Equal("season-complete",final.Lifecycle);Assert.Equal(2,final.Results!.Count);Assert.Null(final.NextPreparation);
+   var finalLedger=(await late.GetFromJsonAsync<EconomyTeamSnapshot>($"/api/campaigns/{id}/economy/teams/team-01?deviceId={device}"))!;
+   Assert.Equal(96,finalLedger.Balance);Assert.Equal(2,finalLedger.Ledger.Count(e=>e.Reason=="event-income"));Assert.Single(finalLedger.Ledger,e=>e.Reason=="permanent-development");
+   var retained=(await late.GetFromJsonAsync<DevelopmentTeamSnapshot>(endpoint))!;
+   Assert.Equal(JsonSerializer.Serialize(completed.Projects),JsonSerializer.Serialize(retained.Projects));
+   Assert.Equal(JsonSerializer.Serialize(completed.NextCar),JsonSerializer.Serialize(retained.CurrentCar));
+  }
  }
 }
