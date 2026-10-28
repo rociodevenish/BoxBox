@@ -9,7 +9,7 @@ public record ConstructionCreditMapping(string Version,string SourceVersion,int 
 public record PersonnelPool(string Version,string PriceVersion,int StartingCredit,int MinimumCarReserve,ImmutableArray<PersonnelCard> People,ConstructionCreditMapping? ConstructionMapping=null);
 public record PersonnelOffer(string TeamId,string Slot,ImmutableArray<string> PersonIds);
 public record PersonnelAssignment(string TeamId,string Slot,string PersonId,string CommandId);
-public record CreditEntry(string CommandId,string TeamId,int Credits,string Reason,string? PersonId=null);
+public record CreditEntry(string CommandId,string TeamId,int Credits,string Reason,string? PersonId=null,string? Version=null,string? EventId=null);
 public record PersonnelHire(string CommandId,long Revision,string TeamId,string PersonId);
 public record PersonnelScout(string CommandId,long Revision,string TeamId);
 public record PersonnelDraw(int Number,int Cursor,string TeamId,string Slot,bool Scout,ImmutableArray<string> PersonIds);
@@ -188,7 +188,8 @@ public static class PersonnelAcquisition
    if(initial.Length!=1||initial[0].Credits!=state.Pool.StartingCredit||Balance(state,team)<CompletionReserve(state,team))throw new ArgumentException("Invalid starting credit, debit or affordable completion reserve.");
   }
   var cars=state.ConstructedCars??ImmutableDictionary<string,ConfirmedBaseCar>.Empty;
-  if(state.Ledger.Length!=state.TeamIds.Length+state.Hires.Length+cars.Count||state.Ledger.Any(e=>!state.TeamIds.Contains(e.TeamId)))throw new ArgumentException("Unrecognised ledger entries.");
+  SeasonIncome.ValidateEntries(state.Ledger,state.TeamIds);
+  if(state.Ledger.Length!=state.TeamIds.Length+state.Hires.Length+cars.Count+state.Ledger.Count(e=>e.Reason=="event-income")||state.Ledger.Any(e=>!state.TeamIds.Contains(e.TeamId)))throw new ArgumentException("Unrecognised ledger entries.");
   foreach(var (team,car) in cars)
   {
    CarConstruction.ValidateConfirmed(car);

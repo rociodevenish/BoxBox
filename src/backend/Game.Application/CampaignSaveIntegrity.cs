@@ -31,7 +31,7 @@ public static class CampaignSaveIntegrity
    {
     if(record.Construction is not {} state||record.Acquisition is not {} personnel||choice.Source is not("assisted" or "unclaimed-ai")||!state.Drafts.TryGetValue(choice.TeamId,out var draft)||choice.Revision<1||choice.Revision>=draft.Revision||choice.Recommendation.Version!=ConstructionDecisionPolicy.Version||JsonSerializer.Serialize(choice.Observation.Catalogue)!=JsonSerializer.Serialize(state.Catalogue)||JsonSerializer.Serialize(ConstructionDecisionPolicy.Evaluate(choice.Observation))!=JsonSerializer.Serialize(choice.Recommendation))throw new ArgumentException();
     var ownDrivers=record.FrozenPresets[record.Calendar[0].EventId].Single(p=>p.Cars[0].TeamId==choice.TeamId).Cars.Select(c=>c.Driver).ToArray();
-    if(JsonSerializer.Serialize(ownDrivers)!=JsonSerializer.Serialize(choice.Observation.Drivers)||choice.Observation.Balance!=PersonnelAcquisition.Balance(personnel,choice.TeamId)+(state.Confirmed?.GetValueOrDefault(choice.TeamId)?.Cost??0)||!draft.Commands.Any(c=>c.CommandId==choice.CommandId&&c.Fingerprint==$"{choice.Revision}/{state.Catalogue.Version}/{string.Join('/',choice.Recommendation.OptionIds)}"))throw new ArgumentException();
+    if(JsonSerializer.Serialize(ownDrivers)!=JsonSerializer.Serialize(choice.Observation.Drivers)||choice.Observation.Balance!=personnel.Ledger.Where(e=>e.TeamId==choice.TeamId&&e.Reason is "starting-credit" or "personnel-hire" or "base-car-construction").Sum(e=>e.Credits)+(state.Confirmed?.GetValueOrDefault(choice.TeamId)?.Cost??0)||!draft.Commands.Any(c=>c.CommandId==choice.CommandId&&c.Fingerprint==$"{choice.Revision}/{state.Catalogue.Version}/{string.Join('/',choice.Recommendation.OptionIds)}"))throw new ArgumentException();
     if(choice.Source=="unclaimed-ai"&&(choice.Revision!=1||state.Confirmed?.GetValueOrDefault(choice.TeamId) is not {} automatic||!automatic.OptionIds.SequenceEqual(choice.Recommendation.OptionIds)))throw new ArgumentException();
    }
    var automaticCommands=record.ConstructionAutomaticCommands??[];
@@ -75,7 +75,8 @@ public static class CampaignSaveIntegrity
    if(contributions.Length>record.EventIndex+1||contributions.Where((c,i)=>c.EventId!=record.Calendar[i].EventId).Any()||record.PreparationEventIndex is {} next&&(next!=record.EventIndex+1||next>=record.Calendar.Length||contributions.Length!=record.EventIndex+1))throw new ArgumentException();
    if(record.Lifecycle=="season-complete"&&(contributions.Length!=record.Calendar.Length||record.EventIndex!=record.Calendar.Length-1||record.PreparationEventIndex is not null))throw new ArgumentException();
    CampaignResultIntegrity.Validate(record);
+   CampaignEconomy.Validate(record);
   }
-  catch(Exception error) when(error is ArgumentException or InvalidOperationException or NullReferenceException or KeyNotFoundException or IndexOutOfRangeException or JsonException){throw Incompatible();}
+  catch(Exception error) when(error is ArgumentException or InvalidOperationException or NullReferenceException or KeyNotFoundException or IndexOutOfRangeException or JsonException or OverflowException){throw Incompatible();}
  }
 }
