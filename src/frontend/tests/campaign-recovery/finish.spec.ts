@@ -37,6 +37,9 @@ test('returning host finishes two events and preserves final champions and histo
  await page.reload();await expect(page.getByRole('heading',{name:'Championship standings',exact:true})).toBeVisible();
  await page.getByRole('link',{name:'Review Autodromo Nazionale Monza report',exact:true}).click();await expect(page.getByText('Championship 0 →',{exact:false}).first()).toBeVisible();
  await page.getByRole('button',{name:'Open next-event preparation',exact:true}).click();await expect(page.getByRole('heading',{name:'Next event · Circuit de Monaco',exact:true})).toBeVisible();
+ await page.getByRole('button',{name:'Open private development for McLaren',exact:true}).click();
+ await page.getByRole('button',{name:'Commit Save · 0 credits',exact:true}).click();
+ await page.getByRole('button',{name:'Host: close development · Save for missing teams',exact:true}).click();
  await expect(page.getByRole('button',{name:'Start next weekend',exact:true})).toBeDisabled();
  await page.getByRole('button',{name:'Return to my next-event preparation',exact:true}).click();await page.getByRole('link',{name:'Team setup for McLaren',exact:true}).click();
  await expect(page.getByRole('heading',{name:'Circuit de Monaco',exact:true})).toBeVisible();await page.getByLabel('Aero: Downforce',{exact:true}).check();await page.getByRole('button',{name:'Save provisional setup',exact:true}).click();
