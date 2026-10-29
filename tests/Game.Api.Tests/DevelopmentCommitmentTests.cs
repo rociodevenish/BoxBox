@@ -1,5 +1,6 @@
 using System.Net;
 using System.Net.Http.Json;
+using Microsoft.AspNetCore.Hosting;
 using System.Text.Json;
 using Game.Application;
 using Game.Domain;
@@ -25,7 +26,7 @@ public sealed class DevelopmentCommitmentTests
  {
   var token=await LobbyTests.Identity(false);var clock=new Clock();
   var store=new InterruptedStore(new CampaignTestSessionScope(new FirestoreSessionStore("demo-f1game",Environment.GetEnvironmentVariable("F1_RECOVERY_HOST")??"127.0.0.1:19600")));
-  await using var server=LobbyTests.Server().WithWebHostBuilder(b=>b.ConfigureServices(s=>{s.Replace(ServiceDescriptor.Singleton<TimeProvider>(clock));s.Replace(ServiceDescriptor.Singleton<ISessionStore>(store));}));
+  await using var server=LobbyTests.Server().WithWebHostBuilder(b=>b.UseSetting("Wakeups:Mode","manual").ConfigureServices(s=>{s.Replace(ServiceDescriptor.Singleton<TimeProvider>(clock));s.Replace(ServiceDescriptor.Singleton<ISessionStore>(store));}));
   using var client=server.CreateClient();client.DefaultRequestHeaders.Authorization=new("Bearer",token);
   var created=await client.PostAsJsonAsync("/api/campaigns",new CreateCampaignInput(Guid.NewGuid().ToString(),"Host"));created.EnsureSuccessStatusCode();var joined=(await created.Content.ReadFromJsonAsync<CampaignJoined>())!;
   var id=joined.Campaign.CampaignId;var first=joined.Campaign.WeekendId;var device=joined.Weekend.Membership.DeviceId;
@@ -52,7 +53,7 @@ public sealed class DevelopmentCommitmentTests
   Assert.Equal(HttpStatusCode.Conflict,(await client.PostAsJsonAsync(endpoint.Replace("?","/commit?"),command with{AssignmentRevision=command.AssignmentRevision-1})).StatusCode);
   store.Armed=true;store.CommitFirst=commitFirst;
   Assert.Equal(HttpStatusCode.ServiceUnavailable,(await client.PostAsJsonAsync(endpoint.Replace("?","/commit?"),command)).StatusCode);
-  await using var restarted=LobbyTests.Server().WithWebHostBuilder(b=>b.ConfigureServices(s=>{s.Replace(ServiceDescriptor.Singleton<TimeProvider>(clock));s.Replace(ServiceDescriptor.Singleton<ISessionStore>(store));}));
+  await using var restarted=LobbyTests.Server().WithWebHostBuilder(b=>b.UseSetting("Wakeups:Mode","manual").ConfigureServices(s=>{s.Replace(ServiceDescriptor.Singleton<TimeProvider>(clock));s.Replace(ServiceDescriptor.Singleton<ISessionStore>(store));}));
   using var retry=restarted.CreateClient();retry.DefaultRequestHeaders.Authorization=new("Bearer",token);
   var committed=await retry.PostAsJsonAsync(endpoint.Replace("?","/commit?"),command);committed.EnsureSuccessStatusCode();var accepted=(await committed.Content.ReadFromJsonAsync<DevelopmentTeamSnapshot>())!;
   Assert.Equal(90,accepted.Balance);Assert.NotNull(accepted.Commitment);Assert.Equal(quote.Id,accepted.Commitment.Quote!.Id);
@@ -65,7 +66,7 @@ public sealed class DevelopmentCommitmentTests
   var ledger=(await retry.GetFromJsonAsync<EconomyTeamSnapshot>($"/api/campaigns/{id}/economy/teams/team-01?deviceId={joined.Weekend.Membership.DeviceId}"))!;Assert.Single(ledger.Ledger,e=>e.Reason=="permanent-development");  var close=new CloseDevelopmentInput(Guid.NewGuid().ToString(),accepted.OpportunityId,accepted.Revision,true);
   store.Armed=true;store.CommitFirst=commitFirst;store.Target=handoff?second:null;
   Assert.Equal(HttpStatusCode.ServiceUnavailable,(await retry.PostAsJsonAsync($"/api/campaigns/{id}/development/close",close)).StatusCode);
-  await using var recovered=LobbyTests.Server().WithWebHostBuilder(b=>b.ConfigureServices(s=>{s.Replace(ServiceDescriptor.Singleton<TimeProvider>(clock));s.Replace(ServiceDescriptor.Singleton<ISessionStore>(store));}));
+  await using var recovered=LobbyTests.Server().WithWebHostBuilder(b=>b.UseSetting("Wakeups:Mode","manual").ConfigureServices(s=>{s.Replace(ServiceDescriptor.Singleton<TimeProvider>(clock));s.Replace(ServiceDescriptor.Singleton<ISessionStore>(store));}));
   using var recoveredClient=recovered.CreateClient();recoveredClient.DefaultRequestHeaders.Authorization=new("Bearer",token);
   var closed=await recoveredClient.PostAsJsonAsync($"/api/campaigns/{id}/development/close",close);closed.EnsureSuccessStatusCode();
   Assert.Equal("closed",(await closed.Content.ReadFromJsonAsync<CampaignSnapshot>())!.Development!.Status);
@@ -80,7 +81,7 @@ public sealed class DevelopmentCommitmentTests
    (await recoveredClient.PostAsJsonAsync($"/api/campaigns/{id}/next/start",new CampaignStartInput(Guid.NewGuid().ToString()))).EnsureSuccessStatusCode();
    var frozen=await recoveredClient.GetStringAsync(endpoint);
    var qualifying=await recoveredClient.GetStringAsync($"/api/lobbies/{second}/qualifying");
-   await using var lateHost=LobbyTests.Server().WithWebHostBuilder(b=>b.ConfigureServices(s=>{s.Replace(ServiceDescriptor.Singleton<TimeProvider>(clock));s.Replace(ServiceDescriptor.Singleton<ISessionStore>(store));}));
+   await using var lateHost=LobbyTests.Server().WithWebHostBuilder(b=>b.UseSetting("Wakeups:Mode","manual").ConfigureServices(s=>{s.Replace(ServiceDescriptor.Singleton<TimeProvider>(clock));s.Replace(ServiceDescriptor.Singleton<ISessionStore>(store));}));
    using var late=lateHost.CreateClient();late.DefaultRequestHeaders.Authorization=new("Bearer",token);
    (await late.PostAsJsonAsync($"/api/campaigns/{id}/development/close",close)).EnsureSuccessStatusCode();
    Assert.Equal(frozen,await late.GetStringAsync(endpoint));
