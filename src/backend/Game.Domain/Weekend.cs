@@ -14,7 +14,9 @@ public sealed record EngineerPreset(string Id, string Name, string Version, doub
 public sealed record WeekendCar(string EntryId, string TeamId, CarPreset Car, DriverPreset Driver, EngineerPreset? Engineer = null);
 public sealed record WeekendPreset(string Version, CircuitPreset Circuit, ImmutableArray<WeekendCar> Cars,
     EngineerPreset Engineer, string BaseCarId = "neutral-base-v1", string PackageId = "neutral-package-v1",
-    string SetupId = "neutral-setup-v1",[property:JsonIgnore(Condition=JsonIgnoreCondition.WhenWritingDefault)] ImmutableArray<string> DevelopmentProjects=default);
+    string SetupId = "neutral-setup-v1",[property:JsonIgnore(Condition=JsonIgnoreCondition.WhenWritingDefault)] ImmutableArray<string> DevelopmentProjects=default,
+    [property:JsonIgnore(Condition=JsonIgnoreCondition.WhenWritingDefault)] ImmutableArray<RacePackageVersion> PackageLibrary=default,
+    [property:JsonIgnore(Condition=JsonIgnoreCondition.WhenWritingNull)] RacePackageSelection? SelectedPackage=null);
 public sealed record EffectiveWeekendCar(WeekendCar Source, Driver RaceDriver);
 public sealed record EffectiveWeekend(string ModelVersion, WeekendPreset Source, RaceConfiguration Configuration,
     ImmutableArray<EffectiveWeekendCar> Cars, string Summary, WeekendSetup? Setup = null,

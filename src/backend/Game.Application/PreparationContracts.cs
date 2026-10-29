@@ -12,7 +12,8 @@ public record PreparationAutomaticRecord(string TeamId,string Source,IReadOnlyLi
 public record FrozenPreparationContext(string ContextId, string ModelVersion, IReadOnlyList<FrozenPreparedTeam> Teams);
 public record PreparationReadiness(string TeamId, bool FinalReady, bool Locked,string Source="human");
 public record PracticeSnapshot(string ModelVersion, WeekendSetup Setup, string CircuitFeedback,
-    IReadOnlyList<string> Compromises, IReadOnlyList<PracticeDriverFeedback> Drivers);
+    IReadOnlyList<string> Compromises, IReadOnlyList<PracticeDriverFeedback> Drivers,
+    RacePackageSelection? Package=null,string? PackageName=null);
 public record SetupCommand(string CommandId, long? Revision, long? AssignmentRevision, WeekendSetup? Setup);
 public record PreparationPublicSnapshot(string SessionId, long Revision, string Lifecycle, CircuitPreset Circuit,
     IReadOnlyList<string> TeamIds, IReadOnlyList<PreparationReadiness> Readiness,

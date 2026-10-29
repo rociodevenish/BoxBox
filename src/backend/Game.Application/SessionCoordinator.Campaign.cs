@@ -131,7 +131,7 @@ public sealed partial class SessionCoordinator
             var teams=ConstructorCatalogue.Select((team,i)=>
             {
                 var drivers=PreparationDrivers[i];var opened=WeekendPresetCatalog.Open(track,drivers.First,drivers.Second);
-                return opened with{Cars=opened.Cars.Select((car,slot)=>car with{TeamId=team.TeamId,EntryId=$"{team.TeamId}-car-{slot+1}"}).ToImmutableArray()};
+                return RacePackages.Migrate(opened) with{Cars=opened.Cars.Select((car,slot)=>car with{TeamId=team.TeamId,EntryId=$"{team.TeamId}-car-{slot+1}"}).ToImmutableArray()};
             }).ToArray();
             foreach(var preset in teams)_=WeekendPreparation.Prepare(preset,6,new());
             var source=new Lobby("","","",new("open-equal",laps,123,"Competitive","Campaign"));

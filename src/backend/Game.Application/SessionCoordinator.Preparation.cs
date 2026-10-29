@@ -63,7 +63,7 @@ public sealed partial class SessionCoordinator
                 {
                     var pair = PreparationDrivers[index];
                     var opened = frozen is null?WeekendPresetCatalog.Open(input.CircuitId, pair.First, pair.Second):frozen[index];
-                    var preset = opened with { Cars = opened.Cars.Select((car,i) => car with
+                    var preset = RacePackages.Migrate(opened) with { Cars = opened.Cars.Select((car,i) => car with
                         { TeamId=teamId, EntryId=$"{teamId}-car-{i+1}" }).ToImmutableArray() };
                     var setup = new WeekendSetup();
                     var effective=ApplyWeekendConditions(lobby,WeekendPreparation.Prepare(preset,lobby.Input.Laps!.Value,setup));
@@ -310,11 +310,13 @@ public sealed partial class SessionCoordinator
     }
 
     private static PreparationTeamSnapshot ProjectPreparationTeam(Lobby lobby,PreparedTeam team,string teamId,Assignment assignment)=>
-        new(lobby.Id,teamId,team.Revision,assignment.Revision,team.Lifecycle,team.Setup,team.Preset,
+        new(lobby.Id,teamId,team.Revision,assignment.Revision,team.Lifecycle,team.Setup,RacePackages.Migrate(team.Preset),
             team.Effective.Summary,team.Effective.SetupModelVersion,
             team.Practice is null ? null : new PracticeSnapshot(team.Practice.Result.Feedback.ModelVersion,
                 team.Practice.Result.Feedback.Setup,team.Practice.Result.Feedback.CircuitFeedback,
-                team.Practice.Result.Feedback.Compromises,team.Practice.Result.Feedback.Drivers),ProjectPreparationGuidance(lobby,team,assignment),team.Observed,team.Forecast);
+                team.Practice.Result.Feedback.Compromises,team.Practice.Result.Feedback.Drivers,
+                RacePackages.Migrate(team.Practice.Preset).SelectedPackage,
+                RacePackages.Selected(RacePackages.Migrate(team.Practice.Preset)).Name),ProjectPreparationGuidance(lobby,team,assignment),team.Observed,team.Forecast);
 
     // Explicit preset identity; constructor metadata and illustrative card stars never provide coefficients.
     private static readonly (string First,string Second)[] PreparationDrivers = [
