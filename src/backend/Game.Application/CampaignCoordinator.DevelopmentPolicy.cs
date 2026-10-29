@@ -31,7 +31,7 @@ public sealed partial class CampaignCoordinator
    if(input.AssignmentRevision!=assignment)throw new SessionFault(SessionFailure.Conflict,"Controller changed. Refresh development.");
    var observation=ObserveDevelopment(record,teamId);var plan=DevelopmentDecisionPolicy.Evaluate(observation);
    DevelopmentOpportunity next;
-   try{next=PermanentDevelopment.Edit(opportunity,teamId,new(commandId,input.OpportunityId,input.Revision,plan.ActionKind,plan.OptionId,plan.QuoteId,assignment),DevelopmentStaff(record,teamId,plan.OptionId),developmentControls);}
+   try{next=PermanentDevelopment.Edit(opportunity,teamId,new(commandId,input.OpportunityId,input.Revision,plan.ActionKind,plan.OptionId,plan.QuoteId,assignment),DevelopmentStaff(record,teamId,plan.OptionId),developmentControls,NewRisk);}
    catch(ArgumentException error){throw new SessionFault(SessionFailure.InvalidInput,error.Message);}
    catch(InvalidOperationException error){throw new SessionFault(SessionFailure.Conflict,error.Message);}
    if(ReferenceEquals(next,opportunity))throw new SessionFault(SessionFailure.Conflict,"Command identity already belongs to another operation.");
@@ -57,7 +57,7 @@ public sealed partial class CampaignCoordinator
     var observation=ObserveDevelopment(record,team.TeamId);var plan=DevelopmentDecisionPolicy.Evaluate(observation);var revision=opportunity.Revision;
     string Command(string purpose)=>new Guid(SHA256.HashData(Encoding.UTF8.GetBytes(commandId+"/"+team.TeamId+"/"+purpose))[..16]).ToString("D");
     var draft=Command("draft");var commit=Command("commit");
-    opportunity=PermanentDevelopment.Edit(opportunity,team.TeamId,new(draft,opportunity.Id,revision,plan.ActionKind,plan.OptionId,plan.QuoteId),DevelopmentStaff(record,team.TeamId,plan.OptionId),developmentControls);
+    opportunity=PermanentDevelopment.Edit(opportunity,team.TeamId,new(draft,opportunity.Id,revision,plan.ActionKind,plan.OptionId,plan.QuoteId),DevelopmentStaff(record,team.TeamId,plan.OptionId),developmentControls,NewRisk);
     var accepted=PermanentDevelopment.Commit(opportunity,ledger,team.TeamId,new(commit,opportunity.Id,opportunity.Revision,opportunity.Drafts[team.TeamId].Revision,plan.QuoteId),DevelopmentStaff(record,team.TeamId,plan.OptionId),"unclaimed-ai");
     opportunity=accepted.State;ledger=accepted.Ledger;
     record=record with{DevelopmentChoices=[..record.DevelopmentChoices??[],new(team.TeamId,opportunity.Id,"unclaimed-ai",revision,observation,plan,draft,commit)]};completed.Add(team.TeamId);

@@ -1,17 +1,24 @@
 using System.Collections.Immutable;
 using System.Security.Cryptography;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 namespace Game.Domain;
 
 public sealed record RacePackageTemplate(string Id,string Name,string Version,int BaseCost,
  ImmutableDictionary<string,double> Strengths,ImmutableDictionary<string,double> Compromises,string Applicability);
 public sealed record PackageDevelopmentQuote(string Id,string Version,RacePackageTemplate Template,int Cost,
- DevelopmentPersonnel Personnel,string OutcomeVersion,string Timing,string OutcomeRange);
+ DevelopmentPersonnel Personnel,string OutcomeVersion,string Timing,string OutcomeRange,
+ [property:JsonIgnore(Condition=JsonIgnoreCondition.WhenWritingNull)] DevelopmentRiskControls? Risk=null,
+ [property:JsonIgnore(Condition=JsonIgnoreCondition.WhenWritingNull)] DevelopmentRiskControls? Distribution=null,
+ [property:JsonIgnore(Condition=JsonIgnoreCondition.WhenWritingNull)] RacePackageVersion? SourcePackage=null,
+ [property:JsonIgnore(Condition=JsonIgnoreCondition.WhenWritingNull)] string? Refinement=null,
+ [property:JsonIgnore(Condition=JsonIgnoreCondition.WhenWritingNull)] int? TargetVersion=null,
+ [property:JsonIgnore(Condition=JsonIgnoreCondition.WhenWritingNull)] int? ProjectBaseCost=null);
 public sealed record PackageDevelopmentOutcome(string ProjectId,string TeamId,string Kind,string ResolvedEventId,
  string? CompletionEventId,PackageDevelopmentQuote Contract,RacePackageVersion? Package);
 
 /// <summary>Versioned package creation contracts share the existing opportunity and credits.</summary>
-public static class PackageDevelopment
+public static partial class PackageDevelopment
 {
  public const string Version="package-development-v1";
  public const string OutcomeVersion="package-normal-outcome-v1";
@@ -35,21 +42,29 @@ public static class PackageDevelopment
  }
  public static void ValidateQuote(PackageDevelopmentQuote quote)
  {
+  if(quote.Risk is not null){ValidateRichQuote(quote);return;}
+  if(quote.Distribution is not null||quote.SourcePackage is not null||quote.Refinement is not null||quote.TargetVersion is not null||quote.ProjectBaseCost is not null)throw new ArgumentException("Legacy normal package contracts cannot acquire new policy fields.");
   var expected=Quote(quote.Template.Id,quote.Personnel);
   if(quote.Id!=expected.Id||quote.Version!=Version||quote.OutcomeVersion!=OutcomeVersion||quote.Cost!=expected.Cost||quote.Timing!=expected.Timing||quote.OutcomeRange!=expected.OutcomeRange
    ||quote.Template.Version!=expected.Template.Version||quote.Template.Name!=expected.Template.Name||quote.Template.BaseCost!=expected.Template.BaseCost||quote.Template.Applicability!=expected.Template.Applicability
    ||!quote.Template.Strengths.OrderBy(p=>p.Key).SequenceEqual(expected.Template.Strengths.OrderBy(p=>p.Key))||!quote.Template.Compromises.OrderBy(p=>p.Key).SequenceEqual(expected.Template.Compromises.OrderBy(p=>p.Key)))throw new ArgumentException("Saved package quote differs from its versioned contract.");
  }
- internal static ImmutableArray<PackageDevelopmentOutcome> Resolve(DevelopmentState state,DevelopmentOpportunity opportunity)
+ internal static ImmutableArray<PackageDevelopmentOutcome> Resolve(DevelopmentState state,DevelopmentOpportunity opportunity,IReadOnlyList<string> calendar)
  {
-  if(!opportunity.Decisions.Any(d=>d.PackageQuote is not null))return state.PackageOutcomes;
+  if(!opportunity.Decisions.Any(d=>d.PackageQuote is not null)&&state.PackageOutcomes.IsDefaultOrEmpty)return state.PackageOutcomes;
   var outcomes=state.PackageOutcomes.IsDefault?ImmutableArray<PackageDevelopmentOutcome>.Empty:state.PackageOutcomes;
   foreach(var decision in opportunity.Decisions.Where(d=>d.PackageQuote is not null).OrderBy(d=>d.ProjectId,StringComparer.Ordinal))
   {
    var quote=decision.PackageQuote!;ValidateQuote(quote);
-   var package=new RacePackageVersion(decision.ProjectId+"/package",1,quote.Template.Name,"race-package-v1",quote.Template.Strengths,quote.Template.Compromises,[],quote.Template.Applicability,quote.Version+"/"+quote.Template.Version+"/"+decision.ProjectId,[]);
-   outcomes=outcomes.Add(new(decision.ProjectId,decision.TeamId,"normal",opportunity.TargetEventId,opportunity.TargetEventId,quote,package));
+   var kind=quote.Distribution?.Resolve(DevelopmentRiskControls.Draw(state.EntropyKey,opportunity.Id,decision.ProjectId,quote.OutcomeVersion,"class"))??"normal";
+   var index=calendar.ToList().IndexOf(opportunity.TargetEventId);
+   var due=kind=="delay"?(index+1<calendar.Count?calendar[index+1]:null):opportunity.TargetEventId;
+   var package=quote.Risk is null?new RacePackageVersion(decision.ProjectId+"/package",1,quote.Template.Name,"race-package-v1",quote.Template.Strengths,quote.Template.Compromises,[],quote.Template.Applicability,quote.Version+"/"+quote.Template.Version+"/"+decision.ProjectId,[]):Materialise(quote,decision.ProjectId,kind);
+   if(kind=="delay")package=package with{Completed=false};
+   outcomes=outcomes.Add(new(decision.ProjectId,decision.TeamId,kind,opportunity.TargetEventId,due,quote,package));
   }
+  // Saved delayed materialisation completes first, never resamples and never needs a new debit.
+  outcomes=outcomes.Select(o=>o.CompletionEventId==opportunity.TargetEventId&&o.Package is {Completed:false}?o with{Package=o.Package with{Completed=true}}:o).ToImmutableArray();
   return outcomes;
  }
 }

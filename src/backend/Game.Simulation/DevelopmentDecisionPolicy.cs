@@ -12,7 +12,7 @@ public static class DevelopmentDecisionPolicy
  {
   if(observation.Balance<0||observation.RemainingOpportunities<0||observation.Options.IsDefaultOrEmpty||observation.Options.Select(q=>q.Option.Id).Distinct().Count()!=observation.Options.Length)throw new ArgumentException("Observe the team's actual balance, remaining opportunities and distinct frozen quotes.");
   foreach(var quote in observation.Options)
-   if(PermanentDevelopment.Quote(quote.Option.Id,quote.Personnel,quote.Controls)!=quote||!observation.CircuitRelevance.TryGetValue(quote.Option.Id,out var demand)||!double.IsFinite(demand)||demand is <0 or >100||!observation.GainCapacity.TryGetValue(quote.Option.Id,out var capacity)||!double.IsFinite(capacity)||capacity is <0 or >6)throw new ArgumentException("Observe valid public circuit demands and bounded own gain capacity.");
+   if(PermanentDevelopment.Quote(quote.Option.Id,quote.Personnel,quote.Controls,quote.Risk)!=quote||!observation.CircuitRelevance.TryGetValue(quote.Option.Id,out var demand)||!double.IsFinite(demand)||demand is <0 or >100||!observation.GainCapacity.TryGetValue(quote.Option.Id,out var capacity)||!double.IsFinite(capacity)||capacity is <0 or >6)throw new ArgumentException("Observe valid public circuit demands and bounded own gain capacity.");
   var useful=observation.Options.Where(q=>observation.GainCapacity[q.Option.Id]>0).ToArray();
   var reserve=observation.RemainingOpportunities>0&&useful.Length>0?useful.Min(q=>q.Cost):0;
   var affordable=useful.Where(q=>q.Cost<=observation.Balance).ToArray();
@@ -22,4 +22,3 @@ public static class DevelopmentDecisionPolicy
   return new(Version,"PermanentRefinement",chosen.Option.Id,chosen.Id,chosen.Cost,observation.Balance-chosen.Cost,reserve,affordable.Length,$"Consider {chosen.Option.Name.ToLowerInvariant()} for {chosen.Cost} credits, retaining {observation.Balance-chosen.Cost}. It has the highest public next-circuit relevance among useful options {reserveReason}; equal relevance prefers lower cost, then stable option identity. Save keeps all {observation.Balance} credits instead. Outcomes and the quoted compromise remain uncertain; this is not a lap-time prediction.");
  }
 }
-
