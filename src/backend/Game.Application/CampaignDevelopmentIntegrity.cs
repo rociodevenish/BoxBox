@@ -66,14 +66,19 @@ public static class CampaignDevelopmentIntegrity
     var personnel=roster is null?new DevelopmentPersonnel("preset-development-neutral-v1",0,0,0,0):DevelopmentPersonnelMapping.Map(roster,record.Acquisition!.Pool.Version,option.Option.Id);
     if(personnel!=option.Personnel)throw new ArgumentException("Policy personnel must match the frozen own roster.");
    }
+   if(!choice.Observation.PackageOptions.IsDefault)ValidatePackageObservation(record,development,choice,targetIndex);
    var draft=opportunity.Receipts.Single(r=>r.CommandId==choice.DraftCommandId);
    using var command=JsonDocument.Parse(draft.Fingerprint);var edit=command.RootElement.GetProperty("command");
    if(command.RootElement.GetProperty("team").GetString()!=choice.TeamId||edit.GetProperty("OpportunityId").GetString()!=choice.OpportunityId||edit.GetProperty("Revision").GetInt64()!=choice.Revision||edit.GetProperty("ActionKind").GetString()!=choice.Recommendation.ActionKind||edit.GetProperty("OptionId").GetString()!=choice.Recommendation.OptionId||edit.GetProperty("QuoteId").GetString()!=choice.Recommendation.QuoteId)throw new ArgumentException("Recommendation and saved draft must agree.");
+   var packageSource=edit.TryGetProperty("Package",out var packageInput)?packageInput.Deserialize<RacePackageSelection>():null;
+   var refinement=edit.TryGetProperty("Refinement",out var refinementInput)?refinementInput.GetString():null;
+   var rushed=edit.TryGetProperty("Rush",out var rushInput)&&rushInput.GetBoolean();
+   if(packageSource!=choice.Recommendation.Package||refinement!=choice.Recommendation.Refinement||rushed!=choice.Recommendation.Rush)throw new ArgumentException("Recommendation and frozen package/refinement/Rush draft must agree.");
    if(choice.Source=="assisted"&&choice.CommitCommandId is not null)throw new ArgumentException("Advice alone cannot commit spending.");
    if(choice.Source=="unclaimed-ai")
    {
     var accepted=opportunity.Decisions.Single(d=>d.CommandId==choice.CommitCommandId);
-    if(accepted.Source!="unclaimed-ai"||accepted.TeamId!=choice.TeamId||accepted.ActionKind!=choice.Recommendation.ActionKind||accepted.Quote?.Id!=choice.Recommendation.QuoteId||accepted.Quote?.Cost!= (choice.Recommendation.ActionKind=="Save"?null:choice.Recommendation.Cost))throw new ArgumentException("Automatic choice and exact commitment must agree.");
+    if(accepted.Source!="unclaimed-ai"||accepted.TeamId!=choice.TeamId||accepted.ActionKind!=choice.Recommendation.ActionKind||(accepted.Quote?.Id??accepted.PackageQuote?.Id)!=choice.Recommendation.QuoteId||(accepted.Quote?.Cost??accepted.PackageQuote?.Cost)!= (choice.Recommendation.ActionKind=="Save"?null:choice.Recommendation.Cost))throw new ArgumentException("Automatic choice and exact commitment must agree.");
    }
   }
   foreach(var decision in decisions.Where(d=>d.Source=="unclaimed-ai"))if(!choices.Any(c=>c.Source=="unclaimed-ai"&&c.CommitCommandId==decision.CommandId))throw new ArgumentException("Missing automatic policy evidence.");
@@ -93,5 +98,26 @@ public static class CampaignDevelopmentIntegrity
   foreach(var (eventId,presets) in snapshots){var index=Array.FindIndex(record.Calendar,e=>e.EventId==eventId);if(index<1)throw new ArgumentException("Unknown development target.");var eligible=(development.Modifiers.IsDefault?[]:development.Modifiers).Where(m=>Array.FindIndex(record.Calendar,e=>e.EventId==m.CompletionEventId)<=index);var packages=(development.PackageOutcomes.IsDefault?[]:development.PackageOutcomes).Where(o=>o.CompletionEventId is {} due&&Array.FindIndex(record.Calendar,e=>e.EventId==due)<=index);var expected=record.FrozenPresets[eventId].Select(p=>RacePackages.Complete(DevelopedCar.Apply(p,eligible),packages)).ToArray();if(Enc(expected)!=Enc(presets))throw new ArgumentException("Effective event input differs from its permanent modifiers or completed package library.");}
   if((record.DevelopmentCloses??[]).Select(c=>c.CommandId).Distinct().Count()!=(record.DevelopmentCloses??[]).Length||(record.DevelopmentCloses??[]).Length!=development.Opportunities.Count(o=>o.Closed))throw new ArgumentException("Invalid development close receipts.");
   if(debits.Length!=decisions.Count(d=>d.Quote is not null||d.PackageQuote is not null))throw new ArgumentException("Unmatched development debit.");
+ }
+ private static void ValidatePackageObservation(CampaignRecord record,DevelopmentState development,RecordedDevelopmentChoice choice,int target)
+ {
+  var observation=choice.Observation;var baseline=RacePackages.Migrate(record.FrozenPresets[record.Calendar[target].EventId].Single(p=>p.Cars[0].TeamId==choice.TeamId));
+  var completed=(development.PackageOutcomes.IsDefault?[]:development.PackageOutcomes).Where(o=>o.TeamId==choice.TeamId&&o.Package is {Completed:true}&&o.CompletionEventId is {} due&&Array.FindIndex(record.Calendar,e=>e.EventId==due)<target).Select(o=>o.Package!);
+  var library=baseline.PackageLibrary.Concat(completed).GroupBy(p=>(p.PackageId,p.Version)).Select(g=>g.First()).OrderBy(p=>p.PackageId,StringComparer.Ordinal).ThenBy(p=>p.Version).ToArray();
+  var observedLibrary=observation.Library.OrderBy(p=>p.PackageId,StringComparer.Ordinal).ThenBy(p=>p.Version).ToArray();
+  string Enc<T>(T value)=>JsonSerializer.Serialize(value,BrowserReplay.JsonOptions);
+  var modifiers=(development.Modifiers.IsDefault?[]:development.Modifiers).Where(m=>m.TeamId==choice.TeamId&&Array.FindIndex(record.Calendar,e=>e.EventId==m.CompletionEventId)<target);
+  var ratings=DevelopedCar.Apply(baseline,modifiers).Cars[0].Car.Ratings;
+  var calendar=record.Calendar.Skip(target).Select(e=>record.FrozenPresets[e.EventId].Single(p=>p.Cars[0].TeamId==choice.TeamId).Circuit.Demands).ToArray();
+  if(Enc(library)!=Enc(observedLibrary)||observation.BaseRatings is null||!ratings.OrderBy(p=>p.Key).SequenceEqual(observation.BaseRatings.OrderBy(p=>p.Key))||observation.CircuitDemands is null||!baseline.Circuit.Demands.OrderBy(p=>p.Key).SequenceEqual(observation.CircuitDemands.OrderBy(p=>p.Key))||Enc(calendar)!=Enc(observation.UpcomingCircuits))throw new ArgumentException("Project policy must observe the actual own library, car and fixed remaining calendar.");
+  var creation=observation.PackageOptions.Where(q=>q.SourcePackage is null).ToArray();
+  if(creation.Length!=PackageDevelopment.Templates.Length*2||creation.GroupBy(q=>(q.Template.Id,Rush:q.Rush is not null)).Count()!=creation.Length)throw new ArgumentException("Project policy must compare each standard and Rush creation quote.");
+  var roster=record.Acquisition?.Hires.Where(h=>h.TeamId==choice.TeamId).Select(h=>record.Acquisition.Pool.People.Single(p=>p.Id==h.PersonId)).ToArray();
+  foreach(var quote in observation.PackageOptions)
+  {
+   PackageDevelopment.ValidateQuote(quote);
+   var staff=roster is null?new DevelopmentPersonnel("preset-development-neutral-v1",0,0,0,0):DevelopmentPersonnelMapping.Map(roster,record.Acquisition!.Pool.Version,quote.Template.Id);
+   if(quote.Personnel!=staff)throw new ArgumentException("Package policy quotes must use the frozen own personnel.");
+  }
  }
 }

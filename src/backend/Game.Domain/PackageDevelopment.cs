@@ -6,6 +6,7 @@ namespace Game.Domain;
 
 public sealed record RacePackageTemplate(string Id,string Name,string Version,int BaseCost,
  ImmutableDictionary<string,double> Strengths,ImmutableDictionary<string,double> Compromises,string Applicability);
+public sealed record RushContract(string Version,int StandardCost,int ExtraCost,DevelopmentRiskControls StandardDistribution,string Aim);
 public sealed record PackageDevelopmentQuote(string Id,string Version,RacePackageTemplate Template,int Cost,
  DevelopmentPersonnel Personnel,string OutcomeVersion,string Timing,string OutcomeRange,
  [property:JsonIgnore(Condition=JsonIgnoreCondition.WhenWritingNull)] DevelopmentRiskControls? Risk=null,
@@ -13,7 +14,8 @@ public sealed record PackageDevelopmentQuote(string Id,string Version,RacePackag
  [property:JsonIgnore(Condition=JsonIgnoreCondition.WhenWritingNull)] RacePackageVersion? SourcePackage=null,
  [property:JsonIgnore(Condition=JsonIgnoreCondition.WhenWritingNull)] string? Refinement=null,
  [property:JsonIgnore(Condition=JsonIgnoreCondition.WhenWritingNull)] int? TargetVersion=null,
- [property:JsonIgnore(Condition=JsonIgnoreCondition.WhenWritingNull)] int? ProjectBaseCost=null);
+ [property:JsonIgnore(Condition=JsonIgnoreCondition.WhenWritingNull)] int? ProjectBaseCost=null,
+ [property:JsonIgnore(Condition=JsonIgnoreCondition.WhenWritingNull)] RushContract? Rush=null);
 public sealed record PackageDevelopmentOutcome(string ProjectId,string TeamId,string Kind,string ResolvedEventId,
  string? CompletionEventId,PackageDevelopmentQuote Contract,RacePackageVersion? Package);
 
@@ -43,7 +45,7 @@ public static partial class PackageDevelopment
  public static void ValidateQuote(PackageDevelopmentQuote quote)
  {
   if(quote.Risk is not null){ValidateRichQuote(quote);return;}
-  if(quote.Distribution is not null||quote.SourcePackage is not null||quote.Refinement is not null||quote.TargetVersion is not null||quote.ProjectBaseCost is not null)throw new ArgumentException("Legacy normal package contracts cannot acquire new policy fields.");
+  if(quote.Distribution is not null||quote.SourcePackage is not null||quote.Refinement is not null||quote.TargetVersion is not null||quote.ProjectBaseCost is not null||quote.Rush is not null)throw new ArgumentException("Legacy normal package contracts cannot acquire new policy fields.");
   var expected=Quote(quote.Template.Id,quote.Personnel);
   if(quote.Id!=expected.Id||quote.Version!=Version||quote.OutcomeVersion!=OutcomeVersion||quote.Cost!=expected.Cost||quote.Timing!=expected.Timing||quote.OutcomeRange!=expected.OutcomeRange
    ||quote.Template.Version!=expected.Template.Version||quote.Template.Name!=expected.Template.Name||quote.Template.BaseCost!=expected.Template.BaseCost||quote.Template.Applicability!=expected.Template.Applicability

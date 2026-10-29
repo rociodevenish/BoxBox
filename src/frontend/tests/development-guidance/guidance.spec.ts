@@ -51,13 +51,13 @@ test('private guidance Save comparison same-action AI and returning summaries',a
  await own.getByLabel('Development help presentation',{exact:true}).selectOption('Guided');
  await expect(own.getByText(/This is the last development opportunity/)).toBeVisible();
  await own.getByRole('button',{name:'Use suggestion as free draft',exact:true}).click();
- await expect(own.getByText(/Saved draft revision 2: Mechanical refinement/)).toBeVisible();
+ await expect(own.getByText(/Saved draft revision 2: Mechanical-grip package/)).toBeVisible();
  await own.getByLabel('Development help presentation',{exact:true}).selectOption('Standard');
  await expect(own.getByRole('heading',{name:'Development guidance',exact:true})).toHaveCount(0);
  await page.reload();await page.getByRole('button',{name:'Open private development for McLaren',exact:true}).click();
  await expect(own.getByLabel('Development help presentation',{exact:true})).toHaveValue('Standard');
  await expect(own.getByRole('button',{name:'Use suggestion as free draft',exact:true})).toHaveCount(0);
- await expect(own.getByText(/Saved draft revision 2: Mechanical refinement/)).toBeVisible();
+ await expect(own.getByText(/Saved draft revision 2: Mechanical-grip package/)).toBeVisible();
  await own.screenshot({path:captures+'/s14-review-standard-360.png'});
  await own.getByLabel('Development help presentation',{exact:true}).selectOption('Assisted');
  await expect(own.getByRole('heading',{name:'Development guidance',exact:true})).toBeVisible();
@@ -70,6 +70,7 @@ test('private guidance Save comparison same-action AI and returning summaries',a
  await option.getByText('Cost, staff and outcome details',{exact:true}).click();
  await expect(option.getByText(/Discount cap 3; cost floor 8/)).toBeVisible();await expect(option.getByText(/Leadership and Operations are inactive/)).toBeVisible();
  await option.screenshot({path:captures+'/s14-review-authoritative-option-360.png'});
+ await own.getByRole('button',{name:'Compare Mechanical refinement as free draft',exact:true}).click();await expect(own.getByText(/Saved draft revision 3: Mechanical refinement/)).toBeVisible();
  await own.getByRole('button',{name:'Commit permanent refinement · 14 credits',exact:true}).click();
  await expect(own.getByText('92 credits available',{exact:true})).toBeVisible();
  await page.getByRole('button',{name:'Host: use development policy for untouched unclaimed teams',exact:true}).click();

@@ -1,11 +1,21 @@
 using System.Collections.Immutable;
 using Game.Domain;
+using System.Text.Json.Serialization;
 namespace Game.Simulation;
 
 // Own saved quotes include frozen roster inputs. No seed, entropy, opponent or future draw can enter this observation.
-public sealed record DevelopmentPolicyObservation(int Balance,int RemainingOpportunities,ImmutableArray<DevelopmentQuote> Options,ImmutableDictionary<string,double> CircuitRelevance,ImmutableDictionary<string,double> GainCapacity);
-public sealed record DevelopmentRecommendation(string Version,string ActionKind,string? OptionId,string? QuoteId,int Cost,int RemainingCredits,int FutureReserve,int AffordableAlternatives,string Explanation);
-public static class DevelopmentDecisionPolicy
+public sealed record DevelopmentPolicyObservation(int Balance,int RemainingOpportunities,ImmutableArray<DevelopmentQuote> Options,ImmutableDictionary<string,double> CircuitRelevance,ImmutableDictionary<string,double> GainCapacity,
+ [property:JsonIgnore(Condition=JsonIgnoreCondition.WhenWritingDefault)] ImmutableArray<PackageDevelopmentQuote> PackageOptions=default,
+ [property:JsonIgnore(Condition=JsonIgnoreCondition.WhenWritingDefault)] ImmutableArray<RacePackageVersion> Library=default,
+ [property:JsonIgnore(Condition=JsonIgnoreCondition.WhenWritingNull)] ImmutableDictionary<string,double>? CircuitDemands=null,
+ [property:JsonIgnore(Condition=JsonIgnoreCondition.WhenWritingNull)] ImmutableDictionary<string,double>? BaseRatings=null,
+ [property:JsonIgnore(Condition=JsonIgnoreCondition.WhenWritingDefault)] ImmutableArray<ImmutableDictionary<string,double>> UpcomingCircuits=default,
+ [property:JsonIgnore(Condition=JsonIgnoreCondition.WhenWritingDefault)] bool IncidentsEnabled=false);
+public sealed record DevelopmentRecommendation(string Version,string ActionKind,string? OptionId,string? QuoteId,int Cost,int RemainingCredits,int FutureReserve,int AffordableAlternatives,string Explanation,
+ [property:JsonIgnore(Condition=JsonIgnoreCondition.WhenWritingNull)] RacePackageSelection? Package=null,
+ [property:JsonIgnore(Condition=JsonIgnoreCondition.WhenWritingNull)] string? Refinement=null,
+ [property:JsonIgnore(Condition=JsonIgnoreCondition.WhenWritingDefault)] bool Rush=false);
+public static partial class DevelopmentDecisionPolicy
 {
  public const string Version="public-demand-credit-reserve-v1";
  public static DevelopmentRecommendation Evaluate(DevelopmentPolicyObservation observation)
@@ -13,6 +23,7 @@ public static class DevelopmentDecisionPolicy
   if(observation.Balance<0||observation.RemainingOpportunities<0||observation.Options.IsDefaultOrEmpty||observation.Options.Select(q=>q.Option.Id).Distinct().Count()!=observation.Options.Length)throw new ArgumentException("Observe the team's actual balance, remaining opportunities and distinct frozen quotes.");
   foreach(var quote in observation.Options)
    if(PermanentDevelopment.Quote(quote.Option.Id,quote.Personnel,quote.Controls,quote.Risk)!=quote||!observation.CircuitRelevance.TryGetValue(quote.Option.Id,out var demand)||!double.IsFinite(demand)||demand is <0 or >100||!observation.GainCapacity.TryGetValue(quote.Option.Id,out var capacity)||!double.IsFinite(capacity)||capacity is <0 or >6)throw new ArgumentException("Observe valid public circuit demands and bounded own gain capacity.");
+  if(!observation.PackageOptions.IsDefault)return EvaluateAlternatives(observation);
   var useful=observation.Options.Where(q=>observation.GainCapacity[q.Option.Id]>0).ToArray();
   var reserve=observation.RemainingOpportunities>0&&useful.Length>0?useful.Min(q=>q.Cost):0;
   var affordable=useful.Where(q=>q.Cost<=observation.Balance).ToArray();
