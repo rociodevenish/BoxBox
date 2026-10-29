@@ -62,6 +62,7 @@ public sealed partial class SessionCoordinator
             if(developmentPending)lobby.ModuleState["campaign-development-pending-v1"]="pending";
             lobby.Players.AddRange(previous.Players);lobby.Devices.AddRange(previous.Devices);
             foreach(var pair in previous.Assignments)lobby.Assignments.Add(pair.Key,pair.Value);
+            foreach(var player in previous.Players)if(previous.ModuleState.TryGetValue(AssistancePrefix+player.Id,out var settings))lobby.ModuleState[AssistancePrefix+player.Id]=settings;
             // Weekend preparation is a new boundary: complete any authenticated device return,
             // but reset race AI modes, pending control intents and decision locks.
             if(previous.ModuleState.TryGetValue(CampaignRebind,out var pendingJson))

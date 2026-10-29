@@ -27,16 +27,18 @@ public sealed partial class CampaignCoordinator
   weekends.AuthoriseCampaignPersonnel(record.Calendar[index].SessionId,identity,deviceId,teamId);
   return opportunity;
  }
- private DevelopmentTeamSnapshot ProjectDevelopment(CampaignRecord record,string teamId,long assignmentRevision)
+ private DevelopmentTeamSnapshot ProjectDevelopment(CampaignRecord record,string teamId,long assignmentRevision,AuthIdentity identity)
  {
   var opportunity=CurrentDevelopment(record)??throw new SessionFault(SessionFailure.Conflict,"No development opportunity is open.");
 
+  var helpSession=record.Calendar[(record.PreparationEventIndex??record.EventIndex)].SessionId;
+  var help=weekends.CampaignDevelopmentHelp(helpSession,teamId);
   var projects=(record.Development!.Outcomes.IsDefault?[]:record.Development.Outcomes).Where(o=>o.TeamId==teamId).Select(o=>new DevelopmentProjectSummary(o.ProjectId,o.Kind,(record.Development.Modifiers.IsDefault?[]:record.Development.Modifiers).Any(m=>m.ProjectId==o.ProjectId)?"completed":"pending",o.CompletionEventId,o.CompletionEventId is null?"Delayed beyond the final preparation in this short season; no further payment or event is requested.":o.Kind=="delay"?"Delayed work completes at the following preparation close without another charge.":"Saved bounded outcome; completed gains apply to the next weekend.")).ToArray();
-  return new(record.CampaignId,teamId,opportunity.Id,opportunity.Revision,assignmentRevision,CampaignEconomy.Ledger(record).Where(e=>e.TeamId==teamId).Sum(e=>e.Credits),DevelopmentQuotes(record,teamId),opportunity.Drafts[teamId],opportunity.Decisions.SingleOrDefault(d=>d.TeamId==teamId),Projects:projects,CurrentCar:EventPresets(record,record.Calendar[record.EventIndex].EventId).Single(p=>p.Cars[0].TeamId==teamId).Cars[0].Car.Ratings,NextCar:EventPresets(record,opportunity.TargetEventId).Single(p=>p.Cars[0].TeamId==teamId).Cars[0].Car.Ratings,Advice:opportunity.Closed||opportunity.Decisions.Any(d=>d.TeamId==teamId)?null:DevelopmentDecisionPolicy.Evaluate(ObserveDevelopment(record,teamId)),PolicyChoices:(record.DevelopmentChoices??[]).Where(c=>c.TeamId==teamId).ToArray(),CurrentEventId:record.Calendar[record.EventIndex].EventId,NextEventId:opportunity.TargetEventId);
+  return new(record.CampaignId,teamId,opportunity.Id,opportunity.Revision,assignmentRevision,CampaignEconomy.Ledger(record).Where(e=>e.TeamId==teamId).Sum(e=>e.Credits),DevelopmentQuotes(record,teamId),opportunity.Drafts[teamId],opportunity.Decisions.SingleOrDefault(d=>d.TeamId==teamId),Projects:projects,CurrentCar:EventPresets(record,record.Calendar[record.EventIndex].EventId).Single(p=>p.Cars[0].TeamId==teamId).Cars[0].Car.Ratings,NextCar:EventPresets(record,opportunity.TargetEventId).Single(p=>p.Cars[0].TeamId==teamId).Cars[0].Car.Ratings,Advice:help.Settings.HelpLevel=="Standard"||opportunity.Closed||opportunity.Decisions.Any(d=>d.TeamId==teamId)?null:DevelopmentDecisionPolicy.Evaluate(ObserveDevelopment(record,teamId)),PolicyChoices:help.Settings.HelpLevel=="Standard"?[]:(record.DevelopmentChoices??[]).Where(c=>c.TeamId==teamId).ToArray(),CurrentEventId:record.Calendar[record.EventIndex].EventId,NextEventId:opportunity.TargetEventId,Help:new(helpSession,help.PlayerId,help.Settings.HelpLevel,help.Settings.AutoAcceptRecommendation,record.HostUid==identity.Uid),OptionSpecialties:PermanentDevelopment.Options.ToDictionary(o=>o.Id,o=>DevelopmentPersonnelMapping.Specialty(o.Id)));
  }
  public DevelopmentTeamSnapshot DevelopmentTeam(string id,AuthIdentity identity,string deviceId,string teamId)
  {
-  lock(gate){var record=Require(id).Record;_=AuthoriseDevelopment(record,identity,deviceId,teamId);return ProjectDevelopment(record,teamId,weekends.DevelopmentAssignmentRevision(record.Calendar[(record.PreparationEventIndex??record.EventIndex)].SessionId,identity,deviceId,teamId));}
+  lock(gate){var record=Require(id).Record;_=AuthoriseDevelopment(record,identity,deviceId,teamId);return ProjectDevelopment(record,teamId,weekends.DevelopmentAssignmentRevision(record.Calendar[(record.PreparationEventIndex??record.EventIndex)].SessionId,identity,deviceId,teamId),identity);}
  }
  public DevelopmentTeamSnapshot EditDevelopment(string id,AuthIdentity identity,string deviceId,string teamId,DevelopmentEdit command)
  {
@@ -50,7 +52,7 @@ public sealed partial class CampaignCoordinator
    catch(ArgumentException error){throw new SessionFault(SessionFailure.InvalidInput,error.Message);}
    catch(InvalidOperationException error){throw new SessionFault(SessionFailure.Conflict,error.Message);}
    if(!ReferenceEquals(next,opportunity)){record=WithDevelopment(record,next);Write(id,saved.Version,record);}
-   return ProjectDevelopment(record,teamId,weekends.DevelopmentAssignmentRevision(record.Calendar[(record.PreparationEventIndex??record.EventIndex)].SessionId,identity,deviceId,teamId));
+   return ProjectDevelopment(record,teamId,weekends.DevelopmentAssignmentRevision(record.Calendar[(record.PreparationEventIndex??record.EventIndex)].SessionId,identity,deviceId,teamId),identity);
   }
  }
  public DevelopmentTeamSnapshot CommitDevelopment(string id,AuthIdentity identity,string deviceId,string teamId,DevelopmentCommit command)
@@ -70,7 +72,7 @@ public sealed partial class CampaignCoordinator
     record=record.Acquisition is {} acquisition?record with{Acquisition=acquisition with{Ledger=next.Ledger}}:record with{PresetLedger=next.Ledger.ToArray()};
     Write(id,saved.Version,record);
    }
-   return ProjectDevelopment(record,teamId,weekends.DevelopmentAssignmentRevision(record.Calendar[(record.PreparationEventIndex??record.EventIndex)].SessionId,identity,deviceId,teamId));
+   return ProjectDevelopment(record,teamId,weekends.DevelopmentAssignmentRevision(record.Calendar[(record.PreparationEventIndex??record.EventIndex)].SessionId,identity,deviceId,teamId),identity);
   }
  }
  private static DevelopmentPersonnel DevelopmentCommitStaff(CampaignRecord record,string teamId,DevelopmentDraft draft)=>DevelopmentStaff(record,teamId,draft.Quote?.Personnel.RosterVersion.StartsWith(DevelopmentPersonnelMapping.Version+"/",StringComparison.Ordinal)==true?draft.OptionId:null);
@@ -80,6 +82,8 @@ public sealed partial class CampaignCoordinator
 }
 public sealed partial class SessionCoordinator
 {
+ public (string PlayerId,PlayerAssistanceSettings Settings) CampaignDevelopmentHelp(string id,string teamId)
+ {lock(gate){RefreshCampaignWeekend(id);var lobby=RequireLobby(id);var assignment=lobby.Assignments.GetValueOrDefault(teamId)??throw new SessionFault(SessionFailure.Forbidden,"This team has no assigned controller.");return (assignment.PlayerId,AssistanceSettings(lobby,assignment.PlayerId));}}
  public long DevelopmentAssignmentRevision(string id,AuthIdentity identity,string deviceId,string teamId)
  {lock(gate){return AuthorisePreparationController(id,identity,deviceId,teamId).Assignment.Revision;}}
  public void CommitCampaignDevelopment(string sessionId,WeekendPreset[] frozen)

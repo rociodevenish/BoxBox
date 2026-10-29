@@ -29,6 +29,7 @@ public sealed class DevelopmentGuidanceApiTests
   var created=await client.PostAsJsonAsync("/api/campaigns",new CreateCampaignInput(Guid.NewGuid().ToString(),"Host"));created.EnsureSuccessStatusCode();var joined=(await created.Content.ReadFromJsonAsync<CampaignJoined>())!;
   var id=joined.Campaign.CampaignId;var first=joined.Campaign.WeekendId;var device=joined.Weekend.Membership.DeviceId;
   (await client.PostAsJsonAsync($"/api/lobbies/{first}/claims",new ClaimTeamInput("team-01",device))).EnsureSuccessStatusCode();
+  (await client.PostAsJsonAsync($"/api/lobbies/{first}/players/{joined.Weekend.Membership.PlayerId}/assistance",new PlayerAssistanceInput("Assisted",false))).EnsureSuccessStatusCode();
   (await client.PostAsJsonAsync($"/api/campaigns/{id}/prepare",new{})).EnsureSuccessStatusCode();
   var uri=$"/api/lobbies/{first}/preparation/teams/team-01?deviceId={device}";
   foreach(var operation in new[]{"practice","confirm"}){var own=(await client.GetFromJsonAsync<PreparationTeamSnapshot>(uri))!;(await client.PostAsJsonAsync(uri.Replace("?","/"+operation+"?"),new PracticeCommand(Guid.NewGuid().ToString(),own.Revision,own.AssignmentRevision))).EnsureSuccessStatusCode();}
@@ -44,12 +45,24 @@ public sealed class DevelopmentGuidanceApiTests
   var ownDevelopment=(await client.GetFromJsonAsync<DevelopmentTeamSnapshot>(endpoint))!;
   Assert.Equal(106,ownDevelopment.Balance);
   using var outsider=server.CreateClient();outsider.DefaultRequestHeaders.Authorization=new("Bearer",await LobbyTests.Identity(true));Assert.Equal(HttpStatusCode.Forbidden,(await outsider.GetAsync(endpoint)).StatusCode);
+  Assert.Equal("Assisted",ownDevelopment.Help!.HelpLevel);Assert.NotNull(ownDevelopment.Advice);
+  (await client.PostAsJsonAsync($"/api/lobbies/{second}/players/{joined.Weekend.Membership.PlayerId}/assistance",new PlayerAssistanceInput("Standard",false))).EnsureSuccessStatusCode();
+  ownDevelopment=(await client.GetFromJsonAsync<DevelopmentTeamSnapshot>(endpoint))!;Assert.Null(ownDevelopment.Advice);
+  var standardCommand=new DevelopmentRecommendationInput(Guid.NewGuid().ToString(),ownDevelopment.OpportunityId,ownDevelopment.Revision,ownDevelopment.AssignmentRevision);
+  Assert.Equal(HttpStatusCode.Forbidden,(await client.PostAsJsonAsync(endpoint.Replace("?","/recommend?"),standardCommand)).StatusCode);
+  (await client.PostAsJsonAsync($"/api/lobbies/{second}/players/{joined.Weekend.Membership.PlayerId}/assistance",new PlayerAssistanceInput("Assisted",false))).EnsureSuccessStatusCode();
+  ownDevelopment=(await client.GetFromJsonAsync<DevelopmentTeamSnapshot>(endpoint))!;
   Assert.Equal("handling",ownDevelopment.Advice!.OptionId);
   var advice=new DevelopmentRecommendationInput(Guid.NewGuid().ToString(),ownDevelopment.OpportunityId,ownDevelopment.Revision,ownDevelopment.AssignmentRevision);
   Assert.Equal(HttpStatusCode.Forbidden,(await outsider.PostAsJsonAsync(endpoint.Replace("?","/recommend?"),advice)).StatusCode);
   var recommended=await client.PostAsJsonAsync(endpoint.Replace("?","/recommend?"),advice);recommended.EnsureSuccessStatusCode();ownDevelopment=(await recommended.Content.ReadFromJsonAsync<DevelopmentTeamSnapshot>())!;
   Assert.Equal(106,ownDevelopment.Balance);Assert.Null(ownDevelopment.Commitment);Assert.Equal("handling",ownDevelopment.Draft.OptionId);Assert.Single(ownDevelopment.PolicyChoices!);
   (await client.PostAsJsonAsync(endpoint.Replace("?","/recommend?"),advice)).EnsureSuccessStatusCode();
+  (await client.PostAsJsonAsync($"/api/lobbies/{second}/players/{joined.Weekend.Membership.PlayerId}/assistance",new PlayerAssistanceInput("Standard",false))).EnsureSuccessStatusCode();
+  ownDevelopment=(await client.GetFromJsonAsync<DevelopmentTeamSnapshot>(endpoint))!;Assert.Null(ownDevelopment.Advice);Assert.Empty(ownDevelopment.PolicyChoices!);
+  (await client.PostAsJsonAsync($"/api/lobbies/{second}/players/{joined.Weekend.Membership.PlayerId}/assistance",new PlayerAssistanceInput("Guided",false))).EnsureSuccessStatusCode();
+  ownDevelopment=(await client.GetFromJsonAsync<DevelopmentTeamSnapshot>(endpoint))!;Assert.NotNull(ownDevelopment.Advice);Assert.Equal("handling",ownDevelopment.Draft.OptionId);
+  if(!commitFirst){(await client.PostAsJsonAsync($"/api/lobbies/{second}/players/{joined.Weekend.Membership.PlayerId}/assistance",new PlayerAssistanceInput("Standard",false))).EnsureSuccessStatusCode();}
   var auto=new DevelopmentAutomaticInput(Guid.NewGuid().ToString(),ownDevelopment.OpportunityId,ownDevelopment.Revision);
   Assert.Equal(HttpStatusCode.Forbidden,(await outsider.PostAsJsonAsync($"/api/campaigns/{id}/development/automatic",auto)).StatusCode);
   store.Armed=true;store.CommitFirst=commitFirst;
@@ -60,11 +73,16 @@ public sealed class DevelopmentGuidanceApiTests
   Assert.Equal(10,snapshot.Development!.Readiness.Count(r=>r.Committed));Assert.False(snapshot.Development.Readiness.Single(r=>r.TeamId=="team-01").Committed);
   (await retry.PostAsJsonAsync($"/api/campaigns/{id}/development/automatic",auto)).EnsureSuccessStatusCode();
   ownDevelopment=(await retry.GetFromJsonAsync<DevelopmentTeamSnapshot>(endpoint))!;Assert.Equal(106,ownDevelopment.Balance);Assert.Equal("handling",ownDevelopment.Draft.OptionId);Assert.Null(ownDevelopment.Commitment);
+  Assert.Equal(commitFirst?"Guided":"Standard",ownDevelopment.Help!.HelpLevel);Assert.True(ownDevelopment.Help.CanChange);
+  if(commitFirst)Assert.NotNull(ownDevelopment.Advice);else{Assert.Null(ownDevelopment.Advice);Assert.Empty(ownDevelopment.PolicyChoices!);}
+  Assert.Equal(HttpStatusCode.Forbidden,(await outsider.PostAsJsonAsync($"/api/lobbies/{second}/players/{joined.Weekend.Membership.PlayerId}/assistance",new PlayerAssistanceInput("Assisted",false))).StatusCode);
   var lobby=(await retry.GetFromJsonAsync<LobbySnapshot>($"/api/lobbies/{second}"))!;
   var participant=await outsider.PostAsJsonAsync("/api/lobbies/join",new JoinLobbyInput(lobby.JoinCode,"Returning player"));participant.EnsureSuccessStatusCode();var participantMembership=(await participant.Content.ReadFromJsonAsync<JoinedLobby>())!.Membership;var participantDevice=participantMembership.DeviceId;
   (await outsider.PostAsJsonAsync($"/api/lobbies/{second}/claims",new ClaimTeamInput("team-02",participantDevice))).EnsureSuccessStatusCode();
   (await client.PostAsJsonAsync($"/api/lobbies/{second}/assignments",new AssignTeamInput("team-02",participantMembership.PlayerId,participantDevice,"Private"))).EnsureSuccessStatusCode();
+  (await client.PostAsJsonAsync($"/api/lobbies/{second}/players/{participantMembership.PlayerId}/assistance",new PlayerAssistanceInput("Assisted",false))).EnsureSuccessStatusCode();
   var automaticTeam=(await outsider.GetFromJsonAsync<DevelopmentTeamSnapshot>($"/api/campaigns/{id}/development/teams/team-02?deviceId={participantDevice}"))!;
+  Assert.False(automaticTeam.Help!.CanChange);
   Assert.Equal(92,automaticTeam.Balance);Assert.Equal("unclaimed-ai",automaticTeam.Commitment!.Source);Assert.Single(automaticTeam.PolicyChoices!);Assert.Equal("handling",automaticTeam.Commitment.Quote!.Option.Id);
   Assert.Equal(HttpStatusCode.Conflict,(await retry.PostAsJsonAsync($"/api/campaigns/{id}/development/close",new CloseDevelopmentInput(Guid.NewGuid().ToString(),snapshot.Development.OpportunityId,snapshot.Development.Revision))).StatusCode);
   var closed=await retry.PostAsJsonAsync($"/api/campaigns/{id}/development/close",new CloseDevelopmentInput(Guid.NewGuid().ToString(),snapshot.Development.OpportunityId,snapshot.Development.Revision,true));closed.EnsureSuccessStatusCode();
@@ -72,7 +90,3 @@ public sealed class DevelopmentGuidanceApiTests
   Assert.DoesNotContain("observation",await closed.Content.ReadAsStringAsync(),StringComparison.OrdinalIgnoreCase);Assert.DoesNotContain("entropy",await closed.Content.ReadAsStringAsync(),StringComparison.OrdinalIgnoreCase);
  }
 }
-
-
-
-
