@@ -7,11 +7,11 @@ using Game.Domain;
 using Game.Simulation;
 
 var json=new JsonSerializerOptions{PropertyNamingPolicy=JsonNamingPolicy.CamelCase};
-const string schema="race-package-evidence-v1",policy="legal-resources-fixed-six-arms-v1",product="5b8d08892550bf0aba38797f1a871e7f668c0e16";
+const string schema="race-package-evidence-v2",policy="legal-resources-fixed-seven-arms-v2",product="5b8d08892550bf0aba38797f1a871e7f668c0e16";
 string[] teams=Enumerable.Range(1,11).Select(i=>$"team-{i:00}").ToArray();
-string[] personnelPolicies=["economical","expensive-legal"],arms=["Save","permanent","small-library","large-library","refinement","Rush"],scopes=["production-short","synthetic-alternating-six"];
+string[] personnelPolicies=["economical","expensive-legal"],arms=["Save","permanent","small-library","large-library","refinement","Rush","base-car"],scopes=["production-short","synthetic-alternating-six"];
 var computedRaces=0;
-RuleSnapshot Rules()=>new(new Dictionary<string,string>{{"permanent",PermanentDevelopment.Version},{"permanentOutcome","permanent-rich-outcome-v1"},{"package",PackageDevelopment.RichVersion},{"packageOutcome",PackageDevelopment.RichOutcomeVersion},{"rush",PackageDevelopment.RushVersion},{"selection",PackageSelectionDecisionPolicy.Version},{"staff",DevelopmentPersonnelMapping.Version},{"effective",WeekendPreparation.ModelVersion},{"card",WeekendPreparation.CardVersion},{"car",WeekendPreparation.CarVersion},{"scoring",ChampionshipScoring.Version},{"opening",AutomaticRaceStart.ModelVersion},{"incidentSynthetic","disruption-live-opt-in-v1"}},PermanentDevelopment.Options,PackageDevelopment.Templates,
+RuleSnapshot Rules()=>new(new Dictionary<string,string>{{"permanent",PermanentDevelopment.Version},{"permanentOutcome","permanent-rich-outcome-v1"},{"package",PackageDevelopment.RichVersion},{"packageOutcome",PackageDevelopment.RichOutcomeVersion},{"rush",PackageDevelopment.RushVersion},{"selection",PackageSelectionDecisionPolicy.Version},{"staff",DevelopmentPersonnelMapping.Version},{"effective",WeekendPreparation.ModelVersion},{"card",WeekendPreparation.CardVersion},{"car",WeekendPreparation.CarVersion},{"scoring",ChampionshipScoring.Version},{"opening",AutomaticRaceStart.ModelVersion},{"incidentSynthetic","disruption-live-opt-in-v1"},{"constructionComparison","actual-speed-build-v1"}},PermanentDevelopment.Options,PackageDevelopment.Templates,
  new IncidentTuning(ErrorRate:.0003,ContactProbability:.02,FailureRate:.00003,ComponentWearPerSecond:.00001,InterruptMajorIncidents:true));
 string Enc<T>(T value)=>JsonSerializer.Serialize(value,json);
 Dictionary<string,string> ToolSources()=>new[]{"Program.cs","RacePackageEvidence.csproj","evidence.test.mjs"}.ToDictionary(n=>n,n=>Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(File.ReadAllText(Path.Combine("tools","RacePackageEvidence",n)).Replace("\r\n","\n")))));
@@ -20,7 +20,7 @@ if(args.Length==2&&args[0]=="--replay")
  using var file=File.OpenRead(args[1]);using var gzip=new GZipStream(file,CompressionMode.Decompress);
  var saved=JsonSerializer.Deserialize<Archive>(gzip,json)??throw new Exception("Missing archive.");
  if(saved.Schema!=schema||saved.PolicyVersion!=policy||saved.ProductCommit!=product||Enc(saved.Rules)!=Enc(Rules())
-  ||saved.Seeds.Length is not(1 or 8)||!saved.Seeds.SequenceEqual(Enumerable.Range(101,saved.Seeds.Length))||saved.Runs.Length!=saved.Seeds.Length*24
+  ||saved.Seeds.Length is not(1 or 8)||!saved.Seeds.SequenceEqual(Enumerable.Range(101,saved.Seeds.Length))||saved.Runs.Length!=saved.Seeds.Length*28
   ||Enc(saved.ToolSources)!=Enc(ToolSources())||saved.Controls!=PermanentDevelopment.DefaultControls||saved.Risk!=DevelopmentRiskControls.Default||saved.Income!=SeasonIncome.Default)
   throw new Exception("Unsupported, incomplete or reinterpreted archive contract.");
  var i=0;
@@ -79,10 +79,31 @@ IEnumerable<Run> Experiment(PersonnelPool frozen,ConstructionCatalogue menu,Week
   var first=MakeEvent(baselines[0],empty,0,calendar,seed,incidents[0],scope!="production-short");
   foreach(var arm in arms)
   {
-   var ledger=state.Ledger;var development=empty;var events=new List<Event>();var steps=new List<Step>();
+   var runState=state;var runConstruction=construction;var runBaselines=baselines;string? buildFailure=null;
+   if(arm=="base-car")
+   {
+    // This counterfactual starts from the same acquired roster/credits BEFORE construction.
+    // Its actual event-one inputs differ, so it must not reuse the minimum-car prefix race.
+    runConstruction=CarConstruction.Open(menu,teams);runState=acquired;
+    foreach(var team in teams)
+    {
+     if(team==teams[0])
+     {
+      try{runConstruction=CarConstruction.Edit(runConstruction,new(Command($"speed-build/{seed}/{personnelPolicy}"),runConstruction.Drafts[team].Revision,team,menu.Version,["car-aero-low-drag-efficiency","car-chassis-balanced","car-power-top-end","car-thermal-low-drag"]),PersonnelAcquisition.Balance(runState,team));}
+      catch(InvalidOperationException error){buildFailure=error.Message;}
+     }
+     var bought=CarConstruction.Confirm(runConstruction,runState,new(Command($"speed-buy/{seed}/{personnelPolicy}/{team}"),runConstruction.Drafts[team].Revision,team,menu.Version));runConstruction=bought.Construction;runState=bought.Acquisition;
+    }
+    runBaselines=source.Select(template=>teams.Select(team=>{
+     var preset=template with{Cars=template.Cars.Select((c,i)=>c with{TeamId=team,EntryId=team+"-car-"+(i+1)}).ToImmutableArray()};
+     var roster=PersonnelWeekendMapping.Apply(runState,team,preset);var car=runConstruction.Confirmed![team];
+     return RacePackages.Migrate(ConstructedBaseCar.Apply(roster,car.Id,menu.Version,car.Ratings,car.MechanicalAxis));
+    }).ToArray()).ToArray();
+   }
+   var ledger=runState.Ledger;var development=empty;var events=new List<Event>();var steps=new List<Step>();
    for(var eventIndex=0;eventIndex<calendar.Length;eventIndex++)
    {
-    var race=eventIndex==0?first:MakeEvent(baselines[eventIndex%2],development,eventIndex,calendar,seed+eventIndex*10000,incidents[eventIndex%2],scope!="production-short");
+    var race=eventIndex==0&&arm!="base-car"?first:MakeEvent(runBaselines[eventIndex%2],development,eventIndex,calendar,seed+eventIndex*10000,incidents[eventIndex%2],scope!="production-short");
     events.Add(race);ledger=SeasonIncome.Grant(ledger,teams,calendar[eventIndex],income);
     if(eventIndex==calendar.Length-1)continue;
     var op=PermanentDevelopment.Open("op-"+(eventIndex+1),calendar[eventIndex],calendar[eventIndex+1],teams);
@@ -90,7 +111,7 @@ IEnumerable<Run> Experiment(PersonnelPool frozen,ConstructionCatalogue menu,Week
     var planned=Plan(arm,eventIndex,library);var before=ledger.Where(e=>e.TeamId==teams[0]).Sum(e=>e.Credits);string? failure=planned.Reason;int? attemptedCost=null;string? attemptedQuote=null;
     foreach(var team in teams)
     {
-     var roster=state.Hires.Where(h=>h.TeamId==team).Select(h=>frozen.People.Single(p=>p.Id==h.PersonId)).ToArray();
+     var roster=runState.Hires.Where(h=>h.TeamId==team).Select(h=>frozen.People.Single(p=>p.Id==h.PersonId)).ToArray();
      var chosen=team==teams[0]?planned:new PlanChoice("Save",null,null,null,false,null);
      var staff=DevelopmentPersonnelMapping.Map(roster,frozen.Version,chosen.OptionId??"speed");
      if(chosen.Action!="Save")
@@ -113,14 +134,14 @@ IEnumerable<Run> Experiment(PersonnelPool frozen,ConstructionCatalogue menu,Week
     steps.Add(new(eventIndex+1,planned,attemptedQuote,attemptedCost,failure,before,ledger.Where(e=>e.TeamId==teams[0]).Sum(e=>e.Credits),library.ToImmutableArray()));
    }
    if(ledger.GroupBy(e=>e.TeamId).Any(g=>g.Sum(e=>e.Credits)<0))throw new Exception("Negative balance.");
-   yield return new(scope,seed,personnelPolicy,arm,scope=="production-short"&&arm is "large-library" or "refinement"?"small-library":null,calendar,state,construction,ledger,development,steps.ToArray(),events.ToArray());
+   yield return new(scope,seed,personnelPolicy,arm,scope=="production-short"&&arm is "large-library" or "refinement"?"small-library":null,calendar,runState,runConstruction,ledger,development,steps.ToArray(),events.ToArray(),buildFailure);
   }
-  Console.WriteLine($"Completed {scope}/{seed}/{personnelPolicy} (six paired arms).");
+  Console.WriteLine($"Completed {scope}/{seed}/{personnelPolicy} (seven paired arms).");
  }
 }
 PlanChoice Plan(string arm,int opportunity,IReadOnlyList<RacePackageVersion> library)
 {
- if(arm=="Save"||arm=="small-library"&&opportunity>=2)return new("Save",null,null,null,false,null);
+ if(arm is "Save" or "base-car"||arm=="small-library"&&opportunity>=2)return new("Save",null,null,null,false,null);
  if(arm=="permanent")return new("PermanentRefinement",opportunity%2==0?"handling":"speed",null,null,false,null);
  if(arm=="refinement"&&opportunity>0)
  {
@@ -161,12 +182,12 @@ void PublishSummary(Run[] runs,string output)
    r.Development.Opportunities.Count(o=>o.Decisions.Single(d=>d.TeamId==teams[0]).ActionKind=="Save"),ownPackages.Select(o=>o.Package!.PackageId).Distinct().Count(),ownPackages.Length,
    new[]{"normal","partial","breakthrough","compromised","delay"}.ToDictionary(k=>k,k=>outcomes.Count(o=>o==k)),pending,
    r.Events.Sum(e=>e.Classification.Count(c=>c.RetirementTime.HasValue)),r.Events.Sum(e=>e.Classification.Count(c=>c.DriverId.StartsWith(teams[0]+"-",StringComparison.Ordinal)&&c.RetirementTime.HasValue)),seconds,seconds.All(s=>s.HasValue)?seconds.Sum(s=>s!.Value):null,
-   tables.Select(t=>Margin(t,teams[0])).ToArray(),Margin(tables[^1],teams[0])-Margin(control,teams[0]),leader,tables[0].Constructors.Where(c=>c.Points==leadPoints).Select(c=>c.Id).ToArray(),tables.Select(t=>Margin(t,leader)).ToArray(),Margin(tables[^1],leader)-Margin(control,leader),tables[^1].Constructors.Single(c=>c.Id==teams[0]).Points,selections);
+   tables.Select(t=>Margin(t,teams[0])).ToArray(),Margin(tables[^1],teams[0])-Margin(control,teams[0]),leader,tables[0].Constructors.Where(c=>c.Points==leadPoints).Select(c=>c.Id).ToArray(),tables.Select(t=>Margin(t,leader)).ToArray(),Margin(tables[^1],leader)-Margin(control,leader),tables[^1].Constructors.Single(c=>c.Id==teams[0]).Points,selections,r.BaseCarFailure,r.Construction.Confirmed![teams[0]].Cost);
  }).ToArray();
  var summary=new{
-  schema="race-package-summary-v1",archiveSchema=schema,policyVersion=policy,seeds=runs.Select(r=>r.Seed).Distinct(),logicalRuns=runs.Length,logicalEventRaces=runs.Sum(r=>r.Events.Length),
+  schema="race-package-summary-v2",archiveSchema=schema,policyVersion=policy,seeds=runs.Select(r=>r.Seed).Distinct(),logicalRuns=runs.Length,logicalEventRaces=runs.Sum(r=>r.Events.Length),
   limits="Production-short is the supported two-event shape with inactive incidents. Its small/large/refinement arms share the same first creation and are observational aliases. Synthetic-alternating-six is a separately authored repeated Monza/Monaco design experiment with existing opt-in incident coefficients/routes, not a production/full-calendar campaign. Pair only within same scope/resources/seed. Eight paired seeds are exploratory, not safety estimates. Higher staff price is not strength; own acquisition can change later market/opponent rosters. No injected credits, free purchased packages, forced outcomes, optimal strategy, runaway safety, human understanding or full-calendar claim. #74 remains unmeasured; S16 owns validated full-calendar release evidence.",
-  groups=pairs.GroupBy(p=>(p.Scope,p.PersonnelPolicy,p.Arm)).Select(g=>new{g.Key.Scope,g.Key.PersonnelPolicy,g.Key.Arm,n=g.Count(),attempts=g.Sum(p=>p.Attempts),failures=g.Sum(p=>p.Failures),balance=Stats(g.Select(p=>(double)p.FinalBalance)),spending=Stats(g.Select(p=>(double)p.DevelopmentSpending)),completedPackages=Stats(g.Select(p=>(double)p.CompletedPackages)),completedVersions=Stats(g.Select(p=>(double)p.CompletedVersions)),pending=g.Sum(p=>p.Pending),outcomes=new[]{"normal","partial","breakthrough","compromised","delay"}.ToDictionary(k=>k,k=>g.Sum(p=>p.Outcomes[k])),retirements=g.Sum(p=>p.AllRetirements),targetRetirements=g.Sum(p=>p.TargetRetirements),pairedTotalSeconds=Stats(g.Where(p=>p.TotalSecondsVsSave.HasValue).Select(p=>p.TotalSecondsVsSave!.Value)),nonComparable=g.Count(p=>!p.TotalSecondsVsSave.HasValue),faster=g.Count(p=>p.TotalSecondsVsSave<0),slower=g.Count(p=>p.TotalSecondsVsSave>0),unchanged=g.Count(p=>p.TotalSecondsVsSave==0),targetFinalPointsMarginDeltaVsSave=Stats(g.Select(p=>(double)p.TargetFinalMarginDeltaVsSave)),actualOriginalLeaderMarginDeltaVsSave=Stats(g.Select(p=>(double)p.OriginalLeaderFinalMarginDeltaVsSave)),targetStartingGroups=new[]{"leading","trailing","tied"}.Select(status=>new{status,n=g.Count(p=>(p.TargetMargins[0]>0?"leading":p.TargetMargins[0]<0?"trailing":"tied")==status)})}),
+  groups=pairs.GroupBy(p=>(p.Scope,p.PersonnelPolicy,p.Arm)).Select(g=>new{g.Key.Scope,g.Key.PersonnelPolicy,g.Key.Arm,n=g.Count(),buildFailures=g.Count(p=>p.BaseCarFailure is not null),baseCarSpending=Stats(g.Select(p=>(double)p.BaseCarCost)),attempts=g.Sum(p=>p.Attempts),failures=g.Sum(p=>p.Failures),balance=Stats(g.Select(p=>(double)p.FinalBalance)),spending=Stats(g.Select(p=>(double)p.DevelopmentSpending)),completedPackages=Stats(g.Select(p=>(double)p.CompletedPackages)),completedVersions=Stats(g.Select(p=>(double)p.CompletedVersions)),pending=g.Sum(p=>p.Pending),outcomes=new[]{"normal","partial","breakthrough","compromised","delay"}.ToDictionary(k=>k,k=>g.Sum(p=>p.Outcomes[k])),retirements=g.Sum(p=>p.AllRetirements),targetRetirements=g.Sum(p=>p.TargetRetirements),pairedTotalSeconds=Stats(g.Where(p=>p.TotalSecondsVsSave.HasValue).Select(p=>p.TotalSecondsVsSave!.Value)),nonComparable=g.Count(p=>!p.TotalSecondsVsSave.HasValue),faster=g.Count(p=>p.TotalSecondsVsSave<0),slower=g.Count(p=>p.TotalSecondsVsSave>0),unchanged=g.Count(p=>p.TotalSecondsVsSave==0),targetFinalPointsMarginDeltaVsSave=Stats(g.Select(p=>(double)p.TargetFinalMarginDeltaVsSave)),actualOriginalLeaderMarginDeltaVsSave=Stats(g.Select(p=>(double)p.OriginalLeaderFinalMarginDeltaVsSave)),targetStartingGroups=new[]{"leading","trailing","tied"}.Select(status=>new{status,n=g.Count(p=>(p.TargetMargins[0]>0?"leading":p.TargetMargins[0]<0?"trailing":"tied")==status)})}),
   hypotheses=new[]{"Larger libraries need not beat small libraries: compare complete seedwise costs, actual sizes and selected versions, including unused purchases.","Refinement and Rush need not outperform creation: retain delay, compromise, cap/affordability rejection and slower results.","A lap-time difference is not a points gain: report non-comparable retirements and actual standings margins.","Short/repeated circuits cannot establish season-long runaway safety; actual original leader and empty subgroups remain visible."},pairs};
  File.WriteAllText(Path.Combine(output,"summary.json"),JsonSerializer.Serialize(summary,new JsonSerializerOptions(json){WriteIndented=true}));
 }
@@ -197,8 +218,8 @@ object Stats(IEnumerable<double> source){var values=source.ToArray();return new{
 string Command(string purpose)=>new Guid(SHA256.HashData(Encoding.UTF8.GetBytes(schema+"/"+purpose))[..16]).ToString("D");
 record RuleSnapshot(Dictionary<string,string> Versions,ImmutableArray<DevelopmentOption> PermanentOptions,ImmutableArray<RacePackageTemplate> PackageTemplates,IncidentTuning SyntheticIncidents);
 record Archive(string Schema,string PolicyVersion,string ProductCommit,Dictionary<string,string> ToolSources,RuleSnapshot Rules,int[] Seeds,PersonnelPool Pool,ConstructionCatalogue Catalogue,WeekendPreset[] Templates,SeasonIncomeConfiguration Income,DevelopmentOutcomeControls Controls,DevelopmentRiskControls Risk,Run[] Runs);
-record Run(string Scope,int Seed,string PersonnelPolicy,string Arm,string? AliasOf,string[] Calendar,AcquisitionState Acquisition,ConstructionState Construction,ImmutableArray<CreditEntry> Ledger,DevelopmentState Development,Step[] Steps,Event[] Events);
+record Run(string Scope,int Seed,string PersonnelPolicy,string Arm,string? AliasOf,string[] Calendar,AcquisitionState Acquisition,ConstructionState Construction,ImmutableArray<CreditEntry> Ledger,DevelopmentState Development,Step[] Steps,Event[] Events,string? BaseCarFailure=null);
 record PlanChoice(string Action,string? OptionId,RacePackageSelection? Package,string? Refinement,bool Rush,string? Reason);
 record Step(int OpportunityIndex,PlanChoice Planned,string? AttemptedQuoteId,int? AttemptedCost,string? Failure,int BalanceBefore,int BalanceAfter,ImmutableArray<RacePackageVersion> ObservedLibrary);
 record Event(WeekendPreset[] Presets,EffectiveWeekend[] Effective,RaceReplay Replay,ClassificationEntry[] Classification,ChampionshipAward[] Awards,int Phases,double Time,string Hash,IReadOnlyList<RecordedPackageSelection>? Selections=null);
-record Pair(string Scope,int Seed,string PersonnelPolicy,string Arm,string? AliasOf,int PreseasonBalance,int FinalBalance,int DevelopmentSpending,int Attempts,int Failures,string?[] FailureReasons,int SaveDecisions,int CompletedPackages,int CompletedVersions,Dictionary<string,int> Outcomes,int Pending,int AllRetirements,int TargetRetirements,double?[] EventSecondsVsSave,double? TotalSecondsVsSave,int[] TargetMargins,int TargetFinalMarginDeltaVsSave,string OriginalLeaderByStandingsTiebreak,string[] OriginalPointLeaders,int[] OriginalLeaderMargins,int OriginalLeaderFinalMarginDeltaVsSave,int TargetPoints,RacePackageSelection[] Selections);
+record Pair(string Scope,int Seed,string PersonnelPolicy,string Arm,string? AliasOf,int PreseasonBalance,int FinalBalance,int DevelopmentSpending,int Attempts,int Failures,string?[] FailureReasons,int SaveDecisions,int CompletedPackages,int CompletedVersions,Dictionary<string,int> Outcomes,int Pending,int AllRetirements,int TargetRetirements,double?[] EventSecondsVsSave,double? TotalSecondsVsSave,int[] TargetMargins,int TargetFinalMarginDeltaVsSave,string OriginalLeaderByStandingsTiebreak,string[] OriginalPointLeaders,int[] OriginalLeaderMargins,int OriginalLeaderFinalMarginDeltaVsSave,int TargetPoints,RacePackageSelection[] Selections,string? BaseCarFailure,int BaseCarCost);
