@@ -21,3 +21,22 @@ The exact original eight-test filter passes again in parallel (**8/8**) after th
 The follow-on check runs only `node tools/verify.mjs backend` against this committed candidate. Its final authoritative result and pinned revision are the immutable manifest under this worktree's `.tools/reports/verification/runs/` and the outer bounded record `.tools/reports/s14-isolation-backend-final.json`; the completion handoff identifies the exact run and counts after exit. A focused pass alone is not counted as a full-backend pass.
 
 All diagnosis adaptations copy only the original filter, never the root assembly/cwd/ports. API builds/tests and verification artifacts belong to `C:/Projects/F1Game/.tools/worktrees/s14-review-fixes`. Auth23109/Firestore23100/websocket23150/hub23410/log23460 are owned by each isolated emulator run, rejected if already occupied, and shut down by that run. The scripts preserve real persistence/restart/failure paths and the backend's existing process cleanup. SDK10.0.401, Java21, Node24.22.1 and NuGetAudit=false for offline restore; dependency pins unchanged. Root verification and diagnostic listeners/files are untouched. No new helper-only test, broad frontend step, production redesign or GitHub action is part of this repair.
+
+## Complete manual-clock factory audit
+
+The first development-only delivery repair did not yet complete the full suite: candidate `07ca9e85816a5ee16b2021f1ae08364e050ce922`, tree `ff7d92d3a55237fb6437f4c3ea86f6a42f35745b`, again passed Simulation253/253 and API229/230. This time `QualifyingTests.Saved_deadline_pause_and_sweep_preserve_human_lock_and_fill_only_missing_teams` expected its explicit sweep to deliver1 but received0: another delivery driver had already consumed the due work. The failed immutable manifest is `.tools/reports/verification/runs/2026-10-29T04-34-11-937Z-846dc66e-d2fe-440e-acf6-7d98ff262c24/result.json`, with outer record preserved as `s14-isolation-development-manual-backend-failed.json`.
+
+The subsequent audit applied the same confirmed configuration axis consistently to every omitted manual-clock context, rather than running a complete suite for each fixture:
+
+- Qualifying helper: manual delivery only when its optional controlled clock is provided; real-clock calls retain existing delivery.
+- CampaignNextEvent: all four controlled-clock hosts, including observers/restarts.
+- CampaignRecovery: only the three controlled-clock hosts; its real-clock cases remain unchanged.
+- CampaignResults: its required-clock helper.
+- Assistance: only the two controlled-clock setups, preserving its shared real-clock helper.
+- PersonnelDeadline: the two controlled-clock/captured-callback hosts.
+- DevelopmentCommitment/DevelopmentGuidance retain the preceding explicit manual mode.
+- Deadline, ControlTransfer, SafetyCar's clocked case, WeatherReaction's clocked case, AssistanceProvenance, ConstructionConfirmation and Progression already set/inherit manual delivery and required no further mode changes.
+
+The audit changes only delivery configuration in tests that already advance a clock and explicitly sweep, advance-due, pause/resume or deliver callbacks. No global application mode, real-clock/background-delivery case, production CAS handling, assertion or xUnit parallelism setting changed.
+
+Affected classes passed **68/68 in parallel**, including the original eight-test filter and both observed failing scenarios. Literal class filter/runner: `.tools/reports/s14-isolation-affected-classes-command.json`; TRX: `s14-isolation/manual-clock-classes.trx`; owned emulator manifest: `s14-isolation-affected-classes-emulators.json`. Only after this coherent audit/pass is the final full backend candidate run. The verifier manifest and completion handoff remain authoritative for its final result, with the candidate kept clean during that check.

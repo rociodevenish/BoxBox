@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Hosting;
 using System.Net;
 using System.Net.Http.Json;
 using Game.Application;
@@ -30,7 +31,7 @@ public sealed class CampaignNextEventTests
  {
   var token=await LobbyTests.Identity(false);var clock=new Clock();
   var store=new InterruptedStore(new CampaignTestSessionScope(new FirestoreSessionStore("demo-f1game",Environment.GetEnvironmentVariable("F1_RECOVERY_HOST")??"127.0.0.1:19600")));
-  await using var server=LobbyTests.Server().WithWebHostBuilder(b=>b.ConfigureServices(s=>{s.Replace(ServiceDescriptor.Singleton<TimeProvider>(clock));s.Replace(ServiceDescriptor.Singleton<ISessionStore>(store));}));
+  await using var server=LobbyTests.Server().WithWebHostBuilder(b=>b.UseSetting("Wakeups:Mode","manual").ConfigureServices(s=>{s.Replace(ServiceDescriptor.Singleton<TimeProvider>(clock));s.Replace(ServiceDescriptor.Singleton<ISessionStore>(store));}));
   using var client=server.CreateClient();client.DefaultRequestHeaders.Authorization=new("Bearer",token);
   var created=await client.PostAsJsonAsync("/api/campaigns",new CreateCampaignInput(Guid.NewGuid().ToString(),"Host",mode));created.EnsureSuccessStatusCode();var joined=(await created.Content.ReadFromJsonAsync<CampaignJoined>())!;
   var id=joined.Campaign.CampaignId;var first=joined.Campaign.WeekendId;var device=joined.Weekend.Membership.DeviceId;
@@ -49,7 +50,7 @@ public sealed class CampaignNextEventTests
   var next=await client.PostAsJsonAsync($"/api/campaigns/{id}/next/prepare",new{});next.EnsureSuccessStatusCode();
   var state=(await next.Content.ReadFromJsonAsync<CampaignSnapshot>())!;Assert.Equal(0,state.EventIndex);Assert.Single(state.Results!);
   (await client.PostAsJsonAsync($"/api/campaigns/{id}/development/close",new CloseDevelopmentInput(Guid.NewGuid().ToString(),state.Development!.OpportunityId,state.Development.Revision,true))).EnsureSuccessStatusCode();
-  await using var observing=LobbyTests.Server().WithWebHostBuilder(b=>b.ConfigureServices(s=>{s.Replace(ServiceDescriptor.Singleton<TimeProvider>(clock));s.Replace(ServiceDescriptor.Singleton<ISessionStore>(store));}));
+  await using var observing=LobbyTests.Server().WithWebHostBuilder(b=>b.UseSetting("Wakeups:Mode","manual").ConfigureServices(s=>{s.Replace(ServiceDescriptor.Singleton<TimeProvider>(clock));s.Replace(ServiceDescriptor.Singleton<ISessionStore>(store));}));
   using var observer=observing.CreateClient();observer.DefaultRequestHeaders.Authorization=new("Bearer",token);
   (await observer.GetAsync($"/api/lobbies/{state.NextPreparation!.SessionId}/preparation/teams/team-01?deviceId={device}")).EnsureSuccessStatusCode();
   var returning=await client.PostAsJsonAsync($"/api/campaigns/{id}/return",new{nextEvent=true,deviceId=readOnly.Membership.DeviceId});returning.EnsureSuccessStatusCode();var membership=(await returning.Content.ReadFromJsonAsync<JoinedLobby>())!;
@@ -65,7 +66,7 @@ public sealed class CampaignNextEventTests
   var own=(await client.GetFromJsonAsync<PreparationTeamSnapshot>($"/api/lobbies/{second}/preparation/teams/team-01?deviceId={nextDevice}"))!;
   Assert.Equal(HttpStatusCode.Conflict,(await client.PostAsJsonAsync($"/api/lobbies/{second}/preparation/teams/team-01/practice?deviceId={nextDevice}",new PracticeCommand(Guid.NewGuid().ToString(),own.Revision,own.AssignmentRevision))).StatusCode);
   await server.DisposeAsync();
-  await using var recovered=LobbyTests.Server().WithWebHostBuilder(b=>b.ConfigureServices(s=>{s.Replace(ServiceDescriptor.Singleton<TimeProvider>(clock));s.Replace(ServiceDescriptor.Singleton<ISessionStore>(store));}));
+  await using var recovered=LobbyTests.Server().WithWebHostBuilder(b=>b.UseSetting("Wakeups:Mode","manual").ConfigureServices(s=>{s.Replace(ServiceDescriptor.Singleton<TimeProvider>(clock));s.Replace(ServiceDescriptor.Singleton<ISessionStore>(store));}));
   using var retry=recovered.CreateClient();retry.DefaultRequestHeaders.Authorization=new("Bearer",token);
   var saved=(await retry.GetFromJsonAsync<PreparationTeamSnapshot>($"/api/lobbies/{second}/preparation/teams/team-01?deviceId={nextDevice}"))!;Assert.Equal(System.Text.Json.JsonSerializer.Serialize(own.Assessment),System.Text.Json.JsonSerializer.Serialize(saved.Assessment));
   var preparation=(await retry.GetFromJsonAsync<PreparationPublicSnapshot>($"/api/lobbies/{second}/preparation"))!;
