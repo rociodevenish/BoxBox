@@ -27,10 +27,11 @@ public static partial class PermanentDevelopment
    if(decision.Quote is not {} quote)continue;
    var controls=quote.Controls??DefaultControls;ValidateControls(controls);
    
-   var draw=Draw(decision.ProjectId,"class");
-   var kind=draw<quote.DelayProbability?"delay":draw<quote.DelayProbability+quote.PartialProbability?"partial":"normal";
+   var draw=quote.Risk is null?Draw(decision.ProjectId,"class"):DevelopmentRiskControls.Draw(state.EntropyKey,opportunity.Id,decision.ProjectId,quote.OutcomeVersion,"class");
+   var kind=quote.Distribution?.Resolve(draw)??(draw<quote.DelayProbability?"delay":draw<quote.DelayProbability+quote.PartialProbability?"partial":"normal");
    var due=kind=="delay"?(index+1<calendar.Count?calendar[index+1]:null):opportunity.TargetEventId;
-   var gain=kind=="partial"?quote.Option.MinimumGain:quote.Option.MaximumGain-(int)Math.Floor(Draw(decision.ProjectId,"magnitude")*controls.GainVariation*(quote.Option.MaximumGain-quote.Option.MinimumGain+1));
+   var magnitude=quote.Risk is null?Draw(decision.ProjectId,"magnitude"):DevelopmentRiskControls.Draw(state.EntropyKey,opportunity.Id,decision.ProjectId,quote.OutcomeVersion,"magnitude");
+   var gain=kind is "partial" or "compromised"?quote.Option.MinimumGain:kind=="breakthrough"?quote.Option.MaximumGain+1:quote.Option.MaximumGain-(int)Math.Floor(magnitude*controls.GainVariation*(quote.Option.MaximumGain-quote.Option.MinimumGain+1));
    outcomes=outcomes.Add(new(decision.ProjectId,decision.TeamId,kind,opportunity.TargetEventId,due,quote,Math.Max(quote.Option.MinimumGain,gain)));
   }
   // Previous delays complete first; then projects from this close in stable original opportunity order.
@@ -47,8 +48,14 @@ public static partial class PermanentDevelopment
     var loss=modifiers.Where(m=>m.TeamId==outcome.TeamId).Sum(m=>Math.Min(0,m.Changes.GetValueOrDefault(compromise)));
     changes=changes.Add(compromise,Math.Max(-1,-3-loss));
    }
+   if(outcome.Kind=="compromised"&&gain>0)
+   {
+    var weakness=option.Attribute=="reliability"?"topSpeed":"reliability";
+    var loss=modifiers.Where(m=>m.TeamId==outcome.TeamId).Sum(m=>Math.Min(0,m.Changes.GetValueOrDefault(weakness)));
+    changes=changes.SetItem(weakness,changes.GetValueOrDefault(weakness)+Math.Max(-1,-3-loss));
+   }
    modifiers=modifiers.Add(new(outcome.ProjectId,outcome.TeamId,opportunity.TargetEventId,changes));
   }
-  return state with{Opportunities=state.Opportunities.Select(o=>o.Id==opportunityId?o with{Closed=true,Revision=o.Revision+1}:o).ToImmutableArray(),Outcomes=outcomes,Modifiers=modifiers,PackageOutcomes=PackageDevelopment.Resolve(state,opportunity)};
+  return state with{Opportunities=state.Opportunities.Select(o=>o.Id==opportunityId?o with{Closed=true,Revision=o.Revision+1}:o).ToImmutableArray(),Outcomes=outcomes,Modifiers=modifiers,PackageOutcomes=PackageDevelopment.Resolve(state,opportunity,calendar)};
  }
 }

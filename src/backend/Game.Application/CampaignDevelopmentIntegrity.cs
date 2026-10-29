@@ -12,20 +12,28 @@ public static class CampaignDevelopmentIntegrity
   if(development.Version!=PermanentDevelopment.Version||development.EntropyKey.Length!=64||!development.EntropyKey.All(Uri.IsHexDigit)||development.Opportunities.Select(o=>o.Id).Distinct().Count()!=development.Opportunities.Length)throw new ArgumentException("Invalid development contract.");
   var decisions=development.Opportunities.SelectMany(o=>o.Decisions).ToArray();
   if(decisions.Select(d=>d.CommandId).Distinct().Count()!=decisions.Length||decisions.Select(d=>d.ProjectId).Distinct().Count()!=decisions.Length)throw new ArgumentException("Duplicate development commitment.");
+  if(decisions.Where(d=>d.PackageQuote?.SourcePackage is not null).GroupBy(d=>(d.TeamId,d.PackageQuote!.SourcePackage!.PackageId,d.PackageQuote.TargetVersion)).Any(g=>g.Count()>1))throw new ArgumentException("Refinement version reservations cannot collide, including pending work.");
   foreach(var opportunity in development.Opportunities)
   {
    var index=Array.FindIndex(record.Calendar,e=>e.EventId==opportunity.TargetEventId);
    if(index<1||opportunity.FromEventId!=record.Calendar[index-1].EventId||opportunity.Id!=record.CampaignId+"/development/"+opportunity.TargetEventId||!(record.Contributions??[]).Any(c=>c.EventId==opportunity.FromEventId)||!opportunity.Drafts.Keys.Order().SequenceEqual(record.Teams.Select(t=>t.TeamId).Order())||opportunity.Decisions.Select(d=>d.TeamId).Distinct().Count()!=opportunity.Decisions.Length||opportunity.Receipts.Select(r=>r.CommandId).Distinct().Count()!=opportunity.Receipts.Length||opportunity.Revision<1+opportunity.Receipts.Length+opportunity.Decisions.Length)throw new ArgumentException("Invalid development opportunity.");
    foreach(var (team,draft) in opportunity.Drafts)
    {
-    if(draft.Revision<0||draft.ActionKind is not("Save" or "PermanentRefinement" or "PackageCreation")||draft.ActionKind=="Save"&&(draft.Quote is not null||draft.PackageQuote is not null||draft.OptionId is not null)||draft.ActionKind=="PermanentRefinement"&&(draft.Quote is null||draft.PackageQuote is not null||draft.OptionId!=draft.Quote.Option.Id)||draft.ActionKind=="PackageCreation"&&(draft.Quote is not null||draft.PackageQuote is null||draft.OptionId!=draft.PackageQuote.Template.Id))throw new ArgumentException("Invalid development draft.");
-    if(draft.Quote is {} quote&&PermanentDevelopment.Quote(quote.Option.Id,quote.Personnel,quote.Controls)!=quote)throw new ArgumentException("Invalid saved quote.");
+    if(draft.Revision<0||draft.ActionKind is not("Save" or "PermanentRefinement" or "PackageCreation" or "PackageRefinement")||draft.ActionKind=="Save"&&(draft.Quote is not null||draft.PackageQuote is not null||draft.OptionId is not null)||draft.ActionKind=="PermanentRefinement"&&(draft.Quote is null||draft.PackageQuote is not null||draft.OptionId!=draft.Quote.Option.Id)||draft.ActionKind is ("PackageCreation" or "PackageRefinement")&&(draft.Quote is not null||draft.PackageQuote is null||draft.OptionId!=draft.PackageQuote.Template.Id))throw new ArgumentException("Invalid development draft.");
+    if(draft.Quote is {} quote&&PermanentDevelopment.Quote(quote.Option.Id,quote.Personnel,quote.Controls,quote.Risk)!=quote)throw new ArgumentException("Invalid saved quote.");
     if(draft.PackageQuote is {} package)
     {
      PackageDevelopment.ValidateQuote(package);
      var roster=record.Acquisition?.Hires.Where(h=>h.TeamId==team).Select(h=>record.Acquisition.Pool.People.Single(p=>p.Id==h.PersonId)).ToArray();
      var personnel=roster is null?new DevelopmentPersonnel("preset-development-neutral-v1",0,0,0,0):DevelopmentPersonnelMapping.Map(roster,record.Acquisition!.Pool.Version,package.Template.Id);
      if(package.Personnel!=personnel)throw new ArgumentException("Package quote personnel must match the team's frozen roster.");
+     if((draft.ActionKind=="PackageRefinement")!=(package.SourcePackage is not null))throw new ArgumentException("Package action must match its frozen source contract.");
+     if(package.SourcePackage is {} source)
+     {
+      var target=Array.FindIndex(record.Calendar,e=>e.EventId==opportunity.TargetEventId);
+      var prior=(development.PackageOutcomes.IsDefault?[]:development.PackageOutcomes).SingleOrDefault(o=>o.TeamId==team&&o.Package?.PackageId==source.PackageId&&o.Package.Version==source.Version&&o.CompletionEventId is {} due&&Array.FindIndex(record.Calendar,e=>e.EventId==due)<target&&o.Package.Completed);
+      if(prior?.Package is null||JsonSerializer.Serialize(prior.Package,BrowserReplay.JsonOptions)!=JsonSerializer.Serialize(source,BrowserReplay.JsonOptions))throw new ArgumentException("Refinement source must be an exact previously completed own package version.");
+     }
     }
    }
    foreach(var decision in opportunity.Decisions)
@@ -37,7 +45,7 @@ public static class CampaignDevelopmentIntegrity
     else if(decision.PackageQuote is {} package)
     {
      PackageDevelopment.ValidateQuote(package);
-     if(own.Length!=1||own[0]!=new CreditEntry(decision.CommandId,decision.TeamId,-package.Cost,"race-package-development",decision.ProjectId,PackageDevelopment.Version,decision.IntendedEventId))throw new ArgumentException("Package project and exact debit must agree.");
+     if(own.Length!=1||own[0]!=new CreditEntry(decision.CommandId,decision.TeamId,-package.Cost,"race-package-development",decision.ProjectId,package.Version,decision.IntendedEventId))throw new ArgumentException("Package project and exact debit must agree.");
     }
     else if(own.Length!=0)throw new ArgumentException("Save cannot spend credits.");
    }

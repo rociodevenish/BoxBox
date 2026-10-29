@@ -6,7 +6,7 @@ using Game.Simulation;
 namespace Game.Application;
 
 /// <summary>Durable campaign orchestration over the public household weekend operations.</summary>
-public sealed partial class CampaignCoordinator(SessionCoordinator weekends,ICampaignStore store,TimeProvider? timeProvider=null,IScheduledWakeups? scheduledWakeups=null,DevelopmentOutcomeControls? developmentControls=null)
+public sealed partial class CampaignCoordinator(SessionCoordinator weekends,ICampaignStore store,TimeProvider? timeProvider=null,IScheduledWakeups? scheduledWakeups=null,DevelopmentOutcomeControls? developmentControls=null,DevelopmentRiskControls? riskControls=null)
 {
     public const string Schema="campaign-record-v1";
     public const string ContentVersion="preset-campaign-v1/provisional-2026.10.08";
