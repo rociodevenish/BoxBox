@@ -1,3 +1,4 @@
+using Game.Simulation;
 using Game.Domain;
 namespace Game.Application;
 
@@ -6,9 +7,9 @@ public record PracticeCommand(string CommandId, long? Revision, long? Assignment
 public record FreezePreparationCommand(string CommandId, long? Revision);
 public record FreezePreparationAck(string CommandId, string SessionId, long Revision, string ContextId);
 public record FrozenPreparedTeam(string TeamId, long Revision, string Source, WeekendPreset Preset,
-    WeekendSetup Setup, EffectiveWeekend Effective,IReadOnlyList<RecordedPreparationChoice>? AutomaticChoices=null);
-public record PreparationGuidance(string HelpLevel,bool AutoAcceptRecommendation,PreparationRecommendation? Recommendation);
-public record PreparationAutomaticRecord(string TeamId,string Source,IReadOnlyList<RecordedPreparationChoice> Choices);
+    WeekendSetup Setup, EffectiveWeekend Effective,IReadOnlyList<RecordedPreparationChoice>? AutomaticChoices=null,IReadOnlyList<RecordedPackageSelection>? PackageChoices=null);
+public record PreparationGuidance(string HelpLevel,bool AutoAcceptRecommendation,PreparationRecommendation? Recommendation,PackageSelectionRecommendation? PackageRecommendation=null,IReadOnlyList<RecordedPackageSelection>? PackageChoices=null);
+public record PreparationAutomaticRecord(string TeamId,string Source,IReadOnlyList<RecordedPreparationChoice> Choices,IReadOnlyList<RecordedPackageSelection>? PackageChoices=null);
 public record FrozenPreparationContext(string ContextId, string ModelVersion, IReadOnlyList<FrozenPreparedTeam> Teams);
 public record PreparationReadiness(string TeamId, bool FinalReady, bool Locked,string Source="human");
 public record PracticeSnapshot(string ModelVersion, WeekendSetup Setup, string CircuitFeedback,

@@ -76,7 +76,7 @@ A small reserved choice of people available to the current team for one roster p
 A limited token spent to replace a Personnel Offer when alternatives are available, returning the replaced people to the pool.
 
 **Credit Ledger**:
-The record of a team's starting credits and spending, from which its remaining budget is determined.
+The record of a team's starting credits, income and spending, from which its remaining budget is determined.
 
 **Completion Reserve**:
 Credits kept available for a team's remaining mandatory personnel and minimum initial car construction.
@@ -87,3 +87,25 @@ _Avoid_: Weekend Setup, Race Package
 
 **Construction Draft**:
 An editable choice of initial car options whose credits remain unspent until confirmation.
+
+**Development Opportunity**:
+A team's one between-event choice to save its credits or commit to permanent development, package creation or package refinement.
+
+**Development Project**:
+Committed paid work with a quoted cost, an uncertain outcome and an intended completion event. Delayed work remains the same project.
+
+**Permanent Development**:
+Lasting changes to a team's car capabilities, separate from its original Base Car, selected Race Package and Weekend Setup.
+
+**Race Package**:
+A coordinated specification of specialised strengths and compromises for both cars. Exactly one completed package version is selected for a Grand Prix.
+_Avoid_: Weekend Setup, Component
+
+**Package Library**:
+A team's collection of Race Packages and their versions, retained as alternatives for later weekends.
+
+**Package Refinement**:
+Development work that creates a new version of an owned Race Package by strengthening it, reducing a compromise or broadening its usefulness.
+
+**Rush**:
+A higher-cost project choice that trades increased outcome risk for a better chance of reaching the intended event. Completion is not guaranteed.

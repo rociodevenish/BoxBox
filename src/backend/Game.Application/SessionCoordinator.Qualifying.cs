@@ -48,7 +48,7 @@ public sealed partial class SessionCoordinator
             }
             var frozen=new FrozenPreparationContext(Guid.NewGuid().ToString("D"),PreparationModule,
                 preparation.Teams.OrderBy(t=>t.Key,StringComparer.Ordinal).Select(t=>new FrozenPreparedTeam(t.Key,t.Value.Revision,
-                    t.Value.Source,t.Value.Preset,t.Value.Setup,t.Value.Effective,t.Value.AutomaticChoices)).ToImmutableArray());
+                    t.Value.Source,t.Value.Preset,t.Value.Setup,t.Value.Effective,t.Value.AutomaticChoices,t.Value.PackageChoices)).ToImmutableArray());
             var order=frozen.Teams.SelectMany(t=>t.Effective.Cars.Select(c=>c.Source.EntryId)).ToArray();
             var input=new QualifyingAttemptInput("Q1",1,lobby.Input.Seed!.Value,frozen.Teams.Select(t=>t.Effective).ToArray(),[],order,new());
             if(input.Weekends[0].Configuration is {Weather:not null,WetTyres:not null} wetConfiguration)
