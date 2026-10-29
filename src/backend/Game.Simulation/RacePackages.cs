@@ -44,4 +44,19 @@ public static class RacePackages
   var entry=Selected(Migrate(source));
   return ratings.ToImmutableDictionary(p=>p.Key,p=>Math.Clamp(p.Value+entry.Strengths.GetValueOrDefault(p.Key)+entry.Compromises.GetValueOrDefault(p.Key),1,100));
  }
+ public static WeekendPreset Complete(WeekendPreset source,IEnumerable<PackageDevelopmentOutcome> completed)
+ {
+  var own=completed.Where(o=>o.TeamId==source.Cars[0].TeamId&&o.Package is {Completed:true}).ToArray();
+  if(own.Length==0)return source;
+  source=Migrate(source);
+  var library=source.PackageLibrary;
+  foreach(var outcome in own)
+  {
+   var entry=outcome.Package!;
+   var previous=library.SingleOrDefault(p=>p.PackageId==entry.PackageId&&p.Version==entry.Version);
+   if(previous is not null)throw new ArgumentException("Completed package version already belongs to this library.");
+   library=library.Add(entry);
+  }
+  return source with{PackageLibrary=library};
+ }
 }
