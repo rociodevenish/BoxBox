@@ -6,6 +6,18 @@ namespace Game.Application;
 
 public sealed partial class SessionCoordinator
 {
+    // Public configuration observation only; no incident draw or competitor state is exposed.
+    public bool CampaignReliabilityActive(string sessionId,string circuitId)
+    {
+        lock(gate)
+        {
+            var lobby=RequireLobby(sessionId);
+            if(lobby.CampaignPresets is null||lobby.CampaignPresets[0].Circuit.Id!=circuitId)
+                throw new SessionFault(SessionFailure.Conflict,"Observe the frozen circuit for this campaign weekend.");
+            var effective=lobby.ModuleState.ContainsKey(PreparationModule)?ReadPreparation(lobby).Teams.Values.First().Effective.Configuration.Incidents:null;
+            return (effective??openingDisruptions?.ForCircuit(circuitId)?.Incidents) is {FailureRate:>0};
+        }
+    }
     private const string CampaignRebind="campaign-boundary-rebind-v1";
     private sealed record CampaignRebindIntent(string DeviceId,int Phase);
     public void PrepareAbsentCampaignTeam(string id,AuthIdentity identity,string teamId)

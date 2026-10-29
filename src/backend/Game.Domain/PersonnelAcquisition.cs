@@ -190,7 +190,7 @@ public static class PersonnelAcquisition
   var cars=state.ConstructedCars??ImmutableDictionary<string,ConfirmedBaseCar>.Empty;
   SeasonIncome.ValidateEntries(state.Ledger,state.TeamIds);
   if(state.Ledger.Any(e=>e.Reason=="permanent-development"&&(e.Credits is > -8 or < -16||e.Version!=PermanentDevelopment.Version||string.IsNullOrWhiteSpace(e.PersonId)||string.IsNullOrWhiteSpace(e.EventId)||!Guid.TryParse(e.CommandId,out var developmentKey)||developmentKey==Guid.Empty)))throw new ArgumentException("Invalid development debit.");
-  if(state.Ledger.Any(e=>e.Reason=="race-package-development"&&(e.Credits is > -8 or < -18||e.Version is not(PackageDevelopment.Version or PackageDevelopment.RichVersion)||string.IsNullOrWhiteSpace(e.PersonId)||string.IsNullOrWhiteSpace(e.EventId)||!Guid.TryParse(e.CommandId,out var packageKey)||packageKey==Guid.Empty)))throw new ArgumentException("Invalid package debit.");
+  if(state.Ledger.Any(e=>e.Reason=="race-package-development"&&(e.Credits is > -8 or < -24||e.Version is not(PackageDevelopment.Version or PackageDevelopment.RichVersion or PackageDevelopment.RushVersion)||string.IsNullOrWhiteSpace(e.PersonId)||string.IsNullOrWhiteSpace(e.EventId)||!Guid.TryParse(e.CommandId,out var packageKey)||packageKey==Guid.Empty)))throw new ArgumentException("Invalid package debit.");
   if(state.Ledger.Length!=state.TeamIds.Length+state.Hires.Length+cars.Count+state.Ledger.Count(e=>e.Reason is "event-income" or "permanent-development" or "race-package-development")||state.Ledger.Any(e=>!state.TeamIds.Contains(e.TeamId)))throw new ArgumentException("Unrecognised ledger entries.");
   foreach(var (team,car) in cars)
   {

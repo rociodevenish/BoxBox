@@ -13,7 +13,8 @@ public record DevelopmentQuote(string Id,string Version,DevelopmentOption Option
 public record DevelopmentDraft(long Revision,string ActionKind,string? OptionId,DevelopmentQuote? Quote,[property:JsonIgnore(Condition=JsonIgnoreCondition.WhenWritingNull)] PackageDevelopmentQuote? PackageQuote=null);
 public record DevelopmentEdit(string CommandId,string OpportunityId,long Revision,string ActionKind,string? OptionId,string? QuoteId,long AssignmentRevision=0,
  [property:JsonIgnore(Condition=JsonIgnoreCondition.WhenWritingNull)] RacePackageSelection? Package=null,
- [property:JsonIgnore(Condition=JsonIgnoreCondition.WhenWritingNull)] string? Refinement=null);
+ [property:JsonIgnore(Condition=JsonIgnoreCondition.WhenWritingNull)] string? Refinement=null,
+ [property:JsonIgnore(Condition=JsonIgnoreCondition.WhenWritingDefault)] bool Rush=false);
 public record DevelopmentCommit(string CommandId,string OpportunityId,long Revision,long DraftRevision,string? QuoteId,long AssignmentRevision=0);
 public record DevelopmentDecision(string TeamId,string CommandId,string Fingerprint,string ActionKind,string ProjectId,string IntendedEventId,DevelopmentQuote? Quote,string Source,[property:JsonIgnore(Condition=JsonIgnoreCondition.WhenWritingNull)] PackageDevelopmentQuote? PackageQuote=null);
 public record DevelopmentReceipt(string CommandId,string Fingerprint);
@@ -67,6 +68,7 @@ public static partial class PermanentDevelopment
    if(command.OptionId!=package.Template.Id)throw new ArgumentException("Refinement template must match its completed source.");
   }
   else if(command.Package is not null||command.Refinement is not null)throw new ArgumentException("Source version and refinement apply only to package refinement.");
+  if(command.Rush){if(package is null)throw new ArgumentException("Rush applies only to package creation or refinement.");package=PackageDevelopment.Rush(package);}
   var quote=command.ActionKind switch{"Save" when command.OptionId is null&&command.QuoteId is null=>null,"PermanentRefinement"=>Quote(command.OptionId??"",personnel,controls,risk),"PackageCreation" or "PackageRefinement"=>null,_=>throw new ArgumentException("Choose Save, PermanentRefinement, PackageCreation or PackageRefinement explicitly.")};
   if((quote?.Id??package?.Id)!=command.QuoteId)throw new InvalidOperationException("Quote changed. Refresh before editing.");
   return state with{Revision=state.Revision+1,Drafts=state.Drafts.SetItem(team,new(state.Drafts[team].Revision+1,command.ActionKind,command.OptionId,quote,package)),Receipts=state.Receipts.Add(new(key,fingerprint))};

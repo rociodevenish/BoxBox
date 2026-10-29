@@ -47,7 +47,7 @@ public sealed class RichDevelopmentApiTests
   var ownDevelopment=(await client.GetFromJsonAsync<DevelopmentTeamSnapshot>(endpoint))!;
   Assert.Equal(106,ownDevelopment.Balance);
   using var outsider=server.CreateClient();outsider.DefaultRequestHeaders.Authorization=new("Bearer",await LobbyTests.Identity(true));Assert.Equal(HttpStatusCode.Forbidden,(await outsider.GetAsync(endpoint)).StatusCode);
-  Assert.Equal(5,ownDevelopment.PackageOptions!.Count);var quote=ownDevelopment.PackageOptions.Single(q=>q.Template.Id=="downforce");
+  Assert.Equal(10,ownDevelopment.PackageOptions!.Count);var quote=ownDevelopment.PackageOptions.Single(q=>q.Template.Id=="downforce"&&q.Rush is null);
   var draft=new DevelopmentEdit(Guid.NewGuid().ToString(),ownDevelopment.OpportunityId,ownDevelopment.Revision,"PackageCreation","downforce",quote.Id,ownDevelopment.AssignmentRevision);
   var edited=await client.PostAsJsonAsync(endpoint.Replace("?","/draft?"),draft);edited.EnsureSuccessStatusCode();ownDevelopment=(await edited.Content.ReadFromJsonAsync<DevelopmentTeamSnapshot>())!;Assert.Equal(106,ownDevelopment.Balance);
   var command=new DevelopmentCommit(Guid.NewGuid().ToString(),ownDevelopment.OpportunityId,ownDevelopment.Revision,ownDevelopment.Draft.Revision,quote.Id,ownDevelopment.AssignmentRevision);

@@ -14,13 +14,17 @@ public static partial class PackageDevelopment
   var basis=JsonSerializer.SerializeToUtf8Bytes(new{RichVersion,RichOutcomeVersion,Base=original.Id,Risk=risk,Distribution=chances,Range=range});
   return original with{Id=Convert.ToHexString(SHA256.HashData(basis)),Version=RichVersion,OutcomeVersion=RichOutcomeVersion,OutcomeRange=range,Risk=risk,Distribution=chances,Timing="Resolves at preparation close; delay completes at the following preparation close without a second payment."};
  }
- public static PackageDevelopmentQuote Requote(PackageDevelopmentQuote quote,DevelopmentPersonnel personnel)=>quote.Risk is null?Quote(quote.Template.Id,personnel):quote.SourcePackage is {} source?QuoteRefinement(source,quote.Refinement!,personnel,quote.Risk,quote.TargetVersion):QuoteRich(quote.Template.Id,personnel,quote.Risk);
+ public static PackageDevelopmentQuote Requote(PackageDevelopmentQuote quote,DevelopmentPersonnel personnel)
+ {
+  var standard=quote.Risk is null?Quote(quote.Template.Id,personnel):quote.SourcePackage is {} source?QuoteRefinement(source,quote.Refinement!,personnel,quote.Risk,quote.TargetVersion):QuoteRich(quote.Template.Id,personnel,quote.Risk);
+  return quote.Rush is null?standard:Rush(standard);
+ }
  private static void ValidateRichQuote(PackageDevelopmentQuote quote)
  {
   var expected=Requote(quote,quote.Personnel);
   // Template vocabulary and numeric contract are validated independently of dictionary reference equality.
   ValidateQuote(Quote(quote.Template.Id,quote.Personnel) with{Template=quote.Template});
-  if(quote.Id!=expected.Id||quote.Version!=expected.Version||quote.OutcomeVersion!=expected.OutcomeVersion||quote.Cost!=expected.Cost||quote.Timing!=expected.Timing||quote.OutcomeRange!=expected.OutcomeRange||quote.Distribution!=expected.Distribution||quote.Refinement!=expected.Refinement||quote.TargetVersion!=expected.TargetVersion||quote.ProjectBaseCost!=expected.ProjectBaseCost)throw new ArgumentException("Saved rich package quote is incompatible.");
+  if(quote.Id!=expected.Id||quote.Version!=expected.Version||quote.OutcomeVersion!=expected.OutcomeVersion||quote.Cost!=expected.Cost||quote.Timing!=expected.Timing||quote.OutcomeRange!=expected.OutcomeRange||quote.Distribution!=expected.Distribution||quote.Refinement!=expected.Refinement||quote.TargetVersion!=expected.TargetVersion||quote.ProjectBaseCost!=expected.ProjectBaseCost||quote.Rush!=expected.Rush)throw new ArgumentException("Saved rich package quote is incompatible.");
  }
  private static RacePackageVersion Materialise(PackageDevelopmentQuote quote,string project,string kind)
  {
@@ -29,6 +33,12 @@ public static partial class PackageDevelopment
   var compromises=quote.Template.Compromises;
   if(kind=="compromised")compromises=compromises.SetItem("reliability",Math.Max(-6,compromises.GetValueOrDefault("reliability")-2));
   return new(project+"/package",1,quote.Template.Name,"race-package-v1",strengths,compromises,[],quote.Template.Applicability,quote.Version+"/"+quote.Template.Version+"/"+project,[]);
+ }
+ public static RacePackageVersion PreviewOutcome(PackageDevelopmentQuote quote,string kind)
+ {
+  ValidateQuote(quote);
+  if(kind is not("normal" or "partial" or "breakthrough" or "compromised"))throw new ArgumentException("Preview a concrete completed outcome category.");
+  return quote.Risk is null?new("preview",1,quote.Template.Name,"race-package-v1",quote.Template.Strengths,quote.Template.Compromises,[],quote.Template.Applicability,quote.Version,[]):Materialise(quote,"preview",kind);
  }
  public static PackageDevelopmentQuote QuoteRefinement(RacePackageVersion source,string refinement,DevelopmentPersonnel personnel,DevelopmentRiskControls? risk=null,int? targetVersion=null)
  {
