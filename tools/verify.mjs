@@ -18,6 +18,7 @@ const steps=[
  ['development',[playwright,'test','--config','playwright.development.config.ts'],frontend],
  ['development-delay',[playwright,'test','--config','playwright.development-delay.config.ts'],frontend],
  ['development-guidance',[playwright,'test','--config','playwright.development-guidance.config.ts'],frontend],
+ ['packages',[playwright,'test','--config','playwright.packages.config.ts'],frontend],
  ['gallery',[playwright,'test'],frontend],
  ['browser',[playwright,'test','--config','playwright.browser.config.ts'],frontend],
  ['boundary',[playwright,'test','--config','playwright.boundary.config.ts'],frontend],

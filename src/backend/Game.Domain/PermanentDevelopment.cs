@@ -8,13 +8,13 @@ namespace Game.Domain;
 public record DevelopmentPersonnel(string RosterVersion,int ManagerEfficiency,int ManagerDevelopment,int TechnicalEfficiency,int TechnicalQuality);
 public record DevelopmentOption(string Id,string Name,int BaseCost,string Attribute,int MinimumGain,int MaximumGain,int StackingCap,string Compromise);
 public record DevelopmentQuote(string Id,string Version,DevelopmentOption Option,int Cost,DevelopmentPersonnel Personnel,string OutcomeVersion,string OutcomeRange,DevelopmentOutcomeControls? Controls=null,double NormalProbability=.65,double PartialProbability=.2,double DelayProbability=.15);
-public record DevelopmentDraft(long Revision,string ActionKind,string? OptionId,DevelopmentQuote? Quote);
+public record DevelopmentDraft(long Revision,string ActionKind,string? OptionId,DevelopmentQuote? Quote,[property:JsonIgnore(Condition=JsonIgnoreCondition.WhenWritingNull)] PackageDevelopmentQuote? PackageQuote=null);
 public record DevelopmentEdit(string CommandId,string OpportunityId,long Revision,string ActionKind,string? OptionId,string? QuoteId,long AssignmentRevision=0);
 public record DevelopmentCommit(string CommandId,string OpportunityId,long Revision,long DraftRevision,string? QuoteId,long AssignmentRevision=0);
-public record DevelopmentDecision(string TeamId,string CommandId,string Fingerprint,string ActionKind,string ProjectId,string IntendedEventId,DevelopmentQuote? Quote,string Source);
+public record DevelopmentDecision(string TeamId,string CommandId,string Fingerprint,string ActionKind,string ProjectId,string IntendedEventId,DevelopmentQuote? Quote,string Source,[property:JsonIgnore(Condition=JsonIgnoreCondition.WhenWritingNull)] PackageDevelopmentQuote? PackageQuote=null);
 public record DevelopmentReceipt(string CommandId,string Fingerprint);
 public record DevelopmentOpportunity(string Id,string FromEventId,string TargetEventId,long Revision,ImmutableDictionary<string,DevelopmentDraft> Drafts,ImmutableArray<DevelopmentDecision> Decisions,ImmutableArray<DevelopmentReceipt> Receipts,bool Closed=false);
-public record DevelopmentState(string Version,ImmutableArray<DevelopmentOpportunity> Opportunities,string EntropyKey,[property:JsonIgnore(Condition=JsonIgnoreCondition.WhenWritingDefault)] ImmutableArray<DevelopmentOutcome> Outcomes=default,[property:JsonIgnore(Condition=JsonIgnoreCondition.WhenWritingDefault)] ImmutableArray<PermanentModifier> Modifiers=default);
+public record DevelopmentState(string Version,ImmutableArray<DevelopmentOpportunity> Opportunities,string EntropyKey,[property:JsonIgnore(Condition=JsonIgnoreCondition.WhenWritingDefault)] ImmutableArray<DevelopmentOutcome> Outcomes=default,[property:JsonIgnore(Condition=JsonIgnoreCondition.WhenWritingDefault)] ImmutableArray<PermanentModifier> Modifiers=default,[property:JsonIgnore(Condition=JsonIgnoreCondition.WhenWritingDefault)] ImmutableArray<PackageDevelopmentOutcome> PackageOutcomes=default);
 public record DevelopmentCommitment(DevelopmentOpportunity State,ImmutableArray<CreditEntry> Ledger);
 
 /// <summary>One free editable draft and one accepted action per between-event opportunity.</summary>
@@ -48,9 +48,10 @@ public static partial class PermanentDevelopment
   if(state.Decisions.Any(d=>d.CommandId==key))throw new InvalidOperationException("Command identity already belongs to an accepted decision.");
   if(state.Receipts.FirstOrDefault(r=>r.CommandId==key) is {} prior)return prior.Fingerprint==fingerprint?state:throw new InvalidOperationException("Command identity already accepted with different inputs.");
   Check(state,team,command.OpportunityId,command.Revision);
-  var quote=command.ActionKind switch{"Save" when command.OptionId is null&&command.QuoteId is null=>null,"PermanentRefinement"=>Quote(command.OptionId??"",personnel,controls),_=>throw new ArgumentException("Choose Save or PermanentRefinement explicitly.")};
-  if(quote?.Id!=command.QuoteId)throw new InvalidOperationException("Quote changed. Refresh before editing.");
-  return state with{Revision=state.Revision+1,Drafts=state.Drafts.SetItem(team,new(state.Drafts[team].Revision+1,command.ActionKind,command.OptionId,quote)),Receipts=state.Receipts.Add(new(key,fingerprint))};
+  var package=command.ActionKind=="PackageCreation"?PackageDevelopment.Quote(command.OptionId??"",personnel):null;
+  var quote=command.ActionKind switch{"Save" when command.OptionId is null&&command.QuoteId is null=>null,"PermanentRefinement"=>Quote(command.OptionId??"",personnel,controls),"PackageCreation"=>null,_=>throw new ArgumentException("Choose Save, PermanentRefinement or PackageCreation explicitly.")};
+  if((quote?.Id??package?.Id)!=command.QuoteId)throw new InvalidOperationException("Quote changed. Refresh before editing.");
+  return state with{Revision=state.Revision+1,Drafts=state.Drafts.SetItem(team,new(state.Drafts[team].Revision+1,command.ActionKind,command.OptionId,quote,package)),Receipts=state.Receipts.Add(new(key,fingerprint))};
  }
  public static DevelopmentCommitment Commit(DevelopmentOpportunity state,ImmutableArray<CreditEntry> ledger,string team,DevelopmentCommit command,DevelopmentPersonnel personnel,string source="manual-confirmation")
  {
@@ -60,14 +61,21 @@ public static partial class PermanentDevelopment
   if(state.Receipts.Any(r=>r.CommandId==key))throw new InvalidOperationException("Command identity already used for a draft.");
   Check(state,team,command.OpportunityId,command.Revision);
   var draft=state.Drafts[team];
-  if(draft.Revision!=command.DraftRevision||draft.Quote?.Id!=command.QuoteId)throw new InvalidOperationException("Draft changed. Refresh before commitment.");
+  if(draft.Revision!=command.DraftRevision||(draft.Quote?.Id??draft.PackageQuote?.Id)!=command.QuoteId)throw new InvalidOperationException("Draft changed. Refresh before commitment.");
   if(draft.Quote is {} quote)
   {
    if(Quote(quote.Option.Id,personnel,quote.Controls)!=quote)throw new InvalidOperationException("Personnel or quote changed. Refresh before commitment.");
    if(ledger.Where(e=>e.TeamId==team).Sum(e=>e.Credits)<quote.Cost)throw new InvalidOperationException("Insufficient credits. No investment or Save was accepted.");
    ledger=ledger.Add(new(key,team,-quote.Cost,"permanent-development",state.Id+"/"+team,Version,state.TargetEventId));
   }
-  var decision=new DevelopmentDecision(team,key,fingerprint,draft.ActionKind,state.Id+"/"+team,state.TargetEventId,draft.Quote,source);
+  if(draft.PackageQuote is {} package)
+  {
+   PackageDevelopment.ValidateQuote(package);
+   if(PackageDevelopment.Quote(package.Template.Id,personnel).Id!=package.Id)throw new InvalidOperationException("Personnel or package quote changed. Refresh before commitment.");
+   if(ledger.Where(e=>e.TeamId==team).Sum(e=>e.Credits)<package.Cost)throw new InvalidOperationException("Insufficient credits. No package investment or Save was accepted.");
+   ledger=ledger.Add(new(key,team,-package.Cost,"race-package-development",state.Id+"/"+team,PackageDevelopment.Version,state.TargetEventId));
+  }
+  var decision=new DevelopmentDecision(team,key,fingerprint,draft.ActionKind,state.Id+"/"+team,state.TargetEventId,draft.Quote,source,draft.PackageQuote);
   return new(state with{Revision=state.Revision+1,Decisions=state.Decisions.Add(decision)},ledger);
  }
  private static string Key(string value)=>Guid.TryParse(value,out var key)&&key!=Guid.Empty?key.ToString("D"):throw new ArgumentException("Supply a command identity.");

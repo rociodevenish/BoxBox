@@ -36,7 +36,7 @@ public sealed partial class CampaignCoordinator
    record=WithDevelopment(record,opportunity);
    var developed=PermanentDevelopment.Close(record.Development!,opportunity.Id,record.Calendar.Select(e=>e.EventId).ToArray());
    var effective=record.EffectiveEventPresets is null?new Dictionary<string,WeekendPreset[]>():new(record.EffectiveEventPresets);
-   effective.Add(opportunity.TargetEventId,record.FrozenPresets[opportunity.TargetEventId].Select(p=>DevelopedCar.Apply(p,developed.Modifiers)).ToArray());
+   effective.Add(opportunity.TargetEventId,record.FrozenPresets[opportunity.TargetEventId].Select(p=>RacePackages.Complete(DevelopedCar.Apply(p,developed.Modifiers),(developed.PackageOutcomes.IsDefault?[]:developed.PackageOutcomes).Where(o=>o.CompletionEventId is {} due&&Array.IndexOf(record.Calendar.Select(e=>e.EventId).ToArray(),due)<=Array.IndexOf(record.Calendar.Select(e=>e.EventId).ToArray(),opportunity.TargetEventId)))).ToArray());
    record=record with{Development=developed,EffectiveEventPresets=effective,DevelopmentCloses=[..record.DevelopmentCloses??[],new(key.ToString("D"),fingerprint,opportunity.Id)]};
    Write(id,saved.Version,record);
    // The saved outcome/snapshot owns recovery. A failed independent lobby write is repaired by the same command.

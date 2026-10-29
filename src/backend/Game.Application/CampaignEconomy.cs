@@ -24,11 +24,11 @@ public static class CampaignEconomy
   SeasonIncome.ValidateEntries(ledger,teams);
   var expected=(record.Contributions??[]).SelectMany(c=>teams.Select(t=>new CreditEntry("event-income/"+c.EventId,t,record.Income.CreditsPerEvent,"event-income",Version:record.Income.Version,EventId:c.EventId))).ToArray();
   if(!ledger.Where(e=>e.Reason=="event-income").OrderBy(e=>e.EventId).ThenBy(e=>e.TeamId).SequenceEqual(expected.OrderBy(e=>e.EventId).ThenBy(e=>e.TeamId)))throw new ArgumentException("Income must exactly match committed events.");
-  if(record.Acquisition is null&&ledger.Length!=teams.Length+expected.Length+ledger.Count(e=>e.Reason=="permanent-development"))throw new ArgumentException("Unexpected preset transaction.");
+  if(record.Acquisition is null&&ledger.Length!=teams.Length+expected.Length+ledger.Count(e=>e.Reason is "permanent-development" or "race-package-development"))throw new ArgumentException("Unexpected preset transaction.");
   foreach(var team in teams)
   {
    var running=0;foreach(var entry in ledger.Where(e=>e.TeamId==team)){running=checked(running+entry.Credits);if(running<0)throw new ArgumentException("Negative credit balance.");}
-   if(record.Acquisition is null&&(ledger.Count(e=>e.TeamId==team&&e.Reason=="starting-credit"&&e.Credits==100&&e.CommandId=="starting-credit"&&e.Version=="preset-starting-credit-v1")!=1||ledger.Any(e=>e.TeamId==team&&e.Reason is not("starting-credit" or "event-income" or "permanent-development"))))throw new ArgumentException("Invalid preset ledger.");
+   if(record.Acquisition is null&&(ledger.Count(e=>e.TeamId==team&&e.Reason=="starting-credit"&&e.Credits==100&&e.CommandId=="starting-credit"&&e.Version=="preset-starting-credit-v1")!=1||ledger.Any(e=>e.TeamId==team&&e.Reason is not("starting-credit" or "event-income" or "permanent-development" or "race-package-development"))))throw new ArgumentException("Invalid preset ledger.");
   }
   if(ledger.Any(e=>!teams.Contains(e.TeamId)))throw new ArgumentException();
  }

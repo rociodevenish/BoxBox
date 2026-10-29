@@ -49,7 +49,6 @@ public static partial class PermanentDevelopment
    }
    modifiers=modifiers.Add(new(outcome.ProjectId,outcome.TeamId,opportunity.TargetEventId,changes));
   }
-  return state with{Opportunities=state.Opportunities.Select(o=>o.Id==opportunityId?o with{Closed=true,Revision=o.Revision+1}:o).ToImmutableArray(),Outcomes=outcomes,Modifiers=modifiers};
+  return state with{Opportunities=state.Opportunities.Select(o=>o.Id==opportunityId?o with{Closed=true,Revision=o.Revision+1}:o).ToImmutableArray(),Outcomes=outcomes,Modifiers=modifiers,PackageOutcomes=PackageDevelopment.Resolve(state,opportunity)};
  }
 }
-
