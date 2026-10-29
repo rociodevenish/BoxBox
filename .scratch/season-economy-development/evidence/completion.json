@@ -1,0 +1,394 @@
+{
+  "schema": "s14-completion-v1",
+  "integrationBranch": "codex/s14-season-economy",
+  "implementationBase": "d5b60e3312f758f32fc92a57f93cd5b5b0602a27",
+  "integratedCodeRevision": "610f6bda0ea706bbd1138e82e6c3f0d76da9c817",
+  "tree": "80754d4364a63524e49458b193f17541d03a885e",
+  "verificationScope": "Local checks; CI was not run. Failed attempts retained; only affected steps were repeated.",
+  "steps": [
+    {
+      "name": "tooling",
+      "command": "C:\\Program Files\\nodejs\\node.exe",
+      "args": [
+        "--test",
+        "tools/tests/run-bounded.test.mjs",
+        "tools/tests/publish-evidence.test.mjs"
+      ],
+      "cwd": "C:\\Projects\\F1Game",
+      "pid": 27160,
+      "startedAt": "2026-10-28T23:42:17.097Z",
+      "status": "passed",
+      "exitCode": 0,
+      "elapsedMs": 1103,
+      "sourceManifest": ".tools/reports/verification/runs/2026-10-28T23-42-17-038Z-07f49d00-b029-4209-b79f-15905137d1b5/result.json",
+      "testedRevision": "183268b23e9120fefdb14e8bba32a8d572433547"
+    },
+    {
+      "name": "typecheck",
+      "command": "C:\\Program Files\\nodejs\\node.exe",
+      "args": [
+        "C:\\Projects\\F1Game\\src\\frontend\\node_modules\\@angular\\compiler-cli\\bundles\\src\\bin\\ngc.js",
+        "-p",
+        "tsconfig.app.json",
+        "--noEmit"
+      ],
+      "cwd": "C:\\Projects\\F1Game\\src\\frontend",
+      "pid": 14444,
+      "startedAt": "2026-10-29T04:26:36.584Z",
+      "status": "passed",
+      "exitCode": 0,
+      "elapsedMs": 5611,
+      "sourceManifest": ".tools/reports/verification/runs/2026-10-29T04-26-36-510Z-a7c64992-c915-4b02-ad0f-4aa06f3d451f/result.json",
+      "testedRevision": "415db6aa917cb5aafb9b9f346a264887d45e9e1c"
+    },
+    {
+      "name": "build",
+      "command": "C:\\Program Files\\nodejs\\node.exe",
+      "args": [
+        "C:\\Projects\\F1Game\\src\\frontend\\node_modules\\@angular\\cli\\bin\\ng.js",
+        "build"
+      ],
+      "cwd": "C:\\Projects\\F1Game\\src\\frontend",
+      "pid": 44296,
+      "startedAt": "2026-10-29T04:26:42.197Z",
+      "status": "passed",
+      "exitCode": 0,
+      "elapsedMs": 17396,
+      "sourceManifest": ".tools/reports/verification/runs/2026-10-29T04-26-36-510Z-a7c64992-c915-4b02-ad0f-4aa06f3d451f/result.json",
+      "testedRevision": "415db6aa917cb5aafb9b9f346a264887d45e9e1c"
+    },
+    {
+      "name": "backend",
+      "command": "C:\\Program Files\\nodejs\\node.exe",
+      "args": [
+        "C:\\Projects\\F1Game\\.tools\\worktrees\\s14-review-fixes\\tools\\auth-emulator\\node_modules\\firebase-tools\\lib\\bin\\firebase.js",
+        "emulators:exec",
+        "--only",
+        "auth,firestore",
+        "--project",
+        "demo-f1game",
+        "--config",
+        "C:\\Projects\\F1Game\\.tools\\worktrees\\s14-review-fixes\\.tools\\reports\\firebase-review.json",
+        "--non-interactive",
+        "\"C:\\Program Files\\nodejs\\node.exe\" tools/run-backend-tests.mjs"
+      ],
+      "cwd": "C:\\Projects\\F1Game\\.tools\\worktrees\\s14-review-fixes",
+      "pid": 44552,
+      "startedAt": "2026-10-29T04:42:52.663Z",
+      "status": "passed",
+      "exitCode": 0,
+      "elapsedMs": 228829,
+      "sourceManifest": ".tools/reports/s14-review-fixes/verification/runs/2026-10-29T04-42-52-581Z-abbeefe2-4e5d-4197-987a-04700c189e05/result.json",
+      "testedRevision": "fbb5dc92a26fde71cc350640a34e77989fa6d8a4"
+    },
+    {
+      "name": "development",
+      "command": "C:\\Program Files\\nodejs\\node.exe",
+      "args": [
+        "C:\\Projects\\F1Game\\src\\frontend\\node_modules\\@playwright\\test\\cli.js",
+        "test",
+        "--config",
+        "playwright.development.config.ts"
+      ],
+      "cwd": "C:\\Projects\\F1Game\\src\\frontend",
+      "pid": 44628,
+      "startedAt": "2026-10-29T04:26:59.595Z",
+      "status": "passed",
+      "exitCode": 0,
+      "elapsedMs": 68691,
+      "sourceManifest": ".tools/reports/verification/runs/2026-10-29T04-26-36-510Z-a7c64992-c915-4b02-ad0f-4aa06f3d451f/result.json",
+      "testedRevision": "415db6aa917cb5aafb9b9f346a264887d45e9e1c"
+    },
+    {
+      "name": "development-delay",
+      "command": "C:\\Program Files\\nodejs\\node.exe",
+      "args": [
+        "C:\\Projects\\F1Game\\src\\frontend\\node_modules\\@playwright\\test\\cli.js",
+        "test",
+        "--config",
+        "playwright.development-delay.config.ts"
+      ],
+      "cwd": "C:\\Projects\\F1Game\\src\\frontend",
+      "pid": 42904,
+      "startedAt": "2026-10-29T04:28:08.288Z",
+      "status": "passed",
+      "exitCode": 0,
+      "elapsedMs": 30322,
+      "sourceManifest": ".tools/reports/verification/runs/2026-10-29T04-26-36-510Z-a7c64992-c915-4b02-ad0f-4aa06f3d451f/result.json",
+      "testedRevision": "415db6aa917cb5aafb9b9f346a264887d45e9e1c"
+    },
+    {
+      "name": "development-guidance",
+      "command": "C:\\Program Files\\nodejs\\node.exe",
+      "args": [
+        "C:\\Projects\\F1Game\\src\\frontend\\node_modules\\@playwright\\test\\cli.js",
+        "test",
+        "--config",
+        "playwright.development-guidance.config.ts"
+      ],
+      "cwd": "C:\\Projects\\F1Game\\src\\frontend",
+      "pid": 40216,
+      "startedAt": "2026-10-29T04:28:38.611Z",
+      "status": "passed",
+      "exitCode": 0,
+      "elapsedMs": 42480,
+      "sourceManifest": ".tools/reports/verification/runs/2026-10-29T04-26-36-510Z-a7c64992-c915-4b02-ad0f-4aa06f3d451f/result.json",
+      "testedRevision": "415db6aa917cb5aafb9b9f346a264887d45e9e1c"
+    },
+    {
+      "name": "gallery",
+      "command": "C:\\Program Files\\nodejs\\node.exe",
+      "args": [
+        "C:\\Projects\\F1Game\\src\\frontend\\node_modules\\@playwright\\test\\cli.js",
+        "test"
+      ],
+      "cwd": "C:\\Projects\\F1Game\\src\\frontend",
+      "pid": 14652,
+      "startedAt": "2026-10-28T23:50:04.761Z",
+      "status": "passed",
+      "exitCode": 0,
+      "elapsedMs": 31761,
+      "sourceManifest": ".tools/reports/verification/runs/2026-10-28T23-50-04-691Z-03ecb976-dbf7-4c81-b955-ea19aa7dc07a/result.json",
+      "testedRevision": "183268b23e9120fefdb14e8bba32a8d572433547"
+    },
+    {
+      "name": "browser",
+      "command": "C:\\Program Files\\nodejs\\node.exe",
+      "args": [
+        "C:\\Projects\\F1Game\\src\\frontend\\node_modules\\@playwright\\test\\cli.js",
+        "test",
+        "--config",
+        "playwright.browser.config.ts"
+      ],
+      "cwd": "C:\\Projects\\F1Game\\src\\frontend",
+      "pid": 13264,
+      "startedAt": "2026-10-28T23:50:36.528Z",
+      "status": "passed",
+      "exitCode": 0,
+      "elapsedMs": 177512,
+      "sourceManifest": ".tools/reports/verification/runs/2026-10-28T23-50-04-691Z-03ecb976-dbf7-4c81-b955-ea19aa7dc07a/result.json",
+      "testedRevision": "183268b23e9120fefdb14e8bba32a8d572433547"
+    },
+    {
+      "name": "boundary",
+      "command": "C:\\Program Files\\nodejs\\node.exe",
+      "args": [
+        "C:\\Projects\\F1Game\\src\\frontend\\node_modules\\@playwright\\test\\cli.js",
+        "test",
+        "--config",
+        "playwright.boundary.config.ts"
+      ],
+      "cwd": "C:\\Projects\\F1Game\\src\\frontend",
+      "pid": 30980,
+      "startedAt": "2026-10-28T23:53:34.045Z",
+      "status": "passed",
+      "exitCode": 0,
+      "elapsedMs": 34710,
+      "sourceManifest": ".tools/reports/verification/runs/2026-10-28T23-50-04-691Z-03ecb976-dbf7-4c81-b955-ea19aa7dc07a/result.json",
+      "testedRevision": "183268b23e9120fefdb14e8bba32a8d572433547"
+    },
+    {
+      "name": "shared",
+      "command": "C:\\Program Files\\nodejs\\node.exe",
+      "args": [
+        "C:\\Projects\\F1Game\\src\\frontend\\node_modules\\@playwright\\test\\cli.js",
+        "test",
+        "--config",
+        "playwright.shared.config.ts"
+      ],
+      "cwd": "C:\\Projects\\F1Game\\src\\frontend",
+      "pid": 25176,
+      "startedAt": "2026-10-28T23:54:08.770Z",
+      "status": "passed",
+      "exitCode": 0,
+      "elapsedMs": 146657,
+      "sourceManifest": ".tools/reports/verification/runs/2026-10-28T23-50-04-691Z-03ecb976-dbf7-4c81-b955-ea19aa7dc07a/result.json",
+      "testedRevision": "183268b23e9120fefdb14e8bba32a8d572433547"
+    },
+    {
+      "name": "assistance",
+      "command": "C:\\Program Files\\nodejs\\node.exe",
+      "args": [
+        "C:\\Projects\\F1Game\\src\\frontend\\node_modules\\@playwright\\test\\cli.js",
+        "test",
+        "--config",
+        "playwright.assistance.config.ts"
+      ],
+      "cwd": "C:\\Projects\\F1Game\\src\\frontend",
+      "pid": 7496,
+      "startedAt": "2026-10-28T23:56:35.432Z",
+      "status": "passed",
+      "exitCode": 0,
+      "elapsedMs": 34769,
+      "sourceManifest": ".tools/reports/verification/runs/2026-10-28T23-50-04-691Z-03ecb976-dbf7-4c81-b955-ea19aa7dc07a/result.json",
+      "testedRevision": "183268b23e9120fefdb14e8bba32a8d572433547"
+    },
+    {
+      "name": "control",
+      "command": "C:\\Program Files\\nodejs\\node.exe",
+      "args": [
+        "C:\\Projects\\F1Game\\src\\frontend\\node_modules\\@playwright\\test\\cli.js",
+        "test",
+        "--config",
+        "playwright.control.config.ts"
+      ],
+      "cwd": "C:\\Projects\\F1Game\\src\\frontend",
+      "pid": 21908,
+      "startedAt": "2026-10-28T23:57:10.214Z",
+      "status": "passed",
+      "exitCode": 0,
+      "elapsedMs": 35773,
+      "sourceManifest": ".tools/reports/verification/runs/2026-10-28T23-50-04-691Z-03ecb976-dbf7-4c81-b955-ea19aa7dc07a/result.json",
+      "testedRevision": "183268b23e9120fefdb14e8bba32a8d572433547"
+    },
+    {
+      "name": "deadlines",
+      "command": "C:\\Program Files\\nodejs\\node.exe",
+      "args": [
+        "C:\\Projects\\F1Game\\src\\frontend\\node_modules\\@playwright\\test\\cli.js",
+        "test",
+        "--config",
+        "playwright.deadlines.config.ts"
+      ],
+      "cwd": "C:\\Projects\\F1Game\\src\\frontend",
+      "pid": 45176,
+      "startedAt": "2026-10-28T23:57:45.990Z",
+      "status": "passed",
+      "exitCode": 0,
+      "elapsedMs": 32962,
+      "sourceManifest": ".tools/reports/verification/runs/2026-10-28T23-50-04-691Z-03ecb976-dbf7-4c81-b955-ea19aa7dc07a/result.json",
+      "testedRevision": "183268b23e9120fefdb14e8bba32a8d572433547"
+    },
+    {
+      "name": "hosted",
+      "command": "C:\\Program Files\\nodejs\\node.exe",
+      "args": [
+        "C:\\Projects\\F1Game\\src\\frontend\\node_modules\\@playwright\\test\\cli.js",
+        "test",
+        "--config",
+        "playwright.hosted.config.ts"
+      ],
+      "cwd": "C:\\Projects\\F1Game\\src\\frontend",
+      "pid": 4128,
+      "startedAt": "2026-10-28T23:58:18.963Z",
+      "status": "passed",
+      "exitCode": 0,
+      "elapsedMs": 13732,
+      "sourceManifest": ".tools/reports/verification/runs/2026-10-28T23-50-04-691Z-03ecb976-dbf7-4c81-b955-ea19aa7dc07a/result.json",
+      "testedRevision": "183268b23e9120fefdb14e8bba32a8d572433547"
+    }
+  ],
+  "backendTests": {
+    "simulation": 253,
+    "api": 230,
+    "failed": 0,
+    "skipped": 0
+  },
+  "parallelFixtureRegression": {
+    "passed": 68,
+    "parallelism": "enabled"
+  },
+  "experiments": {
+    "scenarios": 432,
+    "exactReplays": 432,
+    "archiveSha256": "1262D9CB7E479709667EF387647B5CEA7E9F542EA79A5A449F3F7CE661EA68E4"
+  },
+  "review": {
+    "standards": {
+      "initialFindings": 2,
+      "resolved": 2,
+      "remaining": 0
+    },
+    "spec": {
+      "actionableCodeFindings": 0
+    },
+    "reviewedRuntimeFix": "5ae34392f20a9a95dbef4b2bb206087bcb09e3d6",
+    "reviewedFixtureFix": "fbb5dc92a26fde71cc350640a34e77989fa6d8a4"
+  },
+  "captures": [
+    {
+      "path": ".scratch/season-economy-development/evidence/s14-05-phone-flow-360.png",
+      "viewport": {
+        "width": 360,
+        "height": 800
+      }
+    },
+    {
+      "path": ".scratch/season-economy-development/evidence/s14-05-unaffordable-360.png",
+      "viewport": {
+        "width": 360,
+        "height": 800
+      }
+    },
+    {
+      "path": ".scratch/season-economy-development/evidence/s14-05-shared-save-360.png",
+      "viewport": {
+        "width": 360,
+        "height": 800
+      }
+    },
+    {
+      "path": ".scratch/season-economy-development/evidence/s14-05-completed-360.png",
+      "viewport": {
+        "width": 360,
+        "height": 800
+      }
+    },
+    {
+      "path": ".scratch/season-economy-development/evidence/s14-05-delay-360.png",
+      "viewport": {
+        "width": 360,
+        "height": 800
+      }
+    },
+    {
+      "path": ".scratch/season-economy-development/evidence/s14-05-preparation-public-1920.png",
+      "viewport": {
+        "width": 1920,
+        "height": 1080
+      }
+    },
+    {
+      "path": ".scratch/season-economy-development/evidence/s14-05-public-readiness-1920.png",
+      "viewport": {
+        "width": 1920,
+        "height": 1080
+      }
+    },
+    {
+      "path": ".scratch/season-economy-development/evidence/s14-review-standard-360.png",
+      "viewport": {
+        "width": 360,
+        "height": 800
+      }
+    },
+    {
+      "path": ".scratch/season-economy-development/evidence/s14-review-authoritative-option-360.png",
+      "viewport": {
+        "width": 360,
+        "height": 800
+      }
+    }
+  ],
+  "ownedPorts": {
+    "frontend": 4471,
+    "api": 4571,
+    "developmentAuth": 19599,
+    "developmentFirestore": 19600,
+    "finalBackendAuth": 23109,
+    "finalBackendFirestore": 23100,
+    "status": "Stopped by owned test runners; no preview retained."
+  },
+  "failedRuns": [
+    ".tools/reports/verification/runs/2026-10-28T23-42-17-038Z-07f49d00-b029-4209-b79f-15905137d1b5/result.json",
+    ".tools/reports/s14-review-fixes/verification/runs/2026-10-29T04-28-37-273Z-d8dd4cbf-844e-46cb-84be-710bba732361/result.json",
+    ".tools/reports/s14-review-fixes/verification/runs/2026-10-29T04-34-11-937Z-846dc66e-d2fe-440e-acf6-7d98ff262c24/result.json"
+  ],
+  "acceptance": {
+    "engineering": "complete",
+    "humanIssue": "https://github.com/rociodevenish/BoxBox/issues/74",
+    "actualWorkloadAndUnderstanding": "unmeasured",
+    "leaderSelfInvestment": "inconclusive: treated team never led event one",
+    "fullCalendar": "deferred until approved content"
+  }
+}
