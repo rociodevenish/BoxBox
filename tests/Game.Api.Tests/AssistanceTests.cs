@@ -12,7 +12,7 @@ public sealed class AssistanceTests
     [Fact]
     public async Task Per_player_guided_advice_is_frozen_private_and_standard_has_no_recommendation()
     {
-        var clock=new DeadlineTests.ControlledClock();await using var server=Server().WithWebHostBuilder(b=>b.ConfigureServices(services=>services.AddSingleton<TimeProvider>(clock)));using var client=server.CreateClient();
+        var clock=new DeadlineTests.ControlledClock();await using var server=Server().WithWebHostBuilder(b=>b.UseSetting("Wakeups:Mode","manual").ConfigureServices(services=>services.AddSingleton<TimeProvider>(clock)));using var client=server.CreateClient();
         var (id,device,player)=await Setup(client);
         var configured=await client.PostAsJsonAsync($"/api/lobbies/{id}/players/{player}/assistance",new{helpLevel="Guided",autoAcceptRecommendation=true});
         configured.EnsureSuccessStatusCode();
@@ -48,7 +48,7 @@ public sealed class AssistanceTests
         var clock=new DeadlineTests.ControlledClock();
         WebApplicationFactory<Program> Durable()=>Server().WithWebHostBuilder(b=>{
             b.ConfigureAppConfiguration((_,c)=>c.AddInMemoryCollection(new Dictionary<string,string?>{{"Persistence:ProjectId","demo-f1game"},{"Persistence:EmulatorHost",Environment.GetEnvironmentVariable("FIRESTORE_EMULATOR_HOST")??"127.0.0.1:19100"},{"Designer:Key","assistance-evidence"}}));
-            b.ConfigureServices(s=>s.AddSingleton<TimeProvider>(clock));});
+            b.UseSetting("Wakeups:Mode","manual");b.ConfigureServices(s=>s.AddSingleton<TimeProvider>(clock));});
         string id,device,token,savedAdvice;
         await using(var initial=Durable())
         {
@@ -98,7 +98,3 @@ public sealed class AssistanceTests
         (await client.PostAsJsonAsync($"/api/lobbies/{id}/claims",new{teamId="team-01",deviceId=device})).EnsureSuccessStatusCode();return(id,device,player);
     }
 }
-
-
-
-

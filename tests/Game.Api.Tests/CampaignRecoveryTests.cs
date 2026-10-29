@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Hosting;
 using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json.Nodes;
@@ -16,7 +17,7 @@ public sealed class CampaignRecoveryTests
  public async Task Active_return_revokes_old_private_connection_then_rebinds_at_boundary_preserving_accepted_lock_and_AI_policy(bool registeredDuringQualifying)
  {
   var token=await LobbyTests.Identity(false);var clock=new Clock();var durable=new CampaignTestSessionScope(new FirestoreSessionStore("demo-f1game",Environment.GetEnvironmentVariable("F1_RECOVERY_HOST")!));
-  await using var server=LobbyTests.Server().WithWebHostBuilder(b=>b.ConfigureServices(s=>{s.Replace(ServiceDescriptor.Singleton<ISessionStore>(durable));s.Replace(ServiceDescriptor.Singleton<TimeProvider>(clock));}));
+  await using var server=LobbyTests.Server().WithWebHostBuilder(b=>b.UseSetting("Wakeups:Mode","manual").ConfigureServices(s=>{s.Replace(ServiceDescriptor.Singleton<ISessionStore>(durable));s.Replace(ServiceDescriptor.Singleton<TimeProvider>(clock));}));
   using var client=server.CreateClient();client.DefaultRequestHeaders.Authorization=new("Bearer",token);
   var response=await client.PostAsJsonAsync("/api/campaigns",new CreateCampaignInput(Guid.NewGuid().ToString(),"Host",Laps:20));response.EnsureSuccessStatusCode();
   var joined=(await response.Content.ReadFromJsonAsync<CampaignJoined>())!;var id=joined.Campaign.CampaignId;var weekend=joined.Campaign.WeekendId;var device=joined.Weekend.Membership.DeviceId;
@@ -47,7 +48,7 @@ public sealed class CampaignRecoveryTests
   for(var i=0;i<12;i++){var race=await client.GetAsync($"/api/sessions/{weekend}");if(race.IsSuccessStatusCode){var raceState=(await race.Content.ReadFromJsonAsync<PublicSnapshot>())!;if(raceState.Lifecycle=="awaiting-decisions")break;if(raceState.Lifecycle=="phase-result"){(await client.PostAsJsonAsync($"/api/lobbies/{weekend}/continue",new DueTransitionInput(Guid.NewGuid().ToString(),raceState.Phase,raceState.WindowRevision))).EnsureSuccessStatusCode();break;}}clock.Advance();await sessions.SweepWakeups();}
   var own=(await client.GetFromJsonAsync<TeamSnapshot>($"/api/lobbies/{weekend}/teams/team-01?deviceId={device}"))!;
   Assert.Equal("Human",own.ControlStatus!.Mode);
-  await using var observing=LobbyTests.Server().WithWebHostBuilder(b=>b.ConfigureServices(s=>{s.Replace(ServiceDescriptor.Singleton<ISessionStore>(durable));s.Replace(ServiceDescriptor.Singleton<TimeProvider>(clock));}));
+  await using var observing=LobbyTests.Server().WithWebHostBuilder(b=>b.UseSetting("Wakeups:Mode","manual").ConfigureServices(s=>{s.Replace(ServiceDescriptor.Singleton<ISessionStore>(durable));s.Replace(ServiceDescriptor.Singleton<TimeProvider>(clock));}));
   using var stale=observing.CreateClient();stale.DefaultRequestHeaders.Authorization=new("Bearer",token);
   (await stale.GetAsync($"/api/lobbies/{weekend}/teams/team-01?deviceId={device}")).EnsureSuccessStatusCode();
   await using var hub=new HubConnectionBuilder().WithUrl("http://localhost/hubs/race",options=>{options.Transports=Microsoft.AspNetCore.Http.Connections.HttpTransportType.LongPolling;options.HttpMessageHandlerFactory=_=>server.Server.CreateHandler();options.AccessTokenProvider=()=>Task.FromResult<string?>(token);}).Build();
@@ -62,7 +63,7 @@ public sealed class CampaignRecoveryTests
   Assert.Equal(HttpStatusCode.Forbidden,(await client.GetAsync($"/api/lobbies/{weekend}/teams/team-01?deviceId={newDevice}")).StatusCode);
   await Assert.ThrowsAsync<Microsoft.AspNetCore.SignalR.HubException>(()=>hub.InvokeAsync<TeamSnapshot>("SubscribeHouseholdTeam",weekend,newDevice,"team-01"));
   var publicState=(await client.GetFromJsonAsync<PublicSnapshot>($"/api/sessions/{weekend}"))!;Assert.Contains(publicState.Readiness!,r=>r.TeamId=="team-01"&&r.Locked);
-  await using var restarted=LobbyTests.Server().WithWebHostBuilder(b=>b.ConfigureServices(s=>{s.Replace(ServiceDescriptor.Singleton<ISessionStore>(durable));s.Replace(ServiceDescriptor.Singleton<TimeProvider>(clock));}));
+  await using var restarted=LobbyTests.Server().WithWebHostBuilder(b=>b.UseSetting("Wakeups:Mode","manual").ConfigureServices(s=>{s.Replace(ServiceDescriptor.Singleton<ISessionStore>(durable));s.Replace(ServiceDescriptor.Singleton<TimeProvider>(clock));}));
   var restartedSessions=restarted.Services.GetRequiredService<SessionCoordinator>();
   using var resumed=restarted.CreateClient();resumed.DefaultRequestHeaders.Authorization=new("Bearer",token);
   var restored=(await resumed.GetFromJsonAsync<PublicSnapshot>($"/api/sessions/{weekend}"))!;

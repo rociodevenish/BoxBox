@@ -26,7 +26,7 @@ public sealed class CampaignResultsTests
    var result=inner.Write(id,version,payload,code,wakeup);ids.Add(id);return result;
   }
  }
- private static WebApplicationFactory<Program> Server(ISessionStore store,Clock clock)=>LobbyTests.Server().WithWebHostBuilder(b=>b.ConfigureServices(s=>{s.Replace(ServiceDescriptor.Singleton(store));s.Replace(ServiceDescriptor.Singleton<TimeProvider>(clock));}));
+ private static WebApplicationFactory<Program> Server(ISessionStore store,Clock clock)=>LobbyTests.Server().WithWebHostBuilder(b=>b.UseSetting("Wakeups:Mode","manual").ConfigureServices(s=>{s.Replace(ServiceDescriptor.Singleton(store));s.Replace(ServiceDescriptor.Singleton<TimeProvider>(clock));}));
  [Theory][InlineData(false)][InlineData(true)]
  public async Task Finished_authoritative_weekend_scores_once_across_concurrent_coordinators_uncertain_write_and_restart(bool committed)
  {
@@ -91,7 +91,3 @@ public sealed class CampaignResultsTests
   store.CorruptResult=true;Assert.Equal(HttpStatusCode.Conflict,(await recovered.GetAsync($"/api/campaigns/{joined.Campaign.CampaignId}?deviceId={joined.Weekend.Membership.DeviceId}")).StatusCode);
  }
 }
-
-
-
-
