@@ -2,7 +2,7 @@ import { test, expect } from "@playwright/test";
 test("both cars retain selected choices in confirmation before submission", async ({
   page,
 }) => {
-  await page.goto("/?view=controller");
+  await page.goto("/dev/gallery?view=controller");
   const car = page.getByRole("region", { name: "Car 1 — Max Verstappen" });
   await car.getByRole("button", { name: "Push", exact: true }).click();
   await car.getByRole("button", { name: "Pit", exact: true }).click();
@@ -21,7 +21,7 @@ test("both cars retain selected choices in confirmation before submission", asyn
 test("rejection preserves both drafts and permits correction while acknowledgement locks them", async ({
   page,
 }) => {
-  await page.goto("/?view=controller");
+  await page.goto("/dev/gallery?view=controller");
   const car = page.getByRole("region", { name: "Car 1 — Max Verstappen" });
   await car.getByRole("button", { name: "Push", exact: true }).click();
   await page.getByRole("button", { name: "Approve Plan" }).click();
@@ -47,7 +47,7 @@ test("rejection preserves both drafts and permits correction while acknowledgeme
 test("fixture availability retains known pending compound and disables unavailable actions", async ({
   page,
 }) => {
-  await page.goto("/?view=controller");
+  await page.goto("/dev/gallery?view=controller");
   const car2 = page.getByRole("region", {
     name: "Car 2 — Alexandra Montgomery-Sutherland",
   });
@@ -72,7 +72,7 @@ test("fixture availability retains known pending compound and disables unavailab
 test("keyboard confirmation traps focus and returns to review on Escape", async ({
   page,
 }) => {
-  await page.goto("/?view=controller");
+  await page.goto("/dev/gallery?view=controller");
   const review = page.getByRole("button", { name: "Approve Plan" });
   await review.focus();
   await page.keyboard.press("Enter");

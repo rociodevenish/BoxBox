@@ -9,7 +9,7 @@ for (const [width, height] of [
   test(`public tower is readable at ${width}px`, async ({ page }) => {
     await page.setViewportSize({ width, height });
     await page.emulateMedia({ reducedMotion: "reduce" });
-    await page.goto("/?view=public");
+    await page.goto("/dev/gallery?view=public");
     const tower = page.getByRole("table", {
       name: "Classification — Gap to leader",
     });

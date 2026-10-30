@@ -2,7 +2,7 @@ import { test, expect } from "@playwright/test";
 test("public Classification keeps time gaps, lap deficits and stop states separate", async ({
   page,
 }) => {
-  await page.goto("/");
+  await page.goto("/dev/gallery");
   const tower = page.getByRole("table", {
     name: "Classification — Gap to leader",
   });
@@ -41,7 +41,7 @@ test("shared display keeps all 22 cars below the phase header within 1080px", as
   page,
 }) => {
   await page.setViewportSize({ width: 1920, height: 1080 });
-  await page.goto("/?view=public");
+  await page.goto("/dev/gallery?view=public");
   await expect(
     page.getByRole("heading", { name: "Race Phase 4", exact: true }),
   ).toBeVisible();
@@ -66,7 +66,7 @@ test("public leader portrait failure preserves race identity and Classification"
   await page.route("**/portraits/max-verstappen.png", (route) =>
     route.fulfill({ status: 404, body: "Missing" }),
   );
-  await page.goto("/?view=public");
+  await page.goto("/dev/gallery?view=public");
   const leader = page.getByRole("complementary", { name: "Race leader" });
   await expect(
     leader.getByText("Portrait unavailable", { exact: true }),
@@ -84,7 +84,7 @@ test("full compound labels are not clipped at phone width", async ({
   page,
 }) => {
   await page.setViewportSize({ width: 360, height: 800 });
-  await page.goto("/?view=public");
+  await page.goto("/dev/gallery?view=public");
   const tower = page.getByRole("table", {
     name: "Classification — Gap to leader",
   });
