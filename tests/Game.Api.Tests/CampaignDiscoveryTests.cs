@@ -30,12 +30,23 @@ public sealed class CampaignDiscoveryTests
   var authoritative=store.Read(campaign.Campaign.WeekendId)!;var corrected=System.Text.Json.Nodes.JsonNode.Parse(authoritative.Payload)!;var players=corrected["lobby"]!["players"]!.AsArray();players.Remove(players.Single(player=>player!["name"]!.GetValue<string>()=="Sam"));store.Write(campaign.Campaign.WeekendId,authoritative.Version,corrected.ToJsonString(),campaign.Weekend.Lobby.JoinCode);
   Assert.Empty((await member.GetFromJsonAsync<JsonElement[]>("/api/campaigns"))!);Assert.Single((await host.GetFromJsonAsync<JsonElement[]>("/api/campaigns"))!);Assert.Equal(HttpStatusCode.Forbidden,(await member.PostAsJsonAsync($"/api/campaigns/{campaign.Campaign.CampaignId}/return",new{})).StatusCode);
  }
+ [Fact]
+ public void Indexed_records_above_the_audit_page_size_survive_restart_without_rewrites()
+ {
+  using var durable=new FirestoreSessionStore("demo-f1game",RecoveryHost);
+  var ids=Enumerable.Range(0,4).Select(_=>"audit-"+Guid.NewGuid().ToString("N")).ToArray();
+  foreach(var id in ids)durable.Write(id,null,"{}",null);
+  var versions=ids.Select(id=>durable.Read(id)!.Version).ToArray();
+  durable.PrepareMembershipIndex(1);
+  using var restarted=new FirestoreSessionStore("demo-f1game",RecoveryHost);restarted.PrepareMembershipIndex(1);
+  Assert.Equal(versions,ids.Select(id=>restarted.Read(id)!.Version));
+ }
  private sealed class Clock:TimeProvider {private DateTimeOffset now=DateTimeOffset.Parse("2026-10-25T00:00:00Z");public override DateTimeOffset GetUtcNow()=>now;public void Advance()=>now=now.AddHours(1);}
  [Fact]
  public async Task Completed_campaign_survives_legacy_metadata_migration_and_restart_while_stale_index_cannot_restore_membership()
  {
   using var durable=new FirestoreSessionStore("demo-f1game",RecoveryHost);var clock=new Clock();
-  var token=await LobbyTests.Identity(false);var otherToken=await LobbyTests.Identity(false);var participantToken=await LobbyTests.Identity(false);string id,first;string[] payloads;string[] versions;string[] recordIds;
+  var token=await LobbyTests.Identity(false);var otherToken=await LobbyTests.Identity(false);var participantToken=await LobbyTests.Identity(false);string id,first;string[] payloads;string[] recordIds;
   await using(var server=LobbyTests.Server().WithWebHostBuilder(b=>b.UseSetting("Wakeups:Mode","manual").ConfigureServices(s=>{s.Replace(ServiceDescriptor.Singleton<ISessionStore>(durable));s.Replace(ServiceDescriptor.Singleton<TimeProvider>(clock));})))
   {
    using var client=server.CreateClient();client.DefaultRequestHeaders.Authorization=new("Bearer",token);
@@ -62,8 +73,8 @@ public sealed class CampaignDiscoveryTests
   using var firestore=new HttpClient();firestore.DefaultRequestHeaders.Authorization=new("Bearer","owner");
   var documents=$"http://{RecoveryHost}/v1/projects/demo-f1game/databases/(default)/documents";
   foreach(var record in recordIds){var response=await firestore.PatchAsJsonAsync(documents+"/sessions/"+record+"?updateMask.fieldPaths=memberUids",new{fields=new{}});response.EnsureSuccessStatusCode();}
-  versions=recordIds.Select(record=>durable.Read(record)!.Version).ToArray();
-  Assert.Throws<IOException>(()=>durable.PrepareMembershipIndex(1));Assert.Equal(versions,recordIds.Select(record=>durable.Read(record)!.Version));
+  durable.PrepareMembershipIndex(1);Assert.Equal(payloads,recordIds.Select(record=>durable.Read(record)!.Payload));
+  var indexedVersions=recordIds.Select(record=>durable.Read(record)!.Version).ToArray();durable.PrepareMembershipIndex(1);Assert.Equal(indexedVersions,recordIds.Select(record=>durable.Read(record)!.Version));
   durable.PrepareMembershipIndex();Assert.Equal(payloads,recordIds.Select(record=>durable.Read(record)!.Payload));durable.PrepareMembershipIndex();
   await using var restarted=LobbyTests.Server().WithWebHostBuilder(b=>b.UseSetting("Wakeups:Mode","manual").ConfigureServices(s=>s.Replace(ServiceDescriptor.Singleton<ISessionStore>(durable))));
   using var host=restarted.CreateClient();host.DefaultRequestHeaders.Authorization=new("Bearer",token);
