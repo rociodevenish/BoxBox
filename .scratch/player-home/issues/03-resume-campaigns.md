@@ -25,3 +25,7 @@ Authenticated players discover their campaigns through server membership, includ
 ## Implementation
 
 Claimed for implementation on the player-home integration branch.
+
+## User clarification
+
+Distinguish campaigns the signed-in player hosts (reopen) from campaigns they belong to (reenter), using server-owned host identity projected as a role without leaking UIDs. Keep Create campaign and Join another game visible alongside these groups.

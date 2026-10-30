@@ -25,3 +25,7 @@ Join a game opens the existing household joining flow, with a route back home an
 ## Implementation
 
 Claimed for implementation on the player-home integration branch.
+
+## User clarification
+
+Signed-out home prioritises Quick join with a code and a sign-in prompt. Signed-in home exposes Create campaign and Join another game; account-aware states must clear on sign-out. Preserve an entered code into the established guest-join flow, with actionable invalid-code feedback and no implicit host/private-control grants.
