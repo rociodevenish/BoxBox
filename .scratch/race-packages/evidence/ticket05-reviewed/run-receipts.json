@@ -1,0 +1,72 @@
+{
+  "reviewed-evidence-build": {
+    "command": "dotnet",
+    "args": [
+      "build",
+      "tools/RacePackageEvidence",
+      "-p:",
+      "NuGetAudit=false",
+      "--nologo"
+    ],
+    "cwd": "C:\\Projects\\F1Game\\.tools\\worktrees\\s15-evidence-reviewed",
+    "pid": 43344,
+    "startedAt": "2026-10-30T08:35:26.437Z",
+    "status": "passed",
+    "exitCode": 0,
+    "elapsedMs": 2746
+  },
+  "reviewed-evidence-pilot": {
+    "command": "dotnet",
+    "args": [
+      "tools/RacePackageEvidence/bin/Debug/net10.0/RacePackageEvidence.dll",
+      "--pilot",
+      ".tools/reports/reviewed-evidence-pilot"
+    ],
+    "cwd": "C:\\Projects\\F1Game\\.tools\\worktrees\\s15-evidence-reviewed",
+    "pid": 43724,
+    "startedAt": "2026-10-30T08:35:37.019Z",
+    "status": "passed",
+    "exitCode": 0,
+    "elapsedMs": 9902
+  },
+  "reviewed-evidence-cli-tests": {
+    "command": "node",
+    "args": [
+      "--test",
+      "tools/RacePackageEvidence/evidence.test.mjs"
+    ],
+    "cwd": "C:\\Projects\\F1Game\\.tools\\worktrees\\s15-evidence-reviewed",
+    "pid": 39604,
+    "startedAt": "2026-10-30T08:35:47.061Z",
+    "status": "passed",
+    "exitCode": 0,
+    "elapsedMs": 27116
+  },
+  "reviewed-evidence-full": {
+    "command": "dotnet",
+    "args": [
+      "tools/RacePackageEvidence/bin/Debug/net10.0/RacePackageEvidence.dll",
+      ".tools/reports/reviewed-evidence-full"
+    ],
+    "cwd": "C:\\Projects\\F1Game\\.tools\\worktrees\\s15-evidence-reviewed",
+    "pid": 20584,
+    "startedAt": "2026-10-30T08:37:02.693Z",
+    "status": "passed",
+    "exitCode": 0,
+    "elapsedMs": 77373
+  },
+  "reviewed-evidence-full-replay": {
+    "command": "dotnet",
+    "args": [
+      "tools/RacePackageEvidence/bin/Debug/net10.0/RacePackageEvidence.dll",
+      "--replay",
+      ".tools/reports/reviewed-evidence-full/race-packages.json.gz"
+    ],
+    "cwd": "C:\\Projects\\F1Game\\.tools\\worktrees\\s15-evidence-reviewed",
+    "pid": 37080,
+    "startedAt": "2026-10-30T08:38:45.251Z",
+    "status": "passed",
+    "exitCode": 0,
+    "elapsedMs": 66807
+  }
+}

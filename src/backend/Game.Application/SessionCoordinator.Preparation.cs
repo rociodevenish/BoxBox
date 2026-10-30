@@ -257,7 +257,7 @@ public sealed partial class SessionCoordinator
         return accepted.Ack;
     }
 
-    private static PreparedLobby ReadPreparation(Lobby lobby)
+    private PreparedLobby ReadPreparation(Lobby lobby)
     {
         if(!lobby.ModuleState.TryGetValue(PreparationModule,out var json))
             throw new SessionFault(SessionFailure.Conflict,"Begin weekend preparation first.");

@@ -16,7 +16,7 @@ public static partial class PackageDevelopment
  }
  public static PackageDevelopmentQuote Requote(PackageDevelopmentQuote quote,DevelopmentPersonnel personnel)
  {
-  var standard=quote.Risk is null?Quote(quote.Template.Id,personnel):quote.SourcePackage is {} source?QuoteRefinement(source,quote.Refinement!,personnel,quote.Risk,quote.TargetVersion):QuoteRich(quote.Template.Id,personnel,quote.Risk);
+  var standard=quote.Risk is null?Quote(quote.Template.Id,personnel):quote.SourcePackage is {} source?SavedRefinementQuote(source,quote.Refinement!,personnel,quote.Risk,quote.TargetVersion):QuoteRich(quote.Template.Id,personnel,quote.Risk);
   return quote.Rush is null?standard:Rush(standard);
  }
  private static void ValidateRichQuote(PackageDevelopmentQuote quote)
@@ -41,6 +41,19 @@ public static partial class PackageDevelopment
   return quote.Risk is null?new("preview",1,quote.Template.Name,"race-package-v1",quote.Template.Strengths,quote.Template.Compromises,[],quote.Template.Applicability,quote.Version,[]):Materialise(quote,"preview",kind);
  }
  public static PackageDevelopmentQuote QuoteRefinement(RacePackageVersion source,string refinement,DevelopmentPersonnel personnel,DevelopmentRiskControls? risk=null,int? targetVersion=null)
+ {
+  var quote=SavedRefinementQuote(source,refinement,personnel,risk,targetVersion);
+  if(refinement=="broaden-usefulness")
+  {
+   var primary=source.Strengths.OrderByDescending(p=>p.Value).ThenBy(p=>p.Key,StringComparer.Ordinal).First().Key;
+   var weakness=source.Compromises.Where(p=>p.Value<0).OrderBy(p=>p.Value).ThenBy(p=>p.Key,StringComparer.Ordinal).First().Key;
+   if(primary==weakness)throw new ArgumentException("Broadening needs a different weakness from the strongest attribute; choose another refinement for this version.");
+  }
+  return quote;
+ }
+ // Reconstruct accepted v2/v3 contracts verbatim, including their original outcome semantics.
+ // New-draft eligibility is deliberately separate so older paid projects still replay and retry.
+ private static PackageDevelopmentQuote SavedRefinementQuote(RacePackageVersion source,string refinement,DevelopmentPersonnel personnel,DevelopmentRiskControls? risk,int? targetVersion)
  {
   if(!source.Completed||source.PackageId=="neutral-package-v1"||source.ModelVersion!="race-package-v1"||source.Version<1||source.Strengths.Count==0||source.Strengths.Any(p=>!SupportedAttributes.Contains(p.Key)||!double.IsFinite(p.Value)||p.Value is <=0 or >6)||source.Compromises.Any(p=>!SupportedAttributes.Contains(p.Key)||!double.IsFinite(p.Value)||p.Value is >0 or < -6))throw new ArgumentException("Refine a completed specialised package with supported bounded attributes.");
   if(refinement is not("strengthen" or "reduce-compromise" or "broaden-usefulness"))throw new ArgumentException("Choose a bounded refinement option.");

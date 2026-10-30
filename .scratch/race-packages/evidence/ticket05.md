@@ -1,5 +1,7 @@
 # S15 05 — replayable package alternatives
 
+> Historical seven-arm v2 evidence. Current reviewed-source regeneration and artifacts: [review addendum](ticket05-reviewed.md). Both historical archives remain unchanged.
+
 Canonical ticket: [#57](https://github.com/rociodevenish/BoxBox/issues/57). Claimed for implementation; remains open for independent review. Product baseline: `5b8d08892550bf0aba38797f1a871e7f668c0e16`. Final tool code was committed cleanly before full generation at `0476ec793055a814110538f5753ddae9ee38caa9`. Archive/manifest source hashes normalise UTF-8 line endings so Git checkout cannot change provenance.
 
 The [RacePackageEvidence CLI](../../../tools/RacePackageEvidence/README.md) reconstructs acquisition, actual construction, income, project commitment/close, immutable libraries, free selection, effective inputs, race replay and scoring through public domain/simulation operations. No production source, existing tests, host configuration or verification script changed. This campaign-shaped design experiment supplements application persistence/qualifying tests.
