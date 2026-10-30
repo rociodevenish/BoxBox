@@ -88,9 +88,9 @@ export class CampaignPage {
  });}
  private async request<T>(path:string,input?:unknown):Promise<T>{const token=await this.user()?.getIdToken();const response=await fetch(apiUrl(path),{method:input===undefined?'GET':'POST',headers:{'Content-Type':'application/json',...(token?{Authorization:'Bearer '+token}:{})},body:input===undefined?undefined:JSON.stringify(input)});const result=await response.json();if(!response.ok)throw Object.assign(new Error(result.message??'Campaign unavailable. Retry.'),{status:response.status});return result;}
  private async run(action:()=>Promise<void>){this.busy.set(true);this.error.set('');try{await action();}catch(error){this.error.set(error instanceof Error?error.message:'Campaign unavailable.');}finally{this.busy.set(false);}}
- async create(name:string,mode:string,personnelMode="preset"){await this.run(async()=>{
+ async create(name:string,mode:string,personnelMode="preset",contentVersion=""){await this.run(async()=>{
   localStorage.setItem('campaign-create-command',this.creation);
-  const joined=await this.request<Joined>('/api/campaigns',{commandId:this.creation,name,mode,personnelMode,calendar:'short',seed:123,laps:6});
+  const joined=await this.request<Joined>('/api/campaigns',{commandId:this.creation,name,mode,personnelMode,...(contentVersion?{contentVersion}:{}),calendar:'short',seed:123,laps:6});
   this.device=joined.weekend.membership.deviceId;localStorage.setItem('household-device:'+this.user()!.uid+':'+joined.weekend.lobby.sessionId,this.device);
   localStorage.setItem('campaign-weekend:'+joined.campaign.campaignId,joined.weekend.lobby.sessionId);localStorage.removeItem('campaign-create-command');
   history.replaceState(null,'','/campaigns/'+joined.campaign.campaignId);this.campaign.set(joined.campaign);await this.loadControllers();

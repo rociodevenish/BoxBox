@@ -13,6 +13,15 @@ public static class CampaignSaveIntegrity
   try
   {
    if(record.Schema!=CampaignCoordinator.Schema||record.CampaignId!=id||string.IsNullOrWhiteSpace(record.HostUid)||record.Revision<1||record.Input is null||string.IsNullOrWhiteSpace(record.ContentVersion)||string.IsNullOrWhiteSpace(record.CalendarVersion))throw new ArgumentException();
+   if(record.Input.ContentVersion is {} requested&&(requested is not(CampaignCoordinator.ContentVersion or ReleaseContent.PilotVersion)||record.ContentVersion!=requested))throw new ArgumentException();
+   if(record.Input.ContentVersion==ReleaseContent.PilotVersion&&record.ContentSnapshot is null)throw new ArgumentException();
+   if(record.ContentSnapshot is {} snapshot)
+   {
+    CarConstruction.ValidateCatalogue(snapshot.Construction);
+    if(snapshot.Sources.Length!=4||snapshot.Sources.Select(s=>s.Id).Distinct().Count()!=4||snapshot.Sources.Any(s=>string.IsNullOrWhiteSpace(s.SchemaVersion)||string.IsNullOrWhiteSpace(s.DataVersion))||string.IsNullOrWhiteSpace(snapshot.Provenance)||snapshot.Assets.Select(a=>a.Id).Distinct().Count()!=snapshot.Assets.Length)throw new ArgumentException();
+    if(snapshot.Sources.Single(s=>s.Id=="construction") is not {} source||source.SchemaVersion+"/"+source.DataVersion!=snapshot.Construction.SourceVersion)throw new ArgumentException();
+    if(record.Construction is {} constructionSnapshot&&JsonSerializer.Serialize(constructionSnapshot.Catalogue)!=JsonSerializer.Serialize(snapshot.Construction))throw new ArgumentException();
+   }
    if(record.Calendar is null||record.Teams is null||record.FrozenPresets is null||record.EventConditions is null||record.Calendar.Length<2||record.Teams.Length==0||record.EventIndex<0||record.EventIndex>=record.Calendar.Length)throw new ArgumentException();
    if(record.Lifecycle is not("acquiring" or "constructing" or "created" or "event-preparation" or "active-weekend" or "event-result-committed" or "season-complete"))throw new ArgumentException();
    if(record.Acquisition is {} acquisition)PersonnelAcquisition.Validate(acquisition);

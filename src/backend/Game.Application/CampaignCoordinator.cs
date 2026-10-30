@@ -6,7 +6,7 @@ using Game.Simulation;
 namespace Game.Application;
 
 /// <summary>Durable campaign orchestration over the public household weekend operations.</summary>
-public sealed partial class CampaignCoordinator(SessionCoordinator weekends,ICampaignStore store,TimeProvider? timeProvider=null,IScheduledWakeups? scheduledWakeups=null,DevelopmentOutcomeControls? developmentControls=null,DevelopmentRiskControls? riskControls=null)
+public sealed partial class CampaignCoordinator(SessionCoordinator weekends,ICampaignStore store,TimeProvider? timeProvider=null,IScheduledWakeups? scheduledWakeups=null,DevelopmentOutcomeControls? developmentControls=null,DevelopmentRiskControls? riskControls=null,CampaignContentCatalog? contentCatalog=null)
 {
     public const string Schema="campaign-record-v1";
     public const string ContentVersion="preset-campaign-v1/provisional-2026.10.08";
@@ -19,6 +19,8 @@ public sealed partial class CampaignCoordinator(SessionCoordinator weekends,ICam
         if(input is null||!Guid.TryParse(input.CommandId,out var command)||command==Guid.Empty||string.IsNullOrWhiteSpace(input.Name)||input.Name.Trim().Length>40
             ||input.PersonnelMode is not("preset" or "acquisition")||input.Calendar!="short"||input.Mode is not("Competitive" or "Family" or "Mixed")||input.Laps is not(6 or 10 or 20 or 40 or 50))
             throw new SessionFault(SessionFailure.InvalidInput,"Choose the short fixture calendar, a player name, supported distance and privacy mode. Full calendar awaits an approved manifest.");
+        if(input.ContentVersion is not(null or ContentVersion or ReleaseContent.PilotVersion))
+            throw new SessionFault(SessionFailure.InvalidInput,"Unsupported content version. Choose a compatible reviewed content pack.");
         try{_=ChampionshipScoring.Score(input.Points??ChampionshipScoring.Default,[],[]);}catch(ArgumentException){throw new SessionFault(SessionFailure.InvalidInput,"Supply a named nonnegative points table.");}
         var id=Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(identity.Uid+"/"+command.ToString("D"))))[..32].ToLowerInvariant();
         var fingerprint=JsonSerializer.Serialize(input with{CommandId=command.ToString("D"),Name=input.Name.Trim()});
@@ -27,8 +29,9 @@ public sealed partial class CampaignCoordinator(SessionCoordinator weekends,ICam
             var saved=ReadOptional(id);
             if(saved is null)
             {
-                var content=weekends.FreezeCampaignContent(id,input.Laps);
-                var record=new CampaignRecord(Schema,id,identity.Uid,fingerprint,input,1,input.PersonnelMode=="acquisition"?"acquiring":"created",ContentVersion,CalendarVersion,content.Calendar,content.Teams,content.Presets,content.Conditions,Points:input.Points??ChampionshipScoring.Default,Versions:CampaignSaveIntegrity.Versions(content.Conditions),Acquisition:input.PersonnelMode=="acquisition"?PersonnelAcquisition.Open(PersonnelCatalog.Open(),content.Teams.Select(t=>t.TeamId).ToArray(),input.Seed):null,ConstructionRequired:input.PersonnelMode=="acquisition",Development:new(PermanentDevelopment.Version,[],Convert.ToHexString(RandomNumberGenerator.GetBytes(32))),Income:SeasonIncome.Default,PresetLedger:input.PersonnelMode=="preset"?content.Teams.Select(t=>new CreditEntry("starting-credit",t.TeamId,100,"starting-credit",Version:"preset-starting-credit-v1")).ToArray():null);
+                var pack=input.ContentVersion is null or ContentVersion?null:(contentCatalog??new()).Resolve(input.ContentVersion,input.Laps);
+                var content=weekends.FreezeCampaignContent(id,input.Laps,pack);
+                var record=new CampaignRecord(Schema,id,identity.Uid,fingerprint,input,1,input.PersonnelMode=="acquisition"?"acquiring":"created",pack?.Version??ContentVersion,pack?.CalendarVersion??CalendarVersion,content.Calendar,content.Teams,content.Presets,content.Conditions,Points:input.Points??ChampionshipScoring.Default,Versions:CampaignSaveIntegrity.Versions(content.Conditions),Acquisition:input.PersonnelMode=="acquisition"?PersonnelAcquisition.Open(pack?.Personnel??PersonnelCatalog.Open(),content.Teams.Select(t=>t.TeamId).ToArray(),input.Seed):null,ConstructionRequired:input.PersonnelMode=="acquisition",Development:new(PermanentDevelopment.Version,[],Convert.ToHexString(RandomNumberGenerator.GetBytes(32))),Income:SeasonIncome.Default,PresetLedger:input.PersonnelMode=="preset"?content.Teams.Select(t=>new CreditEntry("starting-credit",t.TeamId,100,"starting-credit",Version:"preset-starting-credit-v1")).ToArray():null,ContentSnapshot:pack is null?null:new(pack.Construction,pack.Sources,pack.Assets,pack.Provenance));
                 try{Write(id,null,record);}catch(SessionFault fault) when(fault.Failure==SessionFailure.Conflict){ }
                 saved=Require(id);
             }
