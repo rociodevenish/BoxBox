@@ -11,7 +11,7 @@ for (const [width, height] of [
   }) => {
     await page.setViewportSize({ width, height });
     await page.emulateMedia({ reducedMotion: "reduce" });
-    await page.goto("/");
+    await page.goto("/dev/gallery");
     const compact = page.getByRole("region", { name: "Compact cards" });
     await expect(
       compact.getByRole("article", {

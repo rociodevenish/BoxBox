@@ -13,7 +13,7 @@ for (const [width, height] of [
   }) => {
     await page.setViewportSize({ width, height });
     await page.emulateMedia({ reducedMotion: "reduce" });
-    await page.goto("/?view=controller");
+    await page.goto("/dev/gallery?view=controller");
     await expect(
       page.getByRole("heading", { name: "Alexandra Montgomery-Sutherland" }),
     ).toBeVisible();

@@ -1,3 +1,4 @@
+import {PlayerHome} from './home/player-home';
 import {CampaignPage} from './campaign/campaign-page';
 import {PreparationPage} from './preparation/preparation-page';
 import {QualifyingPage} from './qualifying/qualifying-page';
@@ -13,11 +14,16 @@ import { DriverCard } from "./ui/driver-card";
 import { max, lewis, unknown } from "./gallery/driver-fixtures";
 @Component({
   selector: "app-root",
-  imports: [CampaignPage,QualifyingPage,PreparationPage, DriverCard, TimingTower, ControllerGallery, ResultsGallery, RacePage, SharedLobby,OpenDisplay],
+  imports: [PlayerHome,CampaignPage,QualifyingPage,PreparationPage, DriverCard, TimingTower, ControllerGallery, ResultsGallery, RacePage, SharedLobby,OpenDisplay],
   templateUrl: "./app.html",
   styleUrl: "./app.css",
 })
 export class App {
+  constructor(){
+    const view=new URLSearchParams(location.search).get('view');
+    if(location.pathname==='/'&&['public','controller','results'].includes(view??''))history.replaceState(null,'','/dev/gallery'+location.search+location.hash);
+  }
+  readonly galleryView=location.pathname==='/dev/gallery'||(location.pathname==='/'&&['public','controller','results'].includes(new URLSearchParams(location.search).get('view')??''));
   readonly campaignView=location.pathname.startsWith('/campaigns');
   readonly qualifyingView=location.pathname.startsWith('/qualifying/');
   readonly preparationView=location.pathname.startsWith('/preparation/');

@@ -1,4 +1,4 @@
-@if(campaignView){@defer(on immediate){<app-campaign-page />}}@else{@if(qualifyingView){@defer(on immediate){<app-qualifying-page />}}@else{@if(preparationView){@defer(on immediate){<app-preparation-page />}}@else{@if(openView){<app-open-display />}@else{@if(sharedView){<app-shared-lobby />}@else{@if(raceView){<app-race-page />}@else{@if(resultsView){<app-results-gallery />}@else{
+@if(campaignView){@defer(on immediate){<app-campaign-page />}}@else{@if(qualifyingView){@defer(on immediate){<app-qualifying-page />}}@else{@if(preparationView){@defer(on immediate){<app-preparation-page />}}@else{@if(openView){<app-open-display />}@else{@if(sharedView){<app-shared-lobby />}@else{@if(raceView){<app-race-page />}@else{@if(!galleryView){<app-player-home />}@else{@if(resultsView){<app-results-gallery />}@else{
 @if(controllerView){<app-controller-gallery />}@else{ @if(publicView){
 <main class="public-screen">
   <header class="public-heading">
@@ -12,7 +12,7 @@
       <strong>Lap {{publicRace.leaderLap}} / {{publicRace.totalLaps}}</strong>
       <p>Dry race laboratory</p>
     </div>
-    <a href="/">Back to gallery</a>
+    <a href="/dev/gallery">Back to gallery</a>
   </header>
   <div class="public-layout">
     <app-timing-tower [classification]="publicRace" />
@@ -57,9 +57,9 @@
       <a href="#compact">Compact cards</a
       ><a href="#expanded">Expanded details</a><a href="#tv">TV treatment</a
       ><a href="#classification">Classification</a
-      ><a href="/?view=public">Public display</a
-      ><a href="/?view=controller">Private controller</a
-      ><a href="/?view=results">Phase results and finish</a>
+      ><a href="/dev/gallery?view=public">Public display</a
+      ><a href="/dev/gallery?view=controller">Private controller</a
+      ><a href="/dev/gallery?view=results">Phase results and finish</a>
     </nav>
   </header>
   <section id="compact" aria-labelledby="compact-title">
@@ -110,6 +110,7 @@
 }
 }
 
+}
 }
 }
 }
