@@ -77,6 +77,6 @@ The home page describes the currently available game honestly: players manage a 
 
 This spec wraps the proposed three slices: (1) welcome and create, including gallery relocation; (2) join from home, blocked by slice 1; (3) discover and resume campaigns, blocked by slice 1. Slices 2 and 3 do not block each other. Each slice includes its own behavior-level verification.
 
-The user requested implementation of this breakdown. Repository tracker instructions now make GitHub issues canonical for actionable tickets; specs remain versioned locally. External publication is awaiting separate explicit approval after automatic review rejected it; local implementation proceeds against the three slices above. Publish approved implementation tickets with `ready-for-agent`, and link them back to this wrapping spec.
+The user requested implementation and explicitly approved publication of the three slices. Canonical GitHub tickets are [S20 01](https://github.com/rociodevenish/BoxBox/issues/113), [S20 02](https://github.com/rociodevenish/BoxBox/issues/114) and [S20 03](https://github.com/rociodevenish/BoxBox/issues/115). Repository tracker instructions make GitHub issues canonical for actionable tickets; specs and read-only issue snapshots remain versioned locally.
 
 Local volatile storage still loses campaigns when the backend restarts. Campaign discovery must reflect available authoritative records rather than imply that the home page adds durability.
