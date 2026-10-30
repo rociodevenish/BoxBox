@@ -6,6 +6,7 @@ public static class CampaignEndpoints
 {
     public static void MapCampaignEndpoints(this WebApplication app)
     {
+        app.MapGet("/api/campaigns",async(HttpContext context,FirebaseIdentity auth,CampaignCoordinator campaigns)=>{context.Response.Headers.CacheControl="private, no-store";return campaigns.Discover(await auth.Verify(LobbyEndpoints.Token(context.Request)));});
         app.MapPost("/api/campaigns/{id}/development/close",async(string id,CloseDevelopmentInput input,HttpRequest request,FirebaseIdentity auth,CampaignCoordinator campaigns)=>campaigns.CloseDevelopment(id,await auth.Verify(LobbyEndpoints.Token(request)),input));
         app.MapPost("/api/campaigns/{id}/development/automatic",async(string id,DevelopmentAutomaticInput input,HttpRequest request,FirebaseIdentity auth,CampaignCoordinator campaigns)=>campaigns.DevelopUnclaimed(id,await auth.Verify(LobbyEndpoints.Token(request)),input));
         app.MapPost("/api/campaigns/{id}/development/teams/{teamId}/recommend",async(string id,string teamId,string deviceId,DevelopmentRecommendationInput input,HttpRequest request,FirebaseIdentity auth,CampaignCoordinator campaigns)=>campaigns.RecommendDevelopment(id,await auth.Verify(LobbyEndpoints.Token(request)),deviceId,teamId,input));

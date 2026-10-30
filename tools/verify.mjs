@@ -24,6 +24,7 @@ const steps=[
  ['gallery',[playwright,'test'],frontend],
  ['browser',[playwright,'test','--config','playwright.browser.config.ts'],frontend],
  ['boundary',[playwright,'test','--config','playwright.boundary.config.ts'],frontend],
+ ['player-home-resume',[playwright,'test','--config','playwright.player-home-resume.config.ts'],frontend],
  ['shared',[playwright,'test','--config','playwright.shared.config.ts'],frontend],
  ['assistance',[playwright,'test','--config','playwright.assistance.config.ts'],frontend],
  ['control',[playwright,'test','--config','playwright.control.config.ts'],frontend],

@@ -4,6 +4,7 @@ namespace Game.Application;
 public sealed class CampaignStore(ISessionStore sessions):ICampaignStore
 {
     public IReadOnlyList<string> ListScheduled()=>sessions.ListSessions().Where(id=>id.StartsWith("campaign-",StringComparison.Ordinal)).Select(id=>id[9..]).ToArray();
+    public IReadOnlyList<string> FindByMember(string uid)=>sessions.FindByMember(uid).Select(SessionMembershipIndex.CampaignCandidate).OfType<string>().Distinct(StringComparer.Ordinal).ToArray();
     public StoredCampaign? Read(string id)
     {
         var saved=sessions.Read("campaign-"+id);if(saved is null)return null;

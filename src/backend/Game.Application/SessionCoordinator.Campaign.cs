@@ -87,6 +87,15 @@ public sealed partial class SessionCoordinator
     {
         lock(gate){RefreshCampaignWeekend(id);var lobby=RequireLobby(id);RequireHost(lobby,identity);if(lobby.ModuleState.Remove("campaign-standby-v1")){lobby.Revision++;Persist(id);}}
     }
+    public bool IsCampaignMember(string firstId,string currentId,AuthIdentity identity)
+    {
+        lock(gate)
+        {
+            RefreshCampaignWeekend(firstId);if(currentId!=firstId)RefreshCampaignWeekend(currentId);
+            var original=RequireLobby(firstId).Players.SingleOrDefault(p=>p.Uid==identity.Uid);
+            return original is not null&&RequireLobby(currentId).Players.Any(p=>p.Id==original.Id&&p.Uid==identity.Uid);
+        }
+    }
     public JoinedLobby ReturnCampaignMember(string membershipId,string eventId,AuthIdentity identity,string? deviceId)
     {
         lock(gate)
