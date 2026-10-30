@@ -35,6 +35,13 @@ export class CampaignPage {
  async draftDevelopment(optionId:string|null){await this.developmentCommand('draft',optionId);}
  async draftRefinement(quote:PackageQuote){await this.developmentCommand('draft',quote.template.id,quote);}
  async draftPackage(quote:PackageQuote){await this.developmentCommand('draft',quote.template.id,quote);}
+ // Present saved quote wording without changing its identity, timing or outcome probabilities.
+ developmentExplanation(text:string){return text
+  .replaceAll('The same project class draw supplies every outcome.',"The displayed probabilities describe this project's one outcome.")
+  .replaceAll('No second staff discount or independent risk draw is added.',"The staff discount is already included; the displayed probabilities describe this project's one outcome.")
+  .replaceAll('no extra hazard draw',"these probabilities describe the project's one outcome")
+  .replaceAll('This frozen scenario','This quoted scenario')
+  .replaceAll('This creates a new immutable version and never edits a frozen weekend.','This creates a new version and keeps any weekend already locked for qualifying unchanged.');}
  packageQuotes(){return this.development()?.packageOptions.filter(quote=>!quote.rush)??[];}
  refinementQuotes(){return this.development()?.refinementOptions.filter(quote=>!quote.rush)??[];}
  rushFor(quote:PackageQuote){const own=this.development();return [...own?.packageOptions??[],...own?.refinementOptions??[]].find(candidate=>!!candidate.rush&&candidate.template.id===quote.template.id&&candidate.sourcePackage?.packageId===quote.sourcePackage?.packageId&&candidate.sourcePackage?.version===quote.sourcePackage?.version&&candidate.refinement===quote.refinement&&candidate.targetVersion===quote.targetVersion);}

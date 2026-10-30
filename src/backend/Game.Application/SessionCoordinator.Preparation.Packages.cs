@@ -7,9 +7,9 @@ public sealed partial class SessionCoordinator
  private PackageSelectionObservation ObservePackageSelection(PreparedTeam team)
  {
   var preset=RacePackages.Migrate(team.Preset);
-  var incidents=team.Effective.Configuration.Incidents??openingDisruptions?.ForCircuit(preset.Circuit.Id)?.Incidents;
-  return new(preset.Circuit.Id,preset.Circuit.Demands,preset.Cars[0].Car.Ratings,preset.PackageLibrary,incidents is {FailureRate:>0});
+  return new(preset.Circuit.Id,preset.Circuit.Demands,preset.Cars[0].Car.Ratings,preset.PackageLibrary,PackageReliabilityActive(team));
  }
+ private bool PackageReliabilityActive(PreparedTeam team)=>(team.Effective.Configuration.Incidents??openingDisruptions?.ForCircuit(team.Preset.Circuit.Id)?.Incidents) is {FailureRate:>0};
  private PreparedTeam SelectAutomaticPackage(PreparedTeam team)
  {
   // A human selection, including explicit neutral, is a decision. Existing practice also owns its context.
@@ -19,7 +19,7 @@ public sealed partial class SessionCoordinator
   return team with{Preset=RacePackages.Select(team.Preset,recommendation.Selection),
    PackageChoices=[new("automatic",observation,recommendation,recommendation.Selection)]};
  }
- private static void ValidatePackageChoices(PreparedLobby state)
+ private void ValidatePackageChoices(PreparedLobby state)
  {
   try
   {
@@ -33,7 +33,9 @@ public sealed partial class SessionCoordinator
       ||observation.CircuitId!=preset.Circuit.Id
       ||!observation.CircuitDemands.OrderBy(p=>p.Key).SequenceEqual(preset.Circuit.Demands.OrderBy(p=>p.Key))
       ||!observation.SourceRatings.OrderBy(p=>p.Key).SequenceEqual(preset.Cars[0].Car.Ratings.OrderBy(p=>p.Key))
-      ||observation.Library.Any(p=>!preset.PackageLibrary.Any(saved=>JsonSerializer.Serialize(saved)==JsonSerializer.Serialize(p)))
+      ||observation.ReliabilityActive!=PackageReliabilityActive(team)
+      ||!observation.Library.OrderBy(p=>p.PackageId,StringComparer.Ordinal).ThenBy(p=>p.Version).Select(p=>JsonSerializer.Serialize(p))
+       .SequenceEqual(preset.PackageLibrary.OrderBy(p=>p.PackageId,StringComparer.Ordinal).ThenBy(p=>p.Version).Select(p=>JsonSerializer.Serialize(p)))
       ||JsonSerializer.Serialize(choice.Recommendation)!=JsonSerializer.Serialize(PackageSelectionDecisionPolicy.Evaluate(observation))
       ||choice.Source!="manual"&&choice.Selection!=choice.Recommendation.Selection)
       throw new ArgumentException("Saved package selection policy does not replay from its own public observations.");

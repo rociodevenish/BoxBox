@@ -65,9 +65,6 @@ public static partial class DevelopmentDecisionPolicy
  private static IEnumerable<(string Kind,double Probability)> Categories(DevelopmentRiskControls d)=>new[]{("normal",d.Normal),("partial",d.Partial),("breakthrough",d.Breakthrough),("compromised",d.Compromised),("delay",d.Delay)};
  private static double PackageFit(RacePackageVersion package,ImmutableDictionary<string,double> car,ImmutableDictionary<string,double> demands,bool incidents)=>Fit(WeekendPreparation.CarKeys.ToImmutableDictionary(key=>key,key=>package.Strengths.GetValueOrDefault(key)+package.Compromises.GetValueOrDefault(key)),car,demands,incidents);
  private static double Fit(ImmutableDictionary<string,double> changes,ImmutableDictionary<string,double> car,ImmutableDictionary<string,double> demands,bool incidents)
- {
-  double Weight(string key)=>key switch{"highSpeedAero"=>demands["highSpeedCornering"],"lowSpeedAero"=>demands["lowSpeedCornering"],"tyreWear"=>demands["tyreDegradation"],"tyreTemperature"=>demands["tyreThermalDemand"],"reliability"=>incidents?50:0,_=>demands[key]};
-  return Math.Round(WeekendPreparation.CarKeys.Sum(key=>(Math.Clamp(car[key]+changes.GetValueOrDefault(key),1,100)-car[key])*Weight(key)/100),6);
- }
+  =>CircuitDemandFit.Score(changes,car,demands,incidents,normalization:100,decimalPlaces:6);
  private static bool SameVersion(RacePackageVersion a,RacePackageVersion b)=>a.PackageId==b.PackageId&&a.Version==b.Version&&a.Name==b.Name&&a.ModelVersion==b.ModelVersion&&a.Completed==b.Completed&&a.Provenance==b.Provenance&&a.Applicability==b.Applicability&&a.ApplicableCircuits.SequenceEqual(b.ApplicableCircuits)&&a.RefinementHistory.SequenceEqual(b.RefinementHistory)&&a.Strengths.OrderBy(p=>p.Key).SequenceEqual(b.Strengths.OrderBy(p=>p.Key))&&a.Compromises.OrderBy(p=>p.Key).SequenceEqual(b.Compromises.OrderBy(p=>p.Key));
 }

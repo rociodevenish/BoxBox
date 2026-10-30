@@ -20,10 +20,6 @@ public static class PackageSelectionDecisionPolicy
    ||WeekendPreparation.CarKeys.Any(k=>!observation.SourceRatings.TryGetValue(k,out var v)||!double.IsFinite(v)||v is <1 or >100)
    ||WeekendPreparation.DemandKeys.Any(k=>!observation.CircuitDemands.TryGetValue(k,out var v)||!double.IsFinite(v)||v is <1 or >100))
    throw new ArgumentException("Observe the own completed library, bounded source capabilities and public circuit demands.");
-  double Demand(string key)=>key switch{
-   "highSpeedAero"=>observation.CircuitDemands["highSpeedCornering"],"lowSpeedAero"=>observation.CircuitDemands["lowSpeedCornering"],
-   "tyreWear"=>observation.CircuitDemands["tyreDegradation"],"tyreTemperature"=>observation.CircuitDemands["tyreThermalDemand"],
-   "reliability"=>observation.ReliabilityActive?50:0,_=>observation.CircuitDemands[key]};
   var entries=observation.Library.Where(p=>p.Completed&&(p.ApplicableCircuits.IsDefaultOrEmpty||p.ApplicableCircuits.Contains(observation.CircuitId))).ToArray();
   foreach(var p in entries)
    if(p.ModelVersion!=RacePackages.Version||p.Version<1||string.IsNullOrWhiteSpace(p.PackageId)||string.IsNullOrWhiteSpace(p.Provenance)
@@ -33,7 +29,7 @@ public static class PackageSelectionDecisionPolicy
   if(!entries.Any(p=>p==RacePackages.Baseline||p.PackageId=="neutral-package-v1"&&p.Version==1&&p.Strengths.Count==0&&p.Compromises.Count==0))
    throw new ArgumentException("A completed neutral fallback is required.");
   var comparisons=entries.Select(p=>new PackageFitComparison(new(p.PackageId,p.Version),p.Name,
-   WeekendPreparation.CarKeys.Sum(k=>(Math.Clamp(observation.SourceRatings[k]+p.Strengths.GetValueOrDefault(k)+p.Compromises.GetValueOrDefault(k),1,100)-observation.SourceRatings[k])*Demand(k)/1000)))
+   CircuitDemandFit.Score(p.Strengths,observation.SourceRatings,observation.CircuitDemands,observation.ReliabilityActive,normalization:1000,decimalPlaces:null,compromises:p.Compromises)))
    .OrderByDescending(p=>p.FitScore).ThenBy(p=>p.Selection.PackageId,StringComparer.Ordinal).ThenByDescending(p=>p.Selection.Version).ToImmutableArray();
   // Prefer the free neutral fallback when every usable option has non-positive net fit.
   var selected=comparisons[0].FitScore<=0?new RacePackageSelection("neutral-package-v1",1):comparisons[0].Selection;
