@@ -55,7 +55,7 @@ The home page describes the currently available game honestly: players manage a 
 
 ## Testing Decisions
 
-- Proposed primary seam: Playwright browser journeys using the real frontend, API and local authentication emulator, following existing household and campaign recovery tests. Confirm this seam with the user before publishing implementation tickets.
+- Primary seam: Playwright browser journeys using the real frontend, API and local authentication emulator, following existing household and campaign recovery tests. The user requested implementation after this seam was proposed.
 - Test observable behavior rather than component state, signal names, routing flags or internal storage layout.
 - Cover root arrival, create with and without authentication, destination retention, joining and invalid-code recovery, and preserved invitation/deep-link behavior.
 - Exercise campaign discovery and resume with two authenticated users and a fresh browser context. Verify isolation, empty and completed states, sign-out clearing and current-authority enforcement through the existing return path.
@@ -77,6 +77,6 @@ The home page describes the currently available game honestly: players manage a 
 
 This spec wraps the proposed three slices: (1) welcome and create, including gallery relocation; (2) join from home, blocked by slice 1; (3) discover and resume campaigns, blocked by slice 1. Slices 2 and 3 do not block each other. Each slice includes its own behavior-level verification.
 
-The breakdown has been proposed but not approved or published. Repository tracker instructions now make GitHub issues canonical for actionable tickets; specs remain versioned locally. Publish approved implementation tickets with `ready-for-agent`, and link them back to this wrapping spec.
+The user requested implementation of this breakdown. Repository tracker instructions now make GitHub issues canonical for actionable tickets; specs remain versioned locally. External publication is awaiting separate explicit approval after automatic review rejected it; local implementation proceeds against the three slices above. Publish approved implementation tickets with `ready-for-agent`, and link them back to this wrapping spec.
 
 Local volatile storage still loses campaigns when the backend restarts. Campaign discovery must reflect available authoritative records rather than imply that the home page adds durability.
