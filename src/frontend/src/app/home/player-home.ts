@@ -1,7 +1,8 @@
 import {Component,signal} from '@angular/core';
 import type {Auth,User,Unsubscribe} from 'firebase/auth';
+import {CampaignResume} from './campaign-resume';
 import {apiUrl} from '../api-url';
-@Component({selector:'app-player-home',templateUrl:'./player-home.html',styleUrl:'./player-home.css'})
+@Component({selector:'app-player-home',imports:[CampaignResume],templateUrl:'./player-home.html',styleUrl:'./player-home.css'})
 export class PlayerHome {
  readonly user=signal<User|null>(null);
  readonly ready=signal(false);

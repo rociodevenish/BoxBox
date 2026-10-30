@@ -8,6 +8,7 @@ public record CampaignTeam(string TeamId,string ConstructorId,string Constructor
 public record CampaignSnapshot(string CampaignId,long Revision,string Lifecycle,string ContentVersion,string CalendarVersion,
     string Mode,IReadOnlyList<CampaignEvent> Calendar,IReadOnlyList<CampaignTeam> Teams,int EventIndex,string WeekendId,
     IReadOnlyList<PreparationReadiness> Readiness,bool CanStart,bool FullCalendarAvailable=false,ChampionshipPoints? Points=null,ChampionshipTable? Standings=null,IReadOnlyList<CampaignEventContribution>? Results=null,CampaignNextPreparation? NextPreparation=null,AcquisitionPublicSnapshot? Acquisition=null,bool ConstructionRequired=false,IReadOnlyList<ConstructionReadiness>? ConstructionReadiness=null,DevelopmentPublicSnapshot? Development=null);
+public record CampaignSummary(string CampaignId,string HostName,string Role,string Lifecycle,int EventNumber,string TrackName);
 public record CampaignJoined(CampaignSnapshot Campaign,JoinedLobby Weekend);
 public record CampaignStartInput(string CommandId);
 public record CampaignReturnInput(bool NextEvent=false,string? DeviceId=null);
@@ -25,6 +26,7 @@ public record StoredCampaign(string Version,CampaignRecord Record);
 public interface ICampaignStore
 {
     IReadOnlyList<string> ListScheduled()=>[];
+    IReadOnlyList<string> FindByMember(string uid)=>throw new NotSupportedException();
     StoredCampaign? Read(string id);
     string Write(string id,string? expectedVersion,CampaignRecord record);
 }

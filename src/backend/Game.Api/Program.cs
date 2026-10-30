@@ -29,8 +29,14 @@ if(builder.Configuration["Disruptions:Policy"] is {Length:>0} disruptionPolicy)
     builder.Services.AddSingleton<IOpeningDisruptionPolicy,AuthoredDisruptionPolicy>();
 }
 builder.Services.AddSingleton<ISessionStore>(_ => builder.Configuration["Persistence:ProjectId"] is { Length: > 0 } project
-    ? new FirestoreSessionStore(project, builder.Configuration["Persistence:EmulatorHost"] ?? Environment.GetEnvironmentVariable("FIRESTORE_EMULATOR_HOST"))
+    ? PreparedStore(project)
     : new VolatileSessionStore());
+FirestoreSessionStore PreparedStore(string project)
+{
+    var store=new FirestoreSessionStore(project,builder.Configuration["Persistence:EmulatorHost"]??Environment.GetEnvironmentVariable("FIRESTORE_EMULATOR_HOST"));
+    try{store.PrepareMembershipIndex(builder.Configuration.GetValue<int?>("Persistence:MembershipMigrationLimit")??1000);return store;}
+    catch{store.Dispose();throw;}
+}
 builder.Services.AddSingleton<TimeProvider>(TimeProvider.System);
 builder.Services.AddSingleton<IGoogleWakeupTokens,GoogleWakeupTokens>();
 builder.Services.AddSingleton<WakeupIdentity>();
@@ -46,6 +52,7 @@ builder.Services.AddSingleton<ICampaignStore,CampaignStore>();
 builder.Services.AddSingleton<CampaignCoordinator>();
 builder.Services.ConfigureHttpJsonOptions(options => options.SerializerOptions.Converters.Add(new JsonStringEnumConverter()));
 var app = builder.Build();
+_=app.Services.GetRequiredService<ISessionStore>();
 app.Use(async(context,next)=>{
     // CORS does not protect WebSocket upgrades. Check browser Origin on API and hub requests too.
     if(allowedOrigins.Length>0&&(context.Request.Path.StartsWithSegments("/api")||context.Request.Path.StartsWithSegments("/hubs"))

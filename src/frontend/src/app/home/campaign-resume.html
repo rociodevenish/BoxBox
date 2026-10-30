@@ -1,0 +1,11 @@
+@if(state()!=='signed-out'){
+ <section aria-labelledby="your-campaigns"><h2 id="your-campaigns">Your campaigns</h2>
+ @if(state()==='loading'){<p role="status">Loading your campaigns…</p>}
+ @if(state()==='error'){<p role="alert">Your campaigns could not be loaded.</p><button type="button" (click)="load()">Retry campaigns</button>}
+ @if(state()==='ready'){
+  @if(summaries().length===0){<p>You have no campaigns yet. Create a campaign or join another game to get started.</p>}
+  @if(hosted().length){<section aria-labelledby="hosted-campaigns"><h3 id="hosted-campaigns">Campaigns you host</h3><ul>@for(campaign of hosted();track campaign.campaignId){<li><div><h4>{{campaign.hostName}}’s household campaign</h4><p>{{context(campaign)}}</p><p class="identifier">Game {{campaign.campaignId.slice(0,8)}}</p></div><a [href]="'/campaigns/'+campaign.campaignId" [attr.aria-label]="'Reopen campaign '+campaign.campaignId.slice(0,8)">{{campaign.lifecycle==='season-complete'?'Reopen results':'Reopen campaign'}}</a></li>}</ul></section>}
+  @if(joined().length){<section aria-labelledby="joined-campaigns"><h3 id="joined-campaigns">Campaigns you joined</h3><ul>@for(campaign of joined();track campaign.campaignId){<li><div><h4>{{campaign.hostName}}’s household campaign</h4><p>{{context(campaign)}}</p><p class="identifier">Game {{campaign.campaignId.slice(0,8)}}</p></div><a [href]="'/campaigns/'+campaign.campaignId" [attr.aria-label]="'Reenter campaign '+campaign.campaignId.slice(0,8)">{{campaign.lifecycle==='season-complete'?'View results':'Reenter campaign'}}</a></li>}</ul></section>}
+ }
+ </section>
+}
