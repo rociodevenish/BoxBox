@@ -12,3 +12,9 @@ No documented-standard violations. One possible Duplicated Code smell: discovery
 - P1: the startup membership audit counts already indexed manifests against a deployment-wide record cap. Replace that cap with safe paged migration that preserves existing recovery records and does not prevent healthy indexed deployments from starting as they grow.
 
 Both behavior findings and the authorization duplication are assigned to one isolated fix implementer. Targeted re-review and affected checks follow its merge.
+
+## Resolution
+
+Fixes integrated at `6c852fa387571f90290afc98584cf75a8967de1d`; see [review-fixes](review-fixes.md) for observed red and passing focused API 4/4 and browser 5/5 checks.
+
+Independent targeted re-review of `db5db9e...6c852fa` confirmed the guest account destinations, paged metadata-only migration and shared authorization resolver. Standards: zero outstanding findings. Spec: zero outstanding findings. Neither reviewer reran tests; execution evidence comes from implementer and integrated checks.
