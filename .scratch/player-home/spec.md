@@ -8,7 +8,7 @@ Visitors opening the site's root currently see a Driver gallery containing illus
 
 ## Solution
 
-Make the root URL a player-facing home page with a short explanation of the game and clear Create campaign and Join a game actions. Signed-in players can also find and resume their campaigns. Reuse the existing account, household, campaign and device-return flows. Move the development gallery to an explicit development route while preserving its fixture views.
+Make the root URL a player-facing home page with distinct signed-in and signed-out experiences. Signed-in players can create a campaign, reopen campaigns they host, reenter campaigns they belong to and join another person's game. Signed-out visitors can Quick join using a code or follow a sign-in prompt. Reuse the existing account, household, campaign and device-return flows. Move the development gallery to an explicit development route while preserving its fixture views.
 
 The home page describes the currently available game honestly: players manage a constructor and both drivers, prepare for events and make simultaneous strategy decisions at Race Phase boundaries. It must not promise a full calendar or features that the selected campaign does not support.
 
@@ -37,11 +37,16 @@ The home page describes the currently available game honestly: players manage a 
 21. As a mobile player, I want readable explanations and usable entry actions, so that I can start or join on a small screen.
 22. As a developer, I want the Driver gallery and its public, controller and results fixtures available through a development route, so that moving the home page preserves design review tools.
 23. As a player using a saved game link, I want existing campaign, preparation, qualifying, controller and display URLs to remain valid, so that the home-page change does not interrupt play.
+24. As a signed-out visitor, I want Quick join by code without first creating a permanent account, so that I can use the existing guest-join flow immediately.
+25. As a signed-out visitor, I want a clear sign-in prompt, so that I can access hosting and my existing campaigns.
+26. As a signed-in host, I want my hosted campaigns distinguished from campaigns I joined, so that I can reopen the appropriate game.
+27. As a signed-in participant, I want a separate way to reenter campaigns I already belong to and join a new game, so that these actions are unambiguous.
 
 ## Implementation Decisions
 
 - The root URL becomes the player home. Campaign creation remains a separate destination rather than an automatic root redirect.
-- Provide Create campaign and Join a game as primary entry actions. Show Resume campaign entries when authenticated campaign discovery succeeds.
+- Signed-in home provides Create campaign, hosted campaign reopening, member campaign reentry and Join another game. Distinguish hosted and joined groups using authenticated server-owned host identity; include no participant UID in public summaries.
+- Signed-out home prioritises Quick join with a code and a sign-in prompt. Reuse the existing guest joining flow and account options; Quick join must not grant host or private team authority merely from knowing a code. Preserve the code when transitioning into joining.
 - Reuse the existing visual system and account interface. Preserve the intended create or join destination across authentication without allowing arbitrary external redirects.
 - Move the fixture gallery to `/dev/gallery`, including its public, controller and results variants. Update fixture navigation and affected browser checks together. Legacy root query links must resolve deliberately to their corresponding development view rather than accidentally showing the home page.
 - Preserve existing game deep links and invitation behavior. Home navigation does not create a campaign, join a game or bind a device by itself.
