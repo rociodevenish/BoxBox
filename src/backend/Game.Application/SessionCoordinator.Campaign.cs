@@ -6,6 +6,18 @@ namespace Game.Application;
 
 public sealed partial class SessionCoordinator
 {
+    // Public configuration observation only; no incident draw or competitor state is exposed.
+    public bool CampaignReliabilityActive(string sessionId,string circuitId)
+    {
+        lock(gate)
+        {
+            var lobby=RequireLobby(sessionId);
+            if(lobby.CampaignPresets is null||lobby.CampaignPresets[0].Circuit.Id!=circuitId)
+                throw new SessionFault(SessionFailure.Conflict,"Observe the frozen circuit for this campaign weekend.");
+            var effective=lobby.ModuleState.ContainsKey(PreparationModule)?ReadPreparation(lobby).Teams.Values.First().Effective.Configuration.Incidents:null;
+            return (effective??openingDisruptions?.ForCircuit(circuitId)?.Incidents) is {FailureRate:>0};
+        }
+    }
     private const string CampaignRebind="campaign-boundary-rebind-v1";
     private sealed record CampaignRebindIntent(string DeviceId,int Phase);
     public void PrepareAbsentCampaignTeam(string id,AuthIdentity identity,string teamId)
@@ -51,7 +63,7 @@ public sealed partial class SessionCoordinator
             lobbies.Remove(id);if(active?.Id==id)active=null;Restore(id,saved);
         }
     }
-    public void EnsureNextCampaignLobby(string previousId,string nextId,AuthIdentity identity,WeekendPreset[] frozen,RaceConfiguration conditions)
+    public void EnsureNextCampaignLobby(string previousId,string nextId,AuthIdentity identity,WeekendPreset[] frozen,RaceConfiguration conditions,bool developmentPending=false)
     {
         lock(gate)
         {
@@ -59,8 +71,10 @@ public sealed partial class SessionCoordinator
             if(lobbies.TryGetValue(nextId,out var existing)){RequireHost(existing,identity);return;}
             var lobby=new Lobby(nextId,Convert.ToHexString(System.Security.Cryptography.RandomNumberGenerator.GetBytes(4)),previous.Host,previous.Input);
             lobby.CampaignPresets=frozen;lobby.CampaignConditions=conditions;lobby.ModuleState["campaign-standby-v1"]=previousId;
+            if(developmentPending)lobby.ModuleState["campaign-development-pending-v1"]="pending";
             lobby.Players.AddRange(previous.Players);lobby.Devices.AddRange(previous.Devices);
             foreach(var pair in previous.Assignments)lobby.Assignments.Add(pair.Key,pair.Value);
+            foreach(var player in previous.Players)if(previous.ModuleState.TryGetValue(AssistancePrefix+player.Id,out var settings))lobby.ModuleState[AssistancePrefix+player.Id]=settings;
             // Weekend preparation is a new boundary: complete any authenticated device return,
             // but reset race AI modes, pending control intents and decision locks.
             if(previous.ModuleState.TryGetValue(CampaignRebind,out var pendingJson))
@@ -129,7 +143,7 @@ public sealed partial class SessionCoordinator
             var teams=ConstructorCatalogue.Select((team,i)=>
             {
                 var drivers=PreparationDrivers[i];var opened=WeekendPresetCatalog.Open(track,drivers.First,drivers.Second);
-                return opened with{Cars=opened.Cars.Select((car,slot)=>car with{TeamId=team.TeamId,EntryId=$"{team.TeamId}-car-{slot+1}"}).ToImmutableArray()};
+                return RacePackages.Migrate(opened) with{Cars=opened.Cars.Select((car,slot)=>car with{TeamId=team.TeamId,EntryId=$"{team.TeamId}-car-{slot+1}"}).ToImmutableArray()};
             }).ToArray();
             foreach(var preset in teams)_=WeekendPreparation.Prepare(preset,6,new());
             var source=new Lobby("","","",new("open-equal",laps,123,"Competitive","Campaign"));

@@ -7,7 +7,7 @@ public record CampaignDriver(string PersonId,string Name,string Slug,string Entr
 public record CampaignTeam(string TeamId,string ConstructorId,string ConstructorName,IReadOnlyList<CampaignDriver> Drivers);
 public record CampaignSnapshot(string CampaignId,long Revision,string Lifecycle,string ContentVersion,string CalendarVersion,
     string Mode,IReadOnlyList<CampaignEvent> Calendar,IReadOnlyList<CampaignTeam> Teams,int EventIndex,string WeekendId,
-    IReadOnlyList<PreparationReadiness> Readiness,bool CanStart,bool FullCalendarAvailable=false,ChampionshipPoints? Points=null,ChampionshipTable? Standings=null,IReadOnlyList<CampaignEventContribution>? Results=null,CampaignNextPreparation? NextPreparation=null,AcquisitionPublicSnapshot? Acquisition=null,bool ConstructionRequired=false,IReadOnlyList<ConstructionReadiness>? ConstructionReadiness=null);
+    IReadOnlyList<PreparationReadiness> Readiness,bool CanStart,bool FullCalendarAvailable=false,ChampionshipPoints? Points=null,ChampionshipTable? Standings=null,IReadOnlyList<CampaignEventContribution>? Results=null,CampaignNextPreparation? NextPreparation=null,AcquisitionPublicSnapshot? Acquisition=null,bool ConstructionRequired=false,IReadOnlyList<ConstructionReadiness>? ConstructionReadiness=null,DevelopmentPublicSnapshot? Development=null);
 public record CampaignJoined(CampaignSnapshot Campaign,JoinedLobby Weekend);
 public record CampaignStartInput(string CommandId);
 public record CampaignReturnInput(bool NextEvent=false,string? DeviceId=null);
@@ -17,8 +17,9 @@ public record CampaignNextPreparation(string EventId,string SessionId,string Tra
 // Only typed application contracts cross this persistence boundary. The adapter owns serialization and namespacing.
 public record CampaignRecord(string Schema,string CampaignId,string HostUid,string CreationFingerprint,CreateCampaignInput Input,
     long Revision,string Lifecycle,string ContentVersion,string CalendarVersion,CampaignEvent[] Calendar,CampaignTeam[] Teams,
-    Dictionary<string,WeekendPreset[]> FrozenPresets,Dictionary<string,RaceConfiguration> EventConditions,int EventIndex=0,string? StartCommandId=null,ChampionshipPoints? Points=null,CampaignEventContribution[]? Contributions=null,int? PreparationEventIndex=null,string? AdvanceCommandId=null,CampaignVersions? Versions=null,AcquisitionState? Acquisition=null,bool AcquisitionAutomatic=false,ScheduledWakeup? AcquisitionWakeup=null,RecordedPersonnelChoice[]? PersonnelChoices=null,bool ConstructionRequired=false,ConstructionState? Construction=null,RecordedConstructionChoice[]? ConstructionChoices=null,ConstructionAutomaticReceipt[]? ConstructionAutomaticCommands=null);
+    Dictionary<string,WeekendPreset[]> FrozenPresets,Dictionary<string,RaceConfiguration> EventConditions,int EventIndex=0,string? StartCommandId=null,ChampionshipPoints? Points=null,CampaignEventContribution[]? Contributions=null,int? PreparationEventIndex=null,string? AdvanceCommandId=null,CampaignVersions? Versions=null,AcquisitionState? Acquisition=null,bool AcquisitionAutomatic=false,ScheduledWakeup? AcquisitionWakeup=null,RecordedPersonnelChoice[]? PersonnelChoices=null,bool ConstructionRequired=false,ConstructionState? Construction=null,RecordedConstructionChoice[]? ConstructionChoices=null,ConstructionAutomaticReceipt[]? ConstructionAutomaticCommands=null,SeasonIncomeConfiguration? Income=null,Game.Domain.CreditEntry[]? PresetLedger=null,DevelopmentState? Development=null,Dictionary<string,WeekendPreset[]>? EffectiveEventPresets=null,DevelopmentCloseReceipt[]? DevelopmentCloses=null,RecordedDevelopmentChoice[]? DevelopmentChoices=null,DevelopmentAutomaticReceipt[]? DevelopmentAutomaticCommands=null);
 public record CampaignEventVersions(string Model,string Randomness);
+public record EconomyTeamSnapshot(string CampaignId,string TeamId,int Balance,SeasonIncomeConfiguration Configuration,IReadOnlyList<CreditEntry> Ledger,IReadOnlyDictionary<string,string> PersonnelNames);
 public record CampaignVersions(string Lifecycle,string Scoring,string Replay,string Preparation,string Practice,Dictionary<string,CampaignEventVersions> Events);
 public record StoredCampaign(string Version,CampaignRecord Record);
 public interface ICampaignStore
@@ -45,3 +46,17 @@ public sealed record ConstructionAutomaticRequest(string CommandId);
 public sealed record RecordedConstructionChoice(string TeamId,string Source,long Revision,Game.Simulation.ConstructionPolicyObservation Observation,Game.Simulation.ConstructionRecommendation Recommendation,string CommandId);
 public sealed record ConstructionAutomaticReceipt(string CommandId,string Version,string[] TeamIds);
 public sealed record ConstructionReadiness(string TeamId,bool Ready,string Source);
+
+public record DevelopmentReadiness(string TeamId,bool Committed,string Source);
+public record DevelopmentPublicSnapshot(string OpportunityId,string FromEventId,string TargetEventId,string Status,IReadOnlyList<DevelopmentReadiness> Readiness,bool CanClose,long Revision=0,string MissingTeamPolicy="The host must explicitly close development; absent teams receive recorded Save. Practice remains closed until outcomes are saved.");
+public record DevelopmentTeamSnapshot(string CampaignId,string TeamId,string OpportunityId,long Revision,long AssignmentRevision,int Balance,IReadOnlyList<DevelopmentQuote> Options,DevelopmentDraft Draft,DevelopmentDecision? Commitment,string Timing="Projects resolve at preparation close; current-weekend and Base Car inputs remain frozen.",IReadOnlyList<DevelopmentProjectSummary>? Projects=null,IReadOnlyDictionary<string,double>? CurrentCar=null,IReadOnlyDictionary<string,double>? NextCar=null,Game.Simulation.DevelopmentRecommendation? Advice=null,IReadOnlyList<RecordedDevelopmentChoice>? PolicyChoices=null,string? CurrentEventId=null,string? NextEventId=null,DevelopmentHelpPrivileges? Help=null,IReadOnlyDictionary<string,string>? OptionSpecialties=null,IReadOnlyList<PackageDevelopmentQuote>? PackageOptions=null,IReadOnlyList<PackageDevelopmentQuote>? RefinementOptions=null);
+public record CloseDevelopmentInput(string CommandId,string OpportunityId,long Revision,bool ApplyMissingSave=false);
+public record DevelopmentCloseReceipt(string CommandId,string Fingerprint,string OpportunityId);
+public record DevelopmentProjectSummary(string ProjectId,string Kind,string Status,string? CompletionEventId,string Explanation,string ActionKind="PermanentRefinement");
+
+public record DevelopmentRecommendationInput(string CommandId,string OpportunityId,long Revision,long AssignmentRevision);
+public record DevelopmentAutomaticInput(string CommandId,string OpportunityId,long Revision);
+public record RecordedDevelopmentChoice(string TeamId,string OpportunityId,string Source,long Revision,Game.Simulation.DevelopmentPolicyObservation Observation,Game.Simulation.DevelopmentRecommendation Recommendation,string DraftCommandId,string? CommitCommandId=null);
+public record DevelopmentAutomaticReceipt(string CommandId,string OpportunityId,long Revision,string[] TeamIds);
+
+public record DevelopmentHelpPrivileges(string SessionId,string PlayerId,string HelpLevel,bool AutoAcceptRecommendation,bool CanChange);

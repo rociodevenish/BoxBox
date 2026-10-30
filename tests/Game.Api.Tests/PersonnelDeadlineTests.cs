@@ -29,7 +29,7 @@ public sealed class PersonnelDeadlineTests
   var durable=new FirestoreSessionStore("demo-f1game",Environment.GetEnvironmentVariable("F1_RECOVERY_HOST")!);
   var interrupted=new Interrupted(durable,committed);
   string id,device,firstTeam;ScheduledWakeup first;
-  await using(var server=LobbyTests.Server().WithWebHostBuilder(b=>b.ConfigureServices(s=>{s.Replace(ServiceDescriptor.Singleton<ISessionStore>(interrupted));s.Replace(ServiceDescriptor.Singleton<TimeProvider>(clock));s.AddSingleton<IScheduledWakeups>(queue);})))
+  await using(var server=LobbyTests.Server().WithWebHostBuilder(b=>b.UseSetting("Wakeups:Mode","manual").ConfigureServices(s=>{s.Replace(ServiceDescriptor.Singleton<ISessionStore>(interrupted));s.Replace(ServiceDescriptor.Singleton<TimeProvider>(clock));s.AddSingleton<IScheduledWakeups>(queue);})))
   {
    using var client=server.CreateClient();client.DefaultRequestHeaders.Authorization=new("Bearer",token);
    var created=await client.PostAsJsonAsync("/api/campaigns",new{commandId=Guid.NewGuid().ToString(),name="Deadline host",personnelMode="acquisition",seed=1});created.EnsureSuccessStatusCode();
@@ -40,7 +40,7 @@ public sealed class PersonnelDeadlineTests
    clock.Advance();interrupted.Armed=true;
    Assert.Equal(SessionFailure.StorageUnavailable,Assert.Throws<SessionFault>(()=>server.Services.GetRequiredService<CampaignCoordinator>().DeliverPersonnelWakeup(new(first.SessionId,first.Generation,first.Phase,first.WindowRevision))).Failure);
   }
-  await using var recovered=LobbyTests.Server().WithWebHostBuilder(b=>b.ConfigureServices(s=>{s.Replace(ServiceDescriptor.Singleton<ISessionStore>(durable));s.Replace(ServiceDescriptor.Singleton<TimeProvider>(clock));s.AddSingleton<IScheduledWakeups>(queue);}));
+  await using var recovered=LobbyTests.Server().WithWebHostBuilder(b=>b.UseSetting("Wakeups:Mode","manual").ConfigureServices(s=>{s.Replace(ServiceDescriptor.Singleton<ISessionStore>(durable));s.Replace(ServiceDescriptor.Singleton<TimeProvider>(clock));s.AddSingleton<IScheduledWakeups>(queue);}));
   using var retry=recovered.CreateClient();retry.DefaultRequestHeaders.Authorization=new("Bearer",token);
   var campaigns=recovered.Services.GetRequiredService<CampaignCoordinator>();
   var before=await retry.GetFromJsonAsync<JsonElement>($"/api/campaigns/{id}?deviceId={device}");

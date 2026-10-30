@@ -122,19 +122,19 @@ GitHub issues are canonical for ticket status and discussion. Local issue Markdo
 
 ## S14
 
-- [[S14 01] Receive event income and inspect the shared ledger](https://github.com/rociodevenish/BoxBox/issues/70) — ready-for-agent
-- [[S14 02] Commit one permanent refinement or Save](https://github.com/rociodevenish/BoxBox/issues/71) — ready-for-agent
-- [[S14 03] Resolve refinement outcomes and delayed projects](https://github.com/rociodevenish/BoxBox/issues/72) — ready-for-agent
-- [[S14 04] Use personnel effects and fair development guidance](https://github.com/rociodevenish/BoxBox/issues/73) — ready-for-agent
-- [[S14 05] Verify economy recovery and season trade-offs](https://github.com/rociodevenish/BoxBox/issues/74) — ready-for-agent
+- [[S14 01] Receive event income and inspect the shared ledger](https://github.com/rociodevenish/BoxBox/issues/70) — resolved
+- [[S14 02] Commit one permanent refinement or Save](https://github.com/rociodevenish/BoxBox/issues/71) — resolved
+- [[S14 03] Resolve refinement outcomes and delayed projects](https://github.com/rociodevenish/BoxBox/issues/72) — resolved
+- [[S14 04] Use personnel effects and fair development guidance](https://github.com/rociodevenish/BoxBox/issues/73) — resolved
+- [[S14 05] Verify economy recovery and season trade-offs](https://github.com/rociodevenish/BoxBox/issues/74) — ready-for-human (engineering complete; actual workload/understanding pending)
 
 ## S15
 
-- [[S15 01] Select exactly one package for a weekend](https://github.com/rociodevenish/BoxBox/issues/53) — ready-for-agent
-- [[S15 02] Create a specialised package using the development opportunity](https://github.com/rociodevenish/BoxBox/issues/54) — ready-for-agent
-- [[S15 03] Refine packages and expose richer project outcomes](https://github.com/rociodevenish/BoxBox/issues/55) — ready-for-agent
-- [[S15 04] Rush package work with explicit cost and risk](https://github.com/rociodevenish/BoxBox/issues/56) — ready-for-agent
-- [[S15 05] Verify package alternatives and campaign trade-offs](https://github.com/rociodevenish/BoxBox/issues/57) — ready-for-agent
+- [[S15 01] Select exactly one package for a weekend](https://github.com/rociodevenish/BoxBox/issues/53) — resolved
+- [[S15 02] Create a specialised package using the development opportunity](https://github.com/rociodevenish/BoxBox/issues/54) — resolved
+- [[S15 03] Refine packages and expose richer project outcomes](https://github.com/rociodevenish/BoxBox/issues/55) — resolved
+- [[S15 04] Rush package work with explicit cost and risk](https://github.com/rociodevenish/BoxBox/issues/56) — resolved
+- [[S15 05] Verify package alternatives and campaign trade-offs](https://github.com/rociodevenish/BoxBox/issues/57) — resolved
 
 ## S16
 
