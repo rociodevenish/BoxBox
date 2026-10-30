@@ -7,15 +7,15 @@
    <label>Player name<input #name value="Host" maxlength="40"></label>
    <label>Privacy<select #mode><option>Competitive</option><option>Family</option><option>Mixed</option></select></label>
    <label>Personnel<select #personnelMode><option value="preset">Preset rosters</option><option value="acquisition">Personnel acquisition · Provisional</option></select></label>
-   <label>Calendar<select disabled><option>Short fixture · Monza → Monaco</option></select></label>
+   <label>Content pack<select #contentVersion><option value="">Short fixture · Monza → Monaco</option><option value="release-2026-pilot-v1">Reviewed 2026 pilot · Monza → Monaco</option></select></label>
    <p>Full calendar unavailable until a complete content manifest is approved.</p>
-   <button (click)="create(name.value,mode.value,personnelMode.value)" [disabled]="busy()">Create campaign</button>
+   <button (click)="create(name.value,mode.value,personnelMode.value,contentVersion.value)" [disabled]="busy()">Create campaign</button>
   </section>
  }
  @if(campaign();as season){
   <section><h2>{{season.lifecycle==='constructing'?'Base Car construction':season.lifecycle==='acquiring'?'Personnel acquisition':season.lifecycle==='season-complete'?'Season complete':season.lifecycle==='event-result-committed'?'Event result committed':season.lifecycle==='active-weekend'?'Weekend active':season.lifecycle==='event-preparation'?'Event preparation':'Campaign created'}}</h2>
    <p>{{season.mode}} privacy · {{season.acquisition?'Fixed-price personnel. Constructor identity stays yours.':'Preset rosters and neutral cars remain fixed.'}}</p>
-   <p class="version">Short fixture · Provisional game content</p>
+   <p class="version">{{season.contentVersion==='release-2026-pilot-v1'?'Reviewed 2026 pilot · Season-opening roster · Provisional game tuning':'Short fixture · Provisional game content'}}</p>
    @if(season.constructionReadiness;as readiness){<ul aria-label="Public Base Car readiness">@for(team of readiness;track team.teamId){<li>{{teamName(team.teamId)}}  -  {{team.ready?'Base Car ready':'Awaiting construction'}}{{team.source==='unclaimed-ai'?'  -  Recorded automatic build':team.source==='manual-confirmation'?'  -  Confirmed by controller':''}}</li>}</ul>}
    <button (click)="refresh()" [disabled]="busy()">Refresh campaign</button>
    <a [href]="'/shared/lobby/'+season.weekendId">Household assignments and control</a>
