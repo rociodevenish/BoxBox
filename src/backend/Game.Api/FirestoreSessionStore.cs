@@ -77,29 +77,36 @@ public sealed class FirestoreSessionStore : ISessionStore, IDisposable
         return query!.Value.EnumerateArray().Where(p=>p.TryGetProperty("document",out _)).Select(p=>p.GetProperty("document").GetProperty("name").GetString()!.Split('/').Last()).ToArray();
     }
     private static object MembershipFields(string payload)=>new{arrayValue=new{values=SessionMembershipIndex.Members(payload).Select(uid=>new{stringValue=uid}).ToArray()}};
-    /// <summary>Bounded startup migration. CAS patches only index metadata; recovery manifests/chunks remain intact.</summary>
+    /// <summary>Paged startup migration. CAS patches only index metadata; recovery manifests/chunks remain intact.</summary>
     public void PrepareMembershipIndex(int limit=1000)
     {
         if(limit is <1 or >10000)throw new ArgumentOutOfRangeException(nameof(limit));
-        var query=Send(HttpMethod.Post,$"{documents}:runQuery",new{structuredQuery=new{from=new[]{new{collectionId="sessions"}},limit=limit+1}});
-        var manifests=query!.Value.EnumerateArray().Where(p=>p.TryGetProperty("document",out _)).Select(p=>p.GetProperty("document").Clone()).ToArray();
-        if(manifests.Length>limit)throw new IOException("Membership index migration exceeds Persistence:MembershipMigrationLimit. Increase the bounded limit (maximum 10000) before serving discovery; recovery records have not been removed.");
-        foreach(var manifest in manifests)
+        string? after=null;
+        while(true)
         {
-            if(manifest.GetProperty("fields").TryGetProperty("memberUids",out _))continue;
-            var name=manifest.GetProperty("name").GetString()!;var id=name.Split('/').Last();
-            var migrated=false;
-            for(var attempt=0;attempt<3;attempt++)
+            var structuredQuery=new Dictionary<string,object>{["from"]=new[]{new{collectionId="sessions"}},["orderBy"]=new[]{new{field=new{fieldPath="__name__"},direction="ASCENDING"}},["limit"]=limit};
+            if(after is not null)structuredQuery["startAt"]=new{values=new[]{new{referenceValue=after}},before=false};
+            var query=Send(HttpMethod.Post,$"{documents}:runQuery",new{structuredQuery});
+            var manifests=query!.Value.EnumerateArray().Where(p=>p.TryGetProperty("document",out _)).Select(p=>p.GetProperty("document").Clone()).ToArray();
+            foreach(var manifest in manifests)
             {
-                var saved=Read(id);if(saved is null){migrated=true;break;}
-                try
+                if(manifest.GetProperty("fields").TryGetProperty("memberUids",out _))continue;
+                var name=manifest.GetProperty("name").GetString()!;var id=name.Split('/').Last();
+                var migrated=false;
+                for(var attempt=0;attempt<3;attempt++)
                 {
-                    Send(HttpMethod.Post,$"{documents}:commit",new{writes=new[]{new{update=new{name,fields=new{memberUids=MembershipFields(saved.Payload)}},updateMask=new{fieldPaths=new[]{"memberUids"}},currentDocument=new{updateTime=saved.Version}}}});
-                    migrated=true;break;
+                    var saved=Read(id);if(saved is null){migrated=true;break;}
+                    try
+                    {
+                        Send(HttpMethod.Post,$"{documents}:commit",new{writes=new[]{new{update=new{name,fields=new{memberUids=MembershipFields(saved.Payload)}},updateMask=new{fieldPaths=new[]{"memberUids"}},currentDocument=new{updateTime=saved.Version}}}});
+                        migrated=true;break;
+                    }
+                    catch(SessionFault fault) when(fault.Failure==SessionFailure.Conflict){ }
                 }
-                catch(SessionFault fault) when(fault.Failure==SessionFailure.Conflict){ }
+                if(!migrated)throw new IOException("Membership migration raced repeated writes. Restart to retry before serving discovery.");
             }
-            if(!migrated)throw new IOException("Membership migration raced repeated writes. Restart to retry before serving discovery.");
+            if(manifests.Length<limit)break;
+            after=manifests[^1].GetProperty("name").GetString();
         }
     }
     public IReadOnlyList<string> ListSessions()
