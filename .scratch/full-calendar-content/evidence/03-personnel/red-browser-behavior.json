@@ -1,0 +1,15 @@
+{
+  "command": "node",
+  "args": [
+    "C:/Projects/F1Game/src/frontend/node_modules/@playwright/test/cli.js",
+    "test",
+    "--config",
+    "playwright.personnel-content.config.ts"
+  ],
+  "cwd": "C:\\Projects\\F1Game\\.tools\\worktrees\\s16-23\\src\\frontend",
+  "pid": 26264,
+  "startedAt": "2026-10-30T20:16:36.320Z",
+  "status": "failed",
+  "exitCode": 1,
+  "elapsedMs": 218376
+}

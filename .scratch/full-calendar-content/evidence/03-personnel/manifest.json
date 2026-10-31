@@ -1,0 +1,41 @@
+{
+  "ticket": 23,
+  "codeRevision": "b5f138ff58e475bb709cd6177c8459f30f665a22",
+  "implementation": "60f61cf",
+  "storagePrerequisite": "f93166b",
+  "contentVersion": "release-2026-personnel-rc1",
+  "checks": {
+    "integratedApi": {
+      "passed": 10,
+      "report": "final-api.json"
+    },
+    "paidRuntime": {
+      "passed": 10,
+      "report": "paid-runtime.json"
+    },
+    "browser": {
+      "passed": 1,
+      "report": "green-browser-response.json"
+    },
+    "typecheck": {
+      "passed": true,
+      "report": "final-typecheck.json"
+    }
+  },
+  "capturesInspected": [
+    "s16-23-manager-360.png",
+    "s16-23-drivers-360.png",
+    "s16-23-acquisition-public-1920.png"
+  ],
+  "ports": [
+    22109,
+    22100,
+    22410,
+    22460,
+    9451,
+    4691,
+    4791
+  ],
+  "issueClosed": false,
+  "fullCalendarRuntimeAcceptance": false
+}

@@ -1,0 +1,15 @@
+{
+  "command": "node",
+  "args": [
+    "C:/Projects/F1Game/src/frontend/node_modules/@angular/compiler-cli/bundles/src/bin/ngc.js",
+    "-p",
+    "src/frontend/tsconfig.app.json",
+    "--noEmit"
+  ],
+  "cwd": "C:\\Projects\\F1Game\\.tools\\worktrees\\s16-23",
+  "pid": 26800,
+  "startedAt": "2026-10-31T01:13:59.111Z",
+  "status": "passed",
+  "exitCode": 0,
+  "elapsedMs": 14344
+}
