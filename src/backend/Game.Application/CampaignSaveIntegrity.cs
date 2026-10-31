@@ -13,11 +13,16 @@ public static class CampaignSaveIntegrity
   try
   {
    if(record.Schema!=CampaignCoordinator.Schema||record.CampaignId!=id||string.IsNullOrWhiteSpace(record.HostUid)||record.Revision<1||record.Input is null||string.IsNullOrWhiteSpace(record.ContentVersion)||string.IsNullOrWhiteSpace(record.CalendarVersion))throw new ArgumentException();
-   if(record.Input.ContentVersion is {} requested&&(requested is not(CampaignCoordinator.ContentVersion or ReleaseContent.PilotVersion or ReleaseContent.FullCalendarVersion)||record.ContentVersion!=requested))throw new ArgumentException();
-   if(record.Input.ContentVersion is (ReleaseContent.PilotVersion or ReleaseContent.FullCalendarVersion)&&record.ContentSnapshot is null)throw new ArgumentException();
+   if(record.Input.ContentVersion is {} requested&&(requested is not(CampaignCoordinator.ContentVersion or ReleaseContent.PilotVersion or ReleaseContent.FullCalendarVersion or ReleaseContent.PersonnelVersion)||record.ContentVersion!=requested))throw new ArgumentException();
+   if(record.Input.ContentVersion is (ReleaseContent.PilotVersion or ReleaseContent.FullCalendarVersion or ReleaseContent.PersonnelVersion)&&record.ContentSnapshot is null)throw new ArgumentException();
    if(record.ContentSnapshot is {} snapshot)
    {
     CarConstruction.ValidateCatalogue(snapshot.Construction);
+    if(record.Input.ContentVersion==ReleaseContent.PersonnelVersion||!snapshot.PersonnelDetails.IsDefault||!snapshot.PaidPackageOptions.IsDefault)
+    {
+     ReleasePersonnel.Validate(snapshot.PersonnelDetails,snapshot.PaidPackageOptions,[RacePackages.Baseline],record.Acquisition?.Pool);
+     if(record.FrozenPresets.Values.SelectMany(p=>p).Any(p=>p.PackageLibrary.Length!=1||JsonSerializer.Serialize(p.PackageLibrary[0])!=JsonSerializer.Serialize(RacePackages.Baseline)))throw new ArgumentException();
+    }
     if(snapshot.Sources.Length!=4||snapshot.Sources.Select(s=>s.Id).Distinct().Count()!=4||snapshot.Sources.Any(s=>string.IsNullOrWhiteSpace(s.SchemaVersion)||string.IsNullOrWhiteSpace(s.DataVersion))||string.IsNullOrWhiteSpace(snapshot.Provenance)||snapshot.Assets.Select(a=>a.Id).Distinct().Count()!=snapshot.Assets.Length)throw new ArgumentException();
     if(snapshot.Sources.Single(s=>s.Id=="construction") is not {} source||source.SchemaVersion+"/"+source.DataVersion!=snapshot.Construction.SourceVersion)throw new ArgumentException();
     if(record.Construction is {} constructionSnapshot&&JsonSerializer.Serialize(constructionSnapshot.Catalogue)!=JsonSerializer.Serialize(snapshot.Construction))throw new ArgumentException();

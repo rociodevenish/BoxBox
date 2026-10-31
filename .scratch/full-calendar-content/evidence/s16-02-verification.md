@@ -41,3 +41,7 @@ All failed/passing bounded records, TRX, original gallery captures and browser a
 Meaningful reds are retained: unavailable full mode, missing pit route accepted, unsupported saved weather consumer accepted, slow rain ramp, nominal Pit Loss mismatch and wrong relative fragment. Prototype build/launch failures remain recorded. Final checks use SDK 10.0.402 / runtime 10.0.13 and normal audited restore. These are local emulator/browser results, not hosted CI acceptance.
 
 Owned ports: Auth 20109, Firestore 20100, hub 20410, logging 20460, websocket 9251, UI 4491, API 4591. Services belong to bounded fixture lifecycles; existing previews were not reused. Cleanup is verified in the final handoff. The parallel-demo-project warning reflects workers with explicit separate owned endpoints.
+
+## Integration merge proof
+
+Integrated personnel/storage tip 90ddaf59ae97ebfc5651f797e5f6001fc4dba2c7. The merge preserves pilot, full-circuit and personnel version registrations, both optional metadata additions, both selector labels and accessibility labels. Only the actually affected checks were rerun: merged frontend type-check passed (6,452 ms), and full-calendar creation/restart plus personnel initial acquisition passed 2/2 with actual emulators (merged-registrations.trx). These records are included in the preserved report directory; no circuit matrix or broad suite was repeated for the registration merge.

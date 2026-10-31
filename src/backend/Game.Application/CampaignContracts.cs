@@ -63,4 +63,6 @@ public record DevelopmentAutomaticReceipt(string CommandId,string OpportunityId,
 
 public record DevelopmentHelpPrivileges(string SessionId,string PlayerId,string HelpLevel,bool AutoAcceptRecommendation,bool CanChange);
 
-public sealed record CampaignContentSnapshot(ConstructionCatalogue Construction,ImmutableArray<ContentSource> Sources,ImmutableArray<ContentAsset> Assets,string Provenance);
+public sealed record CampaignContentSnapshot(ConstructionCatalogue Construction,ImmutableArray<ContentSource> Sources,ImmutableArray<ContentAsset> Assets,string Provenance,
+ [property:System.Text.Json.Serialization.JsonIgnore(Condition=System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingDefault)] ImmutableArray<PackageDevelopmentQuote> PaidPackageOptions=default,
+ [property:System.Text.Json.Serialization.JsonIgnore(Condition=System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingDefault)] ImmutableArray<ContentPersonnelDetail> PersonnelDetails=default);

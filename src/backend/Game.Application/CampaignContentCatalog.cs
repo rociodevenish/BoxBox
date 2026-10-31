@@ -8,7 +8,7 @@ namespace Game.Application;
 public sealed class CampaignContentCatalog
 {
  private readonly ImmutableDictionary<string,ReleaseContentPack> packs;
- public CampaignContentCatalog():this([ReleaseContent.Pilot(),ReleaseContent.FullCalendar()]){}
+ public CampaignContentCatalog():this([ReleaseContent.Pilot(),ReleaseContent.FullCalendar(),ReleaseContent.PersonnelCandidate()]){}
  public CampaignContentCatalog(IEnumerable<ReleaseContentPack> candidates)
  {
   // Copy the only collection with a mutable interface; all other nested pack data use immutable collections.
@@ -26,7 +26,7 @@ public sealed class CampaignContentCatalog
  private static void Validate(ReleaseContentPack pack,int laps)
  {
   static void Require(bool valid){if(!valid)throw new ArgumentException("Invalid release content.");}
-  Require((pack.Version is ReleaseContent.PilotVersion or ReleaseContent.FullCalendarVersion)&&pack.Season==2026&&!string.IsNullOrWhiteSpace(pack.Provenance)&&!string.IsNullOrWhiteSpace(pack.CalendarVersion)&&pack.LengthUnit=="metres"&&pack.TimeUnit=="seconds");
+  Require((pack.Version is ReleaseContent.PilotVersion or ReleaseContent.FullCalendarVersion or ReleaseContent.PersonnelVersion)&&pack.Season==2026&&!string.IsNullOrWhiteSpace(pack.Provenance)&&!string.IsNullOrWhiteSpace(pack.CalendarVersion)&&pack.LengthUnit=="metres"&&pack.TimeUnit=="seconds");
   Require(pack.Constructors.Length==11&&pack.Constructors.Select(t=>t.TeamId).SequenceEqual(Enumerable.Range(1,11).Select(i=>$"team-{i:00}"))&&pack.Constructors.Select(t=>t.Id).Distinct().Count()==11);
   Require(SessionCoordinator.SupportsCampaignConstructors(pack.Constructors));
   Require(pack.Constructors.All(t=>!string.IsNullOrWhiteSpace(t.Id)&&!string.IsNullOrWhiteSpace(t.Name)&&t.DriverIds.Length==2)&&pack.Constructors.SelectMany(t=>t.DriverIds).Distinct().Count()==22);
@@ -43,6 +43,7 @@ public sealed class CampaignContentCatalog
   Require(pack.ActiveConsumers.Distinct().Count()==pack.ActiveConsumers.Length&&pack.ActiveConsumers.ToHashSet().SetEquals(ReleaseContent.SupportedConsumers));
   var sourceVersions=pack.Sources.ToDictionary(s=>s.Id,s=>s.SchemaVersion+"/"+s.DataVersion);
   Require(sourceVersions["car-attributes"]==WeekendPreparation.CarVersion["car-spec/".Length..]&&sourceVersions["construction"]==pack.Construction.SourceVersion&&pack.Circuits.All(c=>c.Version==sourceVersions["tracks"])&&pack.Personnel.People.Where(p=>p.Driver is not null).All(p=>p.Driver!.Version==sourceVersions["drivers"]));
+  if(pack.Version==ReleaseContent.PersonnelVersion||!pack.PersonnelDetails.IsDefault||!pack.PaidPackageOptions.IsDefault)ReleasePersonnel.Validate(pack.PersonnelDetails,pack.PaidPackageOptions,pack.Packages,pack.Personnel);
   PersonnelAcquisition.ValidatePool(pack.Personnel,11);CarConstruction.ValidateCatalogue(pack.Construction);
   var groupPreview=ConstructionPreview.Preview(pack.Construction,pack.Construction.Categories.Select(c=>c.Options[0].Id).ToImmutableArray(),WeekendPresetCatalog.Open("track-monza"),pack.Personnel.StartingCredit);
   Require(!pack.AttributeGroups.IsDefaultOrEmpty&&pack.AttributeGroups.Distinct().Count()==pack.AttributeGroups.Length&&pack.AttributeGroups.ToHashSet().SetEquals(groupPreview.Groups.Keys));
@@ -74,7 +75,7 @@ public sealed class CampaignContentCatalog
    var neutral=WeekendPresetCatalog.Open("track-monza") with{Circuit=circuit,PackageLibrary=pack.Packages};
    _=WeekendPreparation.Prepare(RacePackages.Select(neutral,new(package.PackageId,package.Version)),laps,new());
   }
-  var entities=pack.Circuits.Select(c=>c.Id).Concat(pack.Personnel.People.Select(p=>p.Id)).Concat(pack.Constructors.Select(t=>t.Id)).Concat(pack.Construction.Categories.SelectMany(c=>c.Options).Select(o=>o.Id)).Concat(pack.Packages.Select(p=>p.PackageId)).ToHashSet();
+  var entities=pack.Circuits.Select(c=>c.Id).Concat(pack.Personnel.People.Select(p=>p.Id)).Concat(pack.Constructors.Select(t=>t.Id)).Concat(pack.Construction.Categories.SelectMany(c=>c.Options).Select(o=>o.Id)).Concat(pack.Packages.Select(p=>p.PackageId)).Concat(pack.PaidPackageOptions.IsDefault?[]:pack.PaidPackageOptions.Select(p=>p.Template.Id)).ToHashSet();
   Require(pack.Assets.Select(a=>a.Id).Distinct().Count()==pack.Assets.Length&&pack.Assets.All(a=>entities.Contains(a.EntityId)&&!string.IsNullOrWhiteSpace(a.Id)&&!string.IsNullOrWhiteSpace(a.Provenance)&&(a.RuntimeUrl is null||a.RuntimeUrl.StartsWith('/')&&!a.RuntimeUrl.Contains(".."))));
   foreach(var circuit in pack.Circuits)
   {
