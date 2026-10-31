@@ -1,4 +1,5 @@
 using System.Collections.Immutable;
+using System.Text.Json.Serialization;
 using Game.Domain;
 
 namespace Game.Simulation;
@@ -11,9 +12,11 @@ public sealed record ReleaseContentPack(string Version,string CalendarVersion,in
  ImmutableArray<string> Calendar,ImmutableArray<ContentConstructor> Constructors,ImmutableArray<CircuitPreset> Circuits,
  PersonnelPool Personnel,ConstructionCatalogue Construction,ImmutableArray<RacePackageVersion> Packages,
  ImmutableArray<ContentAsset> Assets,ImmutableArray<ContentSource> Sources,ImmutableArray<string> ActiveConsumers,
- string LengthUnit="metres",string TimeUnit="seconds",ImmutableArray<string> AttributeGroups=default);
+ string LengthUnit="metres",string TimeUnit="seconds",ImmutableArray<string> AttributeGroups=default,
+ [property:JsonIgnore(Condition=JsonIgnoreCondition.WhenWritingDefault)] ImmutableArray<PackageDevelopmentQuote> PaidPackageOptions=default,
+ [property:JsonIgnore(Condition=JsonIgnoreCondition.WhenWritingDefault)] ImmutableArray<ContentPersonnelDetail> PersonnelDetails=default);
 
-public static class ReleaseContent
+public static partial class ReleaseContent
 {
  public const string PilotVersion="release-2026-pilot-v1";
  public static ReleaseContentPack Pilot()
