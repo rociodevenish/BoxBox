@@ -51,3 +51,7 @@ Inspected actual generated captures once at 360px phone and 1920×1080 public di
 - [Public display](03-personnel/s16-23-acquisition-public-1920.png)
 
 This is complete #23 slice evidence, not a full 23-event runtime/whole-season balance acceptance claim. #25 still owns the integrated full-calendar campaign proof and release-wide balance limits.
+
+## Canonical status publication blocked
+
+The final GitHub PATCH/POST to mark the open issue awaiting review and publish the evidence summary was rejected by automatic approval review as unauthorized external publication. No retry or workaround was attempted; the canonical issue remains open with its prior claim/status. Code and local verification are complete. Concrete pending payloads are staged outside the repository at `C:/Users/sbdev/AppData/Local/Temp/s16-23-review-comment.json` and `s16-23-review-status.json` for approval by the coordinating user.
