@@ -13,6 +13,7 @@ internal sealed class CampaignTestSessionScope(ISessionStore inner):ISessionStor
   var saved=inner.Read(id);if(saved is not null)ids.TryAdd(id,0);return saved;
  }
  public IReadOnlyList<string> FindByJoinCode(string code)=>inner.FindByJoinCode(code).Where(ids.ContainsKey).ToArray();
+ public IReadOnlyList<string> FindByMember(string uid)=>inner.FindByMember(uid).Where(ids.ContainsKey).ToArray();
  public IReadOnlyList<string> ListSessions()=>ids.Keys.Where(id=>!id.StartsWith("campaign-",StringComparison.Ordinal)).ToArray();
  public string Write(string id,string? version,string payload,string? code)=>Write(id,version,payload,code,null);
  public string Write(string id,string? version,string payload,string? code,ScheduledWakeup? wakeup)
