@@ -54,4 +54,6 @@ This is complete #23 slice evidence, not a full 23-event runtime/whole-season ba
 
 ## Canonical status publication blocked
 
-The final GitHub PATCH/POST to mark the open issue awaiting review and publish the evidence summary was rejected by automatic approval review as unauthorized external publication. No retry or workaround was attempted; the canonical issue remains open with its prior claim/status. Code and local verification are complete. Concrete pending payloads are staged outside the repository at `C:/Users/sbdev/AppData/Local/Temp/s16-23-review-comment.json` and `s16-23-review-status.json` for approval by the coordinating user.
+The attempted action was a GitHub PATCH of issue23 (review-status label/body) followed by POST to issue23/comments (implementation/evidence summary). Automatic approval review rejected the entire shell invocation before execution: it considered publishing implementation details, commit identifiers, test evidence and repository paths to that destination unauthorized because it did not recognize specific user authorization for that payload. No final mutation was sent, and no retry or workaround was attempted.
+
+The canonical issue remains open with its prior claim/status. Code and local verification are complete. The coordinating root owns subsequent canonical updates after independent review and checking the existing repository/workflow authorization; this implementer will not retry the rejected mutation. No separate human approval flow is added by this ticket.
