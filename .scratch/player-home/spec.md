@@ -1,6 +1,8 @@
 # Player home and game entry
 
-Status: ready-for-agent
+Status: resolved
+
+Implementation and verification: [completion evidence](evidence/completion.md).
 
 ## Problem Statement
 

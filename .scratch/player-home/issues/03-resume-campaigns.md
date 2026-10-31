@@ -2,6 +2,8 @@
 
 Canonical issue: https://github.com/rociodevenish/BoxBox/issues/115
 
+Snapshot status: closed (completed).
+
 Read-only snapshot; scope/status updates belong on GitHub.
 
 ## Spec
