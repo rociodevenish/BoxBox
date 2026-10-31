@@ -1,0 +1,13 @@
+# Final integration fixes
+
+Based on integration `4162833`, in isolated branch `codex/player-home-finalfix`.
+
+The existing production health/public-auth regression failed before the fix with missing ADC credentials. The TRX stack traces `Program`'s eager singleton resolution through `PreparedStore` to `PrepareMembershipIndex`. Removing that eager resolution restores the established storage-independent public endpoints. The singleton factory still completes the paged membership audit before returning the store, so data access and discovery cannot run against an incompletely migrated index. Initialization failures remain visible to data requests.
+
+The new completed-campaign discovery scenario injected the raw shared durable store into its manual-clock coordinator. Its `SweepWakeups` could enumerate and advance unrelated concurrently running recovery/next-event scenarios. The scenario now shares the existing `CampaignTestSessionScope` between its original and restarted hosts. Raw durable access remains in the migration/recovery assertions. The scope forwards member lookup filtered to its owned record IDs, as it already did for join lookup; production membership code is unchanged.
+
+The pre-approved seams remain real-token API/Firestore integration and the existing production hosting HTTP contract. No new implementation-coupled test or production workaround was introduced. Node 24.22.1, SDK 10.0.402 and Java21; owned Auth19709/Firestore19700/hub19710/logging19760/websocket9270; worktree-specific build artifacts. The first emulator launch was silent and was stopped using its recorded PID25072; a CI/update-check-disabled owned launch started normally.
+
+Verification reports/TRX are retained under integration workspace `.tools/reports/player-home-finalfix/`. `production-red.json`/`red.trx` capture the exact existing production failure. `finalfix-green.json`/`green.trx` capture the affected-class concurrent batch: CampaignDiscoveryTests, CampaignRecoveryTests, CampaignNextEventTests and HostedConfigurationTests. Parent full API verification is responsible for accounting for the earlier five whole-suite failures; its original truncated output cannot identify every failed case, so this note does not claim unsupported case-by-case attribution.
+
+The affected-class green batch passed **34/34**, no skipped tests, with normal xUnit concurrency (2m20s test duration; 192359ms owned emulator/build lifecycle). Production health/public-auth therefore passed alongside the related campaign regressions. `git diff --check` passed. All owned emulator processes stopped. Integration tip `4162833` was already merged before reporting.

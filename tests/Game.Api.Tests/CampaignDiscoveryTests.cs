@@ -45,9 +45,9 @@ public sealed class CampaignDiscoveryTests
  [Fact]
  public async Task Completed_campaign_survives_legacy_metadata_migration_and_restart_while_stale_index_cannot_restore_membership()
  {
-  using var durable=new FirestoreSessionStore("demo-f1game",RecoveryHost);var clock=new Clock();
+  using var durable=new FirestoreSessionStore("demo-f1game",RecoveryHost);var scoped=new CampaignTestSessionScope(durable);var clock=new Clock();
   var token=await LobbyTests.Identity(false);var otherToken=await LobbyTests.Identity(false);var participantToken=await LobbyTests.Identity(false);string id,first;string[] payloads;string[] recordIds;
-  await using(var server=LobbyTests.Server().WithWebHostBuilder(b=>b.UseSetting("Wakeups:Mode","manual").ConfigureServices(s=>{s.Replace(ServiceDescriptor.Singleton<ISessionStore>(durable));s.Replace(ServiceDescriptor.Singleton<TimeProvider>(clock));})))
+  await using(var server=LobbyTests.Server().WithWebHostBuilder(b=>b.UseSetting("Wakeups:Mode","manual").ConfigureServices(s=>{s.Replace(ServiceDescriptor.Singleton<ISessionStore>(scoped));s.Replace(ServiceDescriptor.Singleton<TimeProvider>(clock));})))
   {
    using var client=server.CreateClient();client.DefaultRequestHeaders.Authorization=new("Bearer",token);
    var creation=await client.PostAsJsonAsync("/api/campaigns",new CreateCampaignInput(Guid.NewGuid().ToString(),"Legacy host"));creation.EnsureSuccessStatusCode();var joined=(await creation.Content.ReadFromJsonAsync<CampaignJoined>())!;
@@ -76,7 +76,7 @@ public sealed class CampaignDiscoveryTests
   durable.PrepareMembershipIndex(1);Assert.Equal(payloads,recordIds.Select(record=>durable.Read(record)!.Payload));
   var indexedVersions=recordIds.Select(record=>durable.Read(record)!.Version).ToArray();durable.PrepareMembershipIndex(1);Assert.Equal(indexedVersions,recordIds.Select(record=>durable.Read(record)!.Version));
   durable.PrepareMembershipIndex();Assert.Equal(payloads,recordIds.Select(record=>durable.Read(record)!.Payload));durable.PrepareMembershipIndex();
-  await using var restarted=LobbyTests.Server().WithWebHostBuilder(b=>b.UseSetting("Wakeups:Mode","manual").ConfigureServices(s=>s.Replace(ServiceDescriptor.Singleton<ISessionStore>(durable))));
+  await using var restarted=LobbyTests.Server().WithWebHostBuilder(b=>b.UseSetting("Wakeups:Mode","manual").ConfigureServices(s=>s.Replace(ServiceDescriptor.Singleton<ISessionStore>(scoped))));
   using var host=restarted.CreateClient();host.DefaultRequestHeaders.Authorization=new("Bearer",token);
   Assert.Equal("season-complete",Assert.Single((await host.GetFromJsonAsync<JsonElement[]>("/api/campaigns"))!).GetProperty("lifecycle").GetString());
   var recovered=await host.PostAsJsonAsync($"/api/campaigns/{id}/return",new{});recovered.EnsureSuccessStatusCode();var member=(await recovered.Content.ReadFromJsonAsync<JoinedLobby>())!;

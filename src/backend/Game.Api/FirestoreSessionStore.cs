@@ -77,7 +77,7 @@ public sealed class FirestoreSessionStore : ISessionStore, IDisposable
         return query!.Value.EnumerateArray().Where(p=>p.TryGetProperty("document",out _)).Select(p=>p.GetProperty("document").GetProperty("name").GetString()!.Split('/').Last()).ToArray();
     }
     private static object MembershipFields(string payload)=>new{arrayValue=new{values=SessionMembershipIndex.Members(payload).Select(uid=>new{stringValue=uid}).ToArray()}};
-    /// <summary>Paged startup migration. CAS patches only index metadata; recovery manifests/chunks remain intact.</summary>
+    /// <summary>Paged initialization migration. CAS patches only index metadata; recovery manifests/chunks remain intact.</summary>
     public void PrepareMembershipIndex(int limit=1000)
     {
         if(limit is <1 or >10000)throw new ArgumentOutOfRangeException(nameof(limit));

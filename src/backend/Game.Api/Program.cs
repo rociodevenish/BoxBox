@@ -52,7 +52,6 @@ builder.Services.AddSingleton<ICampaignStore,CampaignStore>();
 builder.Services.AddSingleton<CampaignCoordinator>();
 builder.Services.ConfigureHttpJsonOptions(options => options.SerializerOptions.Converters.Add(new JsonStringEnumConverter()));
 var app = builder.Build();
-_=app.Services.GetRequiredService<ISessionStore>();
 app.Use(async(context,next)=>{
     // CORS does not protect WebSocket upgrades. Check browser Origin on API and hub requests too.
     if(allowedOrigins.Length>0&&(context.Request.Path.StartsWithSegments("/api")||context.Request.Path.StartsWithSegments("/hubs"))
