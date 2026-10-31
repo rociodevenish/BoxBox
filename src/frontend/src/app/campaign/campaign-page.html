@@ -3,33 +3,37 @@
  @if(error()){<p role="alert">{{error()}}</p>}
  @if(ready()&&!user()){<p>Sign in with your permanent account to create a campaign.</p><a href="/shared/create">Sign in</a>}
  @if(user()&&!campaign()){
-  <section><h2>Create a short campaign</h2><p>Two contrasting circuits, frozen preset teams and both drivers. Six laps per event.</p>
+  <section><h2>Create a campaign</h2><p>Choose the two-event fixture or complete 2026 calendar, with frozen teams and both drivers. Six laps per event.</p>
    <label>Player name<input #name value="Host" maxlength="40"></label>
    <label>Privacy<select #mode><option>Competitive</option><option>Family</option><option>Mixed</option></select></label>
    <label>Personnel<select #personnelMode aria-label="Personnel"><option value="preset">Preset rosters</option><option value="acquisition">Personnel acquisition · Provisional</option></select></label>
-   <label>Content pack<select #contentVersion aria-label="Content pack"><option value="">Short fixture · Monza → Monaco</option><option value="release-2026-pilot-v1">Reviewed 2026 pilot · Monza → Monaco</option><option value="release-2026-personnel-rc1">2026 personnel candidate - Monza to Monaco</option></select></label>
-   <p>Full calendar unavailable until a complete content manifest is approved.</p>
+   <label>Content pack<select #contentVersion aria-label="Content pack"><option value="">Short fixture · Monza → Monaco</option><option value="release-2026-pilot-v1">Reviewed 2026 pilot · Monza → Monaco</option><option value="release-2026-personnel-rc1">2026 personnel candidate - Monza to Monaco</option><option value="release-2026-full-circuits-v1">Full 2026 calendar · 23 events</option></select></label>
+   <p>Calendar order and teams stay fixed for the campaign. Game ratings and circuit tuning remain provisional.</p>
    <button (click)="create(name.value,mode.value,personnelMode.value,contentVersion.value)" [disabled]="busy()">Create campaign</button>
   </section>
  }
  @if(campaign();as season){
   <section><h2>{{season.lifecycle==='constructing'?'Base Car construction':season.lifecycle==='acquiring'?'Personnel acquisition':season.lifecycle==='season-complete'?'Season complete':season.lifecycle==='event-result-committed'?'Event result committed':season.lifecycle==='active-weekend'?'Weekend active':season.lifecycle==='event-preparation'?'Event preparation':'Campaign created'}}</h2>
    <p>{{season.mode}} privacy · {{season.acquisition?'Fixed-price personnel. Constructor identity stays yours.':'Preset rosters and neutral cars remain fixed.'}}</p>
-   <p class="version">{{season.contentVersion==='release-2026-personnel-rc1'?'2026 personnel candidate - Existing prices and reserves - Two-event calendar':season.contentVersion==='release-2026-pilot-v1'?'Reviewed 2026 pilot · Season-opening roster · Provisional game tuning':'Short fixture · Provisional game content'}}</p>
+   <p class="version">{{season.contentVersion==='release-2026-full-circuits-v1'?'Full 2026 calendar · 23 events · Season-opening roster · Provisional game tuning':season.contentVersion==='release-2026-personnel-rc1'?'2026 personnel candidate - Existing prices and reserves - Two-event calendar':season.contentVersion==='release-2026-pilot-v1'?'Reviewed 2026 pilot · Season-opening roster · Provisional game tuning':'Short fixture · Provisional game content'}}</p>
+   @if(season.lifecycle==='created'||season.lifecycle==='acquiring'){<a [href]="'/campaigns/'+season.campaignId+'#constructor-choices'">Choose your constructor</a>}
    @if(season.constructionReadiness;as readiness){<ul aria-label="Public Base Car readiness">@for(team of readiness;track team.teamId){<li>{{teamName(team.teamId)}}  -  {{team.ready?'Base Car ready':'Awaiting construction'}}{{team.source==='unclaimed-ai'?'  -  Recorded automatic build':team.source==='manual-confirmation'?'  -  Confirmed by controller':''}}</li>}</ul>}
    <button (click)="refresh()" [disabled]="busy()">Refresh campaign</button>
    <a [href]="'/shared/lobby/'+season.weekendId">Household assignments and control</a>
   </section>
   @if(season.lifecycle==='season-complete'){<section aria-label="Season champions"><h2>Constructors' champion · {{teamName(season.standings.constructors[0].id)}}</h2><p>Primary championship · {{season.standings.constructors[0].points}} points</p><h3>Drivers' champion · {{driverName(season.standings.drivers[0].id)}}</h3><p>Secondary championship · {{season.standings.drivers[0].points}} points</p><p>All event reports and championship history remain available below. This season has ended.</p></section>}
   <section><h2>Calendar</h2><div class="calendar">@for(event of season.calendar;track event.eventId){
-   <article [class.current]="event.order===season.eventIndex+1"><img [src]="trackImage(event.trackId)" alt="" (error)="$any($event.target).hidden=true">
-    <p>Event {{event.order}} {{event.order===season.eventIndex+1?'· Current':''}}</p><h3>{{event.trackName}}</h3>
+   <article [class.current]="event.order===season.eventIndex+1" [attr.aria-label]="'Event '+event.order+': '+(event.eventName||event.trackName)">
+    @if(trackImage(event.trackId)&&!failedTrackAssets().includes(event.trackId)){<img [src]="trackImage(event.trackId)" alt="" (error)="trackAssetFailed(event.trackId)">}
+    @else{<div class="track-fallback" role="img" [attr.aria-label]="'Track illustration unavailable for '+event.trackName">Track illustration unavailable</div>}
+    <p>Event {{event.order}} {{event.order===season.eventIndex+1?'· Current':''}}</p>@if(event.eventName){<p class="event-name">{{event.eventName}}</p>}<h3>{{event.trackName}}</h3>
+    @if(event.weekendStart){<p>{{event.weekendStart}} – {{event.weekendEnd}}</p>}@if(event.summary){<p>{{event.summary}}</p>}
     @if(hasReport(event.eventId)){<a [href]="'/campaigns/'+season.campaignId+'#report-'+event.eventId">Review {{event.trackName}} report</a>}
     @if(event.order===season.eventIndex+2){<p>Upcoming circuit · Saved preparation opens after the current result is committed.</p>}
    </article>
   }</div></section>
   @if(season.lifecycle==='created'||season.lifecycle==='acquiring'||(season.lifecycle==='constructing'&&!controlledTeams().length)){
-   <section><h2>Choose your constructor</h2><p>Claim one team. Add other players through household assignments. {{season.acquisition?'Every team needs a complete acquired roster before preparation.':'Unclaimed teams use the disclosed automatic preparation policy.'}}</p>
+   <section id="constructor-choices"><h2>Choose your constructor</h2><p>Claim one team. Add other players through household assignments. {{season.acquisition?'Every team needs a complete acquired roster before preparation.':'Unclaimed teams use the disclosed automatic preparation policy.'}}</p>
     <div class="teams">@for(team of season.teams;track team.teamId){<button (click)="claim(team.teamId)" [disabled]="busy()">Claim {{team.constructorName}}</button>}</div>
     @if(season.lifecycle==='created'){<button (click)="prepare()" [disabled]="busy()">Begin event preparation</button>}
    </section>
