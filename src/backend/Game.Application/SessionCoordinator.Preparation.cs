@@ -8,7 +8,7 @@ public sealed partial class SessionCoordinator
 {
     private EffectiveWeekend ApplyWeekendConditions(Lobby lobby,EffectiveWeekend effective)
     {
-        if(lobby.CampaignConditions is {} frozen)return effective with{Configuration=effective.Configuration with{Weather=frozen.Weather,WetTyres=frozen.WetTyres,WeatherReactions=frozen.WeatherReactions}};
+        if(lobby.CampaignConditions is {} frozen)return effective with{Configuration=effective.Configuration with{Weather=frozen.Weather,WetTyres=frozen.WetTyres,WeatherReactions=frozen.WeatherReactions,Incidents=frozen.Incidents,SafetyCar=frozen.SafetyCar,DisruptionPolicyVersion=frozen.DisruptionPolicyVersion,Track=effective.Configuration.Track with{PitRoute=frozen.Track.PitRoute}}};
         var configuration=presets.Get(lobby.Input.Preset!,lobby.Input.Laps!.Value).Configuration;
         if(configuration.Weather is null&&configuration.WetTyres is null)return effective;
         return effective with{Configuration=effective.Configuration with{

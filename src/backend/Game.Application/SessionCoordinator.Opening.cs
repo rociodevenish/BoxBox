@@ -25,7 +25,7 @@ public sealed partial class SessionCoordinator
     {
         if(lobby.Race is not null)return;
         var weekends=qualifying.Preparation.Teams.OrderBy(t=>t.TeamId,StringComparer.Ordinal).Select(t=>t.Effective).ToArray();
-        if(openingDisruptions?.ForCircuit(weekends[0].Source.Circuit.Id) is {} enabled)
+        if(lobby.CampaignConditions?.DisruptionPolicyVersion is null&&openingDisruptions?.ForCircuit(weekends[0].Source.Circuit.Id) is {} enabled)
         {
             if(enabled.Route is null)throw new SessionFault(SessionFailure.InvalidInput,"Safety Car activation requires an authored circuit pit route.");
             weekends=weekends.Select(weekend=>weekend with{Configuration=WeekendPresetCatalog.IncidentInputs(weekend,enabled.Incidents).Configuration with{Track=weekend.Configuration.Track with{PitRoute=enabled.Route},DisruptionPolicyVersion=enabled.SourceVersion}}).ToArray();

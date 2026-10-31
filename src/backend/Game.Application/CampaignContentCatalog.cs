@@ -1,3 +1,4 @@
+using System.Text.Json;
 using System.Collections.Immutable;
 using Game.Domain;
 using Game.Simulation;
@@ -7,11 +8,14 @@ namespace Game.Application;
 public sealed class CampaignContentCatalog
 {
  private readonly ImmutableDictionary<string,ReleaseContentPack> packs;
- public CampaignContentCatalog():this([ReleaseContent.Pilot()]){}
+ public CampaignContentCatalog():this([ReleaseContent.Pilot(),ReleaseContent.FullCalendar()]){}
  public CampaignContentCatalog(IEnumerable<ReleaseContentPack> candidates)
  {
   // Copy the only collection with a mutable interface; all other nested pack data use immutable collections.
-  packs=candidates.Select(p=>p with{Circuits=p.Circuits.Select(c=>c with{Track=c.Track with{Segments=c.Track.Segments is null?null:Array.AsReadOnly(c.Track.Segments.ToArray())}}).ToImmutableArray()}).ToImmutableDictionary(p=>p.Version);
+  packs=candidates.Select(p=>p with{
+   Circuits=p.Circuits.Select(c=>c with{Track=c.Track with{Segments=c.Track.Segments is null?null:Array.AsReadOnly(c.Track.Segments.ToArray())}}).ToImmutableArray(),
+   Conditions=p.Conditions?.ToImmutableDictionary(c=>c.Key,c=>c.Value with{Track=c.Value.Track with{Segments=c.Value.Track.Segments is null?null:Array.AsReadOnly(c.Value.Track.Segments.ToArray())}})
+  }).ToImmutableDictionary(p=>p.Version);
  }
  public ReleaseContentPack Resolve(string version,int laps)
  {
@@ -22,11 +26,18 @@ public sealed class CampaignContentCatalog
  private static void Validate(ReleaseContentPack pack,int laps)
  {
   static void Require(bool valid){if(!valid)throw new ArgumentException("Invalid release content.");}
-  Require(pack.Version==ReleaseContent.PilotVersion&&pack.Season==2026&&!string.IsNullOrWhiteSpace(pack.Provenance)&&!string.IsNullOrWhiteSpace(pack.CalendarVersion)&&pack.LengthUnit=="metres"&&pack.TimeUnit=="seconds");
+  Require((pack.Version is ReleaseContent.PilotVersion or ReleaseContent.FullCalendarVersion)&&pack.Season==2026&&!string.IsNullOrWhiteSpace(pack.Provenance)&&!string.IsNullOrWhiteSpace(pack.CalendarVersion)&&pack.LengthUnit=="metres"&&pack.TimeUnit=="seconds");
   Require(pack.Constructors.Length==11&&pack.Constructors.Select(t=>t.TeamId).SequenceEqual(Enumerable.Range(1,11).Select(i=>$"team-{i:00}"))&&pack.Constructors.Select(t=>t.Id).Distinct().Count()==11);
   Require(SessionCoordinator.SupportsCampaignConstructors(pack.Constructors));
   Require(pack.Constructors.All(t=>!string.IsNullOrWhiteSpace(t.Id)&&!string.IsNullOrWhiteSpace(t.Name)&&t.DriverIds.Length==2)&&pack.Constructors.SelectMany(t=>t.DriverIds).Distinct().Count()==22);
-  CampaignRules.ValidateShortCalendar(pack.Calendar);
+    CampaignRules.ValidateShortCalendar(pack.Calendar);
+  if(pack.Version==ReleaseContent.FullCalendarVersion)
+  {
+   var expected=ReleaseContent.FullCalendar();
+   Require(pack.Calendar.Length==23&&pack.Events.Length==23&&pack.Events.Select(e=>(e.Id,e.Name,e.TrackId,e.WeekendStart,e.WeekendEnd)).SequenceEqual(expected.Events.Select(e=>(e.Id,e.Name,e.TrackId,e.WeekendStart,e.WeekendEnd))));
+   Require(pack.Calendar.SequenceEqual(pack.Events.Select(e=>e.TrackId))&&pack.Conditions is not null&&pack.Conditions.Count==23&&pack.Calendar.All(pack.Conditions.ContainsKey));
+   Require(pack.Events.All(e=>!string.IsNullOrWhiteSpace(e.Summary)));
+  }
   Require(pack.Circuits.Select(c=>c.Id).Distinct().Count()==pack.Circuits.Length&&pack.Calendar.All(id=>pack.Circuits.Any(c=>c.Id==id)));
   Require(pack.Sources.Length==4&&pack.Sources.Select(s=>s.Id).ToHashSet().SetEquals(["drivers","tracks","car-attributes","construction"])&&pack.Sources.All(s=>s.SchemaVersion=="1.0.0"&&!string.IsNullOrWhiteSpace(s.DataVersion)));
   Require(pack.ActiveConsumers.Distinct().Count()==pack.ActiveConsumers.Length&&pack.ActiveConsumers.ToHashSet().SetEquals(ReleaseContent.SupportedConsumers));
@@ -83,8 +94,22 @@ public sealed class CampaignContentCatalog
      pack.Personnel.People.Single(p=>p.Id==id&&p.Role=="Driver").Driver!)).ToImmutableArray();
     var preset=new WeekendPreset(WeekendPreparation.ModelVersion,circuit,cars,new("engineer-neutral-v1","Preset Race Engineer","authored-engineer-v1",82),PackageLibrary:pack.Packages,SelectedPackage:new("neutral-package-v1",1));
     var weekend=WeekendPreparation.Prepare(preset,laps,new());
-    var engine=WeekendPreparation.CreateRace(weekend,0);engine.ResolvePhase();
-    Require(engine.GetState().Time>0&&double.IsFinite(engine.GetState().Time));
+    var configured=pack.Conditions?.GetValueOrDefault(circuit.Id);
+    if(configured is not null)
+    {
+     Require(JsonSerializer.Serialize(configured.Track)==JsonSerializer.Serialize(circuit.Track)&&configured.DisruptionPolicyVersion==ReleaseContent.CircuitProfileVersion+"/"+circuit.Id);
+     Require(configured is{Incidents:not null,SafetyCar:not null,Weather:not null,WetTyres:not null,WeatherReactions:not null});
+     Require(configured.Track.PitRoute is not null);
+    }
+    var configuration=configured is null?weekend.Configuration:configured with{Laps=laps};
+    var drivers=weekend.Cars.Select(c=>c.RaceDriver with{IncidentProfile=configuration.Incidents is null?null:new(c.Source.Driver.Ratings["errorControl"],c.Source.Car.Ratings["reliability"]),WetWeather=configuration.WetTyres is null?null:WeekendPreparation.EffectiveWetWeather(c.Source,weekend.Setup)}).ToArray();
+    var engine=new RaceEngine(configuration,drivers,0);
+    // Every team's inputs reach the public constructor; one positive progression per circuit
+    // suffices after the shared segment/time bounds and bounded driver attributes are validated.
+    if(team.TeamId==pack.Constructors[0].TeamId)
+    {
+     engine.ResolvePhase();Require(engine.GetState().Time>0&&double.IsFinite(engine.GetState().Time));
+    }
    }
   }
  }

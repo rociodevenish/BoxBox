@@ -154,9 +154,10 @@ public sealed partial class SessionCoordinator
             }).ToArray();
             foreach(var preset in teams)_=WeekendPreparation.Prepare(preset,6,new());
             var source=new Lobby("","","",new("open-equal",laps,123,"Competitive","Campaign"));
-            conditions[eventId]=ApplyWeekendConditions(source,WeekendPreparation.Prepare(teams[0],laps,new())).Configuration;
+            conditions[eventId]=pack?.Conditions?.GetValueOrDefault(track) is {} authored?authored with{Laps=laps}:ApplyWeekendConditions(source,WeekendPreparation.Prepare(teams[0],laps,new())).Configuration;
             frozen.Add(eventId,teams);var circuit=teams[0].Circuit;
-            return new CampaignEvent(eventId,index+1,track,circuit.Name,circuit.Slug,circuit.Version,$"{eventId}-weekend");
+            var metadata=pack is not null&&!pack.Events.IsDefaultOrEmpty?pack.Events[index]:null;
+            return new CampaignEvent(eventId,index+1,track,circuit.Name,circuit.Slug,circuit.Version,$"{eventId}-weekend",metadata?.Id,metadata?.Name,metadata?.WeekendStart,metadata?.WeekendEnd,metadata?.Summary);
         }).ToArray();
         var roster=ConstructorCatalogue.Select((team,i)=>new CampaignTeam(team.TeamId,pack?.Constructors[i].Id??team.Id,pack?.Constructors[i].Name??team.Name,
             frozen[calendar[0].EventId][i].Cars.Select(car=>new CampaignDriver(car.Driver.Id,car.Driver.Name,car.Driver.Slug,car.EntryId,car.Driver.Version)).ToArray())).ToArray();

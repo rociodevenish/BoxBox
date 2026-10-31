@@ -5,15 +5,16 @@ namespace Game.Simulation;
 
 public sealed record ContentConstructor(string TeamId,string Id,string Name,ImmutableArray<string> DriverIds);
 public sealed record ContentAsset(string Id,string EntityId,string? RuntimeUrl,string Provenance,string? OriginalPath=null);
+public sealed record ContentCalendarEvent(string Id,string Name,string TrackId,string WeekendStart,string WeekendEnd,string Summary);
 public sealed record ContentSource(string Id,string SchemaVersion,string DataVersion);
 /// <summary>Materialised existing domain inputs. Identity/source metadata never supplies performance coefficients.</summary>
 public sealed record ReleaseContentPack(string Version,string CalendarVersion,int Season,string Provenance,
  ImmutableArray<string> Calendar,ImmutableArray<ContentConstructor> Constructors,ImmutableArray<CircuitPreset> Circuits,
  PersonnelPool Personnel,ConstructionCatalogue Construction,ImmutableArray<RacePackageVersion> Packages,
  ImmutableArray<ContentAsset> Assets,ImmutableArray<ContentSource> Sources,ImmutableArray<string> ActiveConsumers,
- string LengthUnit="metres",string TimeUnit="seconds",ImmutableArray<string> AttributeGroups=default);
+ string LengthUnit="metres",string TimeUnit="seconds",ImmutableArray<string> AttributeGroups=default,ImmutableArray<ContentCalendarEvent> Events=default,ImmutableDictionary<string,RaceConfiguration>? Conditions=null);
 
-public static class ReleaseContent
+public static partial class ReleaseContent
 {
  public const string PilotVersion="release-2026-pilot-v1";
  public static ReleaseContentPack Pilot()
