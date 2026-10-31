@@ -18,3 +18,9 @@ Both behavior findings and the authorization duplication are assigned to one iso
 Fixes integrated at `6c852fa387571f90290afc98584cf75a8967de1d`; see [review-fixes](review-fixes.md) for observed red and passing focused API 4/4 and browser 5/5 checks.
 
 Independent targeted re-review of `db5db9e...6c852fa` confirmed the guest account destinations, paged metadata-only migration and shared authorization resolver. Standards: zero outstanding findings. Spec: zero outstanding findings. Neither reviewer reran tests; execution evidence comes from implementer and integrated checks.
+
+## Full-suite integration follow-up
+
+The first configured full API run passed 242/247 cases and exposed eager storage initialization on public production health/auth startup plus interference from the new manual-clock test's unscoped durable store. [Final integration fixes](final-integration-fixes.md) records the exact production red and the corrected concurrent 34/34 related-class run.
+
+Both reviewers independently checked `4162833...2b4cad0`: migration remains inside the store factory before any campaign data/discovery access, while public health/auth no longer needs storage credentials. The manual-clock test retains real persistence and membership checks through the existing scenario scope. Standards and Spec each report zero outstanding findings. The final full API run is recorded separately in completion evidence.
