@@ -13,10 +13,11 @@ public static class CampaignSaveIntegrity
   try
   {
    if(record.Schema!=CampaignCoordinator.Schema||record.CampaignId!=id||string.IsNullOrWhiteSpace(record.HostUid)||record.Revision<1||record.Input is null||string.IsNullOrWhiteSpace(record.ContentVersion)||string.IsNullOrWhiteSpace(record.CalendarVersion))throw new ArgumentException();
-   if(record.Input.ContentVersion is {} requested&&(requested is not(CampaignCoordinator.ContentVersion or ReleaseContent.PilotVersion or ReleaseContent.FullCalendarVersion or ReleaseContent.PersonnelVersion)||record.ContentVersion!=requested))throw new ArgumentException();
-   if(record.Input.ContentVersion is (ReleaseContent.PilotVersion or ReleaseContent.FullCalendarVersion or ReleaseContent.PersonnelVersion)&&record.ContentSnapshot is null)throw new ArgumentException();
+   if(record.Input.ContentVersion is {} requested&&(requested is not(CampaignCoordinator.ContentVersion or ReleaseContent.PilotVersion or ReleaseContent.FullCalendarVersion or ReleaseContent.PersonnelVersion or ReleaseContent.CardVersion)||record.ContentVersion!=requested))throw new ArgumentException();
+   if(record.Input.ContentVersion is (ReleaseContent.PilotVersion or ReleaseContent.FullCalendarVersion or ReleaseContent.PersonnelVersion or ReleaseContent.CardVersion)&&record.ContentSnapshot is null)throw new ArgumentException();
    if(record.ContentSnapshot is {} snapshot)
    {
+    if(snapshot.Assets.Any(a=>!ReleaseContent.SafeAssetUrl(a.RuntimeUrl)))throw new ArgumentException();
     CarConstruction.ValidateCatalogue(snapshot.Construction);
     if(record.Input.ContentVersion==ReleaseContent.PersonnelVersion||!snapshot.PersonnelDetails.IsDefault||!snapshot.PaidPackageOptions.IsDefault)
     {
@@ -28,7 +29,20 @@ public static class CampaignSaveIntegrity
     if(record.Construction is {} constructionSnapshot&&JsonSerializer.Serialize(constructionSnapshot.Catalogue)!=JsonSerializer.Serialize(snapshot.Construction))throw new ArgumentException();
    }
    if(record.Calendar is null||record.Teams is null||record.FrozenPresets is null||record.EventConditions is null||record.Calendar.Length<2||record.Teams.Length==0||record.EventIndex<0||record.EventIndex>=record.Calendar.Length)throw new ArgumentException();
-   if(record.Input.Calendar=="full"&&(record.ContentVersion!=ReleaseContent.FullCalendarVersion||record.Calendar.Length!=23||record.Calendar.Select(e=>e.SourceEventId).Distinct().Count()!=23||record.Calendar.Any(e=>string.IsNullOrWhiteSpace(e.SourceEventId)||string.IsNullOrWhiteSpace(e.EventName)||string.IsNullOrWhiteSpace(e.Summary)||!DateOnly.TryParse(e.WeekendStart,out var start)||!DateOnly.TryParse(e.WeekendEnd,out var end)||end<start)))throw new ArgumentException();
+   foreach(var preset in record.FrozenPresets.Values.SelectMany(p=>p))
+   {
+    ReleaseCardValidation.Image(preset.Circuit.Image,preset.Circuit.Id);
+    ReleaseCardValidation.Reference(preset.Circuit.Image,record.ContentSnapshot?.Assets??[]);
+    foreach(var car in preset.Cars)
+    {
+     if(record.ContentVersion==ReleaseContent.CardVersion&&car.Driver.Presentation is null)throw new ArgumentException();
+     ReleaseCardValidation.Person(car.Driver.Presentation,car.Driver.Id,true);
+     ReleaseCardValidation.Reference(car.Driver.Presentation?.Image,record.ContentSnapshot?.Assets??[]);
+    }
+   }
+   foreach(var person in record.Acquisition?.Pool.People??[])
+    ReleaseCardValidation.Person(person.Presentation,person.Id,person.Driver is not null,person.Price);
+   if(record.Input.Calendar=="full"&&(!ReleaseContent.IsFullCalendar(record.ContentVersion)||record.Calendar.Length!=23||record.Calendar.Select(e=>e.SourceEventId).Distinct().Count()!=23||record.Calendar.Any(e=>string.IsNullOrWhiteSpace(e.SourceEventId)||string.IsNullOrWhiteSpace(e.EventName)||string.IsNullOrWhiteSpace(e.Summary)||!DateOnly.TryParse(e.WeekendStart,out var start)||!DateOnly.TryParse(e.WeekendEnd,out var end)||end<start)))throw new ArgumentException();
    if(record.Lifecycle is not("acquiring" or "constructing" or "created" or "event-preparation" or "active-weekend" or "event-result-committed" or "season-complete"))throw new ArgumentException();
    if(record.Acquisition is {} acquisition)PersonnelAcquisition.Validate(acquisition);
    if(record.Construction is {} construction)CarConstruction.Validate(construction,record.Teams.Select(t=>t.TeamId).ToArray());

@@ -1,0 +1,37 @@
+import {test,expect} from '@playwright/test';
+import {captures} from '../../playwright.runtime';
+
+test('frozen full-release cards remain readable on phone/tablet/public TV and reach the actual private race surface',async({page,request})=>{
+ await page.setViewportSize({width:360,height:800});await page.goto('/shared/new');
+ await page.getByLabel('Your name').fill('Card host');await page.getByLabel('Email').fill('cards-'+Date.now()+'@example.test');await page.getByLabel('Password').fill('Local-test-password-123');await page.getByRole('button',{name:'Create account',exact:true}).click();await expect(page.getByRole('button',{name:'Create lobby',exact:true})).toBeEnabled();
+ await page.getByRole('link',{name:'Campaigns',exact:true}).click();await page.getByLabel('Content pack',{exact:true}).selectOption('release-2026-cards-v1');
+ await page.getByRole('button',{name:'Create campaign',exact:true}).click();await expect(page.getByRole('heading',{name:'Campaign created',exact:true})).toBeVisible({timeout:45000});const campaign=page.url();
+ const first=page.getByRole('article',{name:/Albert Park Grand Prix Circuit — Circuit card/});await expect(first).toBeVisible();await expect(first.locator('img')).toBeVisible();await first.screenshot({path:captures+'/s16-24-circuit-360.png'});
+ expect(await page.evaluate(()=>document.documentElement.scrollWidth)).toBeLessThanOrEqual(360);
+ await page.getByRole('link',{name:'Choose your constructor',exact:true}).click();await page.getByRole('button',{name:'Claim Mercedes',exact:true}).click();await page.getByRole('button',{name:'Begin event preparation',exact:true}).click();await expect(page.getByRole('heading',{name:'Event preparation',exact:true})).toBeVisible({timeout:45000});
+ await page.getByRole('link',{name:'Open team preparation in household',exact:true}).click();await page.getByRole('link',{name:'Team setup for Mercedes',exact:true}).click();
+ const id=new URL(page.url()).pathname.split('/')[2];
+ const antonelli=page.getByRole('article',{name:'Andrea Kimi Antonelli — compact driver card',exact:true});await expect(antonelli).toBeVisible();await expect(antonelli).toContainText('24 credits');await expect(antonelli).toContainText('5 / 5');await expect(antonelli.locator('img')).toHaveAttribute('src',/^\/content\/[a-f0-9]{64}\.webp$/);await expect.poll(()=>antonelli.locator('img').evaluate((img:HTMLImageElement)=>img.complete&&img.naturalWidth>0)).toBeTruthy();
+ await antonelli.screenshot({path:captures+'/s16-24-driver-360.png'});expect(await page.evaluate(()=>document.documentElement.scrollWidth)).toBeLessThanOrEqual(360);
+ const details=antonelli.getByRole('button',{name:'View details for Andrea Kimi Antonelli',exact:true});await details.focus();await page.keyboard.press('Enter');const dialog=page.getByRole('dialog',{name:'Andrea Kimi Antonelli — driver details',exact:true});await expect(dialog).toBeVisible();await page.keyboard.press('Tab');await expect(dialog.getByRole('button',{name:'Close driver details',exact:true})).toBeFocused();await page.keyboard.press('Escape');await expect(details).toBeFocused();
+ await page.setViewportSize({width:768,height:1024});await page.locator('.drivers').screenshot({path:captures+'/s16-24-paired-drivers-768.png'});expect(await page.evaluate(()=>document.documentElement.scrollWidth)).toBeLessThanOrEqual(768);
+ const portrait=await antonelli.locator('img').getAttribute('src');await page.route('**'+portrait,route=>route.abort());await page.reload();await expect(antonelli.getByText('Portrait unavailable',{exact:true})).toBeVisible();await expect(antonelli.getByRole('button',{name:'View details for Andrea Kimi Antonelli',exact:true})).toBeEnabled();await page.setViewportSize({width:360,height:800});await antonelli.screenshot({path:captures+'/s16-24-driver-image-failure-360.png'});await page.unroute('**'+portrait);
+ await page.reload();await page.getByRole('button',{name:'Confirm provisional setup and assess practice',exact:true}).click();await page.getByRole('button',{name:'Confirm final-ready setup',exact:true}).click();await expect(page.getByText('Final-ready - awaiting qualifying',{exact:true})).toBeVisible();
+ const display=await page.context().newPage();await display.setViewportSize({width:1920,height:1080});await display.goto('/preparation/'+id);await expect(display.getByRole('heading',{name:'Teams are preparing',exact:true})).toBeVisible();await expect(display.getByRole('article',{name:/driver card/})).toHaveCount(0);await display.screenshot({path:captures+'/s16-24-public-1920.png'});expect(await display.evaluate(()=>document.documentElement.scrollWidth)).toBeLessThanOrEqual(1920);await display.close();
+ await page.goto(campaign);await page.getByRole('button',{name:'Start first weekend',exact:true}).click();await expect(page.getByRole('heading',{name:'Weekend active',exact:true})).toBeVisible({timeout:45000});await page.goto('/qualifying/'+id+'?team=team-04');await expect(page.getByRole('status').filter({hasText:/^Connected$/})).toBeVisible();
+ for(let transition=0;transition<8;transition++){
+  const state=await(await request.get('/api/lobbies/'+id+'/qualifying')).json();
+  if(state.lifecycle==='grid-ready')break;
+  await page.goto('/qualifying/'+id+'?team=team-04');await expect(page.getByRole('status').filter({hasText:/^Connected$/})).toBeVisible();
+  if(state.lifecycle==='starting-tyres'||!state.result){
+   const drivers=page.locator('.driver');await expect(drivers.first()).toBeVisible();
+   for(const driver of await drivers.all())await (state.lifecycle==='starting-tyres'?driver.getByRole('radio').first():driver.getByRole('radio',{name:/^Push/})).check();
+   await page.getByRole('button',{name:'Lock team choices',exact:true}).click();
+  }else{await page.getByRole('button',{name:'Continue to next session',exact:true}).click();}
+  await expect.poll(async()=>(await(await request.get('/api/lobbies/'+id+'/qualifying')).json()).revision).toBeGreaterThan(state.revision);
+ }
+ const opening=page.getByRole('region',{name:'Automatic race opening',exact:true});await expect(opening).toBeVisible({timeout:45000});
+ await expect(opening.getByRole('link')).toBeVisible();const continueButton=opening.getByRole('button',{name:'Continue to first race window',exact:true});if(await continueButton.count()){const advanced=page.waitForResponse(response=>new URL(response.url()).pathname==='/api/lobbies/'+id+'/continue'&&response.request().method()==='POST');await continueButton.click();expect((await advanced).ok()).toBeTruthy();await expect.poll(async()=>(await(await request.get('/api/sessions/'+id)).json()).lifecycle).not.toBe('phase-result');}
+ await opening.getByRole('link').click();await expect(page.getByRole('article',{name:/Andrea Kimi Antonelli — .*driver card/})).toBeVisible({timeout:45000});
+ const raceCard=page.getByRole('article',{name:/Andrea Kimi Antonelli — .*driver card/});await raceCard.getByRole('button',{name:'View details for Andrea Kimi Antonelli',exact:true}).click();await expect(dialog).toContainText('24 credits');await expect(dialog).toContainText('5 / 5');await page.keyboard.press('Escape');await page.reload();await raceCard.getByRole('button',{name:'View details for Andrea Kimi Antonelli',exact:true}).click();await expect(dialog).toContainText('24 credits');await dialog.screenshot({path:captures+'/s16-24-race-driver-360.png'});expect(await page.evaluate(()=>document.documentElement.scrollWidth)).toBeLessThanOrEqual(360);
+});

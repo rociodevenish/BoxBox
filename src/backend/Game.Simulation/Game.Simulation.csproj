@@ -1,6 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <ItemGroup><ProjectReference Include="../Game.Domain/Game.Domain.csproj" /></ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="../../frontend/public/content/manifest-7e2c4acfe16dbcd634c9ac18e41ffcd33cf9ea97ad4456ba1c8ddfa5f53a0309.json" LogicalName="content.assets.json" />
     <EmbeddedResource Include="../../../.docs/data/f1_strategy_driver_cards_2026.json" LogicalName="weekend.drivers.json" />
     <EmbeddedResource Include="../../../.docs/data/f1_strategy_track_cards_2026.json" LogicalName="weekend.tracks.json" />
     <EmbeddedResource Include="../../../.docs/data/f1_strategy_preseason_car_construction_2026.json" LogicalName="preseason.construction.json" />

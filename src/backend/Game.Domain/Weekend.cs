@@ -7,9 +7,12 @@ namespace Game.Domain;
 public sealed record CarPreset(string Id, string Version, ImmutableDictionary<string, double> Ratings);
 public sealed record DriverPreference(string Key, string Label);
 public sealed record DriverPreset(string Id, string Name, string Slug, string Version,
-    ImmutableDictionary<string, double> Ratings, ImmutableArray<DriverPreference> Preferences);
+    ImmutableDictionary<string, double> Ratings, ImmutableArray<DriverPreference> Preferences,
+    [property:JsonIgnore(Condition=JsonIgnoreCondition.WhenWritingNull)] PersonnelPresentation? Presentation=null);
 public sealed record CircuitPreset(string Id, string Name, string Slug, string Version,
-    ImmutableDictionary<string, double> Demands, Track Track);
+    ImmutableDictionary<string, double> Demands, Track Track,
+    [property:JsonIgnore(Condition=JsonIgnoreCondition.WhenWritingNull)] CardImage? Image=null,
+    [property:JsonIgnore(Condition=JsonIgnoreCondition.WhenWritingNull)] string? Summary=null);
 public sealed record EngineerPreset(string Id, string Name, string Version, double Setup);
 public sealed record WeekendCar(string EntryId, string TeamId, CarPreset Car, DriverPreset Driver, EngineerPreset? Engineer = null);
 public sealed record WeekendPreset(string Version, CircuitPreset Circuit, ImmutableArray<WeekendCar> Cars,

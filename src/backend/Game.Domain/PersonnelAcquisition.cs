@@ -4,7 +4,8 @@ using System.Text;
 using System.Globalization;
 namespace Game.Domain;
 
-public record PersonnelCard(string Id,string Name,string Role,int Price,string SourceVersion,string EffectLabel,DriverPreset? Driver=null,ImmutableDictionary<string,int>? Attributes=null);
+public record PersonnelCard(string Id,string Name,string Role,int Price,string SourceVersion,string EffectLabel,DriverPreset? Driver=null,ImmutableDictionary<string,int>? Attributes=null,
+ [property:System.Text.Json.Serialization.JsonIgnore(Condition=System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)] PersonnelPresentation? Presentation=null);
 public record ConstructionCreditMapping(string Version,string SourceVersion,int MinimumBudgetUnits,int CreditsPerBudgetUnit);
 public record PersonnelPool(string Version,string PriceVersion,int StartingCredit,int MinimumCarReserve,ImmutableArray<PersonnelCard> People,ConstructionCreditMapping? ConstructionMapping=null);
 public record PersonnelOffer(string TeamId,string Slot,ImmutableArray<string> PersonIds);

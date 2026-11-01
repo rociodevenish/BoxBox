@@ -22,6 +22,7 @@ const steps=[
  ['packages-rich',[playwright,'test','--config','playwright.packages-rich.config.ts'],frontend],
  ['packages-rush',[playwright,'test','--config','playwright.packages-rush.config.ts'],frontend],
  ['content',[playwright,'test','--config','playwright.content.config.ts'],frontend],
+ ['cards',[playwright,'test','--config','playwright.cards.config.ts'],frontend],
  ['gallery',[playwright,'test'],frontend],
  ['browser',[playwright,'test','--config','playwright.browser.config.ts'],frontend],
  ['boundary',[playwright,'test','--config','playwright.boundary.config.ts'],frontend],

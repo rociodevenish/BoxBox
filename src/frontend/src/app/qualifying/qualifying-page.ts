@@ -1,3 +1,6 @@
+import {CardImage,imageUrl} from '../ui/content-card.model';
+import portraits from '../../../public/portraits/manifest.json';
+import tracks from '../../../public/tracks/manifest.json';
 import {OpeningHandoff} from '../opening/opening-handoff';
 import {Component,signal} from '@angular/core';
 import {HubConnection,HubConnectionBuilder} from '@microsoft/signalr';
@@ -6,13 +9,13 @@ import {apiUrl} from '../api-url';
 
 interface CurrentWeather {time:number;rainIntensity:number;wetness:number}
 interface TeamWeatherForecast {confidence:string;explanation:string;observedAt:number;refreshAt:number;horizons:{toSeconds:number;fromSeconds:number;rainProbability:number;rainLower:number;rainUpper:number}[]}
-interface Driver {entryId:string;driverId:string;name:string;slug:string;teamId:string}
+interface Driver {image?:CardImage|null;entryId:string;driverId:string;name:string;slug:string;teamId:string}
 interface Choice {entryId:string;approach:string}
 interface AdviceCar {choice:Choice;reasons:string[];uncertainty:string;legalApproaches:string[]}
 interface Assistance {helpLevel:string;autoAcceptRecommendation:boolean;session:string;windowRevision:number;policyVersion:string;cars:AdviceCar[]|null}
 interface Rank {position:number;entryId:string;driverId:string;teamId:string;status:string;timeMilliseconds:number|null;advances:boolean}
 interface Result {session:string;ranking:Rank[]}
-interface PublicSnapshot {weather?:CurrentWeather;compounds?:string[];suitability?:{compound:string;assessment:string}[];sessionId:string;revision:number;session:string;lifecycle:string;paused:boolean;circuitId:string;circuitName:string;circuitSlug:string;drivers:Driver[];teams:{teamId:string;locked:boolean;source:string|null}[];result:{session:string;ranking:Rank[]}|null;decisionDeadlineUtc:string|null;timingPolicy:{effectiveSeconds:number;timeoutPolicy:string};rulesVersion:string;retain:number;baselinePolicy:string;results:Result[];grid:Rank[];windowRevision:number;presentationDeadlineUtc:string|null}
+interface PublicSnapshot {circuitImage?:CardImage|null;weather?:CurrentWeather;compounds?:string[];suitability?:{compound:string;assessment:string}[];sessionId:string;revision:number;session:string;lifecycle:string;paused:boolean;circuitId:string;circuitName:string;circuitSlug:string;drivers:Driver[];teams:{teamId:string;locked:boolean;source:string|null}[];result:{session:string;ranking:Rank[]}|null;decisionDeadlineUtc:string|null;timingPolicy:{effectiveSeconds:number;timeoutPolicy:string};rulesVersion:string;retain:number;baselinePolicy:string;results:Result[];grid:Rank[];windowRevision:number;presentationDeadlineUtc:string|null}
 interface TeamSnapshot {startingGuidance?:{helpLevel:string;explanation:string;suggested?:{entryId:string;compound:string}[];options:string[]};forecast?:TeamWeatherForecast;startingCompounds?:{entryId:string;compound:string}[];startingFallback?:{entryId:string;compound:string}[];sessionId:string;teamId:string;revision:number;assignmentRevision:number;session:string;lifecycle:string;locked:boolean;eligibleDrivers:Driver[];choices:Choice[]|null;assistance?:Assistance}
 interface Assignment {teamId:string;constructorName:string;control:string;assignmentRevision:number}
 interface Command {commandId:string;session:string;revision:number;assignmentRevision:number;choices:Choice[]}
@@ -62,6 +65,8 @@ export class QualifyingPage {
  driver(entryId:string){return this.publicState()?.drivers.find(driver=>driver.entryId===entryId);}
  time(row:Rank){if(row.status!=='valid'||row.timeMilliseconds===null)return 'No time';const minutes=Math.floor(row.timeMilliseconds/60000),seconds=Math.floor(row.timeMilliseconds%60000/1000),milliseconds=row.timeMilliseconds%1000;return minutes+':'+String(seconds).padStart(2,'0')+'.'+String(milliseconds).padStart(3,'0');}
  deadline(value:string){return new Date(value).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit',second:'2-digit'});}
+ portrait(driver:Driver){if(driver.image)return imageUrl(driver.image);const legacy=portraits.portraits.find(p=>p.driverId===driver.slug);return legacy?'/'+legacy.runtimeUrl.replace(/^\//,''):null;}
+ circuitImage(state:PublicSnapshot){return state.circuitImage?imageUrl(state.circuitImage):tracks.tracks.find(t=>t.id===state.circuitId)?.url??null;}
  portraitFailed(entryId:string){this.failedPortraits.update(ids=>[...ids,entryId]);}
  lockedCount(state:PublicSnapshot){return state.teams.filter(team=>team.locked).length;}
 }

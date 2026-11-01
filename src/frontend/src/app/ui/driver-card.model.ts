@@ -11,6 +11,7 @@ export interface CardAttribute {
   readonly rating: DisplayRating;
   readonly displayValue?: number;
   readonly scale?: number;
+  readonly state?: string;
 }
 export interface DriverCardViewModel {
   readonly id: string;
@@ -25,6 +26,8 @@ export interface DriverCardViewModel {
   readonly details: readonly CardAttribute[];
   readonly preferences: readonly string[];
   readonly priceLabel?: string;
+  readonly referenceRole?: string;
+  readonly effectScope?: string;
 }
 export const driverAttributeGroups: readonly DriverAttributeGroup[] = [
   "Pace",

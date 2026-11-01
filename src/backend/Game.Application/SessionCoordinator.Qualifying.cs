@@ -151,9 +151,9 @@ public sealed partial class SessionCoordinator
     private static int Stage(QualifyingState state)=>int.Parse(state.Session[1..],System.Globalization.CultureInfo.InvariantCulture);
     private static string[] RequiredQualifyingTeams(Lobby lobby,QualifyingState state)=>lobby.RequiredTeams.Where(team=>QualifyingDrivers(state).Any(d=>d.TeamId==team)).ToArray();
     private static QualifyingDriver[] AllQualifyingDrivers(QualifyingState state)=>state.Input.Weekends.SelectMany(w=>w.Cars)
-        .Select(c=>new QualifyingDriver(c.Source.EntryId,c.Source.Driver.Id,c.Source.Driver.Name,c.Source.Driver.Slug,c.Source.TeamId)).ToArray();
+        .Select(c=>new QualifyingDriver(c.Source.EntryId,c.Source.Driver.Id,c.Source.Driver.Name,c.Source.Driver.Slug,c.Source.TeamId,c.Source.Driver.Presentation?.Image)).ToArray();
     private static QualifyingDriver[] QualifyingDrivers(QualifyingState state)=>state.Input.Weekends.SelectMany(w=>w.Cars).Where(c=>state.Input.PreSessionOrder.Contains(c.Source.EntryId))
-        .Select(c=>new QualifyingDriver(c.Source.EntryId,c.Source.Driver.Id,c.Source.Driver.Name,c.Source.Driver.Slug,c.Source.TeamId)).ToArray();
+        .Select(c=>new QualifyingDriver(c.Source.EntryId,c.Source.Driver.Id,c.Source.Driver.Name,c.Source.Driver.Slug,c.Source.TeamId,c.Source.Driver.Presentation?.Image)).ToArray();
     private static QualifyingPublicSnapshot ProjectQualifying(Lobby lobby,QualifyingState state)
     {
         var circuit=state.Input.Weekends[0].Source.Circuit;
@@ -161,7 +161,7 @@ public sealed partial class SessionCoordinator
             state.Input.Weekends.Select(w=>w.Cars[0].Source.TeamId).Where(team=>state.StartingTyres is not null||QualifyingDrivers(state).Any(d=>d.TeamId==team)).Select(team=>new QualifyingTeamStatus(team,state.StartingTyres is {} tyres?tyres.Locks.ContainsKey(team):state.Locks.ContainsKey(team),state.StartingTyres is {} start?start.Locks.GetValueOrDefault(team)?.Source:state.Locks.GetValueOrDefault(team)?.Source)).ToArray(),
             state.Result,state.Lifecycle is "awaiting-decisions" or "starting-tyres"?state.Deadline:null,state.TimingPolicy,state.Input.Rules.Version,state.Input.Rules.Retain,state.StartingTyres is null?state.TimingPolicy.TimeoutPolicy:StartingTyreDisclosure,state.Results??[],state.Grid??[],state.WindowRevision,state.Lifecycle=="session-result"?state.Deadline:null,
             state.StartingTyres?.Observed??state.Input.Conditions?.Observed,state.Input.Conditions,state.StartingTyres is null?null:true,
-            state.StartingTyres is null?null:Enum.GetNames<TyreCompound>(),state.StartingTyres?.Observed is {} observed?StartingSuitability(observed):null);
+            state.StartingTyres is null?null:Enum.GetNames<TyreCompound>(),state.StartingTyres?.Observed is {} observed?StartingSuitability(observed):null,circuit.Image);
     }
     private static QualifyingTeamSnapshot ProjectQualifyingTeam(Lobby lobby,QualifyingState state,string team,Assignment assignment)=>state.StartingTyres is not null?ProjectStartingTyreTeam(lobby,state,team,assignment):new(lobby.Id,team,state.WindowRevision,assignment.Revision,state.Session,
         state.Lifecycle,state.Locks.ContainsKey(team),QualifyingDrivers(state).Where(c=>c.TeamId==team).ToArray(),state.Locks.GetValueOrDefault(team)?.Choices,ProjectQualifyingAdvice(state,team),state.Locks.GetValueOrDefault(team)?.Source,state.Locks.GetValueOrDefault(team)?.PolicyVersion,Forecast:QualifyingForecast(state,team));

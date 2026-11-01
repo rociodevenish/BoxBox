@@ -191,7 +191,8 @@ public sealed partial class SessionCoordinator(ISessionNotifications notificatio
         var own = observation.TeamTyres.Select(tyre => new PrivateCar(tyre.DriverId, tyre.Compound.ToString(),
             tyre.Age, tyre.EstimatedCondition, tyre.InPits, tyre.StopQueued,
             Array.AsReadOnly(observation.BattleOptions[tyre.DriverId].Select(option => option.ToString()).ToArray()),session.Configuration.Incidents is not null||session.Configuration.WeatherReactions is not null?session.Engine.GetSafetyCarOptions().Single(option=>option.DriverId==tyre.DriverId):null,
-            observation.Conditions?.Single(condition=>condition.DriverId==tyre.DriverId))).ToArray();
+            observation.Conditions?.Single(condition=>condition.DriverId==tyre.DriverId),
+            session.OpeningReplay?.Input.Weekends.SelectMany(w=>w.Cars).FirstOrDefault(c=>c.Source.EntryId==tyre.DriverId&&c.Source.TeamId==teamId)?.Source.Driver)).ToArray();
         return new(session.Id, session.Phase, session.Revision, session.StorageError ? "storage-error" : session.Lifecycle, assignment?.PlayerId ?? session.Player, teamId,
             assignment?.DeviceId ?? session.Device, Array.AsReadOnly(own), assignment is null ? session.ConfirmedPlan : session.Locks.GetValueOrDefault(teamId), assignment?.Revision ?? 0, session.WindowRevision,ProjectAssistance(session,teamId),assignment is null?null:ControlStatus(session,teamId),session.WindowKind,observation.Forecast,session.Configuration.WetTyres is null?null:true);
     }

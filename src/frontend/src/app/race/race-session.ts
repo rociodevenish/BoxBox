@@ -1,3 +1,4 @@
+import type {FrozenDriver} from '../ui/content-card.model';
 import {apiUrl} from '../api-url';
 import type {TeamAssistance} from '../assistance/assistance.model';
 import {TeamControlStatus,controlName} from './team-control';
@@ -85,7 +86,7 @@ interface TeamState {
         compound: TyreCompound;
         tyreAge: number;
         estimatedTyreCondition: number;
-        condition?:{componentCondition:string;risk:string;observedDamageSecondsPerLap:number;retired:boolean};
+        card?:FrozenDriver|null;condition?:{componentCondition:string;risk:string;observedDamageSecondsPerLap:number;retired:boolean};
         inPits: boolean;
         stopQueued: boolean;
         battleOptions: Battle[];

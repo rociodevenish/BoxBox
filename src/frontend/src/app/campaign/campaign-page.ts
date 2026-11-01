@@ -1,15 +1,17 @@
+import {ContentCard} from '../ui/content-card';
+import {ContentCardViewModel,PersonnelPresentation,FrozenDriver,CardImage,personnelCard,imageUrl} from '../ui/content-card.model';
 import tracks from '../../../public/tracks/manifest.json';
 import portraits from '../../../public/portraits/manifest.json';
 import {Component,signal} from '@angular/core';
 import type {User} from 'firebase/auth';
 import {apiUrl} from '../api-url';
-interface Event {eventId:string;order:number;trackId:string;trackName:string;trackSlug:string;eventName?:string;weekendStart?:string;weekendEnd?:string;summary?:string}
+interface Event {image?:CardImage;eventId:string;order:number;trackId:string;trackName:string;trackSlug:string;eventName?:string;weekendStart?:string;weekendEnd?:string;summary?:string}
 interface CreditEntry {commandId:string;credits:number;reason:string;personId:string|null;version:string|null;eventId:string|null}
 interface EconomyTeam {personnelNames:Record<string,string>;teamId:string;balance:number;configuration:{version:string;creditsPerEvent:number};ledger:CreditEntry[]}
 interface Team {teamId:string;constructorName:string;drivers:{personId:string;name:string;slug:string}[]}
 interface Standing {id:string;position:number;points:number}
 interface Result {eventId:string;result:{hash:string;classification:{personId:string;position:number;status:string;laps:number;eligible:boolean}[]};awards:{personId:string;points:number}[]}
-interface PersonnelCard {id:string;name:string;role:string;price:number;effectLabel:string;attributes:Record<string,number>|null;driver?:{slug:string;ratings:Record<string,number>;preferences:{key:string;label:string}[]}}
+interface PersonnelCard {presentation?:PersonnelPresentation;id:string;name:string;role:string;price:number;effectLabel:string;attributes:Record<string,number>|null;driver?:FrozenDriver}
 interface AcquisitionTeam {advice:{version:string;personId:string;reason:string}|null;teamId:string;revision:number;balance:number;startingCredit:number;minimumCarReserve:number;slot:string|null;activeTeamId:string|null;poolVersion:string;priceVersion:string;offers:PersonnelCard[];hires:{slot:string;personId:string}[];ledger:{commandId:string;credits:number;reason:string;personId:string|null}[];requiredSlots:string[];roster:PersonnelCard[];scoutTokens:number;scoutUnavailable:string|null;cursor:number;totalPicks:number;drawCount:number;completionReserve:number;remainingSlots:string[];rosterReady:boolean;hireOptions:{personId:string;canHire:boolean;reserveAfterHire:number;unavailable:string|null}[];reserveVersion:string;constructionMapping:{version:string;sourceVersion:string;minimumBudgetUnits:number;creditsPerBudgetUnit:number}}
 interface DevelopmentQuote {id:string;version:string;cost:number;option:{id:string;name:string;baseCost:number;attribute:string;minimumGain:number;maximumGain:number;stackingCap:number;compromise:string};outcomeRange:string;risk?:unknown;personnel:{rosterVersion:string;managerEfficiency:number;managerDevelopment:number;technicalEfficiency:number;technicalQuality:number}}
 interface PackageSource {packageId:string;version:number;name:string;strengths:Record<string,number>;compromises:Record<string,number>;completed:boolean}
@@ -21,8 +23,13 @@ interface ConstructionOption {id:string;name:string;cost:number;summary:string;m
 interface ConstructionRecommendation {version:string;optionIds:string[];cost:number;remainingCredits:number;explanation:string;affordableAlternatives:number}
 interface ConstructionTeam {recommendation?:ConstructionRecommendation|null;confirmed:{id:string;cost:number;finalRevision:number;commandId:string}|null;teamId:string;catalogue:{version:string;sourceVersion:string;mappingVersion:string;categories:{id:string;label:string;options:ConstructionOption[]}[]};draft:{revision:number;optionIds:string[]};preview:{cost:number;balance:number;remainingCredits:number;affordable:boolean;ratings:Record<string,number>;groups:Record<string,number>;driverFits:{driverId:string;name:string;compatibility:number;description:string}[];tracks:{trackId:string;name:string;strengths:string[];compromises:string[];demandSummary:string}[];explanation:string}}
 interface Joined {campaign:Campaign;weekend:{lobby:{sessionId:string};membership:{deviceId:string}}}
-@Component({selector:'app-campaign-page',templateUrl:'./campaign-page.html',styleUrl:'./campaign-page.css'})
+@Component({selector:'app-campaign-page',imports:[ContentCard],templateUrl:'./campaign-page.html',styleUrl:'./campaign-page.css'})
 export class CampaignPage {
+ calendarView(event:Event):ContentCardViewModel{return {id:event.eventId,name:event.trackName,role:'Circuit',context:event.eventName,image:event.image??(this.campaign()?.contentVersion!=='release-2026-cards-v1'&&this.trackImage(event.trackId)?{assetId:'legacy-'+event.trackId,entityId:event.trackId,url:this.trackImage(event.trackId),objectPosition:'center center',width:960,height:640}:null),facts:[{label:'Event',value:String(event.order)},...(event.weekendStart?[{label:'Weekend begins',value:event.weekendStart,wide:true},{label:'Weekend ends',value:event.weekendEnd??'',wide:true}]:[])],notes:event.summary?[event.summary]:[]};}
+ personnelView(card:PersonnelCard){return personnelCard(card);}
+ optionView(option:ConstructionOption):ContentCardViewModel{return {id:option.id,name:option.name,role:'Car option',priceLabel:option.cost+' credits',facts:Object.entries(option.modifiers).map(([key,value])=>({label:this.attributeLabel(key),value:(value>0?'+':'')+value})),notes:[option.summary,'Changes apply through the saved bounded construction rules.']};}
+ carView(own:ConstructionTeam):ContentCardViewModel{return {id:own.teamId,name:own.confirmed?'Confirmed Base Car':'Saved draft',role:'Car',priceLabel:own.preview.cost+' credits',facts:Object.entries(own.preview.groups).map(([label,value])=>({label,value:value.toFixed(1)+' / 100'})),details:Object.entries(own.preview.ratings).map(([key,value])=>({label:this.attributeLabel(key),value:value.toFixed(1)+' / 100',state:key==='reliability'?'Conditional · existing mechanical-failure policy':'Implemented'})),notes:['Both cars share this Base Car. Source attributes and displayed groups come from the saved preview.']};}
+ packageView(quote:PackageQuote):ContentCardViewModel{return {id:quote.id,name:quote.template.name,role:'Race Package',priceLabel:quote.cost+' credits',facts:[...Object.entries(quote.template.strengths).map(([key,value])=>({label:this.attributeLabel(key),value:'+'+value})),...Object.entries(quote.template.compromises).map(([key,value])=>({label:this.attributeLabel(key)+' compromise',value:String(value)}))],notes:[quote.template.applicability,'Creation and refinement spend the same development opportunity; completed versions are selected separately for free.']};}
  readonly development=signal<DevelopmentTeam|null>(null);private developmentGeneration=0;private developmentDevice='';
  closeDevelopment(){this.developmentGeneration++;this.development.set(null);}
  async openDevelopment(teamId:string){this.closeEconomy();this.closePersonnel();this.closeConstruction();const generation=++this.developmentGeneration;this.development.set(null);await this.run(async()=>{
@@ -92,7 +99,7 @@ export class CampaignPage {
  private async run(action:()=>Promise<void>){this.busy.set(true);this.error.set('');try{await action();}catch(error){this.error.set(error instanceof Error?error.message:'Campaign unavailable.');}finally{this.busy.set(false);}}
  async create(name:string,mode:string,personnelMode="preset",contentVersion=""){await this.run(async()=>{
   localStorage.setItem('campaign-create-command',this.creation);
-  const joined=await this.request<Joined>('/api/campaigns',{commandId:this.creation,name,mode,personnelMode,...(contentVersion?{contentVersion}:{}),calendar:contentVersion==='release-2026-full-circuits-v1'?'full':'short',seed:123,laps:6});
+  const joined=await this.request<Joined>('/api/campaigns',{commandId:this.creation,name,mode,personnelMode,...(contentVersion?{contentVersion}:{}),calendar:(contentVersion==='release-2026-full-circuits-v1'||contentVersion==='release-2026-cards-v1')?'full':'short',seed:123,laps:6});
   this.device=joined.weekend.membership.deviceId;localStorage.setItem('household-device:'+this.user()!.uid+':'+joined.weekend.lobby.sessionId,this.device);
   localStorage.setItem('campaign-weekend:'+joined.campaign.campaignId,joined.weekend.lobby.sessionId);localStorage.removeItem('campaign-create-command');
   history.replaceState(null,'','/campaigns/'+joined.campaign.campaignId);this.campaign.set(joined.campaign);await this.loadControllers();

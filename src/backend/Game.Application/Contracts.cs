@@ -23,7 +23,8 @@ public record PublicPresentation(string Cursor, int ResolvedPhase, int TotalEven
     int PitExits, int TyreChanges, int OmittedEvents, string Summary);
 public record PrivateCar(string DriverId, string Compound, int TyreAge, double EstimatedTyreCondition,
     bool InPits, bool StopQueued, IReadOnlyList<string> BattleOptions,[property:JsonIgnore(Condition=JsonIgnoreCondition.WhenWritingNull)] SafetyCarOption? SafetyCar=null,
-    [property:JsonIgnore(Condition=JsonIgnoreCondition.WhenWritingNull)] TeamConditionEstimate? Condition=null);
+    [property:JsonIgnore(Condition=JsonIgnoreCondition.WhenWritingNull)] TeamConditionEstimate? Condition=null,
+    [property:JsonIgnore(Condition=JsonIgnoreCondition.WhenWritingNull)] DriverPreset? Card=null);
 public record TeamSnapshot(string SessionId, int Phase, long Revision, string Lifecycle,
     string PlayerId, string TeamId, string DeviceId, IReadOnlyList<PrivateCar> Cars, TeamCommand? ConfirmedPlan, long AssignmentRevision = 0, long CommandRevision = 0,TeamAssistance? Assistance=null,TeamControlStatus? ControlStatus=null,[property:JsonIgnore(Condition=JsonIgnoreCondition.WhenWritingNull)] string? WindowKind=null,[property:JsonIgnore(Condition=JsonIgnoreCondition.WhenWritingNull)] TeamWeatherForecast? Forecast=null,[property:JsonIgnore(Condition=JsonIgnoreCondition.WhenWritingNull)] bool? WetTyresEnabled=null);
 public record CarCommand(string DriverId, string Pace, string Pit, string? Compound, string Battle);
