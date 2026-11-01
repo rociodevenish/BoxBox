@@ -166,3 +166,9 @@ GitHub issues are canonical for ticket status and discussion. Local issue Markdo
 
 - [[S19 01] Verification and agent workflow](https://github.com/rociodevenish/BoxBox/issues/109) — resolved
 - [[S19 02] Compact controller presentation](https://github.com/rociodevenish/BoxBox/issues/110) — resolved
+
+## S20
+
+- [[S20 01] Welcome players and start a campaign](https://github.com/rociodevenish/BoxBox/issues/113) — resolved
+- [[S20 02] Join a game from the home page](https://github.com/rociodevenish/BoxBox/issues/114) — resolved
+- [[S20 03] Discover and resume campaigns from home](https://github.com/rociodevenish/BoxBox/issues/115) — resolved

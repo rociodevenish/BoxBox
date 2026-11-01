@@ -8,7 +8,7 @@ test("integrated initial and two-car compositions fit the actual shared-display 
   await page.setViewportSize({ width: 1920, height: 1080 });
   await page.emulateMedia({ reducedMotion: "reduce" });
   mkdirSync(evidence, { recursive: true });
-  await page.goto("/?view=results");
+  await page.goto("/dev/gallery?view=results");
   await page.getByRole("button", { name: "Show initial race" }).click();
   await expect(
     page.getByRole("heading", { name: "Race ready", exact: true }),
@@ -23,7 +23,7 @@ test("integrated initial and two-car compositions fit the actual shared-display 
   await page.screenshot({
     path: resolve(evidence, "integrated-initial-1920x1080.png"),
   });
-  await page.goto("/?view=controller");
+  await page.goto("/dev/gallery?view=controller");
   await expect(
     page.getByRole("heading", { name: "Alexandra Montgomery-Sutherland" }),
   ).toBeVisible();

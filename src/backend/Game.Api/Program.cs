@@ -29,8 +29,14 @@ if(builder.Configuration["Disruptions:Policy"] is {Length:>0} disruptionPolicy)
     builder.Services.AddSingleton<IOpeningDisruptionPolicy,AuthoredDisruptionPolicy>();
 }
 builder.Services.AddSingleton<ISessionStore>(_ => builder.Configuration["Persistence:ProjectId"] is { Length: > 0 } project
-    ? new FirestoreSessionStore(project, builder.Configuration["Persistence:EmulatorHost"] ?? Environment.GetEnvironmentVariable("FIRESTORE_EMULATOR_HOST"))
+    ? PreparedStore(project)
     : new VolatileSessionStore());
+FirestoreSessionStore PreparedStore(string project)
+{
+    var store=new FirestoreSessionStore(project,builder.Configuration["Persistence:EmulatorHost"]??Environment.GetEnvironmentVariable("FIRESTORE_EMULATOR_HOST"));
+    try{store.PrepareMembershipIndex(builder.Configuration.GetValue<int?>("Persistence:MembershipMigrationLimit")??1000);return store;}
+    catch{store.Dispose();throw;}
+}
 builder.Services.AddSingleton<TimeProvider>(TimeProvider.System);
 builder.Services.AddSingleton<IGoogleWakeupTokens,GoogleWakeupTokens>();
 builder.Services.AddSingleton<WakeupIdentity>();

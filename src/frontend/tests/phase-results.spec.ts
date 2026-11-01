@@ -2,7 +2,7 @@ import { test, expect } from "@playwright/test";
 test("phase results show public overtake and pit feedback separately from the final Classification", async ({
   page,
 }) => {
-  await page.goto("/?view=results");
+  await page.goto("/dev/gallery?view=results");
   await expect(
     page.getByRole("heading", { name: "Phase 4 results", exact: true }),
   ).toBeVisible();
@@ -29,7 +29,7 @@ test("phase results show public overtake and pit feedback separately from the fi
 test("crowded published pit entries retain matching ongoing stops in Classification", async ({
   page,
 }) => {
-  await page.goto("/?view=results");
+  await page.goto("/dev/gallery?view=results");
   await page.getByRole("button", { name: "Show crowded phase" }).click();
   const feed = page.getByRole("region", { name: "Public race events" });
   await expect(feed.getByRole("article")).toHaveCount(14);
@@ -56,7 +56,7 @@ test("failed supplied images preserve public identities and event information", 
   await page.route("**/portraits/*.png", (route) =>
     route.fulfill({ status: 404, body: "missing" }),
   );
-  await page.goto("/?view=results");
+  await page.goto("/dev/gallery?view=results");
   await expect(
     page.getByRole("region", { name: "Result context" }),
   ).toContainText("Image unavailable");
@@ -82,7 +82,7 @@ test("crowded shared-display events explain scrolling and keyboard reaches the l
   page,
 }) => {
   await page.setViewportSize({ width: 1920, height: 1080 });
-  await page.goto("/?view=results");
+  await page.goto("/dev/gallery?view=results");
   await page.getByRole("button", { name: "Show crowded phase" }).click();
   await expect(
     page.getByText(

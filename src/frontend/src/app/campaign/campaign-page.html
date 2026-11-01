@@ -1,8 +1,8 @@
 <main>
  <header><p class="eyebrow">Household championship</p><h1>Campaign</h1><a href="/shared/create">Account and household</a></header>
  @if(error()){<p role="alert">{{error()}}</p>}
- @if(ready()&&!user()){<p>Sign in with your permanent account to create a campaign.</p><a href="/shared/create">Sign in</a>}
- @if(user()&&!campaign()){
+ @if(ready()&&(!user()||user()?.isAnonymous)){<p>Sign in with your permanent account to create a campaign.</p><a href="/shared/create?returnTo=%2Fcampaigns%2Fnew">Sign in</a>}
+ @if(user()&&!user()?.isAnonymous&&!campaign()){
   <section><h2>Create a short campaign</h2><p>Two contrasting circuits, frozen preset teams and both drivers. Six laps per event.</p>
    <label>Player name<input #name value="Host" maxlength="40"></label>
    <label>Privacy<select #mode><option>Competitive</option><option>Family</option><option>Mixed</option></select></label>

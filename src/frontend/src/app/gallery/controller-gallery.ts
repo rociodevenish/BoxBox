@@ -47,7 +47,7 @@ const fixture: PrivateControllerViewModel = {
   selector: "app-controller-gallery",
   imports: [TwoCarController],
   template: ` <main class="gallery">
-    <a href="/">Back to gallery</a
+    <a href="/dev/gallery">Back to gallery</a
     ><app-two-car-controller [model]="model()" (submitPlan)="submit($event)" />
     <aside aria-label="Gallery fixture controls">
       <h2>Fixture controls</h2>

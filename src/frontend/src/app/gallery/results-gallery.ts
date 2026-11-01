@@ -81,7 +81,7 @@ const phase: PublicPhaseResult = {
       fixtureLabel="Design fixtures"
     />
     <nav aria-label="Result fixture controls">
-      <a href="/">Back to gallery</a
+      <a href="/dev/gallery">Back to gallery</a
       ><button (click)="show('initial')">Show initial race</button
       ><button (click)="show('resolving')">Show resolving</button
       ><button (click)="show('quiet')">Show quiet phase</button

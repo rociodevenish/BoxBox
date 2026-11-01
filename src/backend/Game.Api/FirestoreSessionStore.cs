@@ -71,6 +71,44 @@ public sealed class FirestoreSessionStore : ISessionStore, IDisposable
         var query=Send(HttpMethod.Post,$"{documents}:runQuery",new{structuredQuery=new{from=new[]{new{collectionId="sessions"}},where=new{fieldFilter=new{field=new{fieldPath="joinCode"},op="EQUAL",value=new{stringValue=code}}}}});
         return query!.Value.EnumerateArray().Where(p=>p.TryGetProperty("document",out _)).Select(p=>p.GetProperty("document").GetProperty("name").GetString()!.Split('/').Last()).ToArray();
     }
+    public IReadOnlyList<string> FindByMember(string uid)
+    {
+        var query=Send(HttpMethod.Post,$"{documents}:runQuery",new{structuredQuery=new{from=new[]{new{collectionId="sessions"}},where=new{fieldFilter=new{field=new{fieldPath="memberUids"},op="ARRAY_CONTAINS",value=new{stringValue=uid}}}}});
+        return query!.Value.EnumerateArray().Where(p=>p.TryGetProperty("document",out _)).Select(p=>p.GetProperty("document").GetProperty("name").GetString()!.Split('/').Last()).ToArray();
+    }
+    private static object MembershipFields(string payload)=>new{arrayValue=new{values=SessionMembershipIndex.Members(payload).Select(uid=>new{stringValue=uid}).ToArray()}};
+    /// <summary>Paged initialization migration. CAS patches only index metadata; recovery manifests/chunks remain intact.</summary>
+    public void PrepareMembershipIndex(int limit=1000)
+    {
+        if(limit is <1 or >10000)throw new ArgumentOutOfRangeException(nameof(limit));
+        string? after=null;
+        while(true)
+        {
+            var structuredQuery=new Dictionary<string,object>{["from"]=new[]{new{collectionId="sessions"}},["orderBy"]=new[]{new{field=new{fieldPath="__name__"},direction="ASCENDING"}},["limit"]=limit};
+            if(after is not null)structuredQuery["startAt"]=new{values=new[]{new{referenceValue=after}},before=false};
+            var query=Send(HttpMethod.Post,$"{documents}:runQuery",new{structuredQuery});
+            var manifests=query!.Value.EnumerateArray().Where(p=>p.TryGetProperty("document",out _)).Select(p=>p.GetProperty("document").Clone()).ToArray();
+            foreach(var manifest in manifests)
+            {
+                if(manifest.GetProperty("fields").TryGetProperty("memberUids",out _))continue;
+                var name=manifest.GetProperty("name").GetString()!;var id=name.Split('/').Last();
+                var migrated=false;
+                for(var attempt=0;attempt<3;attempt++)
+                {
+                    var saved=Read(id);if(saved is null){migrated=true;break;}
+                    try
+                    {
+                        Send(HttpMethod.Post,$"{documents}:commit",new{writes=new[]{new{update=new{name,fields=new{memberUids=MembershipFields(saved.Payload)}},updateMask=new{fieldPaths=new[]{"memberUids"}},currentDocument=new{updateTime=saved.Version}}}});
+                        migrated=true;break;
+                    }
+                    catch(SessionFault fault) when(fault.Failure==SessionFailure.Conflict){ }
+                }
+                if(!migrated)throw new IOException("Membership migration raced repeated writes. Restart to retry before serving discovery.");
+            }
+            if(manifests.Length<limit)break;
+            after=manifests[^1].GetProperty("name").GetString();
+        }
+    }
     public IReadOnlyList<string> ListSessions()
     {
         var query=Send(HttpMethod.Post,$"{documents}:runQuery",new{structuredQuery=new{from=new[]{new{collectionId="sessions"}},where=new{fieldFilter=new{field=new{fieldPath="scheduled"},op="EQUAL",value=new{booleanValue=true}}},limit=1001}});
@@ -88,7 +126,7 @@ public sealed class FirestoreSessionStore : ISessionStore, IDisposable
         var name=$"{documents}/sessions/{id}";
         var writes=new List<object>();
         for(var i=0;i<count;i++)writes.Add(new{update=new{name=$"{name}/records/{generation}-{i}",fields=new{payload=new{stringValue=payload.Substring(i*chunkCharacters,Math.Min(chunkCharacters,payload.Length-i*chunkCharacters))}}},currentDocument=new{exists=false}});
-        var fields=new{generation=new{stringValue=generation},count=new{stringValue=count.ToString()},joinCode=new{stringValue=joinCode??""},scheduled=new{booleanValue=wakeup is not null}};
+        var fields=new{generation=new{stringValue=generation},count=new{stringValue=count.ToString()},joinCode=new{stringValue=joinCode??""},scheduled=new{booleanValue=wakeup is not null},memberUids=MembershipFields(payload)};
         writes.Add(new{update=new{name,fields},currentDocument=expectedVersion is null?(object)new{exists=false}:new{updateTime=expectedVersion}});
         // Delete superseded chunks in the same commit. Retained manifests never point to incomplete writes.
         var previous=Send(HttpMethod.Get,name);

@@ -87,16 +87,25 @@ public sealed partial class SessionCoordinator
     {
         lock(gate){RefreshCampaignWeekend(id);var lobby=RequireLobby(id);RequireHost(lobby,identity);if(lobby.ModuleState.Remove("campaign-standby-v1")){lobby.Revision++;Persist(id);}}
     }
+    private (Lobby Lobby,Player? Player,bool OriginalMember) ResolveCampaignPlayer(string firstId,string currentId,AuthIdentity identity)
+    {
+        RefreshCampaignWeekend(firstId);if(currentId!=firstId)RefreshCampaignWeekend(currentId);
+        var original=RequireLobby(firstId).Players.SingleOrDefault(p=>p.Uid==identity.Uid);
+        var lobby=RequireLobby(currentId);
+        return(lobby,original is null?null:lobby.Players.SingleOrDefault(p=>p.Id==original.Id&&p.Uid==identity.Uid),original is not null);
+    }
+    public bool IsCampaignMember(string firstId,string currentId,AuthIdentity identity)
+    {
+        lock(gate)return ResolveCampaignPlayer(firstId,currentId,identity).Player is not null;
+    }
     public JoinedLobby ReturnCampaignMember(string membershipId,string eventId,AuthIdentity identity,string? deviceId)
     {
         lock(gate)
         {
-            RefreshCampaignWeekend(membershipId);if(eventId!=membershipId)RefreshCampaignWeekend(eventId);var source=RequireLobby(membershipId);
-            var original=source.Players.SingleOrDefault(p=>p.Uid==identity.Uid)
-                ??throw new SessionFault(SessionFailure.Forbidden,"Only an existing campaign participant can return. Join the household first.");
-            var lobby=RequireLobby(eventId);
-            var player=lobby.Players.SingleOrDefault(p=>p.Id==original.Id&&p.Uid==identity.Uid)
-                ??throw new SessionFault(SessionFailure.Forbidden,"This participant does not belong to this event.");
+            var resolved=ResolveCampaignPlayer(membershipId,eventId,identity);
+            if(!resolved.OriginalMember)throw new SessionFault(SessionFailure.Forbidden,"Only an existing campaign participant can return. Join the household first.");
+            var lobby=resolved.Lobby;
+            var player=resolved.Player??throw new SessionFault(SessionFailure.Forbidden,"This participant does not belong to this event.");
             var device=lobby.Devices.SingleOrDefault(d=>d.Id==deviceId&&d.Uid==identity.Uid);
             if(device is null)
             {

@@ -2,7 +2,7 @@ import { test, expect } from "@playwright/test";
 test("player can open and close driver details without losing their place", async ({
   page,
 }) => {
-  await page.goto("/");
+  await page.goto("/dev/gallery");
   const open = page
     .getByRole("article", { name: "Max Verstappen — compact driver card" })
     .getByRole("button", {
@@ -27,7 +27,7 @@ test("failed portrait keeps driver identity and details usable", async ({
   await page.route("**/portraits/max-verstappen.png", (route) =>
     route.fulfill({ status: 404, body: "Missing" }),
   );
-  await page.goto("/");
+  await page.goto("/dev/gallery");
   const card = page.getByRole("article", {
     name: "Max Verstappen — compact driver card",
   });
@@ -47,7 +47,7 @@ test("failed portrait keeps driver identity and details usable", async ({
 test("unknown ratings and a long name remain distinct from real ratings", async ({
   page,
 }) => {
-  await page.goto("/");
+  await page.goto("/dev/gallery");
   const card = page.getByRole("article", {
     name: "Alexandra Montgomery-Sutherland — compact driver card",
   });
@@ -75,7 +75,7 @@ test("unknown ratings and a long name remain distinct from real ratings", async 
 test("keyboard details stay modal and Escape returns focus to the initiating card", async ({
   page,
 }) => {
-  await page.goto("/");
+  await page.goto("/dev/gallery");
   const open = page
     .getByRole("article", { name: "Max Verstappen — compact driver card" })
     .getByRole("button", { name: "View details for Max Verstappen" });
@@ -103,7 +103,7 @@ test("touch users can open and close details on a phone", async ({
     hasTouch: true,
   });
   const page = await context.newPage();
-  await page.goto(baseURL!);
+  await page.goto(baseURL!+"/dev/gallery");
   await page
     .getByRole("article", { name: "Lewis Hamilton — compact driver card" })
     .getByRole("button", { name: "View details for Lewis Hamilton" })

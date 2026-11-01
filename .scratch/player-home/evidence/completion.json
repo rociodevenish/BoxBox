@@ -1,0 +1,14 @@
+{
+  "branch": "codex/player-home",
+  "verifiedCodeRevision": "2b4cad00b65d287f011892041347c8e5ef0a97a5",
+  "uniquePassingChecks": {"tooling":3,"simulation":287,"api":247,"gallery":36,"soloBrowser":22,"sharedBrowser":22,"campaignResumeBrowser":2,"total":619},
+  "typecheck": "passed",
+  "build": "passed with existing budget/CommonJS warnings",
+  "reviews": {"standardsOutstanding":0,"specOutstanding":0},
+  "apiTrx": ".tools/reports/s20-api-results/s20-final.trx",
+  "preview": {"ui":{"port":4412,"pid":29516},"api":{"port":4511,"pid":31928},"auth":{"port":19099,"pid":27476},"storage":"volatile","originalServicesPreserved":true},
+  "captures": ["home-join-360.png","home-join-lobby-360.png","player-home-public-1920.png","s20-03-resume-360.png","s20-03-resume-1920.png"],
+  "implementerWorktreesRemoved": true,
+  "mergedToMain": false,
+  "deployed": false
+}
