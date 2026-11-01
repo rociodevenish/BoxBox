@@ -63,6 +63,7 @@
     @if(variant()==='expanded'){
     <div class="expanded">
       <h3>Detailed attributes</h3>
+      @if(!driver().details.length){<p>Detailed game attributes unavailable in this saved card.</p>}
       <dl class="attributes">
         @for(detail of driver().details;track detail.label){
         <div class="attribute">
@@ -110,6 +111,7 @@
     @for(group of groups;track group){<div class="attribute"><dt>{{group}}</dt><dd>{{driver().attributes[group]===null?'Unknown':driver().attributes[group]+' / 5'}}</dd></div>}
   </dl>
   <h3>Detailed game inputs · 1–100</h3>
+  @if(!driver().details.length){<p>Detailed game attributes unavailable in this saved card.</p>}
   <dl class="attributes">
     @for(detail of driver().details;track detail.label){
     <div class="attribute">
