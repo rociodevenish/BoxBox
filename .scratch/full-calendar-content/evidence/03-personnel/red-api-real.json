@@ -1,0 +1,21 @@
+{
+  "command": "node",
+  "args": [
+    "C:/Projects/F1Game/tools/auth-emulator/node_modules/firebase-tools/lib/bin/firebase.js",
+    "emulators:exec",
+    "--only",
+    "auth,firestore",
+    "--project",
+    "demo-f1game",
+    "--config",
+    ".tools/reports/s16-23/firebase.json",
+    "--non-interactive",
+    "C:/Projects/F1Game/.tools/dotnet/dotnet.exe test tests/Game.Api.Tests/Game.Api.Tests.csproj --filter FullyQualifiedName~PersonnelReleaseTests -m:1 -nr:false --nologo"
+  ],
+  "cwd": "C:\\Projects\\F1Game\\.tools\\worktrees\\s16-23",
+  "pid": 43032,
+  "startedAt": "2026-10-30T20:07:21.731Z",
+  "status": "failed",
+  "exitCode": 1,
+  "elapsedMs": 65779
+}

@@ -1,8 +1,10 @@
 using Game.Domain;
+using Game.Simulation;
+using System.Collections.Immutable;
 namespace Game.Application;
 
-public record CreateCampaignInput(string CommandId,string Name,string Mode="Competitive",string Calendar="short",int Seed=123,int Laps=6,ChampionshipPoints? Points=null,string PersonnelMode="preset");
-public record CampaignEvent(string EventId,int Order,string TrackId,string TrackName,string TrackSlug,string TrackVersion,string SessionId);
+public record CreateCampaignInput(string CommandId,string Name,string Mode="Competitive",string Calendar="short",int Seed=123,int Laps=6,ChampionshipPoints? Points=null,string PersonnelMode="preset",string? ContentVersion=null);
+public record CampaignEvent(string EventId,int Order,string TrackId,string TrackName,string TrackSlug,string TrackVersion,string SessionId,string? SourceEventId=null,string? EventName=null,string? WeekendStart=null,string? WeekendEnd=null,string? Summary=null);
 public record CampaignDriver(string PersonId,string Name,string Slug,string EntryId,string SourceVersion);
 public record CampaignTeam(string TeamId,string ConstructorId,string ConstructorName,IReadOnlyList<CampaignDriver> Drivers);
 public record CampaignSnapshot(string CampaignId,long Revision,string Lifecycle,string ContentVersion,string CalendarVersion,
@@ -17,7 +19,7 @@ public record CampaignNextPreparation(string EventId,string SessionId,string Tra
 // Only typed application contracts cross this persistence boundary. The adapter owns serialization and namespacing.
 public record CampaignRecord(string Schema,string CampaignId,string HostUid,string CreationFingerprint,CreateCampaignInput Input,
     long Revision,string Lifecycle,string ContentVersion,string CalendarVersion,CampaignEvent[] Calendar,CampaignTeam[] Teams,
-    Dictionary<string,WeekendPreset[]> FrozenPresets,Dictionary<string,RaceConfiguration> EventConditions,int EventIndex=0,string? StartCommandId=null,ChampionshipPoints? Points=null,CampaignEventContribution[]? Contributions=null,int? PreparationEventIndex=null,string? AdvanceCommandId=null,CampaignVersions? Versions=null,AcquisitionState? Acquisition=null,bool AcquisitionAutomatic=false,ScheduledWakeup? AcquisitionWakeup=null,RecordedPersonnelChoice[]? PersonnelChoices=null,bool ConstructionRequired=false,ConstructionState? Construction=null,RecordedConstructionChoice[]? ConstructionChoices=null,ConstructionAutomaticReceipt[]? ConstructionAutomaticCommands=null,SeasonIncomeConfiguration? Income=null,Game.Domain.CreditEntry[]? PresetLedger=null,DevelopmentState? Development=null,Dictionary<string,WeekendPreset[]>? EffectiveEventPresets=null,DevelopmentCloseReceipt[]? DevelopmentCloses=null,RecordedDevelopmentChoice[]? DevelopmentChoices=null,DevelopmentAutomaticReceipt[]? DevelopmentAutomaticCommands=null);
+    Dictionary<string,WeekendPreset[]> FrozenPresets,Dictionary<string,RaceConfiguration> EventConditions,int EventIndex=0,string? StartCommandId=null,ChampionshipPoints? Points=null,CampaignEventContribution[]? Contributions=null,int? PreparationEventIndex=null,string? AdvanceCommandId=null,CampaignVersions? Versions=null,AcquisitionState? Acquisition=null,bool AcquisitionAutomatic=false,ScheduledWakeup? AcquisitionWakeup=null,RecordedPersonnelChoice[]? PersonnelChoices=null,bool ConstructionRequired=false,ConstructionState? Construction=null,RecordedConstructionChoice[]? ConstructionChoices=null,ConstructionAutomaticReceipt[]? ConstructionAutomaticCommands=null,SeasonIncomeConfiguration? Income=null,Game.Domain.CreditEntry[]? PresetLedger=null,DevelopmentState? Development=null,Dictionary<string,WeekendPreset[]>? EffectiveEventPresets=null,DevelopmentCloseReceipt[]? DevelopmentCloses=null,RecordedDevelopmentChoice[]? DevelopmentChoices=null,DevelopmentAutomaticReceipt[]? DevelopmentAutomaticCommands=null,CampaignContentSnapshot? ContentSnapshot=null);
 public record CampaignEventVersions(string Model,string Randomness);
 public record EconomyTeamSnapshot(string CampaignId,string TeamId,int Balance,SeasonIncomeConfiguration Configuration,IReadOnlyList<CreditEntry> Ledger,IReadOnlyDictionary<string,string> PersonnelNames);
 public record CampaignVersions(string Lifecycle,string Scoring,string Replay,string Preparation,string Practice,Dictionary<string,CampaignEventVersions> Events);
@@ -60,3 +62,7 @@ public record RecordedDevelopmentChoice(string TeamId,string OpportunityId,strin
 public record DevelopmentAutomaticReceipt(string CommandId,string OpportunityId,long Revision,string[] TeamIds);
 
 public record DevelopmentHelpPrivileges(string SessionId,string PlayerId,string HelpLevel,bool AutoAcceptRecommendation,bool CanChange);
+
+public sealed record CampaignContentSnapshot(ConstructionCatalogue Construction,ImmutableArray<ContentSource> Sources,ImmutableArray<ContentAsset> Assets,string Provenance,
+ [property:System.Text.Json.Serialization.JsonIgnore(Condition=System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingDefault)] ImmutableArray<PackageDevelopmentQuote> PaidPackageOptions=default,
+ [property:System.Text.Json.Serialization.JsonIgnore(Condition=System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingDefault)] ImmutableArray<ContentPersonnelDetail> PersonnelDetails=default);

@@ -3,7 +3,7 @@ import portraits from '../../../public/portraits/manifest.json';
 import {Component,signal} from '@angular/core';
 import type {User} from 'firebase/auth';
 import {apiUrl} from '../api-url';
-interface Event {eventId:string;order:number;trackId:string;trackName:string;trackSlug:string}
+interface Event {eventId:string;order:number;trackId:string;trackName:string;trackSlug:string;eventName?:string;weekendStart?:string;weekendEnd?:string;summary?:string}
 interface CreditEntry {commandId:string;credits:number;reason:string;personId:string|null;version:string|null;eventId:string|null}
 interface EconomyTeam {personnelNames:Record<string,string>;teamId:string;balance:number;configuration:{version:string;creditsPerEvent:number};ledger:CreditEntry[]}
 interface Team {teamId:string;constructorName:string;drivers:{personId:string;name:string;slug:string}[]}
@@ -67,6 +67,8 @@ export class CampaignPage {
  reportName(id:string){return this.campaign()?.calendar.find(e=>e.eventId===id)?.trackName??id;}
  hasReport(id:string){return this.campaign()?.results.some(r=>r.eventId===id);}
  previousPoints(result:Result,id:string){let total=0;for(const report of this.campaign()?.results??[]){if(report.eventId===result.eventId)break;total+=this.awarded(report,id);}return total;}
+ readonly failedTrackAssets=signal<string[]>([]);
+ trackAssetFailed(id:string){this.failedTrackAssets.update(ids=>ids.includes(id)?ids:[...ids,id]);}
  trackImage(id:string){return tracks.tracks.find(track=>track.id===id)?.url??'';}
  portrait(id:string){const asset=portraits.portraits.find(driver=>'driver-'+driver.driverId===id);return asset?'/'+asset.runtimeUrl:'';}
  readonly failedConstructionAssets=signal<string[]>([]);
@@ -88,9 +90,9 @@ export class CampaignPage {
  });}
  private async request<T>(path:string,input?:unknown):Promise<T>{const token=await this.user()?.getIdToken();const response=await fetch(apiUrl(path),{method:input===undefined?'GET':'POST',headers:{'Content-Type':'application/json',...(token?{Authorization:'Bearer '+token}:{})},body:input===undefined?undefined:JSON.stringify(input)});const result=await response.json();if(!response.ok)throw Object.assign(new Error(result.message??'Campaign unavailable. Retry.'),{status:response.status});return result;}
  private async run(action:()=>Promise<void>){this.busy.set(true);this.error.set('');try{await action();}catch(error){this.error.set(error instanceof Error?error.message:'Campaign unavailable.');}finally{this.busy.set(false);}}
- async create(name:string,mode:string,personnelMode="preset"){await this.run(async()=>{
+ async create(name:string,mode:string,personnelMode="preset",contentVersion=""){await this.run(async()=>{
   localStorage.setItem('campaign-create-command',this.creation);
-  const joined=await this.request<Joined>('/api/campaigns',{commandId:this.creation,name,mode,personnelMode,calendar:'short',seed:123,laps:6});
+  const joined=await this.request<Joined>('/api/campaigns',{commandId:this.creation,name,mode,personnelMode,...(contentVersion?{contentVersion}:{}),calendar:contentVersion==='release-2026-full-circuits-v1'?'full':'short',seed:123,laps:6});
   this.device=joined.weekend.membership.deviceId;localStorage.setItem('household-device:'+this.user()!.uid+':'+joined.weekend.lobby.sessionId,this.device);
   localStorage.setItem('campaign-weekend:'+joined.campaign.campaignId,joined.weekend.lobby.sessionId);localStorage.removeItem('campaign-create-command');
   history.replaceState(null,'','/campaigns/'+joined.campaign.campaignId);this.campaign.set(joined.campaign);await this.loadControllers();

@@ -18,7 +18,7 @@ public sealed record DevelopmentRecommendation(string Version,string ActionKind,
 public static partial class DevelopmentDecisionPolicy
 {
  public const string Version="public-demand-credit-reserve-v1";
- public static DevelopmentRecommendation Evaluate(DevelopmentPolicyObservation observation)
+ private static DevelopmentRecommendation EvaluateUncached(DevelopmentPolicyObservation observation)
  {
   if(observation.Balance<0||observation.RemainingOpportunities<0||observation.Options.IsDefaultOrEmpty||observation.Options.Select(q=>q.Option.Id).Distinct().Count()!=observation.Options.Length)throw new ArgumentException("Observe the team's actual balance, remaining opportunities and distinct frozen quotes.");
   foreach(var quote in observation.Options)
