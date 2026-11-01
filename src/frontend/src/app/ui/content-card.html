@@ -1,0 +1,14 @@
+<section role="article" class="content-card" [class.driver]="card().role==='Driver'" [class.landscape]="card().landscape" [attr.aria-label]="card().name+' — '+card().role+' card'">
+ <div class="art">
+ @if(url(card().image);as image){@if(failed()!==image){<img [src]="image" [alt]="card().name+' illustration'" [style.object-position]="card().image?.objectPosition" (error)="failed.set(image)">}@else{<p class="fallback" role="img" [attr.aria-label]="(card().role==='Circuit'?'Track':'Portrait')+' illustration unavailable for '+card().name">Illustration unavailable · {{card().name}}</p>}}
+ @else{<div class="neutral-art" [class.staff-fallback]="card().role.includes('Engineer')||card().role==='Manager'" aria-hidden="true">{{card().role}}</div><p class="fallback">No illustration supplied · live information below</p>}
+ </div><div class="body">
+ <p class="role">{{card().role}}</p><h3>{{card().name}}</h3>
+ @if(card().context){<p>{{card().context}}</p>}@if(card().priceLabel){<p class="price">{{card().priceLabel}}</p>}
+ <dl>@for(fact of card().facts;track fact.label){<div [class.wide]="fact.wide"><dt>{{fact.label}}</dt><dd>{{fact.value}}@if(fact.state){<small>{{fact.state}}</small>}</dd></div>}</dl>
+ @if(card().preferences?.length){<div class="preferences" aria-label="Preferences">@for(preference of card().preferences;track preference){<span>Prefers: {{preference}}</span>}</div>}
+ @for(note of card().notes??[];track $index){<p class="note">{{note}}</p>}
+ @if(card().details?.length){<details><summary>Detailed attributes and effect scope</summary><dl>@for(fact of card().details;track fact.label){<div><dt>{{fact.label}}</dt><dd>{{fact.value}}@if(fact.state){<small>{{fact.state}}</small>}</dd></div>}</dl></details>}
+ <div class="actions"><ng-content /></div>
+ </div>
+</section>

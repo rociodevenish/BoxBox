@@ -9,7 +9,7 @@ test('personnel candidate presents fictional staff and implemented development e
  await page.getByRole('button',{name:'Claim '+picker,exact:true}).click();await page.getByRole('button',{name:'Open personnel for '+picker,exact:true}).click();
  const cards=page.getByRole('region',{name:'Reserved personnel offers'});await expect(cards.getByRole('article')).toHaveCount(3);await expect(cards.locator('.staff-fallback')).toHaveCount(3);
  await expect(cards.getByText('Future economy effects',{exact:false})).toHaveCount(0);await expect(cards.getByText(/Efficiency contributes once to the bounded development discount/)).toHaveCount(3);
- await cards.getByRole('article').first().getByText('Detailed attributes · 1–100',{exact:true}).click();await expect(cards.getByText('Leadership',{exact:true}).first()).toBeVisible();
+ await cards.getByRole('article').first().getByText('Detailed attributes and effect scope',{exact:true}).click();await expect(cards.getByText('Leadership',{exact:true}).first()).toBeVisible();
  expect(await page.evaluate(()=>document.documentElement.scrollWidth)).toBeLessThanOrEqual(360);await cards.scrollIntoViewIfNeeded();await page.screenshot({path:captures+'/s16-23-manager-360.png',fullPage:true});
  const person=(await cards.getByRole('heading').first().textContent())!;await cards.getByRole('button',{name:'Hire '+person,exact:false}).click();await expect(cards.getByRole('article')).toHaveCount(0);await page.reload();await page.getByRole('button',{name:'Open personnel for '+picker,exact:true}).click();await expect(page.getByRole('region',{name:'Your personnel roster',exact:true}).getByText(person,{exact:false})).toBeVisible();
  await page.getByRole('button',{name:'Hide private personnel',exact:true}).click();

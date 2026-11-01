@@ -4,7 +4,8 @@ using System.Collections.Immutable;
 namespace Game.Application;
 
 public record CreateCampaignInput(string CommandId,string Name,string Mode="Competitive",string Calendar="short",int Seed=123,int Laps=6,ChampionshipPoints? Points=null,string PersonnelMode="preset",string? ContentVersion=null);
-public record CampaignEvent(string EventId,int Order,string TrackId,string TrackName,string TrackSlug,string TrackVersion,string SessionId,string? SourceEventId=null,string? EventName=null,string? WeekendStart=null,string? WeekendEnd=null,string? Summary=null);
+public record CampaignEvent(string EventId,int Order,string TrackId,string TrackName,string TrackSlug,string TrackVersion,string SessionId,string? SourceEventId=null,string? EventName=null,string? WeekendStart=null,string? WeekendEnd=null,string? Summary=null,
+ [property:System.Text.Json.Serialization.JsonIgnore(Condition=System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)] CardImage? Image=null);
 public record CampaignDriver(string PersonId,string Name,string Slug,string EntryId,string SourceVersion);
 public record CampaignTeam(string TeamId,string ConstructorId,string ConstructorName,IReadOnlyList<CampaignDriver> Drivers);
 public record CampaignSnapshot(string CampaignId,long Revision,string Lifecycle,string ContentVersion,string CalendarVersion,

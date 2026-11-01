@@ -318,7 +318,7 @@ public sealed partial class SessionCoordinator
                 team.Practice.Result.Feedback.Setup,team.Practice.Result.Feedback.CircuitFeedback,
                 team.Practice.Result.Feedback.Compromises,team.Practice.Result.Feedback.Drivers,
                 RacePackages.Migrate(team.Practice.Preset).SelectedPackage,
-                RacePackages.Selected(RacePackages.Migrate(team.Practice.Preset)).Name),ProjectPreparationGuidance(lobby,team,assignment),team.Observed,team.Forecast);
+                RacePackages.Selected(RacePackages.Migrate(team.Practice.Preset)).Name),ProjectPreparationGuidance(lobby,team,assignment),team.Observed,team.Forecast,team.Preset.Cars[0].Driver.Presentation is null?null:ConstructionPreview.SimpleGroups(team.Preset.Cars[0].Car.Ratings));
 
     // Explicit preset identity; constructor metadata and illustrative card stars never provide coefficients.
     private static readonly (string First,string Second)[] PreparationDrivers = [
