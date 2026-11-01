@@ -6,7 +6,7 @@ using Game.Simulation;
 namespace Game.Application;
 
 /// <summary>Durable campaign orchestration over the public household weekend operations.</summary>
-public sealed partial class CampaignCoordinator(SessionCoordinator weekends,ICampaignStore store,TimeProvider? timeProvider=null,IScheduledWakeups? scheduledWakeups=null)
+public sealed partial class CampaignCoordinator(SessionCoordinator weekends,ICampaignStore store,TimeProvider? timeProvider=null,IScheduledWakeups? scheduledWakeups=null,DevelopmentOutcomeControls? developmentControls=null,DevelopmentRiskControls? riskControls=null)
 {
     public const string Schema="campaign-record-v1";
     public const string ContentVersion="preset-campaign-v1/provisional-2026.10.08";
@@ -28,7 +28,7 @@ public sealed partial class CampaignCoordinator(SessionCoordinator weekends,ICam
             if(saved is null)
             {
                 var content=weekends.FreezeCampaignContent(id,input.Laps);
-                var record=new CampaignRecord(Schema,id,identity.Uid,fingerprint,input,1,input.PersonnelMode=="acquisition"?"acquiring":"created",ContentVersion,CalendarVersion,content.Calendar,content.Teams,content.Presets,content.Conditions,Points:input.Points??ChampionshipScoring.Default,Versions:CampaignSaveIntegrity.Versions(content.Conditions),Acquisition:input.PersonnelMode=="acquisition"?PersonnelAcquisition.Open(PersonnelCatalog.Open(),content.Teams.Select(t=>t.TeamId).ToArray(),input.Seed):null,ConstructionRequired:input.PersonnelMode=="acquisition");
+                var record=new CampaignRecord(Schema,id,identity.Uid,fingerprint,input,1,input.PersonnelMode=="acquisition"?"acquiring":"created",ContentVersion,CalendarVersion,content.Calendar,content.Teams,content.Presets,content.Conditions,Points:input.Points??ChampionshipScoring.Default,Versions:CampaignSaveIntegrity.Versions(content.Conditions),Acquisition:input.PersonnelMode=="acquisition"?PersonnelAcquisition.Open(PersonnelCatalog.Open(),content.Teams.Select(t=>t.TeamId).ToArray(),input.Seed):null,ConstructionRequired:input.PersonnelMode=="acquisition",Development:new(PermanentDevelopment.Version,[],Convert.ToHexString(RandomNumberGenerator.GetBytes(32))),Income:SeasonIncome.Default,PresetLedger:input.PersonnelMode=="preset"?content.Teams.Select(t=>new CreditEntry("starting-credit",t.TeamId,100,"starting-credit",Version:"preset-starting-credit-v1")).ToArray():null);
                 try{Write(id,null,record);}catch(SessionFault fault) when(fault.Failure==SessionFailure.Conflict){ }
                 saved=Require(id);
             }
@@ -51,7 +51,7 @@ public sealed partial class CampaignCoordinator(SessionCoordinator weekends,ICam
             if(record.Lifecycle=="season-complete")throw new SessionFault(SessionFailure.Conflict,"Season complete. Its results are retained; create a new campaign to race again.");
             EnsureWeekend(record,identity);
             var current=record.Calendar[record.EventIndex];
-            weekends.BeginCampaignPreparation(current.SessionId,identity,record.FrozenPresets[current.EventId]);
+            weekends.BeginCampaignPreparation(current.SessionId,identity,EventPresets(record,current.EventId));
             if(record.Lifecycle=="created"){record=record with{Lifecycle="event-preparation",Revision=record.Revision+1};Write(id,saved.Version,record);}
             return Project(record);
         }
@@ -78,14 +78,14 @@ public sealed partial class CampaignCoordinator(SessionCoordinator weekends,ICam
         }
     }
     private JoinedLobby EnsureWeekend(CampaignRecord record,AuthIdentity identity)=>weekends.EnsureCampaignLobby(record.Calendar[record.EventIndex].SessionId,identity,
-        new("open-equal",record.Input.Laps,record.Input.Seed,record.Input.Mode,record.Input.Name),record.FrozenPresets[record.Calendar[record.EventIndex].EventId],record.EventConditions[record.Calendar[record.EventIndex].EventId],record.Lifecycle=="acquiring",record.ConstructionRequired&&record.Construction is null||record.Lifecycle=="constructing");
+        new("open-equal",record.Input.Laps,record.Input.Seed,record.Input.Mode,record.Input.Name),EventPresets(record,record.Calendar[record.EventIndex].EventId),record.EventConditions[record.Calendar[record.EventIndex].EventId],record.Lifecycle=="acquiring",record.ConstructionRequired&&record.Construction is null||record.Lifecycle=="constructing");
     private CampaignSnapshot Project(CampaignRecord record)
     {
         var current=record.Calendar[record.EventIndex];var lobby=weekends.LobbyPublic(current.SessionId);
         IReadOnlyList<PreparationReadiness> readiness=lobby.Lifecycle=="lobby"?[]:weekends.PreparationPublic(current.SessionId).Readiness;
         var lifecycle=CampaignRules.Lifecycle(record.Lifecycle,lobby.Lifecycle);
         return new(record.CampaignId,record.Revision,lifecycle,record.ContentVersion,record.CalendarVersion,record.Input.Mode,record.Calendar,record.Teams,
-            record.EventIndex,current.SessionId,readiness,CampaignRules.CanStart(lifecycle,readiness.Select(t=>t.FinalReady).ToArray()),Points:record.Points??ChampionshipScoring.Default,Standings:ChampionshipScoring.Rebuild(CampaignScoringInputs.Entrants(record), (record.Contributions??[]).Select(c=>(IReadOnlyList<ChampionshipAward>)c.Awards)),Results:record.Contributions??[],NextPreparation:NextProjection(record),Acquisition:record.Acquisition is {} acquisition?new(acquisition.Version,acquisition.Pool.Version,acquisition.Pool.PriceVersion,acquisition.Offer?.TeamId,acquisition.Offer?.Slot,acquisition.TeamIds.Length*PersonnelAcquisition.RequiredSlots.Length,acquisition.Hires.Length,acquisition.Carousel!.Version,acquisition.Carousel.InitialOrder,acquisition.Carousel.Picks,acquisition.Carousel.Cursor,acquisition.TeamIds.All(t=>PersonnelAcquisition.RosterReady(acquisition,t)),record.AcquisitionAutomatic,record.AcquisitionWakeup?.DueUtc):null,ConstructionRequired:record.ConstructionRequired,ConstructionReadiness:record.Construction is null?null:record.Teams.Select(team=>new ConstructionReadiness(team.TeamId,record.Construction.Confirmed?.ContainsKey(team.TeamId)==true,record.Construction.Confirmed?.ContainsKey(team.TeamId)!=true?"pending":(record.ConstructionChoices??[]).Any(c=>c.TeamId==team.TeamId&&c.Source=="unclaimed-ai")?"unclaimed-ai":"manual-confirmation")).ToArray());
+            record.EventIndex,current.SessionId,readiness,CampaignRules.CanStart(lifecycle,readiness.Select(t=>t.FinalReady).ToArray()),Points:record.Points??ChampionshipScoring.Default,Standings:ChampionshipScoring.Rebuild(CampaignScoringInputs.Entrants(record), (record.Contributions??[]).Select(c=>(IReadOnlyList<ChampionshipAward>)c.Awards)),Results:record.Contributions??[],NextPreparation:NextProjection(record),Acquisition:record.Acquisition is {} acquisition?new(acquisition.Version,acquisition.Pool.Version,acquisition.Pool.PriceVersion,acquisition.Offer?.TeamId,acquisition.Offer?.Slot,acquisition.TeamIds.Length*PersonnelAcquisition.RequiredSlots.Length,acquisition.Hires.Length,acquisition.Carousel!.Version,acquisition.Carousel.InitialOrder,acquisition.Carousel.Picks,acquisition.Carousel.Cursor,acquisition.TeamIds.All(t=>PersonnelAcquisition.RosterReady(acquisition,t)),record.AcquisitionAutomatic,record.AcquisitionWakeup?.DueUtc):null,Development:DevelopmentProjection(record),ConstructionRequired:record.ConstructionRequired,ConstructionReadiness:record.Construction is null?null:record.Teams.Select(team=>new ConstructionReadiness(team.TeamId,record.Construction.Confirmed?.ContainsKey(team.TeamId)==true,record.Construction.Confirmed?.ContainsKey(team.TeamId)!=true?"pending":(record.ConstructionChoices??[]).Any(c=>c.TeamId==team.TeamId&&c.Source=="unclaimed-ai")?"unclaimed-ai":"manual-confirmation")).ToArray());
     }
     private StoredCampaign RequireHost(string id,AuthIdentity identity){var saved=Require(id);if(saved.Record.HostUid!=identity.Uid)throw new SessionFault(SessionFailure.Forbidden,"Only this campaign's host can begin an event.");return saved;}
     private StoredCampaign Require(string id)=>ReadOptional(id)??throw new SessionFault(SessionFailure.Unavailable,"Campaign unavailable.");

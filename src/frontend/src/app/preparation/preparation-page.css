@@ -6,3 +6,6 @@
 .readiness{border-left:4px solid #ff877e;padding:10px 14px;background:#282f34;font-weight:800}
 
 .guidance{border-color:#ff877e}.guidance-drivers{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}.guidance-driver{min-width:0;background:#282f34;border-radius:8px;padding:16px}.guidance h3{font-size:18px}.guidance li{margin-bottom:10px}@media(max-width:700px){.guidance-drivers{grid-template-columns:1fr}}
+.package-card{border:1px solid #596065;border-radius:10px;padding:16px;margin:16px 0;overflow-wrap:anywhere}.package-card button{max-width:100%;margin:4px 0}.package-card h3{font-size:20px}
+.package-card button:disabled{opacity:1;color:#b5bdc4;background:#24282c;border-color:#69747d}.package-card button[aria-pressed="true"]{background:#ff5954;color:#101214;border-color:#ff5954}
+[aria-label="Package selection advice"] button:disabled{opacity:1;color:#b5bdc4;background:#24282c;border-color:#69747d}

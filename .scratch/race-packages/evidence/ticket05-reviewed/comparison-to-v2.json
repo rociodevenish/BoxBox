@@ -1,0 +1,8 @@
+{
+  "historicalArchiveSchema": "race-package-evidence-v2",
+  "reviewedArchiveSchema": "race-package-evidence-v3",
+  "unchangedSchedulePolicy": "legal-resources-fixed-seven-arms-v2",
+  "pairedRowsCompared": 224,
+  "changedPairedRows": [],
+  "groupStatisticsUnchanged": true
+}

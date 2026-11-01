@@ -6,6 +6,14 @@ public static class PreparationEndpoints
 {
     public static void MapPreparationEndpoints(this WebApplication app)
     {
+        app.MapPost("/api/lobbies/{id}/preparation/teams/{teamId}/package",async(string id,string teamId,string deviceId,PackageSelectionCommand input,HttpRequest request,FirebaseIdentity auth,SessionCoordinator sessions,IHubContext<RaceHub> hub)=>
+        {
+            var identity=await auth.Verify(LobbyEndpoints.Token(request));
+            var ack=sessions.SelectPackage(id,identity,deviceId,teamId,input);
+            try{await PreparationNotifications.PublishControllerChange(hub,sessions,id,identity,deviceId,teamId);}
+            catch(Exception error){app.Logger.LogWarning(error,"Package selection notification failed; recover the saved snapshot.");}
+            return ack;
+        });
         foreach(var operation in new[]{"confirm","reopen"})
         {
             var reopen=operation=="reopen";

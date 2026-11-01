@@ -6,7 +6,7 @@ public sealed partial class SessionCoordinator
 {
     private const string QualifyingTimeoutDisclosure="Unclaimed and missing teams use frozen observation-only choices (qualifying-observation-v1). Safe lowers ceiling/error exposure; Push is normal maximum effort; All-Out raises potential, variance and error exposure. Outcomes remain uncertain. Explicit auto-accept uses recorded advice only at expiry; accepted human locks are preserved.";
     private sealed record RecordedQualifyingAdvice(QualifyingPolicyPlan Plan,QualifyingAssistance Assistance);
-    private static QualifyingState FreezeQualifyingPolicies(Lobby lobby,QualifyingState state)
+    private QualifyingState FreezeQualifyingPolicies(Lobby lobby,QualifyingState state)
     {
         var preparation=ReadPreparation(lobby);var advice=new Dictionary<string,RecordedQualifyingAdvice>();
         foreach(var group in QualifyingDrivers(state).GroupBy(d=>d.TeamId))

@@ -1,0 +1,42 @@
+# S14 — backend test isolation repair
+
+The diagnosis used the existing public API/recovery tests, real Firestore and ordinary xUnit parallel execution. No test assertion, production conditional write, retry rule or global parallelism setting changed.
+
+## Observed failures and first repair
+
+The parent diagnosis on the pre-fixture source reproduced the combined eight-test parallel filter twice with 7 passed/1 failed (`.tools/diagnosis/s14-backend/combined-first.trx`, `development.trx`). The failing case was `DevelopmentCommitmentTests.Development_is_private_guarded_and_same_commit_survives_failed_write_or_lost_ack(false,false)` with a Firestore saved-revision conflict. The exact original two-test pair passed 2/2 alone (`focused.trx`), and the eight tests passed 8/8 serially (`serial.trx`). These establish interference; serial execution was diagnostic only and is not a fix.
+
+`ProgressionTests.Server(durable:true)` previously registered an unscoped real Firestore adapter. Its manual-clock sweep could enumerate another live test's sessions. The fixture now uses `ConditionalWeakTable<TimeProvider,CampaignTestSessionScope>`: factories restarted with the same existing scenario clock share their known session identities and real store, while different clocks have separate enumeration. This is fixture commit `37510c4a8992d664ac126591cdd2d27e32753d8b`.
+
+That scope-only repair passed the original eight-test filter in parallel (**8/8**), but it did not resolve the complete suite: full backend candidate `5f91eeb8a693b4093fd12ecb47d4b1db17588f8a`, tree `6dd54b59b9a6ecd9a0ec316aabb466e8e671fa4a`, passed Simulation253/253 and API229/230. The same late development case failed inside its own manual `SweepWakeups`. The immutable failed manifest is `.tools/reports/verification/runs/2026-10-29T04-28-37-273Z-d8dd4cbf-844e-46cb-84be-710bba732361/result.json`; outer failed record is preserved as `s14-isolation-scope-only-backend-failed.json`. This failed result is retained, not reported as success.
+
+## Separate manual-delivery repair
+
+Inspection found that DevelopmentCommitmentTests and DevelopmentGuidanceApiTests used controlled clocks and explicitly drove `SweepWakeups`, but every restarted factory also started the default development `LocalWakeupDelivery` service. That service polls every250ms and could deliver a shared store/clock's due work from another still-live factory. The additional fixture-only change sets the existing `Wakeups:Mode=manual` on those two classes' manual-clock factories, including the late host. Actual background-delivery tests, Qualifying helpers, production services and xUnit parallelism remain unchanged. This isolates the second variable rather than treating the initial scope-only pass as proof of complete repair.
+
+The exact original eight-test filter passes again in parallel (**8/8**) after this change. The runner uses the patched worktree assembly, default xUnit parallel execution, no serial/parallel-off option, and its own TRX directory. `.tools/reports/s14-isolation-parallel-command.json` records the literal filter and command; `.tools/reports/s14-isolation/parallel-green.trx` records8 passed. The earlier scope-only green command/TRX are preserved separately as `s14-isolation-scope-only-parallel-command.json` and `s14-isolation/scope-only-parallel-green.trx`. The new emulator report is `s14-isolation-manual-parallel-emulators.json`.
+
+## Required full backend verification and ownership
+
+The follow-on check runs only `node tools/verify.mjs backend` against this committed candidate. Its final authoritative result and pinned revision are the immutable manifest under this worktree's `.tools/reports/verification/runs/` and the outer bounded record `.tools/reports/s14-isolation-backend-final.json`; the completion handoff identifies the exact run and counts after exit. A focused pass alone is not counted as a full-backend pass.
+
+All diagnosis adaptations copy only the original filter, never the root assembly/cwd/ports. API builds/tests and verification artifacts belong to `C:/Projects/F1Game/.tools/worktrees/s14-review-fixes`. Auth23109/Firestore23100/websocket23150/hub23410/log23460 are owned by each isolated emulator run, rejected if already occupied, and shut down by that run. The scripts preserve real persistence/restart/failure paths and the backend's existing process cleanup. SDK10.0.401, Java21, Node24.22.1 and NuGetAudit=false for offline restore; dependency pins unchanged. Root verification and diagnostic listeners/files are untouched. No new helper-only test, broad frontend step, production redesign or GitHub action is part of this repair.
+
+## Complete manual-clock factory audit
+
+The first development-only delivery repair did not yet complete the full suite: candidate `07ca9e85816a5ee16b2021f1ae08364e050ce922`, tree `ff7d92d3a55237fb6437f4c3ea86f6a42f35745b`, again passed Simulation253/253 and API229/230. This time `QualifyingTests.Saved_deadline_pause_and_sweep_preserve_human_lock_and_fill_only_missing_teams` expected its explicit sweep to deliver1 but received0: another delivery driver had already consumed the due work. The failed immutable manifest is `.tools/reports/verification/runs/2026-10-29T04-34-11-937Z-846dc66e-d2fe-440e-acf6-7d98ff262c24/result.json`, with outer record preserved as `s14-isolation-development-manual-backend-failed.json`.
+
+The subsequent audit applied the same confirmed configuration axis consistently to every omitted manual-clock context, rather than running a complete suite for each fixture:
+
+- Qualifying helper: manual delivery only when its optional controlled clock is provided; real-clock calls retain existing delivery.
+- CampaignNextEvent: all four controlled-clock hosts, including observers/restarts.
+- CampaignRecovery: only the three controlled-clock hosts; its real-clock cases remain unchanged.
+- CampaignResults: its required-clock helper.
+- Assistance: only the two controlled-clock setups, preserving its shared real-clock helper.
+- PersonnelDeadline: the two controlled-clock/captured-callback hosts.
+- DevelopmentCommitment/DevelopmentGuidance retain the preceding explicit manual mode.
+- Deadline, ControlTransfer, SafetyCar's clocked case, WeatherReaction's clocked case, AssistanceProvenance, ConstructionConfirmation and Progression already set/inherit manual delivery and required no further mode changes.
+
+The audit changes only delivery configuration in tests that already advance a clock and explicitly sweep, advance-due, pause/resume or deliver callbacks. No global application mode, real-clock/background-delivery case, production CAS handling, assertion or xUnit parallelism setting changed.
+
+Affected classes passed **68/68 in parallel**, including the original eight-test filter and both observed failing scenarios. Literal class filter/runner: `.tools/reports/s14-isolation-affected-classes-command.json`; TRX: `s14-isolation/manual-clock-classes.trx`; owned emulator manifest: `s14-isolation-affected-classes-emulators.json`. Only after this coherent audit/pass is the final full backend candidate run. The verifier manifest and completion handoff remain authoritative for its final result, with the candidate kept clean during that check.

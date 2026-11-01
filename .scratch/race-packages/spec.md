@@ -1,7 +1,9 @@
 # S15 — Race Package library and development outcomes
 
-Status: ready-for-agent
+Status: resolved
 Blocked by: season economy and permanent development; effective weekend inputs and qualifying locks.
+
+Implementation and scoped acceptance are complete on `codex/s15-race-packages`; see [integration evidence](evidence/integration.md). Canonical tickets #53–57 are closed. Full-calendar release comparisons remain deferred as specified; S14 human workload/understanding acceptance remains separate.
 
 ## Problem Statement
 

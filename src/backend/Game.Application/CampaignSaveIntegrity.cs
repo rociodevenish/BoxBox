@@ -31,7 +31,7 @@ public static class CampaignSaveIntegrity
    {
     if(record.Construction is not {} state||record.Acquisition is not {} personnel||choice.Source is not("assisted" or "unclaimed-ai")||!state.Drafts.TryGetValue(choice.TeamId,out var draft)||choice.Revision<1||choice.Revision>=draft.Revision||choice.Recommendation.Version!=ConstructionDecisionPolicy.Version||JsonSerializer.Serialize(choice.Observation.Catalogue)!=JsonSerializer.Serialize(state.Catalogue)||JsonSerializer.Serialize(ConstructionDecisionPolicy.Evaluate(choice.Observation))!=JsonSerializer.Serialize(choice.Recommendation))throw new ArgumentException();
     var ownDrivers=record.FrozenPresets[record.Calendar[0].EventId].Single(p=>p.Cars[0].TeamId==choice.TeamId).Cars.Select(c=>c.Driver).ToArray();
-    if(JsonSerializer.Serialize(ownDrivers)!=JsonSerializer.Serialize(choice.Observation.Drivers)||choice.Observation.Balance!=PersonnelAcquisition.Balance(personnel,choice.TeamId)+(state.Confirmed?.GetValueOrDefault(choice.TeamId)?.Cost??0)||!draft.Commands.Any(c=>c.CommandId==choice.CommandId&&c.Fingerprint==$"{choice.Revision}/{state.Catalogue.Version}/{string.Join('/',choice.Recommendation.OptionIds)}"))throw new ArgumentException();
+    if(JsonSerializer.Serialize(ownDrivers)!=JsonSerializer.Serialize(choice.Observation.Drivers)||choice.Observation.Balance!=personnel.Ledger.Where(e=>e.TeamId==choice.TeamId&&e.Reason is "starting-credit" or "personnel-hire" or "base-car-construction").Sum(e=>e.Credits)+(state.Confirmed?.GetValueOrDefault(choice.TeamId)?.Cost??0)||!draft.Commands.Any(c=>c.CommandId==choice.CommandId&&c.Fingerprint==$"{choice.Revision}/{state.Catalogue.Version}/{string.Join('/',choice.Recommendation.OptionIds)}"))throw new ArgumentException();
     if(choice.Source=="unclaimed-ai"&&(choice.Revision!=1||state.Confirmed?.GetValueOrDefault(choice.TeamId) is not {} automatic||!automatic.OptionIds.SequenceEqual(choice.Recommendation.OptionIds)))throw new ArgumentException();
    }
    var automaticCommands=record.ConstructionAutomaticCommands??[];
@@ -40,6 +40,7 @@ public static class CampaignSaveIntegrity
     if(!Guid.TryParse(command.CommandId,out var key)||key==Guid.Empty||command.CommandId!=key.ToString("D")||command.Version!=ConstructionDecisionPolicy.Version||command.TeamIds.Distinct().Count()!=command.TeamIds.Length||command.TeamIds.Any(team=>!(record.ConstructionChoices??[]).Any(c=>c.TeamId==team&&c.Source=="unclaimed-ai")))throw new ArgumentException();
    if(record.Input.PersonnelMode is not("preset" or "acquisition"))throw new ArgumentException();
    if(record.Input.PersonnelMode=="acquisition"&&record.Acquisition is null||record.Input.PersonnelMode=="preset"&&record.Acquisition is not null)throw new ArgumentException();
+   CampaignDevelopmentIntegrity.Validate(record);
    CampaignRules.ValidateShortCalendar(record.Calendar.Select(e=>e.TrackId).ToArray());
    if(record.Calendar.Select(e=>e.EventId).Distinct().Count()!=record.Calendar.Length||record.Calendar.Select(e=>e.SessionId).Distinct().Count()!=record.Calendar.Length||record.Teams.Select(t=>t.TeamId).Distinct().Count()!=record.Teams.Length)throw new ArgumentException();
    var drivers=record.Teams.SelectMany(t=>t.Drivers).ToArray();
@@ -75,7 +76,8 @@ public static class CampaignSaveIntegrity
    if(contributions.Length>record.EventIndex+1||contributions.Where((c,i)=>c.EventId!=record.Calendar[i].EventId).Any()||record.PreparationEventIndex is {} next&&(next!=record.EventIndex+1||next>=record.Calendar.Length||contributions.Length!=record.EventIndex+1))throw new ArgumentException();
    if(record.Lifecycle=="season-complete"&&(contributions.Length!=record.Calendar.Length||record.EventIndex!=record.Calendar.Length-1||record.PreparationEventIndex is not null))throw new ArgumentException();
    CampaignResultIntegrity.Validate(record);
+   CampaignEconomy.Validate(record);
   }
-  catch(Exception error) when(error is ArgumentException or InvalidOperationException or NullReferenceException or KeyNotFoundException or IndexOutOfRangeException or JsonException){throw Incompatible();}
+  catch(Exception error) when(error is ArgumentException or InvalidOperationException or NullReferenceException or KeyNotFoundException or IndexOutOfRangeException or JsonException or OverflowException){throw Incompatible();}
  }
 }

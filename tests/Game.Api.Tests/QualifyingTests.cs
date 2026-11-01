@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Hosting;
 using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
@@ -73,8 +74,8 @@ public sealed partial class QualifyingTests
         public List<ScheduledWakeup> Items{get;}=[];
         public void Enqueue(ScheduledWakeup wakeup)=>Items.Add(wakeup);
     }
-    private static WebApplicationFactory<Program> Server(ISessionStore store,Clock? clock=null,CapturedWakeups? wakeups=null)=>LobbyTests.Server().WithWebHostBuilder(builder=>builder.ConfigureServices(services=>
-    {services.Replace(ServiceDescriptor.Singleton(store));if(clock is not null)services.Replace(ServiceDescriptor.Singleton<TimeProvider>(clock));if(wakeups is not null)services.Replace(ServiceDescriptor.Singleton<IScheduledWakeups>(wakeups));}));
+    private static WebApplicationFactory<Program> Server(ISessionStore store,Clock? clock=null,CapturedWakeups? wakeups=null)=>LobbyTests.Server().WithWebHostBuilder(builder=>{if(clock is not null)builder.UseSetting("Wakeups:Mode","manual");builder.ConfigureServices(services=>
+    {services.Replace(ServiceDescriptor.Singleton(store));if(clock is not null)services.Replace(ServiceDescriptor.Singleton<TimeProvider>(clock));if(wakeups is not null)services.Replace(ServiceDescriptor.Singleton<IScheduledWakeups>(wakeups));});});
     private sealed class TestSessionScope(ISessionStore inner):ISessionStore
     {
         private readonly HashSet<string> ids=[];

@@ -12,6 +12,8 @@ using Google.Apis.Auth;
 namespace Game.Api.Tests;
 public sealed class ProgressionTests
 {
+    // Restarted factories share one clock and scope; foreign scenarios cannot enter its sweep.
+    private static readonly System.Runtime.CompilerServices.ConditionalWeakTable<TimeProvider,CampaignTestSessionScope> DurableScopes=new();
     [Theory]
     [InlineData("wrong-subject")]
     [InlineData("wrong-email")]
@@ -137,7 +139,7 @@ public sealed class ProgressionTests
     private static WebApplicationFactory<Program> Server(TimeProvider clock,CapturedDelivery? delivery=null,bool durable=false)=>new WebApplicationFactory<Program>().WithWebHostBuilder(builder=>{
         builder.ConfigureAppConfiguration((_,config)=>config.AddInMemoryCollection(new Dictionary<string,string?>{["Firebase:ProjectId"]="demo-f1game",["Wakeups:Mode"]="manual",["Persistence:ProjectId"]=durable?"demo-f1game":null,["Persistence:EmulatorHost"]=Environment.GetEnvironmentVariable("F1_RECOVERY_HOST")??"127.0.0.1:19100",
             ["Wakeups:Audience"]="https://service.example.test",["Wakeups:ServiceAccountEmail"]="tasks@example.iam.gserviceaccount.com",["Wakeups:ServiceAccountSubject"]="123456789",["Wakeups:SweepServiceAccountEmail"]="sweep@example.iam.gserviceaccount.com",["Wakeups:SweepServiceAccountSubject"]="987654321"}));
-        builder.ConfigureServices(services=>{services.AddSingleton(clock);services.AddSingleton<IGoogleWakeupTokens>(new IssuedTokens(clock));if(delivery is not null)services.AddSingleton<IScheduledWakeups>(delivery);});
+        builder.ConfigureServices(services=>{if(durable)services.AddSingleton<ISessionStore>(DurableScopes.GetValue(clock,_=>new CampaignTestSessionScope(new FirestoreSessionStore("demo-f1game",Environment.GetEnvironmentVariable("F1_RECOVERY_HOST")??"127.0.0.1:19100"))));services.AddSingleton(clock);services.AddSingleton<IGoogleWakeupTokens>(new IssuedTokens(clock));if(delivery is not null)services.AddSingleton<IScheduledWakeups>(delivery);});
     });
     private sealed class CapturedDelivery:IScheduledWakeups
     {

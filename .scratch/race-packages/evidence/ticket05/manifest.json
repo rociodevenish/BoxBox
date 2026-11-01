@@ -1,0 +1,42 @@
+{
+  "schema": "race-package-evidence-v2",
+  "policyVersion": "legal-resources-fixed-seven-arms-v2",
+  "productCommit": "5b8d08892550bf0aba38797f1a871e7f668c0e16",
+  "toolSources": {
+    "Program.cs": "7B1BF44DBE8403E6206F75E8D7D0D31B4B1F77FC65A751CD1D1FBFAC09D59CB4",
+    "RacePackageEvidence.csproj": "2E30266779D2FFD244AC3BAC9367984A4571AAEDC4FCB70DC80ABDBCE7413906",
+    "evidence.test.mjs": "DB78FF8768B9DD0D5ED4E743169367ADF53A1D90659BDE7EF67508A9823366B5"
+  },
+  "seeds": [
+    101,
+    102,
+    103,
+    104,
+    105,
+    106,
+    107,
+    108
+  ],
+  "scopes": [
+    "production-short",
+    "synthetic-alternating-six"
+  ],
+  "arms": [
+    "Save",
+    "permanent",
+    "small-library",
+    "large-library",
+    "refinement",
+    "Rush",
+    "base-car"
+  ],
+  "personnelPolicies": [
+    "economical",
+    "expensive-legal"
+  ],
+  "logicalRuns": 224,
+  "logicalEventRaces": 896,
+  "actualRaceComputations": 736,
+  "laps": 6,
+  "sha256": "DE57473727A038237AFA4CFAA22AA4292622518D834AEDA96CA7EF7D57485A7F"
+}

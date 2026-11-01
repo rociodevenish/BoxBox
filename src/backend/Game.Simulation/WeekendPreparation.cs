@@ -77,6 +77,8 @@ public static class WeekendPreparation
     {
         ArgumentNullException.ThrowIfNull(preset);
         setup?.Validate();
+        preset=RacePackages.Migrate(preset);
+        var package=RacePackages.Selected(preset);
         var constructed = ConstructedBaseCar.TryAxis(preset, out var constructionAxis);
         var fitSetup = constructed ? (setup ?? new WeekendSetup()) with { Mechanical = Math.Clamp(constructionAxis + (setup?.Mechanical ?? 0), -2, 2) } : setup;
         // Source metadata identifies the frozen materialised values, not the currently
@@ -85,7 +87,7 @@ public static class WeekendPreparation
             || preset.Engineer.Version != "authored-engineer-v1"
             || preset.Cars.Any(c => (!constructed && !SupportsSource(c.Car.Version,"car-spec/1.0.0/")) || !SupportsSource(c.Driver.Version,"1.0.0/"))
             || (!constructed && preset.BaseCarId != "neutral-base-v1")
-            || preset.PackageId != "neutral-package-v1" || preset.SetupId != "neutral-setup-v1"
+            || preset.SetupId != "neutral-setup-v1"
             || preset.Cars.Length != 2 || preset.Cars.Select(c => c.EntryId).Distinct().Count() != 2
             || preset.Cars.Select(c => c.TeamId).Distinct().Count() != 1 || laps < 1)
             throw new ArgumentException("Expected a versioned neutral two-car team preset.");
@@ -102,7 +104,8 @@ public static class WeekendPreparation
                 throw new ArgumentException("Assigned Race Engineer Setup must be versioned 1–100 design points.");
             if (string.IsNullOrWhiteSpace(source.EntryId) || string.IsNullOrWhiteSpace(source.TeamId))
                 throw new ArgumentException("Stable entry and team identities are required.");
-            var car = setup is null ? source.Car.Ratings : WeekendSetupTuning.Apply(source.Car.Ratings, setup);
+            var packaged=RacePackages.Apply(preset,source.Car.Ratings);
+            var car = setup is null ? packaged : WeekendSetupTuning.Apply(packaged, setup);
             var driver = source.Driver.Ratings;
             var demand = preset.Circuit.Demands;
             // Whole-lap design-point gains. SegmentSimulation already apportions by baseline time.
@@ -116,15 +119,15 @@ public static class WeekendPreparation
                 TyreManagement: (car["tyreTemperature"] - 82) * demand["tyreThermalDemand"] / 100 / 10,
                 Racecraft: (driver["overtaking"] + driver["defending"] - 164) / 20,
                 TyreWarmupMultiplier: setup is null ? 1 : Math.Clamp(1 + setup.Tyres * .12 - (driver["tyreWarmup"] - 82) * .004, .65, 1.35));
-            return new EffectiveWeekendCar(source, raceDriver);
+            return new EffectiveWeekendCar(source with{Car=source.Car with{Ratings=packaged}}, raceDriver);
         }).ToImmutableArray();
         // Validate the projected configuration at the existing public race boundary.
         _ = new RaceEngine(configuration, cars.Select(c => c.RaceDriver).ToArray(), 0);
         return new(ModelVersion, preset with { Circuit = preset.Circuit with { Track = configuration.Track } }, configuration, cars,
             $"{preset.Circuit.Name}: speed demand {(preset.Circuit.Demands["topSpeed"] + preset.Circuit.Demands["accelerationDeployment"]) / 2:0}/100; "
             + $"high-speed aero demand {preset.Circuit.Demands["highSpeedCornering"]:0}/100; low-speed aero demand {preset.Circuit.Demands["lowSpeedCornering"]:0}/100. "
-            + (constructed ? $"Confirmed Base Car {preset.BaseCarId}; neutral Race Package; construction handling and Weekend Setup compose once. " : setup is null ? "Neutral Base Car, Race Package and Weekend Setup. "
-                : $"Neutral Base Car and Race Package; Weekend Setup Aero {setup.Aero}, Mechanical {setup.Mechanical}, Tyres {setup.Tyres}. ")
+            + (constructed ? $"Confirmed Base Car {preset.BaseCarId}; Race Package {package.Name} v{package.Version}; construction handling and Weekend Setup compose once. " : setup is null ? $"Neutral Base Car; Race Package {package.Name} v{package.Version}; neutral Weekend Setup. "
+                : $"Neutral Base Car; Race Package {package.Name} v{package.Version}; Weekend Setup Aero {setup.Aero}, Mechanical {setup.Mechanical}, Tyres {setup.Tyres}. ")
             + string.Join("; ", cars.Select(c => $"{c.Source.Driver.Name}: race pace {c.Source.Driver.Ratings["racePace"]:0}/100, "
                 + $"car Top Speed {c.Source.Car.Ratings["topSpeed"]:0}/100, High-Speed Aero {c.Source.Car.Ratings["highSpeedAero"]:0}/100, "
                 + $"preferences {string.Join(", ", c.Source.Driver.Preferences.Select(p => p.Label))}"))

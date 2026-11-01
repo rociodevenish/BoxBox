@@ -15,8 +15,8 @@ public sealed class CampaignResultsTests
  private sealed class ScopedStore(ISessionStore inner):ISessionStore
  {
   private readonly HashSet<string> ids=[];public bool Fail;public bool CommitFirst;
-  public bool CorruptResult;
-  public StoredSession? Read(string id){var result=inner.Read(id);if(result is null||!CorruptResult||!id.StartsWith("campaign-"))return result;var json=System.Text.Json.Nodes.JsonNode.Parse(result.Payload)!;json["contributions"]![0]!["result"]!["hash"]="damaged";return result with{Payload=json.ToJsonString()};}
+  public bool CorruptResult;public bool LegacyEconomy;
+  public StoredSession? Read(string id){var result=inner.Read(id);if(result is null||!id.StartsWith("campaign-")||!CorruptResult&&!LegacyEconomy)return result;var json=System.Text.Json.Nodes.JsonNode.Parse(result.Payload)!;if(CorruptResult)json["contributions"]![0]!["result"]!["hash"]="damaged";if(LegacyEconomy){LegacyEconomy=false;json.AsObject().Remove("income");json.AsObject().Remove("presetLedger");}return result with{Payload=json.ToJsonString()};}
   public IReadOnlyList<string> FindByJoinCode(string code)=>inner.FindByJoinCode(code);
   public IReadOnlyList<string> ListSessions()=>ids.Where(id=>!id.StartsWith("campaign-")).ToArray();
   public string Write(string id,string? version,string payload,string? code)=>Write(id,version,payload,code,null);
@@ -26,7 +26,7 @@ public sealed class CampaignResultsTests
    var result=inner.Write(id,version,payload,code,wakeup);ids.Add(id);return result;
   }
  }
- private static WebApplicationFactory<Program> Server(ISessionStore store,Clock clock)=>LobbyTests.Server().WithWebHostBuilder(b=>b.ConfigureServices(s=>{s.Replace(ServiceDescriptor.Singleton(store));s.Replace(ServiceDescriptor.Singleton<TimeProvider>(clock));}));
+ private static WebApplicationFactory<Program> Server(ISessionStore store,Clock clock)=>LobbyTests.Server().WithWebHostBuilder(b=>b.UseSetting("Wakeups:Mode","manual").ConfigureServices(s=>{s.Replace(ServiceDescriptor.Singleton(store));s.Replace(ServiceDescriptor.Singleton<TimeProvider>(clock));}));
  [Theory][InlineData(false)][InlineData(true)]
  public async Task Finished_authoritative_weekend_scores_once_across_concurrent_coordinators_uncertain_write_and_restart(bool committed)
  {
@@ -71,15 +71,23 @@ public sealed class CampaignResultsTests
    Assert.Equal("event-result-committed",snapshot.Lifecycle);Assert.Single(snapshot.Results!);
    var lateStart=await client.PostAsJsonAsync($"/api/campaigns/{id}/start",new CampaignStartInput(Guid.NewGuid().ToString()));lateStart.EnsureSuccessStatusCode();Assert.Equal("event-result-committed",(await lateStart.Content.ReadFromJsonAsync<CampaignSnapshot>())!.Lifecycle);Assert.Equal(22,snapshot.Standings!.Drivers.Count);Assert.Equal(11,snapshot.Standings.Constructors.Count);
    Assert.Equal(101,snapshot.Standings.Drivers.Sum(r=>r.Points));Assert.Equal(101,snapshot.Standings.Constructors.Sum(r=>r.Points));
+   var economyUri=$"/api/campaigns/{id}/economy/teams/team-01?deviceId={device}";
+   var economy=(await client.GetFromJsonAsync<EconomyTeamSnapshot>(economyUri))!;
+   Assert.Equal(106,economy.Balance);Assert.Single(economy.Ledger,e=>e.Reason=="event-income");
+   Assert.Equal("flat-event-income-v1",economy.Ledger.Single(e=>e.Reason=="event-income").Version);
+   Assert.Equal(HttpStatusCode.Forbidden,(await foreign.GetAsync(economyUri)).StatusCode);
+   Assert.Equal(HttpStatusCode.Forbidden,(await client.GetAsync($"/api/campaigns/{id}/economy/teams/team-02?deviceId={device}")).StatusCode);
    var report=JsonSerializer.Serialize(snapshot);foreach(var hidden in new[]{"Setup","Ratings","Recommendations","HostUid","Seed","Choices"})Assert.DoesNotContain(hidden,report);
   }
   await using var restarted=Server(store,clock);using var recovered=restarted.CreateClient();recovered.DefaultRequestHeaders.Authorization=new("Bearer",token);
   var after=(await recovered.GetFromJsonAsync<CampaignSnapshot>($"/api/campaigns/{joined.Campaign.CampaignId}?deviceId={joined.Weekend.Membership.DeviceId}"))!;
   Assert.Single(after.Results!);Assert.Equal(101,after.Standings!.Drivers.Sum(r=>r.Points));Assert.Equal("event-result-committed",after.Lifecycle);
+  var retained=(await recovered.GetFromJsonAsync<EconomyTeamSnapshot>($"/api/campaigns/{joined.Campaign.CampaignId}/economy/teams/team-01?deviceId={joined.Weekend.Membership.DeviceId}"))!;
+  Assert.Equal(106,retained.Balance);Assert.Equal(2,retained.Ledger.Count);
+  store.LegacyEconomy=true;
+  (await recovered.GetAsync($"/api/campaigns/{joined.Campaign.CampaignId}?deviceId={joined.Weekend.Membership.DeviceId}")).EnsureSuccessStatusCode();
+  var upgraded=(await recovered.GetFromJsonAsync<EconomyTeamSnapshot>($"/api/campaigns/{joined.Campaign.CampaignId}/economy/teams/team-01?deviceId={joined.Weekend.Membership.DeviceId}"))!;
+  Assert.Equal(106,upgraded.Balance);Assert.Equal(2,upgraded.Ledger.Count);
   store.CorruptResult=true;Assert.Equal(HttpStatusCode.Conflict,(await recovered.GetAsync($"/api/campaigns/{joined.Campaign.CampaignId}?deviceId={joined.Weekend.Membership.DeviceId}")).StatusCode);
  }
 }
-
-
-
-

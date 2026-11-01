@@ -1,6 +1,6 @@
 # S14 — Season economy and permanent development
 
-Status: ready-for-agent
+Status: engineering complete; human acceptance pending [#74](https://github.com/rociodevenish/BoxBox/issues/74).
 Blocked by: campaign, calendar and championships; personnel acquisition and budget ledger; initial car construction and effective-attribute composition.
 
 ## Problem Statement
