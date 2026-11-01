@@ -17,7 +17,11 @@ public sealed class PackageSelectionIntegrityTests
   public StoredSession? Read(string id)
   {
    var saved=inner.Read(id);if(saved is null||Change is null)return saved;
-   var json=JsonNode.Parse(saved.Payload)!;var modules=json["lobby"]?["moduleState"];
+   var json=JsonNode.Parse(saved.Payload)!;
+   // The transport-boundary corruption fixture accepts either supported wire representation.
+   // Return mutated raw legacy JSON so the public recovery path still validates observation context.
+   if(json["storageFormat"] is not null){using var input=new MemoryStream(Convert.FromBase64String(json["data"]!.GetValue<string>()));using var decoder=new System.IO.Compression.BrotliStream(input,System.IO.Compression.CompressionMode.Decompress);json=JsonNode.Parse(decoder)!;}
+   var modules=json["lobby"]?["moduleState"];
    if(modules?["weekend-preparation-v1"] is not {} module)return saved;
    var preparation=JsonNode.Parse(module.GetValue<string>())!;
    var choice=preparation["teams"]![Change=="omitted-version"?"team-02":"team-03"]!["packageChoices"]![0]!;
