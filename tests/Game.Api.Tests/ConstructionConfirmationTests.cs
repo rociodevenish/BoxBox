@@ -122,7 +122,17 @@ public sealed class ConstructionConfirmationTests
   public string Write(string id,string? version,string payload,string? code,ScheduledWakeup? wakeup)
   {
    if(!Armed||(Lobby?id!=Target:!id.StartsWith("campaign-")))return inner.Write(id,version,payload,code,wakeup);
-   if(Race&&System.Text.Json.JsonDocument.Parse(payload).RootElement.GetProperty("lobby").GetProperty("race").ValueKind!=System.Text.Json.JsonValueKind.Object)return inner.Write(id,version,payload,code,wakeup);
+   if(Race)
+   {
+    var document=System.Text.Json.Nodes.JsonNode.Parse(payload)!;
+    if(document["storageFormat"] is not null)
+    {
+     using var input=new MemoryStream(Convert.FromBase64String(document["data"]!.GetValue<string>()));
+     using var decoder=new System.IO.Compression.BrotliStream(input,System.IO.Compression.CompressionMode.Decompress);
+     document=System.Text.Json.Nodes.JsonNode.Parse(decoder)!;
+    }
+    if(document["lobby"]?["race"] is not System.Text.Json.Nodes.JsonObject)return inner.Write(id,version,payload,code,wakeup);
+   }
    Armed=false;if(committed)inner.Write(id,version,payload,code,wakeup);throw new IOException("Interrupted construction acknowledgement");
   }
  }
