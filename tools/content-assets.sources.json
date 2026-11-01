@@ -1,0 +1,945 @@
+{
+  "schemaVersion": "content-asset-sources-v1",
+  "sources": [
+    {
+      "assetId": "asset-driver-alexander-albon",
+      "entityId": "driver-alexander-albon",
+      "name": "Alex Albon",
+      "kind": "portrait",
+      "source": "assets/driver images/alexander-albon.png",
+      "sourceSha256": "48ee6e0a7a50c07eb237f39d6416176d6c433ce7f3baa1d542fa3715a05b14a7",
+      "objectPosition": "center 22%",
+      "status": "available",
+      "provenance": "User-supplied repository illustration; explicit stable-identity mapping retained from reviewed portrait/track manifests.",
+      "rights": "Creator and redistribution licence not supplied; no publication-rights or photographic-authenticity claim.",
+      "intendedUse": "Transparent portrait with separate live identity/role"
+    },
+    {
+      "assetId": "asset-driver-andrea-kimi-antonelli",
+      "entityId": "driver-andrea-kimi-antonelli",
+      "name": "Kimi Antonelli",
+      "kind": "portrait",
+      "source": "assets/driver images/andrea-kimi-antonelli.png",
+      "sourceSha256": "54fbe04746ab8e00106cd70a8d4c6477ef564f04bb8be2da0d6004ac5fdd3293",
+      "objectPosition": "center 22%",
+      "status": "available",
+      "provenance": "User-supplied repository illustration; explicit stable-identity mapping retained from reviewed portrait/track manifests.",
+      "rights": "Creator and redistribution licence not supplied; no publication-rights or photographic-authenticity claim.",
+      "intendedUse": "Transparent portrait with separate live identity/role"
+    },
+    {
+      "assetId": "asset-driver-antonio-giovinazzi",
+      "entityId": "driver-antonio-giovinazzi",
+      "name": "Antonio Giovinazzi",
+      "kind": "portrait",
+      "source": "assets/driver images/antonio-giovinazzi.png",
+      "sourceSha256": "0ea6eaeda707f4ca30811134556c2c8bf7faf36bcfa961adcb2cf73134d33d4c",
+      "objectPosition": "center 22%",
+      "status": "available",
+      "provenance": "User-supplied repository illustration; explicit stable-identity mapping retained from reviewed portrait/track manifests.",
+      "rights": "Creator and redistribution licence not supplied; no publication-rights or photographic-authenticity claim.",
+      "intendedUse": "Transparent portrait with separate live identity/role"
+    },
+    {
+      "assetId": "asset-driver-arvid-lindblad",
+      "entityId": "driver-arvid-lindblad",
+      "name": "Arvid Lindblad",
+      "kind": "portrait",
+      "source": "assets/driver images/arvid-lindblad.png",
+      "sourceSha256": "3e90b5c9b8be924e87e97cd92b5797bb55f808d91b278a6f2b8c45d752e5dd74",
+      "objectPosition": "center 22%",
+      "status": "available",
+      "provenance": "User-supplied repository illustration; explicit stable-identity mapping retained from reviewed portrait/track manifests.",
+      "rights": "Creator and redistribution licence not supplied; no publication-rights or photographic-authenticity claim.",
+      "intendedUse": "Transparent portrait with separate live identity/role"
+    },
+    {
+      "assetId": "asset-driver-carlos-sainz",
+      "entityId": "driver-carlos-sainz",
+      "name": "Carlos Sainz",
+      "kind": "portrait",
+      "source": "assets/driver images/carlos-sainz.png",
+      "sourceSha256": "1e78acfb84d0e90cec6438288796214d6f0d26a7be5086f856604fd51a2d2123",
+      "objectPosition": "center 22%",
+      "status": "available",
+      "provenance": "User-supplied repository illustration; explicit stable-identity mapping retained from reviewed portrait/track manifests.",
+      "rights": "Creator and redistribution licence not supplied; no publication-rights or photographic-authenticity claim.",
+      "intendedUse": "Transparent portrait with separate live identity/role"
+    },
+    {
+      "assetId": "asset-driver-charles-leclerc",
+      "entityId": "driver-charles-leclerc",
+      "name": "Charles Leclerc",
+      "kind": "portrait",
+      "source": "assets/driver images/charles-leclerc.png",
+      "sourceSha256": "ee2a57a2a322000ff5bd0cf334dca45fb76bba6e6166ad1b56992093fbceecf8",
+      "objectPosition": "center 22%",
+      "status": "available",
+      "provenance": "User-supplied repository illustration; explicit stable-identity mapping retained from reviewed portrait/track manifests.",
+      "rights": "Creator and redistribution licence not supplied; no publication-rights or photographic-authenticity claim.",
+      "intendedUse": "Transparent portrait with separate live identity/role"
+    },
+    {
+      "assetId": "asset-driver-esteban-ocon",
+      "entityId": "driver-esteban-ocon",
+      "name": "Esteban Ocon",
+      "kind": "portrait",
+      "source": "assets/driver images/esteban-ocon.png",
+      "sourceSha256": "ff7737828261a7fbf8c5469e2b010be7631f57283e0472430f06f20d5131800a",
+      "objectPosition": "center 22%",
+      "status": "available",
+      "provenance": "User-supplied repository illustration; explicit stable-identity mapping retained from reviewed portrait/track manifests.",
+      "rights": "Creator and redistribution licence not supplied; no publication-rights or photographic-authenticity claim.",
+      "intendedUse": "Transparent portrait with separate live identity/role"
+    },
+    {
+      "assetId": "asset-driver-fernando-alonso",
+      "entityId": "driver-fernando-alonso",
+      "name": "Fernando Alonso",
+      "kind": "portrait",
+      "source": "assets/driver images/fernando-alonso.png",
+      "sourceSha256": "420892a5501686d99bb345b16111f881334b90a0a66fcad4f968050d86c9f11d",
+      "objectPosition": "center 22%",
+      "status": "available",
+      "provenance": "User-supplied repository illustration; explicit stable-identity mapping retained from reviewed portrait/track manifests.",
+      "rights": "Creator and redistribution licence not supplied; no publication-rights or photographic-authenticity claim.",
+      "intendedUse": "Transparent portrait with separate live identity/role"
+    },
+    {
+      "assetId": "asset-driver-franco-colapinto",
+      "entityId": "driver-franco-colapinto",
+      "name": "Franco Colapinto",
+      "kind": "portrait",
+      "source": "assets/driver images/franco-colapinto.png",
+      "sourceSha256": "a6b69ff7268ee992151ded5d65fcfe622f0bcfe525deda4a2cefac355bddd541",
+      "objectPosition": "center 22%",
+      "status": "available",
+      "provenance": "User-supplied repository illustration; explicit stable-identity mapping retained from reviewed portrait/track manifests.",
+      "rights": "Creator and redistribution licence not supplied; no publication-rights or photographic-authenticity claim.",
+      "intendedUse": "Transparent portrait with separate live identity/role"
+    },
+    {
+      "assetId": "asset-driver-gabriel-bortoleto",
+      "entityId": "driver-gabriel-bortoleto",
+      "name": "Gabriel Bortoleto",
+      "kind": "portrait",
+      "source": "assets/driver images/gabriel-bortoleto.png",
+      "sourceSha256": "13fc47ff1fe58966f6ca7c5fca8209c720e457111f79e4dd360a4b26985340e8",
+      "objectPosition": "center 22%",
+      "status": "available",
+      "provenance": "User-supplied repository illustration; explicit stable-identity mapping retained from reviewed portrait/track manifests.",
+      "rights": "Creator and redistribution licence not supplied; no publication-rights or photographic-authenticity claim.",
+      "intendedUse": "Transparent portrait with separate live identity/role"
+    },
+    {
+      "assetId": "asset-driver-george-russell",
+      "entityId": "driver-george-russell",
+      "name": "George Russell",
+      "kind": "portrait",
+      "source": "assets/driver images/george-russell.png",
+      "sourceSha256": "449d2b50427a53825df41bae59f8410e110c84207a0a5b6f2437df3d57396053",
+      "objectPosition": "center 22%",
+      "status": "available",
+      "provenance": "User-supplied repository illustration; explicit stable-identity mapping retained from reviewed portrait/track manifests.",
+      "rights": "Creator and redistribution licence not supplied; no publication-rights or photographic-authenticity claim.",
+      "intendedUse": "Transparent portrait with separate live identity/role"
+    },
+    {
+      "assetId": "asset-driver-isack-hadjar",
+      "entityId": "driver-isack-hadjar",
+      "name": "Isack Hadjar",
+      "kind": "portrait",
+      "source": "assets/driver images/isack-hadjar.png",
+      "sourceSha256": "b930a0b916e02e0c5c64940855f0b3957654d3068e56a8dc00fbbf86041cd734",
+      "objectPosition": "center 22%",
+      "status": "available",
+      "provenance": "User-supplied repository illustration; explicit stable-identity mapping retained from reviewed portrait/track manifests.",
+      "rights": "Creator and redistribution licence not supplied; no publication-rights or photographic-authenticity claim.",
+      "intendedUse": "Transparent portrait with separate live identity/role"
+    },
+    {
+      "assetId": "asset-driver-jack-doohan",
+      "entityId": "driver-jack-doohan",
+      "name": "Jack Doohan",
+      "kind": "portrait",
+      "source": "assets/driver images/jack-doohan.png",
+      "sourceSha256": "02f5ec03ebbb3546431f1225bd4b312c2ade0c644466d2d261d9bba69b72777d",
+      "objectPosition": "center 22%",
+      "status": "available",
+      "provenance": "User-supplied repository illustration; explicit stable-identity mapping retained from reviewed portrait/track manifests.",
+      "rights": "Creator and redistribution licence not supplied; no publication-rights or photographic-authenticity claim.",
+      "intendedUse": "Transparent portrait with separate live identity/role"
+    },
+    {
+      "assetId": "asset-driver-lance-stroll",
+      "entityId": "driver-lance-stroll",
+      "name": "Lance Stroll",
+      "kind": "portrait",
+      "source": "assets/driver images/lance-stroll.png",
+      "sourceSha256": "190e5ef631911146c3b832a0bdfa9f584b978e8b6b91d17e38c6710134e321be",
+      "objectPosition": "center 22%",
+      "status": "available",
+      "provenance": "User-supplied repository illustration; explicit stable-identity mapping retained from reviewed portrait/track manifests.",
+      "rights": "Creator and redistribution licence not supplied; no publication-rights or photographic-authenticity claim.",
+      "intendedUse": "Transparent portrait with separate live identity/role"
+    },
+    {
+      "assetId": "asset-driver-lando-norris",
+      "entityId": "driver-lando-norris",
+      "name": "Lando Norris",
+      "kind": "portrait",
+      "source": "assets/driver images/lando-norris.png",
+      "sourceSha256": "a65349bfaffc902cf49d199d77da0a0a193c9a30f1fec4b906d92de1af314020",
+      "objectPosition": "center 22%",
+      "status": "available",
+      "provenance": "User-supplied repository illustration; explicit stable-identity mapping retained from reviewed portrait/track manifests.",
+      "rights": "Creator and redistribution licence not supplied; no publication-rights or photographic-authenticity claim.",
+      "intendedUse": "Transparent portrait with separate live identity/role"
+    },
+    {
+      "assetId": "asset-driver-lewis-hamilton",
+      "entityId": "driver-lewis-hamilton",
+      "name": "Lewis Hamilton",
+      "kind": "portrait",
+      "source": "assets/driver images/lewis-hamilton.png",
+      "sourceSha256": "af5fe22b17368a1759d7ea5da93065929983b65ad8302c7d4770dc402208e54d",
+      "objectPosition": "center 22%",
+      "status": "available",
+      "provenance": "User-supplied repository illustration; explicit stable-identity mapping retained from reviewed portrait/track manifests.",
+      "rights": "Creator and redistribution licence not supplied; no publication-rights or photographic-authenticity claim.",
+      "intendedUse": "Transparent portrait with separate live identity/role"
+    },
+    {
+      "assetId": "asset-driver-liam-lawson",
+      "entityId": "driver-liam-lawson",
+      "name": "Liam Lawson",
+      "kind": "portrait",
+      "source": "assets/driver images/liam-lawson.png",
+      "sourceSha256": "90b9abdc230e2e8fa45110dd4b7b9606e3b704443894b2ecc227974b4eb1d0eb",
+      "objectPosition": "center 22%",
+      "status": "available",
+      "provenance": "User-supplied repository illustration; explicit stable-identity mapping retained from reviewed portrait/track manifests.",
+      "rights": "Creator and redistribution licence not supplied; no publication-rights or photographic-authenticity claim.",
+      "intendedUse": "Transparent portrait with separate live identity/role"
+    },
+    {
+      "assetId": "asset-driver-max-verstappen",
+      "entityId": "driver-max-verstappen",
+      "name": "Max Verstappen",
+      "kind": "portrait",
+      "source": "assets/driver images/max-verstappen.png",
+      "sourceSha256": "3d3bc36490e082cf53aa025646a8e4523256ba956c23d24ac633dfec1c9e0b4f",
+      "objectPosition": "center 22%",
+      "status": "available",
+      "provenance": "User-supplied repository illustration; explicit stable-identity mapping retained from reviewed portrait/track manifests.",
+      "rights": "Creator and redistribution licence not supplied; no publication-rights or photographic-authenticity claim.",
+      "intendedUse": "Transparent portrait with separate live identity/role"
+    },
+    {
+      "assetId": "asset-driver-nico-hulkenberg",
+      "entityId": "driver-nico-hulkenberg",
+      "name": "Nico Hülkenberg",
+      "kind": "portrait",
+      "source": "assets/driver images/nico-hulkenberg.png",
+      "sourceSha256": "d88425bdb01571654dbc670e2a33ba8e8abb1c7d709e68e444af0f09f92830b8",
+      "objectPosition": "center 22%",
+      "status": "available",
+      "provenance": "User-supplied repository illustration; explicit stable-identity mapping retained from reviewed portrait/track manifests.",
+      "rights": "Creator and redistribution licence not supplied; no publication-rights or photographic-authenticity claim.",
+      "intendedUse": "Transparent portrait with separate live identity/role"
+    },
+    {
+      "assetId": "asset-driver-oliver-bearman",
+      "entityId": "driver-oliver-bearman",
+      "name": "Oliver Bearman",
+      "kind": "portrait",
+      "source": "assets/driver images/oliver-bearman.png",
+      "sourceSha256": "aaf357af0cb96f5eb12bed0312ac3fa53c3cdd35201128ed09299bffd9d45449",
+      "objectPosition": "center 22%",
+      "status": "available",
+      "provenance": "User-supplied repository illustration; explicit stable-identity mapping retained from reviewed portrait/track manifests.",
+      "rights": "Creator and redistribution licence not supplied; no publication-rights or photographic-authenticity claim.",
+      "intendedUse": "Transparent portrait with separate live identity/role"
+    },
+    {
+      "assetId": "asset-driver-oscar-piastri",
+      "entityId": "driver-oscar-piastri",
+      "name": "Oscar Piastri",
+      "kind": "portrait",
+      "source": "assets/driver images/oscar-piastri.png",
+      "sourceSha256": "c53b43f3045403e4483f02f420cf5b77c4fe866165846d7387b05b323a11fb0e",
+      "objectPosition": "center 22%",
+      "status": "available",
+      "provenance": "User-supplied repository illustration; explicit stable-identity mapping retained from reviewed portrait/track manifests.",
+      "rights": "Creator and redistribution licence not supplied; no publication-rights or photographic-authenticity claim.",
+      "intendedUse": "Transparent portrait with separate live identity/role"
+    },
+    {
+      "assetId": "asset-driver-patricio-oward",
+      "entityId": "driver-patricio-oward",
+      "name": "Pato O’Ward",
+      "kind": "portrait",
+      "source": "assets/driver images/patricio-oward.png",
+      "sourceSha256": "9e40e3dade1deebbe78b57ff7c10a21e07d1e7ac25cc6627f803a86ad57be706",
+      "objectPosition": "center 22%",
+      "status": "available",
+      "provenance": "User-supplied repository illustration; explicit stable-identity mapping retained from reviewed portrait/track manifests.",
+      "rights": "Creator and redistribution licence not supplied; no publication-rights or photographic-authenticity claim.",
+      "intendedUse": "Transparent portrait with separate live identity/role"
+    },
+    {
+      "assetId": "asset-driver-pierre-gasly",
+      "entityId": "driver-pierre-gasly",
+      "name": "Pierre Gasly",
+      "kind": "portrait",
+      "source": "assets/driver images/pierre-gasly.png",
+      "sourceSha256": "c63ee70b7a630cad8d42763c9dcc35680c0cc9534efc6cecdac55d54581c32d5",
+      "objectPosition": "center 22%",
+      "status": "available",
+      "provenance": "User-supplied repository illustration; explicit stable-identity mapping retained from reviewed portrait/track manifests.",
+      "rights": "Creator and redistribution licence not supplied; no publication-rights or photographic-authenticity claim.",
+      "intendedUse": "Transparent portrait with separate live identity/role"
+    },
+    {
+      "assetId": "asset-driver-sergio-perez",
+      "entityId": "driver-sergio-perez",
+      "name": "Sergio Pérez",
+      "kind": "portrait",
+      "source": "assets/driver images/sergio-perez.png",
+      "sourceSha256": "2de8461083cb764ac8427d44172145f7071cbb74bceed7e256b76647c89c4698",
+      "objectPosition": "center 22%",
+      "status": "available",
+      "provenance": "User-supplied repository illustration; explicit stable-identity mapping retained from reviewed portrait/track manifests.",
+      "rights": "Creator and redistribution licence not supplied; no publication-rights or photographic-authenticity claim.",
+      "intendedUse": "Transparent portrait with separate live identity/role"
+    },
+    {
+      "assetId": "asset-driver-stoffel-vandoorne",
+      "entityId": "driver-stoffel-vandoorne",
+      "name": "Stoffel Vandoorne",
+      "kind": "portrait",
+      "source": "assets/driver images/stoffel-vandoorne.png",
+      "sourceSha256": "1a11cbcf9bc755155f6a1903bcafa47c3e352bc945f2fcc9e544ee4359ccc235",
+      "objectPosition": "center 22%",
+      "status": "available",
+      "provenance": "User-supplied repository illustration; explicit stable-identity mapping retained from reviewed portrait/track manifests.",
+      "rights": "Creator and redistribution licence not supplied; no publication-rights or photographic-authenticity claim.",
+      "intendedUse": "Transparent portrait with separate live identity/role"
+    },
+    {
+      "assetId": "asset-driver-valtteri-bottas",
+      "entityId": "driver-valtteri-bottas",
+      "name": "Valtteri Bottas",
+      "kind": "portrait",
+      "source": "assets/driver images/valtteri-bottas.png",
+      "sourceSha256": "ec7d99df867a48e1da9ea1e39412c467548d1b166faee33b16833102862f366e",
+      "objectPosition": "center 22%",
+      "status": "available",
+      "provenance": "User-supplied repository illustration; explicit stable-identity mapping retained from reviewed portrait/track manifests.",
+      "rights": "Creator and redistribution licence not supplied; no publication-rights or photographic-authenticity claim.",
+      "intendedUse": "Transparent portrait with separate live identity/role"
+    },
+    {
+      "assetId": "asset-driver-yuki-tsunoda",
+      "entityId": "driver-yuki-tsunoda",
+      "name": "Yuki Tsunoda",
+      "kind": "portrait",
+      "source": "assets/driver images/yuki-tsunoda.png",
+      "sourceSha256": "01223c8877293df260db2ee6f5917bb20fda691b4ea55f47225b3f6bdb46a5a9",
+      "objectPosition": "center 22%",
+      "status": "available",
+      "provenance": "User-supplied repository illustration; explicit stable-identity mapping retained from reviewed portrait/track manifests.",
+      "rights": "Creator and redistribution licence not supplied; no publication-rights or photographic-authenticity claim.",
+      "intendedUse": "Transparent portrait with separate live identity/role"
+    },
+    {
+      "assetId": "asset-driver-zhou-guanyu",
+      "entityId": "driver-zhou-guanyu",
+      "name": "Zhou Guanyu",
+      "kind": "portrait",
+      "source": "assets/driver images/zhou-guanyu.png",
+      "sourceSha256": "380e8e39ad450c6e88e49c868104ff35b8ec8feeca2304a53d794b859a46875b",
+      "objectPosition": "center 22%",
+      "status": "available",
+      "provenance": "User-supplied repository illustration; explicit stable-identity mapping retained from reviewed portrait/track manifests.",
+      "rights": "Creator and redistribution licence not supplied; no publication-rights or photographic-authenticity claim.",
+      "intendedUse": "Transparent portrait with separate live identity/role"
+    },
+    {
+      "assetId": "asset-track-albert-park",
+      "entityId": "track-albert-park",
+      "name": "Albert Park Grand Prix Circuit",
+      "kind": "circuit",
+      "source": "assets/track images/albert-park.png",
+      "sourceSha256": "deee9733627002c24ae4b551557a9d6efcd4b4d5f4a0271a40724a2b355e74ee",
+      "objectPosition": "center center",
+      "status": "available",
+      "provenance": "User-supplied repository illustration; explicit stable-identity mapping retained from reviewed portrait/track manifests.",
+      "rights": "Creator and redistribution licence not supplied; no publication-rights or photographic-authenticity claim.",
+      "intendedUse": "Illustrative circuit context; never geometry or performance data"
+    },
+    {
+      "assetId": "asset-track-baku",
+      "entityId": "track-baku",
+      "name": "Baku City Circuit",
+      "kind": "circuit",
+      "source": "assets/track images/baku-city-circuit.png",
+      "sourceSha256": "cc6e8da62fd1c82e36ac28670e4f2b6261f1cae8b7d9d13a2c374c3378f567bd",
+      "objectPosition": "center center",
+      "status": "available",
+      "provenance": "User-supplied repository illustration; explicit stable-identity mapping retained from reviewed portrait/track manifests.",
+      "rights": "Creator and redistribution licence not supplied; no publication-rights or photographic-authenticity claim.",
+      "intendedUse": "Illustrative circuit context; never geometry or performance data"
+    },
+    {
+      "assetId": "asset-track-barcelona-catalunya",
+      "entityId": "track-barcelona-catalunya",
+      "name": "Circuit de Barcelona-Catalunya",
+      "kind": "circuit",
+      "source": "assets/track images/circuit-de-barcelona-catalunya.png",
+      "sourceSha256": "b3f2e8d51bfb585fb816c2eabfccc2cedfec32b36dde58b85050abd7adfb3994",
+      "objectPosition": "center center",
+      "status": "available",
+      "provenance": "User-supplied repository illustration; explicit stable-identity mapping retained from reviewed portrait/track manifests.",
+      "rights": "Creator and redistribution licence not supplied; no publication-rights or photographic-authenticity claim.",
+      "intendedUse": "Illustrative circuit context; never geometry or performance data"
+    },
+    {
+      "assetId": "asset-track-circuit-gilles-villeneuve",
+      "entityId": "track-circuit-gilles-villeneuve",
+      "name": "Circuit Gilles-Villeneuve",
+      "kind": "circuit",
+      "source": "assets/track images/circuit-gilles-villeneuve.png",
+      "sourceSha256": "3cafda534cab24579c533c79d512f4f7691399e6ee2f4399a233cf22df81d4c8",
+      "objectPosition": "center center",
+      "status": "available",
+      "provenance": "User-supplied repository illustration; explicit stable-identity mapping retained from reviewed portrait/track manifests.",
+      "rights": "Creator and redistribution licence not supplied; no publication-rights or photographic-authenticity claim.",
+      "intendedUse": "Illustrative circuit context; never geometry or performance data"
+    },
+    {
+      "assetId": "asset-track-cota",
+      "entityId": "track-cota",
+      "name": "Circuit of The Americas",
+      "kind": "circuit",
+      "source": "assets/track images/circuit-of-the-americas.png",
+      "sourceSha256": "2f424b96fa2e790d30c50506326420252cdec7b4641e8b92b03925958efd3cee",
+      "objectPosition": "center center",
+      "status": "available",
+      "provenance": "User-supplied repository illustration; explicit stable-identity mapping retained from reviewed portrait/track manifests.",
+      "rights": "Creator and redistribution licence not supplied; no publication-rights or photographic-authenticity claim.",
+      "intendedUse": "Illustrative circuit context; never geometry or performance data"
+    },
+    {
+      "assetId": "asset-track-hungaroring",
+      "entityId": "track-hungaroring",
+      "name": "Hungaroring",
+      "kind": "circuit",
+      "source": "assets/track images/hungaroring.png",
+      "sourceSha256": "71e4ce8f66381d925b0feb94322a3be6d721ea8f9a122ec49a890468459026f5",
+      "objectPosition": "center center",
+      "status": "available",
+      "provenance": "User-supplied repository illustration; explicit stable-identity mapping retained from reviewed portrait/track manifests.",
+      "rights": "Creator and redistribution licence not supplied; no publication-rights or photographic-authenticity claim.",
+      "intendedUse": "Illustrative circuit context; never geometry or performance data"
+    },
+    {
+      "assetId": "asset-track-interlagos",
+      "entityId": "track-interlagos",
+      "name": "Autodromo Jose Carlos Pace",
+      "kind": "circuit",
+      "source": "assets/track images/interlagos.png",
+      "sourceSha256": "5ac3e6a2844fe3861d07eea80244c38e4c64b85e50fdf3ac726d15a1df1b76aa",
+      "objectPosition": "center center",
+      "status": "available",
+      "provenance": "User-supplied repository illustration; explicit stable-identity mapping retained from reviewed portrait/track manifests.",
+      "rights": "Creator and redistribution licence not supplied; no publication-rights or photographic-authenticity claim.",
+      "intendedUse": "Illustrative circuit context; never geometry or performance data"
+    },
+    {
+      "assetId": "asset-track-las-vegas",
+      "entityId": "track-las-vegas",
+      "name": "Las Vegas Strip Circuit",
+      "kind": "circuit",
+      "source": "assets/track images/las-vegas-strip-circuit.png",
+      "sourceSha256": "83afb07e49cc308d3396a38e6c5f790c495639860592733d778eed7cfe94c546",
+      "objectPosition": "center center",
+      "status": "available",
+      "provenance": "User-supplied repository illustration; explicit stable-identity mapping retained from reviewed portrait/track manifests.",
+      "rights": "Creator and redistribution licence not supplied; no publication-rights or photographic-authenticity claim.",
+      "intendedUse": "Illustrative circuit context; never geometry or performance data"
+    },
+    {
+      "assetId": "asset-track-lusail",
+      "entityId": "track-lusail",
+      "name": "Lusail International Circuit",
+      "kind": "circuit",
+      "source": "assets/track images/lusail-international-circuit.png",
+      "sourceSha256": "b29bb4fb438eb81cdbc8ce2f13068dfd22b97d2f86defd2b6f8fdb294b4e7cd3",
+      "objectPosition": "center center",
+      "status": "available",
+      "provenance": "User-supplied repository illustration; explicit stable-identity mapping retained from reviewed portrait/track manifests.",
+      "rights": "Creator and redistribution licence not supplied; no publication-rights or photographic-authenticity claim.",
+      "intendedUse": "Illustrative circuit context; never geometry or performance data"
+    },
+    {
+      "assetId": "asset-track-madring",
+      "entityId": "track-madring",
+      "name": "Madring",
+      "kind": "circuit",
+      "source": "assets/track images/madring.png",
+      "sourceSha256": "d23bd88a4b2a8b495a0fcef14ebd3c5572c5bf27063d2550138a5a3688c7b22b",
+      "objectPosition": "center center",
+      "status": "available",
+      "provenance": "User-supplied repository illustration; explicit stable-identity mapping retained from reviewed portrait/track manifests.",
+      "rights": "Creator and redistribution licence not supplied; no publication-rights or photographic-authenticity claim.",
+      "intendedUse": "Illustrative circuit context; never geometry or performance data"
+    },
+    {
+      "assetId": "asset-track-marina-bay",
+      "entityId": "track-marina-bay",
+      "name": "Marina Bay Street Circuit",
+      "kind": "circuit",
+      "source": "assets/track images/marina-bay-street-circuit.png",
+      "sourceSha256": "0c2e84f5b2849eb84bab1831a53049a4a3a5aba28d6367ab967f525559b3762f",
+      "objectPosition": "center center",
+      "status": "available",
+      "provenance": "User-supplied repository illustration; explicit stable-identity mapping retained from reviewed portrait/track manifests.",
+      "rights": "Creator and redistribution licence not supplied; no publication-rights or photographic-authenticity claim.",
+      "intendedUse": "Illustrative circuit context; never geometry or performance data"
+    },
+    {
+      "assetId": "asset-track-mexico-city",
+      "entityId": "track-mexico-city",
+      "name": "Autodromo Hermanos Rodriguez",
+      "kind": "circuit",
+      "source": "assets/track images/autodromo-hermanos-rodriguez.png",
+      "sourceSha256": "f623cc85beb2f756c5ada85be07ffb76a04c0851ed53c889cebeb5656020f35e",
+      "objectPosition": "center center",
+      "status": "available",
+      "provenance": "User-supplied repository illustration; explicit stable-identity mapping retained from reviewed portrait/track manifests.",
+      "rights": "Creator and redistribution licence not supplied; no publication-rights or photographic-authenticity claim.",
+      "intendedUse": "Illustrative circuit context; never geometry or performance data"
+    },
+    {
+      "assetId": "asset-track-miami",
+      "entityId": "track-miami",
+      "name": "Miami International Autodrome",
+      "kind": "circuit",
+      "source": "assets/track images/miami-international-autodrome.png",
+      "sourceSha256": "abd87865ca3f7aa75ea5bb4f0cb0bb2abfa832816ae152c0f9ef7cec1aefc1e0",
+      "objectPosition": "center center",
+      "status": "available",
+      "provenance": "User-supplied repository illustration; explicit stable-identity mapping retained from reviewed portrait/track manifests.",
+      "rights": "Creator and redistribution licence not supplied; no publication-rights or photographic-authenticity claim.",
+      "intendedUse": "Illustrative circuit context; never geometry or performance data"
+    },
+    {
+      "assetId": "asset-track-monaco",
+      "entityId": "track-monaco",
+      "name": "Circuit de Monaco",
+      "kind": "circuit",
+      "source": "assets/track images/circuit-de-monaco.png",
+      "sourceSha256": "441849b8af0b5586abe36764c0907a583c193b53bf02dbf494070ec4d5a159ec",
+      "objectPosition": "center center",
+      "status": "available",
+      "provenance": "User-supplied repository illustration; explicit stable-identity mapping retained from reviewed portrait/track manifests.",
+      "rights": "Creator and redistribution licence not supplied; no publication-rights or photographic-authenticity claim.",
+      "intendedUse": "Illustrative circuit context; never geometry or performance data"
+    },
+    {
+      "assetId": "asset-track-monza",
+      "entityId": "track-monza",
+      "name": "Autodromo Nazionale Monza",
+      "kind": "circuit",
+      "source": "assets/track images/monza.png",
+      "sourceSha256": "6d0e8871860416d774aec81956190b59b0169314c325ba2341364fead6bb1af5",
+      "objectPosition": "center center",
+      "status": "available",
+      "provenance": "User-supplied repository illustration; explicit stable-identity mapping retained from reviewed portrait/track manifests.",
+      "rights": "Creator and redistribution licence not supplied; no publication-rights or photographic-authenticity claim.",
+      "intendedUse": "Illustrative circuit context; never geometry or performance data"
+    },
+    {
+      "assetId": "asset-track-red-bull-ring",
+      "entityId": "track-red-bull-ring",
+      "name": "Red Bull Ring",
+      "kind": "circuit",
+      "source": "assets/track images/red-bull-ring.png",
+      "sourceSha256": "22ae2c8094781bdc2fa6633f8fdcd0ff49c8a1b26ebe068de21a690b3ae96162",
+      "objectPosition": "center center",
+      "status": "available",
+      "provenance": "User-supplied repository illustration; explicit stable-identity mapping retained from reviewed portrait/track manifests.",
+      "rights": "Creator and redistribution licence not supplied; no publication-rights or photographic-authenticity claim.",
+      "intendedUse": "Illustrative circuit context; never geometry or performance data"
+    },
+    {
+      "assetId": "asset-track-sepang",
+      "entityId": "track-sepang",
+      "name": "Sepang International Circuit",
+      "kind": "circuit",
+      "source": "assets/track images/sepang-international-circuit.png",
+      "sourceSha256": "596212f8caae577ec8de95c9fa9bfdc0b71a60be2620f9e01ffe3eb53063242c",
+      "objectPosition": "center center",
+      "status": "available",
+      "provenance": "User-supplied repository illustration; explicit stable-identity mapping retained from reviewed portrait/track manifests.",
+      "rights": "Creator and redistribution licence not supplied; no publication-rights or photographic-authenticity claim.",
+      "intendedUse": "Illustrative circuit context; never geometry or performance data"
+    },
+    {
+      "assetId": "asset-track-shanghai",
+      "entityId": "track-shanghai",
+      "name": "Shanghai International Circuit",
+      "kind": "circuit",
+      "source": "assets/track images/shanghai-international-circuit.png",
+      "sourceSha256": "80a5a75f4907c7bdd163f5ba13324437622363ccc9a15c8eaba06271cb565dc5",
+      "objectPosition": "center center",
+      "status": "available",
+      "provenance": "User-supplied repository illustration; explicit stable-identity mapping retained from reviewed portrait/track manifests.",
+      "rights": "Creator and redistribution licence not supplied; no publication-rights or photographic-authenticity claim.",
+      "intendedUse": "Illustrative circuit context; never geometry or performance data"
+    },
+    {
+      "assetId": "asset-track-silverstone",
+      "entityId": "track-silverstone",
+      "name": "Silverstone Circuit",
+      "kind": "circuit",
+      "source": "assets/track images/silverstone.png",
+      "sourceSha256": "13ba34da66b5c2d3ac193e27f30fd37a9313463ebc100e92ddf9ddeb3aed580d",
+      "objectPosition": "center center",
+      "status": "available",
+      "provenance": "User-supplied repository illustration; explicit stable-identity mapping retained from reviewed portrait/track manifests.",
+      "rights": "Creator and redistribution licence not supplied; no publication-rights or photographic-authenticity claim.",
+      "intendedUse": "Illustrative circuit context; never geometry or performance data"
+    },
+    {
+      "assetId": "asset-track-spa-francorchamps",
+      "entityId": "track-spa-francorchamps",
+      "name": "Circuit de Spa-Francorchamps",
+      "kind": "circuit",
+      "source": "assets/track images/spa-francorchamps.png",
+      "sourceSha256": "bad849b08204d35e4c8c4cd8a755194cef78da60cdfc5aa635d24550d8fbec1c",
+      "objectPosition": "center center",
+      "status": "available",
+      "provenance": "User-supplied repository illustration; explicit stable-identity mapping retained from reviewed portrait/track manifests.",
+      "rights": "Creator and redistribution licence not supplied; no publication-rights or photographic-authenticity claim.",
+      "intendedUse": "Illustrative circuit context; never geometry or performance data"
+    },
+    {
+      "assetId": "asset-track-suzuka",
+      "entityId": "track-suzuka",
+      "name": "Suzuka Circuit",
+      "kind": "circuit",
+      "source": "assets/track images/suzuka.png",
+      "sourceSha256": "c6d345de914c08da41bb5c68c7153fd85dcf23132397e48c094b70845b713cc5",
+      "objectPosition": "center center",
+      "status": "available",
+      "provenance": "User-supplied repository illustration; explicit stable-identity mapping retained from reviewed portrait/track manifests.",
+      "rights": "Creator and redistribution licence not supplied; no publication-rights or photographic-authenticity claim.",
+      "intendedUse": "Illustrative circuit context; never geometry or performance data"
+    },
+    {
+      "assetId": "asset-track-yas-marina",
+      "entityId": "track-yas-marina",
+      "name": "Yas Marina Circuit",
+      "kind": "circuit",
+      "source": "assets/track images/yas-marina-circuit.png",
+      "sourceSha256": "c271dd471e13413b6d975b0f40d6592cf6064e0a62f7844848b6f31aeefc2232",
+      "objectPosition": "center center",
+      "status": "available",
+      "provenance": "User-supplied repository illustration; explicit stable-identity mapping retained from reviewed portrait/track manifests.",
+      "rights": "Creator and redistribution licence not supplied; no publication-rights or photographic-authenticity claim.",
+      "intendedUse": "Illustrative circuit context; never geometry or performance data"
+    },
+    {
+      "assetId": "asset-track-zandvoort",
+      "entityId": "track-zandvoort",
+      "name": "Circuit Zandvoort",
+      "kind": "circuit",
+      "source": "assets/track images/zandvoort.png",
+      "sourceSha256": "b671c6a6f5d94b940c92f464a4dc93875366954b9704ab6937192c4d3c61af8d",
+      "objectPosition": "center center",
+      "status": "available",
+      "provenance": "User-supplied repository illustration; explicit stable-identity mapping retained from reviewed portrait/track manifests.",
+      "rights": "Creator and redistribution licence not supplied; no publication-rights or photographic-authenticity claim.",
+      "intendedUse": "Illustrative circuit context; never geometry or performance data"
+    }
+  ],
+  "retainedLegacyFiles": [
+    {
+      "path": "src/frontend/public/portraits/alexander-albon-384.webp",
+      "sha256": "0eafbde670371538bea7c45e21bc920d907185c1b2f0db24317fa62d4b092ea9",
+      "bytes": 33938
+    },
+    {
+      "path": "src/frontend/public/portraits/andrea-kimi-antonelli-384.webp",
+      "sha256": "f9056a8b9c002ae54f4d37b7570fee3a8082073462084d43ec1a81d566150299",
+      "bytes": 36936
+    },
+    {
+      "path": "src/frontend/public/portraits/antonio-giovinazzi-384.webp",
+      "sha256": "254836c66b138913e46de54f59411c25aac1ea32c4e5533ea12105752e456f28",
+      "bytes": 36236
+    },
+    {
+      "path": "src/frontend/public/portraits/arvid-lindblad-384.webp",
+      "sha256": "b102590f02fe74688b5c9796f6df401767e912b500a8ea7b9f407612f2d442ff",
+      "bytes": 34408
+    },
+    {
+      "path": "src/frontend/public/portraits/carlos-sainz-384.webp",
+      "sha256": "a4203745397532d3af71c4f4ddb1e5bc0e361b8235fc08b3d50ba6dd8d6f562d",
+      "bytes": 33176
+    },
+    {
+      "path": "src/frontend/public/portraits/charles-leclerc-384.webp",
+      "sha256": "8afc3459a8c3a4d93e6fbbe286cb35766c009b5fd2f46782316ff03e39bc0a56",
+      "bytes": 31330
+    },
+    {
+      "path": "src/frontend/public/portraits/esteban-ocon-384.webp",
+      "sha256": "bd2e0d2136dc78e78e911c8daeb3856f41c21ce0e70aee6ccd1453807edb917f",
+      "bytes": 31734
+    },
+    {
+      "path": "src/frontend/public/portraits/fernando-alonso-384.webp",
+      "sha256": "7129a92f8dfa51f5ef8770efc5bdd2f954542840a76da2bc0b7b6ddf35e74251",
+      "bytes": 35096
+    },
+    {
+      "path": "src/frontend/public/portraits/franco-colapinto-384.webp",
+      "sha256": "e4a1dbb6b9fe631d5dc9a05d1eb4704cf9607628de44315b3683f34c658f2527",
+      "bytes": 31960
+    },
+    {
+      "path": "src/frontend/public/portraits/gabriel-bortoleto-384.webp",
+      "sha256": "1ba274e9cfff475d41c1357798b62f2da139af495d3032afeda8e7913889b05a",
+      "bytes": 34472
+    },
+    {
+      "path": "src/frontend/public/portraits/george-russell-384.webp",
+      "sha256": "a0068de06249d3f35a06a30c7f9240fffa586bbb5bc1b5e5caee1b27a8891638",
+      "bytes": 30730
+    },
+    {
+      "path": "src/frontend/public/portraits/isack-hadjar-384.webp",
+      "sha256": "911ce6019c4896147b59b0bb41f63bc7897159bd86aab6746aa2935af46e4168",
+      "bytes": 30576
+    },
+    {
+      "path": "src/frontend/public/portraits/jack-doohan-384.webp",
+      "sha256": "97acb94b49d65c47eb60a7c485aa44deb39815c04946e6f3e90f1b24819217d7",
+      "bytes": 39812
+    },
+    {
+      "path": "src/frontend/public/portraits/lance-stroll-384.webp",
+      "sha256": "beb464cbfaf9699b84637bee1e54734c98552e50c81b5f079595c263e53cedb0",
+      "bytes": 31764
+    },
+    {
+      "path": "src/frontend/public/portraits/lando-norris-384.webp",
+      "sha256": "fb44a7071085e6200b414fc96a69c3a6ab21f9900559cf2c44c12e55b68cbbd2",
+      "bytes": 31342
+    },
+    {
+      "path": "src/frontend/public/portraits/lewis-hamilton-384.webp",
+      "sha256": "a4576a4f3cb04ed117566d775f1a26b2bbab7358455df71b4e56622c7531eb89",
+      "bytes": 28204
+    },
+    {
+      "path": "src/frontend/public/portraits/lewis-hamilton.png",
+      "sha256": "af5fe22b17368a1759d7ea5da93065929983b65ad8302c7d4770dc402208e54d",
+      "bytes": 2259368
+    },
+    {
+      "path": "src/frontend/public/portraits/liam-lawson-384.webp",
+      "sha256": "0eaa7e92ba6fb83dc1835b2d5967f672a5cfaba6ec02c63972127058ec9902fb",
+      "bytes": 32262
+    },
+    {
+      "path": "src/frontend/public/portraits/manifest.json",
+      "sha256": "526568a0190dbe39b1ab7a6d05dfda460e181163309287f24b7365157025756a",
+      "bytes": 12076
+    },
+    {
+      "path": "src/frontend/public/portraits/max-verstappen-384.webp",
+      "sha256": "e6024999ee3173255939ee60b60bbac925706c06faf153d94b62c78abe5dff33",
+      "bytes": 30046
+    },
+    {
+      "path": "src/frontend/public/portraits/max-verstappen.png",
+      "sha256": "3d3bc36490e082cf53aa025646a8e4523256ba956c23d24ac633dfec1c9e0b4f",
+      "bytes": 2250239
+    },
+    {
+      "path": "src/frontend/public/portraits/nico-hulkenberg-384.webp",
+      "sha256": "0d7e35b8b727259124ee6a928174aad872077ebceef35fd8ed64fc07bbf0db6a",
+      "bytes": 32026
+    },
+    {
+      "path": "src/frontend/public/portraits/oliver-bearman-384.webp",
+      "sha256": "e9a1b86e5b535aa3d6f67e97d49059d7dfe9eb8fc35876d4fab4c48861177ae1",
+      "bytes": 36184
+    },
+    {
+      "path": "src/frontend/public/portraits/oscar-piastri-384.webp",
+      "sha256": "fa65a73254c94faffd0d0de35a45a9ce08e4c7cbe952f0265e23827f1d599d8b",
+      "bytes": 30814
+    },
+    {
+      "path": "src/frontend/public/portraits/patricio-oward-384.webp",
+      "sha256": "45d70cffafd542d69625f3abfb8d7a19e0d26f3dc32b6321a2a912d9b8f252b4",
+      "bytes": 35446
+    },
+    {
+      "path": "src/frontend/public/portraits/pierre-gasly-384.webp",
+      "sha256": "04402083c0342d9dbcda6e23cec5c89e5b18d4af3e8fc3b94c7075e97e5880a9",
+      "bytes": 35454
+    },
+    {
+      "path": "src/frontend/public/portraits/sergio-perez-384.webp",
+      "sha256": "714f91cf871d04f10287bb9f723d856e6eee7590cde2577ed1d353e3571df170",
+      "bytes": 31154
+    },
+    {
+      "path": "src/frontend/public/portraits/stoffel-vandoorne-384.webp",
+      "sha256": "47c196714be532805c905054f49bb8e80854b1eb271ec413da7b7ff026c2a76f",
+      "bytes": 31384
+    },
+    {
+      "path": "src/frontend/public/portraits/valtteri-bottas-384.webp",
+      "sha256": "b1b27bccde7ea44ceb735478a8116b5bfc4282a53652ff26391af43441a1448a",
+      "bytes": 31740
+    },
+    {
+      "path": "src/frontend/public/portraits/yuki-tsunoda-384.webp",
+      "sha256": "652e1b19f67152c9bc007a04e9edc9342a5542161d74bda7f4aeb7f6f686cdf4",
+      "bytes": 35050
+    },
+    {
+      "path": "src/frontend/public/portraits/zhou-guanyu-384.webp",
+      "sha256": "4bd397153a72615cfe9c592562ed9c67a542b4c47fb3bb17a5fb0ad572fbd72d",
+      "bytes": 35148
+    },
+    {
+      "path": "src/frontend/public/tracks/albert-park-960.webp",
+      "sha256": "8f6badbf0fa89c5c83564c9c037321a4aa7d78803a037d14b78438d0f863b882",
+      "bytes": 127990
+    },
+    {
+      "path": "src/frontend/public/tracks/autodromo-hermanos-rodriguez-960.webp",
+      "sha256": "6c7e40d3a6d18bb490ff40ba5d00c7729d6e11d6c7f59939f628475f0bb3797b",
+      "bytes": 140688
+    },
+    {
+      "path": "src/frontend/public/tracks/baku-city-circuit-960.webp",
+      "sha256": "681692baf732b31ccc3c7cdee510e58de9101b3447e9f4e8ff4c21b8ddeceeb9",
+      "bytes": 129874
+    },
+    {
+      "path": "src/frontend/public/tracks/circuit-de-barcelona-catalunya-960.webp",
+      "sha256": "ea8f6cc85d468a132f60392f7961121bc3347dd0b4e79e644c27ebaa7a38b7bf",
+      "bytes": 133982
+    },
+    {
+      "path": "src/frontend/public/tracks/circuit-de-monaco-960.webp",
+      "sha256": "0916dfe6e11158d1572d2627bafc84fffef216bc9c389308b7541ed9d4f2eb6f",
+      "bytes": 163442
+    },
+    {
+      "path": "src/frontend/public/tracks/circuit-gilles-villeneuve-960.webp",
+      "sha256": "f4aa142d9a258a686dfcf8d1d1af6357d37ae0180d2771612317c3378df5029c",
+      "bytes": 134800
+    },
+    {
+      "path": "src/frontend/public/tracks/circuit-of-the-americas-960.webp",
+      "sha256": "5619ae7e1522b0141544193a4113c83ea907888660af0ee89cd190a41941c66c",
+      "bytes": 108976
+    },
+    {
+      "path": "src/frontend/public/tracks/hungaroring-960.webp",
+      "sha256": "b704774e396eefde4eaef0565a1560597dc2b379b36fa9dbb30088474ff1cca4",
+      "bytes": 111052
+    },
+    {
+      "path": "src/frontend/public/tracks/interlagos-960.webp",
+      "sha256": "297515fe00e1b950ca713841cc7216b9e2c2bf71c6a2bcee742a0ab73b1a1173",
+      "bytes": 115268
+    },
+    {
+      "path": "src/frontend/public/tracks/las-vegas-strip-circuit-960.webp",
+      "sha256": "37f6baf59ce24983ba35f416a3a8245a67412bb9381ce4ade074a9d0d90a6bbb",
+      "bytes": 131390
+    },
+    {
+      "path": "src/frontend/public/tracks/lusail-international-circuit-960.webp",
+      "sha256": "84981beff945f366197dcd2cdbc9e373ec9cac056f10dcc56c1c89cf4da11538",
+      "bytes": 92782
+    },
+    {
+      "path": "src/frontend/public/tracks/madring-960.webp",
+      "sha256": "7c1094ca082fdb1b30d6aff1f493dea5b0de780dbe6e7dc6ac65433a17ac97e6",
+      "bytes": 113588
+    },
+    {
+      "path": "src/frontend/public/tracks/manifest.json",
+      "sha256": "29bc85eb84a9d750e486ddf340b431384e42505214a773c3fe347f4244bbf8bb",
+      "bytes": 7873
+    },
+    {
+      "path": "src/frontend/public/tracks/marina-bay-street-circuit-960.webp",
+      "sha256": "2ce60d83f17f48ef560db1178cd13fc4f78c5f94ec2da35ce39910e428301d2d",
+      "bytes": 123690
+    },
+    {
+      "path": "src/frontend/public/tracks/miami-international-autodrome-960.webp",
+      "sha256": "330d5be89e22ed379dcd2726322773ab8a23b3b966eb0cd30314759f878d2eb5",
+      "bytes": 122454
+    },
+    {
+      "path": "src/frontend/public/tracks/monza-960.webp",
+      "sha256": "3a4c2518ecbcd41d04e19ed246772faf0152e684c37ffc98b070783b798aca2b",
+      "bytes": 147902
+    },
+    {
+      "path": "src/frontend/public/tracks/red-bull-ring-960.webp",
+      "sha256": "7448419b4e633169dfc925e53b0364d3be6f965613f823d428fd2284fe409a27",
+      "bytes": 112916
+    },
+    {
+      "path": "src/frontend/public/tracks/sepang-international-circuit-960.webp",
+      "sha256": "26aed3a989a3bbf0552d0455382d20a6f1765a78b9a6cd2ddda07dc202bdaf7b",
+      "bytes": 100372
+    },
+    {
+      "path": "src/frontend/public/tracks/shanghai-international-circuit-960.webp",
+      "sha256": "f6998b31327a798f69a1fe22d91206a92312ebe8822cd93a8ad37878b5f9dd96",
+      "bytes": 118934
+    },
+    {
+      "path": "src/frontend/public/tracks/silverstone-960.webp",
+      "sha256": "a8e22bf28fe349a2b594d447de1029c4d0a66678151e077840bd0fe883ee6131",
+      "bytes": 114008
+    },
+    {
+      "path": "src/frontend/public/tracks/spa-francorchamps-960.webp",
+      "sha256": "d158f3fbf05191d9af69e54a6fbc5a0a5007cdb92a68148e1f5c09d80d83de60",
+      "bytes": 138758
+    },
+    {
+      "path": "src/frontend/public/tracks/suzuka-960.webp",
+      "sha256": "ff6d3aee6c850c1baace4d310d64ea181e7e84e3f2daf4cd9f5edb066c4373b2",
+      "bytes": 118046
+    },
+    {
+      "path": "src/frontend/public/tracks/yas-marina-circuit-960.webp",
+      "sha256": "1c25ba5ee813cb52ab2cdb49ebb7fac425f8afb906727b92af1affd701d93d5f",
+      "bytes": 92166
+    },
+    {
+      "path": "src/frontend/public/tracks/zandvoort-960.webp",
+      "sha256": "408a10bbed7c3db901c0efb3c7464541361fff6e3640946964380d37d8da7790",
+      "bytes": 115144
+    }
+  ]
+}

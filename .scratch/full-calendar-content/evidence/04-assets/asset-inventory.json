@@ -1,0 +1,2381 @@
+{
+  "primaryComparison": "all current primary images match reviewed explicit mappings and hashes",
+  "retainedLegacyFiles": [
+    {
+      "bytes": 33938,
+      "path": "src/frontend/public/portraits/alexander-albon-384.webp",
+      "sha256": "0eafbde670371538bea7c45e21bc920d907185c1b2f0db24317fa62d4b092ea9"
+    },
+    {
+      "bytes": 36936,
+      "path": "src/frontend/public/portraits/andrea-kimi-antonelli-384.webp",
+      "sha256": "f9056a8b9c002ae54f4d37b7570fee3a8082073462084d43ec1a81d566150299"
+    },
+    {
+      "bytes": 36236,
+      "path": "src/frontend/public/portraits/antonio-giovinazzi-384.webp",
+      "sha256": "254836c66b138913e46de54f59411c25aac1ea32c4e5533ea12105752e456f28"
+    },
+    {
+      "bytes": 34408,
+      "path": "src/frontend/public/portraits/arvid-lindblad-384.webp",
+      "sha256": "b102590f02fe74688b5c9796f6df401767e912b500a8ea7b9f407612f2d442ff"
+    },
+    {
+      "bytes": 33176,
+      "path": "src/frontend/public/portraits/carlos-sainz-384.webp",
+      "sha256": "a4203745397532d3af71c4f4ddb1e5bc0e361b8235fc08b3d50ba6dd8d6f562d"
+    },
+    {
+      "bytes": 31330,
+      "path": "src/frontend/public/portraits/charles-leclerc-384.webp",
+      "sha256": "8afc3459a8c3a4d93e6fbbe286cb35766c009b5fd2f46782316ff03e39bc0a56"
+    },
+    {
+      "bytes": 31734,
+      "path": "src/frontend/public/portraits/esteban-ocon-384.webp",
+      "sha256": "bd2e0d2136dc78e78e911c8daeb3856f41c21ce0e70aee6ccd1453807edb917f"
+    },
+    {
+      "bytes": 35096,
+      "path": "src/frontend/public/portraits/fernando-alonso-384.webp",
+      "sha256": "7129a92f8dfa51f5ef8770efc5bdd2f954542840a76da2bc0b7b6ddf35e74251"
+    },
+    {
+      "bytes": 31960,
+      "path": "src/frontend/public/portraits/franco-colapinto-384.webp",
+      "sha256": "e4a1dbb6b9fe631d5dc9a05d1eb4704cf9607628de44315b3683f34c658f2527"
+    },
+    {
+      "bytes": 34472,
+      "path": "src/frontend/public/portraits/gabriel-bortoleto-384.webp",
+      "sha256": "1ba274e9cfff475d41c1357798b62f2da139af495d3032afeda8e7913889b05a"
+    },
+    {
+      "bytes": 30730,
+      "path": "src/frontend/public/portraits/george-russell-384.webp",
+      "sha256": "a0068de06249d3f35a06a30c7f9240fffa586bbb5bc1b5e5caee1b27a8891638"
+    },
+    {
+      "bytes": 30576,
+      "path": "src/frontend/public/portraits/isack-hadjar-384.webp",
+      "sha256": "911ce6019c4896147b59b0bb41f63bc7897159bd86aab6746aa2935af46e4168"
+    },
+    {
+      "bytes": 39812,
+      "path": "src/frontend/public/portraits/jack-doohan-384.webp",
+      "sha256": "97acb94b49d65c47eb60a7c485aa44deb39815c04946e6f3e90f1b24819217d7"
+    },
+    {
+      "bytes": 31764,
+      "path": "src/frontend/public/portraits/lance-stroll-384.webp",
+      "sha256": "beb464cbfaf9699b84637bee1e54734c98552e50c81b5f079595c263e53cedb0"
+    },
+    {
+      "bytes": 31342,
+      "path": "src/frontend/public/portraits/lando-norris-384.webp",
+      "sha256": "fb44a7071085e6200b414fc96a69c3a6ab21f9900559cf2c44c12e55b68cbbd2"
+    },
+    {
+      "bytes": 28204,
+      "path": "src/frontend/public/portraits/lewis-hamilton-384.webp",
+      "sha256": "a4576a4f3cb04ed117566d775f1a26b2bbab7358455df71b4e56622c7531eb89"
+    },
+    {
+      "bytes": 2259368,
+      "path": "src/frontend/public/portraits/lewis-hamilton.png",
+      "sha256": "af5fe22b17368a1759d7ea5da93065929983b65ad8302c7d4770dc402208e54d"
+    },
+    {
+      "bytes": 32262,
+      "path": "src/frontend/public/portraits/liam-lawson-384.webp",
+      "sha256": "0eaa7e92ba6fb83dc1835b2d5967f672a5cfaba6ec02c63972127058ec9902fb"
+    },
+    {
+      "bytes": 12076,
+      "path": "src/frontend/public/portraits/manifest.json",
+      "sha256": "526568a0190dbe39b1ab7a6d05dfda460e181163309287f24b7365157025756a"
+    },
+    {
+      "bytes": 30046,
+      "path": "src/frontend/public/portraits/max-verstappen-384.webp",
+      "sha256": "e6024999ee3173255939ee60b60bbac925706c06faf153d94b62c78abe5dff33"
+    },
+    {
+      "bytes": 2250239,
+      "path": "src/frontend/public/portraits/max-verstappen.png",
+      "sha256": "3d3bc36490e082cf53aa025646a8e4523256ba956c23d24ac633dfec1c9e0b4f"
+    },
+    {
+      "bytes": 32026,
+      "path": "src/frontend/public/portraits/nico-hulkenberg-384.webp",
+      "sha256": "0d7e35b8b727259124ee6a928174aad872077ebceef35fd8ed64fc07bbf0db6a"
+    },
+    {
+      "bytes": 36184,
+      "path": "src/frontend/public/portraits/oliver-bearman-384.webp",
+      "sha256": "e9a1b86e5b535aa3d6f67e97d49059d7dfe9eb8fc35876d4fab4c48861177ae1"
+    },
+    {
+      "bytes": 30814,
+      "path": "src/frontend/public/portraits/oscar-piastri-384.webp",
+      "sha256": "fa65a73254c94faffd0d0de35a45a9ce08e4c7cbe952f0265e23827f1d599d8b"
+    },
+    {
+      "bytes": 35446,
+      "path": "src/frontend/public/portraits/patricio-oward-384.webp",
+      "sha256": "45d70cffafd542d69625f3abfb8d7a19e0d26f3dc32b6321a2a912d9b8f252b4"
+    },
+    {
+      "bytes": 35454,
+      "path": "src/frontend/public/portraits/pierre-gasly-384.webp",
+      "sha256": "04402083c0342d9dbcda6e23cec5c89e5b18d4af3e8fc3b94c7075e97e5880a9"
+    },
+    {
+      "bytes": 31154,
+      "path": "src/frontend/public/portraits/sergio-perez-384.webp",
+      "sha256": "714f91cf871d04f10287bb9f723d856e6eee7590cde2577ed1d353e3571df170"
+    },
+    {
+      "bytes": 31384,
+      "path": "src/frontend/public/portraits/stoffel-vandoorne-384.webp",
+      "sha256": "47c196714be532805c905054f49bb8e80854b1eb271ec413da7b7ff026c2a76f"
+    },
+    {
+      "bytes": 31740,
+      "path": "src/frontend/public/portraits/valtteri-bottas-384.webp",
+      "sha256": "b1b27bccde7ea44ceb735478a8116b5bfc4282a53652ff26391af43441a1448a"
+    },
+    {
+      "bytes": 35050,
+      "path": "src/frontend/public/portraits/yuki-tsunoda-384.webp",
+      "sha256": "652e1b19f67152c9bc007a04e9edc9342a5542161d74bda7f4aeb7f6f686cdf4"
+    },
+    {
+      "bytes": 35148,
+      "path": "src/frontend/public/portraits/zhou-guanyu-384.webp",
+      "sha256": "4bd397153a72615cfe9c592562ed9c67a542b4c47fb3bb17a5fb0ad572fbd72d"
+    },
+    {
+      "bytes": 127990,
+      "path": "src/frontend/public/tracks/albert-park-960.webp",
+      "sha256": "8f6badbf0fa89c5c83564c9c037321a4aa7d78803a037d14b78438d0f863b882"
+    },
+    {
+      "bytes": 140688,
+      "path": "src/frontend/public/tracks/autodromo-hermanos-rodriguez-960.webp",
+      "sha256": "6c7e40d3a6d18bb490ff40ba5d00c7729d6e11d6c7f59939f628475f0bb3797b"
+    },
+    {
+      "bytes": 129874,
+      "path": "src/frontend/public/tracks/baku-city-circuit-960.webp",
+      "sha256": "681692baf732b31ccc3c7cdee510e58de9101b3447e9f4e8ff4c21b8ddeceeb9"
+    },
+    {
+      "bytes": 133982,
+      "path": "src/frontend/public/tracks/circuit-de-barcelona-catalunya-960.webp",
+      "sha256": "ea8f6cc85d468a132f60392f7961121bc3347dd0b4e79e644c27ebaa7a38b7bf"
+    },
+    {
+      "bytes": 163442,
+      "path": "src/frontend/public/tracks/circuit-de-monaco-960.webp",
+      "sha256": "0916dfe6e11158d1572d2627bafc84fffef216bc9c389308b7541ed9d4f2eb6f"
+    },
+    {
+      "bytes": 134800,
+      "path": "src/frontend/public/tracks/circuit-gilles-villeneuve-960.webp",
+      "sha256": "f4aa142d9a258a686dfcf8d1d1af6357d37ae0180d2771612317c3378df5029c"
+    },
+    {
+      "bytes": 108976,
+      "path": "src/frontend/public/tracks/circuit-of-the-americas-960.webp",
+      "sha256": "5619ae7e1522b0141544193a4113c83ea907888660af0ee89cd190a41941c66c"
+    },
+    {
+      "bytes": 111052,
+      "path": "src/frontend/public/tracks/hungaroring-960.webp",
+      "sha256": "b704774e396eefde4eaef0565a1560597dc2b379b36fa9dbb30088474ff1cca4"
+    },
+    {
+      "bytes": 115268,
+      "path": "src/frontend/public/tracks/interlagos-960.webp",
+      "sha256": "297515fe00e1b950ca713841cc7216b9e2c2bf71c6a2bcee742a0ab73b1a1173"
+    },
+    {
+      "bytes": 131390,
+      "path": "src/frontend/public/tracks/las-vegas-strip-circuit-960.webp",
+      "sha256": "37f6baf59ce24983ba35f416a3a8245a67412bb9381ce4ade074a9d0d90a6bbb"
+    },
+    {
+      "bytes": 92782,
+      "path": "src/frontend/public/tracks/lusail-international-circuit-960.webp",
+      "sha256": "84981beff945f366197dcd2cdbc9e373ec9cac056f10dcc56c1c89cf4da11538"
+    },
+    {
+      "bytes": 113588,
+      "path": "src/frontend/public/tracks/madring-960.webp",
+      "sha256": "7c1094ca082fdb1b30d6aff1f493dea5b0de780dbe6e7dc6ac65433a17ac97e6"
+    },
+    {
+      "bytes": 7873,
+      "path": "src/frontend/public/tracks/manifest.json",
+      "sha256": "29bc85eb84a9d750e486ddf340b431384e42505214a773c3fe347f4244bbf8bb"
+    },
+    {
+      "bytes": 123690,
+      "path": "src/frontend/public/tracks/marina-bay-street-circuit-960.webp",
+      "sha256": "2ce60d83f17f48ef560db1178cd13fc4f78c5f94ec2da35ce39910e428301d2d"
+    },
+    {
+      "bytes": 122454,
+      "path": "src/frontend/public/tracks/miami-international-autodrome-960.webp",
+      "sha256": "330d5be89e22ed379dcd2726322773ab8a23b3b966eb0cd30314759f878d2eb5"
+    },
+    {
+      "bytes": 147902,
+      "path": "src/frontend/public/tracks/monza-960.webp",
+      "sha256": "3a4c2518ecbcd41d04e19ed246772faf0152e684c37ffc98b070783b798aca2b"
+    },
+    {
+      "bytes": 112916,
+      "path": "src/frontend/public/tracks/red-bull-ring-960.webp",
+      "sha256": "7448419b4e633169dfc925e53b0364d3be6f965613f823d428fd2284fe409a27"
+    },
+    {
+      "bytes": 100372,
+      "path": "src/frontend/public/tracks/sepang-international-circuit-960.webp",
+      "sha256": "26aed3a989a3bbf0552d0455382d20a6f1765a78b9a6cd2ddda07dc202bdaf7b"
+    },
+    {
+      "bytes": 118934,
+      "path": "src/frontend/public/tracks/shanghai-international-circuit-960.webp",
+      "sha256": "f6998b31327a798f69a1fe22d91206a92312ebe8822cd93a8ad37878b5f9dd96"
+    },
+    {
+      "bytes": 114008,
+      "path": "src/frontend/public/tracks/silverstone-960.webp",
+      "sha256": "a8e22bf28fe349a2b594d447de1029c4d0a66678151e077840bd0fe883ee6131"
+    },
+    {
+      "bytes": 138758,
+      "path": "src/frontend/public/tracks/spa-francorchamps-960.webp",
+      "sha256": "d158f3fbf05191d9af69e54a6fbc5a0a5007cdb92a68148e1f5c09d80d83de60"
+    },
+    {
+      "bytes": 118046,
+      "path": "src/frontend/public/tracks/suzuka-960.webp",
+      "sha256": "ff6d3aee6c850c1baace4d310d64ea181e7e84e3f2daf4cd9f5edb066c4373b2"
+    },
+    {
+      "bytes": 92166,
+      "path": "src/frontend/public/tracks/yas-marina-circuit-960.webp",
+      "sha256": "1c25ba5ee813cb52ab2cdb49ebb7fac425f8afb906727b92af1affd701d93d5f"
+    },
+    {
+      "bytes": 115144,
+      "path": "src/frontend/public/tracks/zandvoort-960.webp",
+      "sha256": "408a10bbed7c3db901c0efb3c7464541361fff6e3640946964380d37d8da7790"
+    }
+  ],
+  "retainedManifestUrl": "/content/manifest-7e2c4acfe16dbcd634c9ac18e41ffcd33cf9ea97ad4456ba1c8ddfa5f53a0309.json",
+  "safeManifestSha256": "7e2c4acfe16dbcd634c9ac18e41ffcd33cf9ea97ad4456ba1c8ddfa5f53a0309",
+  "schemaVersion": "content-asset-audit-v1",
+  "sources": [
+    {
+      "assetId": "asset-driver-alexander-albon",
+      "entityId": "driver-alexander-albon",
+      "intendedUse": "Transparent portrait with separate live identity/role",
+      "kind": "portrait",
+      "name": "Alex Albon",
+      "objectPosition": "center 22%",
+      "originalAlphaExtrema": [
+        0,
+        254
+      ],
+      "originalHeight": 1536,
+      "originalMetadataKinds": [],
+      "originalMode": "RGBA",
+      "originalWidth": 1024,
+      "provenance": "User-supplied repository illustration; explicit stable-identity mapping retained from reviewed portrait/track manifests.",
+      "resizedAlphaPreservedExactly": true,
+      "rights": "Creator and redistribution licence not supplied; no publication-rights or photographic-authenticity claim.",
+      "runtimeAlphaExtrema": [
+        0,
+        255
+      ],
+      "runtimeBytes": 36384,
+      "runtimeHeight": 576,
+      "runtimeSha256": "caaabe5d4bff4aa8d3fdb6dea4449beacfb722290b9b8336d17100bda37a395d",
+      "runtimeWidth": 384,
+      "settings": {
+        "alpha_quality": 100,
+        "exact": true,
+        "format": "WEBP",
+        "lossless": false,
+        "metadata": "EXIF/ICC/XMP removed",
+        "method": 4,
+        "quality": 82,
+        "resize": "LANCZOS contain; no crop or upscale"
+      },
+      "source": "assets/driver images/alexander-albon.png",
+      "sourceSha256": "48ee6e0a7a50c07eb237f39d6416176d6c433ce7f3baa1d542fa3715a05b14a7",
+      "status": "available",
+      "transparentPixelFraction": 0.36063187210648145
+    },
+    {
+      "assetId": "asset-driver-andrea-kimi-antonelli",
+      "entityId": "driver-andrea-kimi-antonelli",
+      "intendedUse": "Transparent portrait with separate live identity/role",
+      "kind": "portrait",
+      "name": "Kimi Antonelli",
+      "objectPosition": "center 22%",
+      "originalAlphaExtrema": [
+        0,
+        254
+      ],
+      "originalHeight": 1536,
+      "originalMetadataKinds": [],
+      "originalMode": "RGBA",
+      "originalWidth": 1024,
+      "provenance": "User-supplied repository illustration; explicit stable-identity mapping retained from reviewed portrait/track manifests.",
+      "resizedAlphaPreservedExactly": true,
+      "rights": "Creator and redistribution licence not supplied; no publication-rights or photographic-authenticity claim.",
+      "runtimeAlphaExtrema": [
+        0,
+        255
+      ],
+      "runtimeBytes": 39480,
+      "runtimeHeight": 576,
+      "runtimeSha256": "295b54e5e48203d57f1de734d591f37646da51b0a1070231e0c84c57a5c2de51",
+      "runtimeWidth": 384,
+      "settings": {
+        "alpha_quality": 100,
+        "exact": true,
+        "format": "WEBP",
+        "lossless": false,
+        "metadata": "EXIF/ICC/XMP removed",
+        "method": 4,
+        "quality": 82,
+        "resize": "LANCZOS contain; no crop or upscale"
+      },
+      "source": "assets/driver images/andrea-kimi-antonelli.png",
+      "sourceSha256": "54fbe04746ab8e00106cd70a8d4c6477ef564f04bb8be2da0d6004ac5fdd3293",
+      "status": "available",
+      "transparentPixelFraction": 0.3565809461805556
+    },
+    {
+      "assetId": "asset-driver-antonio-giovinazzi",
+      "entityId": "driver-antonio-giovinazzi",
+      "intendedUse": "Transparent portrait with separate live identity/role",
+      "kind": "portrait",
+      "name": "Antonio Giovinazzi",
+      "objectPosition": "center 22%",
+      "originalAlphaExtrema": [
+        0,
+        254
+      ],
+      "originalHeight": 1536,
+      "originalMetadataKinds": [],
+      "originalMode": "RGBA",
+      "originalWidth": 1024,
+      "provenance": "User-supplied repository illustration; explicit stable-identity mapping retained from reviewed portrait/track manifests.",
+      "resizedAlphaPreservedExactly": true,
+      "rights": "Creator and redistribution licence not supplied; no publication-rights or photographic-authenticity claim.",
+      "runtimeAlphaExtrema": [
+        0,
+        255
+      ],
+      "runtimeBytes": 36126,
+      "runtimeHeight": 576,
+      "runtimeSha256": "695f6db64d851ca18abf396e08ed2e51853a4349781451ff89ea800292383d41",
+      "runtimeWidth": 384,
+      "settings": {
+        "alpha_quality": 100,
+        "exact": true,
+        "format": "WEBP",
+        "lossless": false,
+        "metadata": "EXIF/ICC/XMP removed",
+        "method": 4,
+        "quality": 82,
+        "resize": "LANCZOS contain; no crop or upscale"
+      },
+      "source": "assets/driver images/antonio-giovinazzi.png",
+      "sourceSha256": "0ea6eaeda707f4ca30811134556c2c8bf7faf36bcfa961adcb2cf73134d33d4c",
+      "status": "available",
+      "transparentPixelFraction": 0.3556586371527778
+    },
+    {
+      "assetId": "asset-driver-arvid-lindblad",
+      "entityId": "driver-arvid-lindblad",
+      "intendedUse": "Transparent portrait with separate live identity/role",
+      "kind": "portrait",
+      "name": "Arvid Lindblad",
+      "objectPosition": "center 22%",
+      "originalAlphaExtrema": [
+        0,
+        254
+      ],
+      "originalHeight": 1536,
+      "originalMetadataKinds": [],
+      "originalMode": "RGBA",
+      "originalWidth": 1024,
+      "provenance": "User-supplied repository illustration; explicit stable-identity mapping retained from reviewed portrait/track manifests.",
+      "resizedAlphaPreservedExactly": true,
+      "rights": "Creator and redistribution licence not supplied; no publication-rights or photographic-authenticity claim.",
+      "runtimeAlphaExtrema": [
+        0,
+        255
+      ],
+      "runtimeBytes": 36918,
+      "runtimeHeight": 576,
+      "runtimeSha256": "e1528991558a95843448599d472b89e2db70983baa0f03e9f1f6edc4b53c0daf",
+      "runtimeWidth": 384,
+      "settings": {
+        "alpha_quality": 100,
+        "exact": true,
+        "format": "WEBP",
+        "lossless": false,
+        "metadata": "EXIF/ICC/XMP removed",
+        "method": 4,
+        "quality": 82,
+        "resize": "LANCZOS contain; no crop or upscale"
+      },
+      "source": "assets/driver images/arvid-lindblad.png",
+      "sourceSha256": "3e90b5c9b8be924e87e97cd92b5797bb55f808d91b278a6f2b8c45d752e5dd74",
+      "status": "available",
+      "transparentPixelFraction": 0.3719482421875
+    },
+    {
+      "assetId": "asset-driver-carlos-sainz",
+      "entityId": "driver-carlos-sainz",
+      "intendedUse": "Transparent portrait with separate live identity/role",
+      "kind": "portrait",
+      "name": "Carlos Sainz",
+      "objectPosition": "center 22%",
+      "originalAlphaExtrema": [
+        0,
+        254
+      ],
+      "originalHeight": 1536,
+      "originalMetadataKinds": [],
+      "originalMode": "RGBA",
+      "originalWidth": 1024,
+      "provenance": "User-supplied repository illustration; explicit stable-identity mapping retained from reviewed portrait/track manifests.",
+      "resizedAlphaPreservedExactly": true,
+      "rights": "Creator and redistribution licence not supplied; no publication-rights or photographic-authenticity claim.",
+      "runtimeAlphaExtrema": [
+        0,
+        255
+      ],
+      "runtimeBytes": 35206,
+      "runtimeHeight": 576,
+      "runtimeSha256": "80f78d32ec56ee5d91d298722c8fb52c954677936b023da3f1e1e4bea1c6e167",
+      "runtimeWidth": 384,
+      "settings": {
+        "alpha_quality": 100,
+        "exact": true,
+        "format": "WEBP",
+        "lossless": false,
+        "metadata": "EXIF/ICC/XMP removed",
+        "method": 4,
+        "quality": 82,
+        "resize": "LANCZOS contain; no crop or upscale"
+      },
+      "source": "assets/driver images/carlos-sainz.png",
+      "sourceSha256": "1e78acfb84d0e90cec6438288796214d6f0d26a7be5086f856604fd51a2d2123",
+      "status": "available",
+      "transparentPixelFraction": 0.33792679398148145
+    },
+    {
+      "assetId": "asset-driver-charles-leclerc",
+      "entityId": "driver-charles-leclerc",
+      "intendedUse": "Transparent portrait with separate live identity/role",
+      "kind": "portrait",
+      "name": "Charles Leclerc",
+      "objectPosition": "center 22%",
+      "originalAlphaExtrema": [
+        0,
+        254
+      ],
+      "originalHeight": 1536,
+      "originalMetadataKinds": [],
+      "originalMode": "RGBA",
+      "originalWidth": 1024,
+      "provenance": "User-supplied repository illustration; explicit stable-identity mapping retained from reviewed portrait/track manifests.",
+      "resizedAlphaPreservedExactly": true,
+      "rights": "Creator and redistribution licence not supplied; no publication-rights or photographic-authenticity claim.",
+      "runtimeAlphaExtrema": [
+        0,
+        255
+      ],
+      "runtimeBytes": 33236,
+      "runtimeHeight": 576,
+      "runtimeSha256": "fa9a1674f8948c731186570f1cf1f77e05608eff6351d80c29e67fb686047f19",
+      "runtimeWidth": 384,
+      "settings": {
+        "alpha_quality": 100,
+        "exact": true,
+        "format": "WEBP",
+        "lossless": false,
+        "metadata": "EXIF/ICC/XMP removed",
+        "method": 4,
+        "quality": 82,
+        "resize": "LANCZOS contain; no crop or upscale"
+      },
+      "source": "assets/driver images/charles-leclerc.png",
+      "sourceSha256": "ee2a57a2a322000ff5bd0cf334dca45fb76bba6e6166ad1b56992093fbceecf8",
+      "status": "available",
+      "transparentPixelFraction": 0.3682906539351852
+    },
+    {
+      "assetId": "asset-driver-esteban-ocon",
+      "entityId": "driver-esteban-ocon",
+      "intendedUse": "Transparent portrait with separate live identity/role",
+      "kind": "portrait",
+      "name": "Esteban Ocon",
+      "objectPosition": "center 22%",
+      "originalAlphaExtrema": [
+        0,
+        254
+      ],
+      "originalHeight": 1536,
+      "originalMetadataKinds": [],
+      "originalMode": "RGBA",
+      "originalWidth": 1024,
+      "provenance": "User-supplied repository illustration; explicit stable-identity mapping retained from reviewed portrait/track manifests.",
+      "resizedAlphaPreservedExactly": true,
+      "rights": "Creator and redistribution licence not supplied; no publication-rights or photographic-authenticity claim.",
+      "runtimeAlphaExtrema": [
+        0,
+        255
+      ],
+      "runtimeBytes": 33386,
+      "runtimeHeight": 576,
+      "runtimeSha256": "d63c553d8dcfbb13c2a61d7b2893b1fe3f777f1762d63f037926f8211f0cee8f",
+      "runtimeWidth": 384,
+      "settings": {
+        "alpha_quality": 100,
+        "exact": true,
+        "format": "WEBP",
+        "lossless": false,
+        "metadata": "EXIF/ICC/XMP removed",
+        "method": 4,
+        "quality": 82,
+        "resize": "LANCZOS contain; no crop or upscale"
+      },
+      "source": "assets/driver images/esteban-ocon.png",
+      "sourceSha256": "ff7737828261a7fbf8c5469e2b010be7631f57283e0472430f06f20d5131800a",
+      "status": "available",
+      "transparentPixelFraction": 0.35965530960648145
+    },
+    {
+      "assetId": "asset-driver-fernando-alonso",
+      "entityId": "driver-fernando-alonso",
+      "intendedUse": "Transparent portrait with separate live identity/role",
+      "kind": "portrait",
+      "name": "Fernando Alonso",
+      "objectPosition": "center 22%",
+      "originalAlphaExtrema": [
+        0,
+        254
+      ],
+      "originalHeight": 1536,
+      "originalMetadataKinds": [],
+      "originalMode": "RGBA",
+      "originalWidth": 1024,
+      "provenance": "User-supplied repository illustration; explicit stable-identity mapping retained from reviewed portrait/track manifests.",
+      "resizedAlphaPreservedExactly": true,
+      "rights": "Creator and redistribution licence not supplied; no publication-rights or photographic-authenticity claim.",
+      "runtimeAlphaExtrema": [
+        0,
+        255
+      ],
+      "runtimeBytes": 37052,
+      "runtimeHeight": 576,
+      "runtimeSha256": "7ff76b14d901b2c1edc0ebd066f829de6cd0ae15e57267251c9498cf898c06c9",
+      "runtimeWidth": 384,
+      "settings": {
+        "alpha_quality": 100,
+        "exact": true,
+        "format": "WEBP",
+        "lossless": false,
+        "metadata": "EXIF/ICC/XMP removed",
+        "method": 4,
+        "quality": 82,
+        "resize": "LANCZOS contain; no crop or upscale"
+      },
+      "source": "assets/driver images/fernando-alonso.png",
+      "sourceSha256": "420892a5501686d99bb345b16111f881334b90a0a66fcad4f968050d86c9f11d",
+      "status": "available",
+      "transparentPixelFraction": 0.3419189453125
+    },
+    {
+      "assetId": "asset-driver-franco-colapinto",
+      "entityId": "driver-franco-colapinto",
+      "intendedUse": "Transparent portrait with separate live identity/role",
+      "kind": "portrait",
+      "name": "Franco Colapinto",
+      "objectPosition": "center 22%",
+      "originalAlphaExtrema": [
+        0,
+        254
+      ],
+      "originalHeight": 1536,
+      "originalMetadataKinds": [],
+      "originalMode": "RGBA",
+      "originalWidth": 1024,
+      "provenance": "User-supplied repository illustration; explicit stable-identity mapping retained from reviewed portrait/track manifests.",
+      "resizedAlphaPreservedExactly": true,
+      "rights": "Creator and redistribution licence not supplied; no publication-rights or photographic-authenticity claim.",
+      "runtimeAlphaExtrema": [
+        0,
+        255
+      ],
+      "runtimeBytes": 34032,
+      "runtimeHeight": 576,
+      "runtimeSha256": "22dae6ad16774cc58e7704e43ec924190a045517a47360e3e2642354afbee9d3",
+      "runtimeWidth": 384,
+      "settings": {
+        "alpha_quality": 100,
+        "exact": true,
+        "format": "WEBP",
+        "lossless": false,
+        "metadata": "EXIF/ICC/XMP removed",
+        "method": 4,
+        "quality": 82,
+        "resize": "LANCZOS contain; no crop or upscale"
+      },
+      "source": "assets/driver images/franco-colapinto.png",
+      "sourceSha256": "a6b69ff7268ee992151ded5d65fcfe622f0bcfe525deda4a2cefac355bddd541",
+      "status": "available",
+      "transparentPixelFraction": 0.3513047960069444
+    },
+    {
+      "assetId": "asset-driver-gabriel-bortoleto",
+      "entityId": "driver-gabriel-bortoleto",
+      "intendedUse": "Transparent portrait with separate live identity/role",
+      "kind": "portrait",
+      "name": "Gabriel Bortoleto",
+      "objectPosition": "center 22%",
+      "originalAlphaExtrema": [
+        0,
+        254
+      ],
+      "originalHeight": 1536,
+      "originalMetadataKinds": [],
+      "originalMode": "RGBA",
+      "originalWidth": 1024,
+      "provenance": "User-supplied repository illustration; explicit stable-identity mapping retained from reviewed portrait/track manifests.",
+      "resizedAlphaPreservedExactly": true,
+      "rights": "Creator and redistribution licence not supplied; no publication-rights or photographic-authenticity claim.",
+      "runtimeAlphaExtrema": [
+        0,
+        255
+      ],
+      "runtimeBytes": 36734,
+      "runtimeHeight": 576,
+      "runtimeSha256": "40ffb218d15dfa28e9041a9ba1a1af68f053de00edb4df871414bce47e867700",
+      "runtimeWidth": 384,
+      "settings": {
+        "alpha_quality": 100,
+        "exact": true,
+        "format": "WEBP",
+        "lossless": false,
+        "metadata": "EXIF/ICC/XMP removed",
+        "method": 4,
+        "quality": 82,
+        "resize": "LANCZOS contain; no crop or upscale"
+      },
+      "source": "assets/driver images/gabriel-bortoleto.png",
+      "sourceSha256": "13fc47ff1fe58966f6ca7c5fca8209c720e457111f79e4dd360a4b26985340e8",
+      "status": "available",
+      "transparentPixelFraction": 0.37382450810185186
+    },
+    {
+      "assetId": "asset-driver-george-russell",
+      "entityId": "driver-george-russell",
+      "intendedUse": "Transparent portrait with separate live identity/role",
+      "kind": "portrait",
+      "name": "George Russell",
+      "objectPosition": "center 22%",
+      "originalAlphaExtrema": [
+        0,
+        254
+      ],
+      "originalHeight": 1536,
+      "originalMetadataKinds": [],
+      "originalMode": "RGBA",
+      "originalWidth": 1024,
+      "provenance": "User-supplied repository illustration; explicit stable-identity mapping retained from reviewed portrait/track manifests.",
+      "resizedAlphaPreservedExactly": true,
+      "rights": "Creator and redistribution licence not supplied; no publication-rights or photographic-authenticity claim.",
+      "runtimeAlphaExtrema": [
+        0,
+        255
+      ],
+      "runtimeBytes": 32620,
+      "runtimeHeight": 576,
+      "runtimeSha256": "0bbf6aeca1962a092360e938d4a7c8fec537ed96284c5514157f7c9667a23f5d",
+      "runtimeWidth": 384,
+      "settings": {
+        "alpha_quality": 100,
+        "exact": true,
+        "format": "WEBP",
+        "lossless": false,
+        "metadata": "EXIF/ICC/XMP removed",
+        "method": 4,
+        "quality": 82,
+        "resize": "LANCZOS contain; no crop or upscale"
+      },
+      "source": "assets/driver images/george-russell.png",
+      "sourceSha256": "449d2b50427a53825df41bae59f8410e110c84207a0a5b6f2437df3d57396053",
+      "status": "available",
+      "transparentPixelFraction": 0.3626708984375
+    },
+    {
+      "assetId": "asset-driver-isack-hadjar",
+      "entityId": "driver-isack-hadjar",
+      "intendedUse": "Transparent portrait with separate live identity/role",
+      "kind": "portrait",
+      "name": "Isack Hadjar",
+      "objectPosition": "center 22%",
+      "originalAlphaExtrema": [
+        0,
+        254
+      ],
+      "originalHeight": 1536,
+      "originalMetadataKinds": [],
+      "originalMode": "RGBA",
+      "originalWidth": 1024,
+      "provenance": "User-supplied repository illustration; explicit stable-identity mapping retained from reviewed portrait/track manifests.",
+      "resizedAlphaPreservedExactly": true,
+      "rights": "Creator and redistribution licence not supplied; no publication-rights or photographic-authenticity claim.",
+      "runtimeAlphaExtrema": [
+        0,
+        255
+      ],
+      "runtimeBytes": 32622,
+      "runtimeHeight": 576,
+      "runtimeSha256": "827d52f8d443c89bba0cb62c3b2973e7ebe7e1f19d00e04640090ab782019bcc",
+      "runtimeWidth": 384,
+      "settings": {
+        "alpha_quality": 100,
+        "exact": true,
+        "format": "WEBP",
+        "lossless": false,
+        "metadata": "EXIF/ICC/XMP removed",
+        "method": 4,
+        "quality": 82,
+        "resize": "LANCZOS contain; no crop or upscale"
+      },
+      "source": "assets/driver images/isack-hadjar.png",
+      "sourceSha256": "b930a0b916e02e0c5c64940855f0b3957654d3068e56a8dc00fbbf86041cd734",
+      "status": "available",
+      "transparentPixelFraction": 0.3816822193287037
+    },
+    {
+      "assetId": "asset-driver-jack-doohan",
+      "entityId": "driver-jack-doohan",
+      "intendedUse": "Transparent portrait with separate live identity/role",
+      "kind": "portrait",
+      "name": "Jack Doohan",
+      "objectPosition": "center 22%",
+      "originalAlphaExtrema": [
+        0,
+        254
+      ],
+      "originalHeight": 1536,
+      "originalMetadataKinds": [],
+      "originalMode": "RGBA",
+      "originalWidth": 1024,
+      "provenance": "User-supplied repository illustration; explicit stable-identity mapping retained from reviewed portrait/track manifests.",
+      "resizedAlphaPreservedExactly": true,
+      "rights": "Creator and redistribution licence not supplied; no publication-rights or photographic-authenticity claim.",
+      "runtimeAlphaExtrema": [
+        0,
+        255
+      ],
+      "runtimeBytes": 40030,
+      "runtimeHeight": 576,
+      "runtimeSha256": "b5c3c26345f80f48930cdadd957816d1b8ff1bf67c065bfbf64555619d43b55f",
+      "runtimeWidth": 384,
+      "settings": {
+        "alpha_quality": 100,
+        "exact": true,
+        "format": "WEBP",
+        "lossless": false,
+        "metadata": "EXIF/ICC/XMP removed",
+        "method": 4,
+        "quality": 82,
+        "resize": "LANCZOS contain; no crop or upscale"
+      },
+      "source": "assets/driver images/jack-doohan.png",
+      "sourceSha256": "02f5ec03ebbb3546431f1225bd4b312c2ade0c644466d2d261d9bba69b72777d",
+      "status": "available",
+      "transparentPixelFraction": 0.3459065755208333
+    },
+    {
+      "assetId": "asset-driver-lance-stroll",
+      "entityId": "driver-lance-stroll",
+      "intendedUse": "Transparent portrait with separate live identity/role",
+      "kind": "portrait",
+      "name": "Lance Stroll",
+      "objectPosition": "center 22%",
+      "originalAlphaExtrema": [
+        0,
+        254
+      ],
+      "originalHeight": 1536,
+      "originalMetadataKinds": [],
+      "originalMode": "RGBA",
+      "originalWidth": 1024,
+      "provenance": "User-supplied repository illustration; explicit stable-identity mapping retained from reviewed portrait/track manifests.",
+      "resizedAlphaPreservedExactly": true,
+      "rights": "Creator and redistribution licence not supplied; no publication-rights or photographic-authenticity claim.",
+      "runtimeAlphaExtrema": [
+        0,
+        255
+      ],
+      "runtimeBytes": 33856,
+      "runtimeHeight": 576,
+      "runtimeSha256": "912e2aa960b78188f2b40759109c8d4cae80933e75575b9038db03ab639db0ad",
+      "runtimeWidth": 384,
+      "settings": {
+        "alpha_quality": 100,
+        "exact": true,
+        "format": "WEBP",
+        "lossless": false,
+        "metadata": "EXIF/ICC/XMP removed",
+        "method": 4,
+        "quality": 82,
+        "resize": "LANCZOS contain; no crop or upscale"
+      },
+      "source": "assets/driver images/lance-stroll.png",
+      "sourceSha256": "190e5ef631911146c3b832a0bdfa9f584b978e8b6b91d17e38c6710134e321be",
+      "status": "available",
+      "transparentPixelFraction": 0.3634078414351852
+    },
+    {
+      "assetId": "asset-driver-lando-norris",
+      "entityId": "driver-lando-norris",
+      "intendedUse": "Transparent portrait with separate live identity/role",
+      "kind": "portrait",
+      "name": "Lando Norris",
+      "objectPosition": "center 22%",
+      "originalAlphaExtrema": [
+        0,
+        254
+      ],
+      "originalHeight": 1536,
+      "originalMetadataKinds": [],
+      "originalMode": "RGBA",
+      "originalWidth": 1024,
+      "provenance": "User-supplied repository illustration; explicit stable-identity mapping retained from reviewed portrait/track manifests.",
+      "resizedAlphaPreservedExactly": true,
+      "rights": "Creator and redistribution licence not supplied; no publication-rights or photographic-authenticity claim.",
+      "runtimeAlphaExtrema": [
+        0,
+        255
+      ],
+      "runtimeBytes": 33592,
+      "runtimeHeight": 576,
+      "runtimeSha256": "1f23a3e659e16d06194cbacc1f6eb0ab09f451907949a7a0d55b725fb07bd055",
+      "runtimeWidth": 384,
+      "settings": {
+        "alpha_quality": 100,
+        "exact": true,
+        "format": "WEBP",
+        "lossless": false,
+        "metadata": "EXIF/ICC/XMP removed",
+        "method": 4,
+        "quality": 82,
+        "resize": "LANCZOS contain; no crop or upscale"
+      },
+      "source": "assets/driver images/lando-norris.png",
+      "sourceSha256": "a65349bfaffc902cf49d199d77da0a0a193c9a30f1fec4b906d92de1af314020",
+      "status": "available",
+      "transparentPixelFraction": 0.3888481987847222
+    },
+    {
+      "assetId": "asset-driver-lewis-hamilton",
+      "entityId": "driver-lewis-hamilton",
+      "intendedUse": "Transparent portrait with separate live identity/role",
+      "kind": "portrait",
+      "name": "Lewis Hamilton",
+      "objectPosition": "center 22%",
+      "originalAlphaExtrema": [
+        0,
+        254
+      ],
+      "originalHeight": 1536,
+      "originalMetadataKinds": [],
+      "originalMode": "RGBA",
+      "originalWidth": 1024,
+      "provenance": "User-supplied repository illustration; explicit stable-identity mapping retained from reviewed portrait/track manifests.",
+      "resizedAlphaPreservedExactly": true,
+      "rights": "Creator and redistribution licence not supplied; no publication-rights or photographic-authenticity claim.",
+      "runtimeAlphaExtrema": [
+        0,
+        255
+      ],
+      "runtimeBytes": 29300,
+      "runtimeHeight": 576,
+      "runtimeSha256": "e01906a43209ad17de680a70c742b05ca63f926edcae0dd85909ea17926ab413",
+      "runtimeWidth": 384,
+      "settings": {
+        "alpha_quality": 100,
+        "exact": true,
+        "format": "WEBP",
+        "lossless": false,
+        "metadata": "EXIF/ICC/XMP removed",
+        "method": 4,
+        "quality": 82,
+        "resize": "LANCZOS contain; no crop or upscale"
+      },
+      "source": "assets/driver images/lewis-hamilton.png",
+      "sourceSha256": "af5fe22b17368a1759d7ea5da93065929983b65ad8302c7d4770dc402208e54d",
+      "status": "available",
+      "transparentPixelFraction": 0.3497947410300926
+    },
+    {
+      "assetId": "asset-driver-liam-lawson",
+      "entityId": "driver-liam-lawson",
+      "intendedUse": "Transparent portrait with separate live identity/role",
+      "kind": "portrait",
+      "name": "Liam Lawson",
+      "objectPosition": "center 22%",
+      "originalAlphaExtrema": [
+        0,
+        254
+      ],
+      "originalHeight": 1536,
+      "originalMetadataKinds": [],
+      "originalMode": "RGBA",
+      "originalWidth": 1024,
+      "provenance": "User-supplied repository illustration; explicit stable-identity mapping retained from reviewed portrait/track manifests.",
+      "resizedAlphaPreservedExactly": true,
+      "rights": "Creator and redistribution licence not supplied; no publication-rights or photographic-authenticity claim.",
+      "runtimeAlphaExtrema": [
+        0,
+        255
+      ],
+      "runtimeBytes": 33992,
+      "runtimeHeight": 576,
+      "runtimeSha256": "d9eedd74ad537faf43358569622e1652f6eb909636bf58be44ca23b70703535d",
+      "runtimeWidth": 384,
+      "settings": {
+        "alpha_quality": 100,
+        "exact": true,
+        "format": "WEBP",
+        "lossless": false,
+        "metadata": "EXIF/ICC/XMP removed",
+        "method": 4,
+        "quality": 82,
+        "resize": "LANCZOS contain; no crop or upscale"
+      },
+      "source": "assets/driver images/liam-lawson.png",
+      "sourceSha256": "90b9abdc230e2e8fa45110dd4b7b9606e3b704443894b2ecc227974b4eb1d0eb",
+      "status": "available",
+      "transparentPixelFraction": 0.37776240596064814
+    },
+    {
+      "assetId": "asset-driver-max-verstappen",
+      "entityId": "driver-max-verstappen",
+      "intendedUse": "Transparent portrait with separate live identity/role",
+      "kind": "portrait",
+      "name": "Max Verstappen",
+      "objectPosition": "center 22%",
+      "originalAlphaExtrema": [
+        0,
+        254
+      ],
+      "originalHeight": 1536,
+      "originalMetadataKinds": [],
+      "originalMode": "RGBA",
+      "originalWidth": 1024,
+      "provenance": "User-supplied repository illustration; explicit stable-identity mapping retained from reviewed portrait/track manifests.",
+      "resizedAlphaPreservedExactly": true,
+      "rights": "Creator and redistribution licence not supplied; no publication-rights or photographic-authenticity claim.",
+      "runtimeAlphaExtrema": [
+        0,
+        255
+      ],
+      "runtimeBytes": 31308,
+      "runtimeHeight": 576,
+      "runtimeSha256": "05cc78070b0e610aad89cd4570e304fc71e1f57591b6463b03eb55abc3a943cc",
+      "runtimeWidth": 384,
+      "settings": {
+        "alpha_quality": 100,
+        "exact": true,
+        "format": "WEBP",
+        "lossless": false,
+        "metadata": "EXIF/ICC/XMP removed",
+        "method": 4,
+        "quality": 82,
+        "resize": "LANCZOS contain; no crop or upscale"
+      },
+      "source": "assets/driver images/max-verstappen.png",
+      "sourceSha256": "3d3bc36490e082cf53aa025646a8e4523256ba956c23d24ac633dfec1c9e0b4f",
+      "status": "available",
+      "transparentPixelFraction": 0.36861617476851855
+    },
+    {
+      "assetId": "asset-driver-nico-hulkenberg",
+      "entityId": "driver-nico-hulkenberg",
+      "intendedUse": "Transparent portrait with separate live identity/role",
+      "kind": "portrait",
+      "name": "Nico Hülkenberg",
+      "objectPosition": "center 22%",
+      "originalAlphaExtrema": [
+        0,
+        254
+      ],
+      "originalHeight": 1536,
+      "originalMetadataKinds": [],
+      "originalMode": "RGBA",
+      "originalWidth": 1024,
+      "provenance": "User-supplied repository illustration; explicit stable-identity mapping retained from reviewed portrait/track manifests.",
+      "resizedAlphaPreservedExactly": true,
+      "rights": "Creator and redistribution licence not supplied; no publication-rights or photographic-authenticity claim.",
+      "runtimeAlphaExtrema": [
+        0,
+        255
+      ],
+      "runtimeBytes": 34418,
+      "runtimeHeight": 576,
+      "runtimeSha256": "af4a6dbe4c935ede5f79fbd4b8f97518fde7f6ea77f57208be101913f61b8900",
+      "runtimeWidth": 384,
+      "settings": {
+        "alpha_quality": 100,
+        "exact": true,
+        "format": "WEBP",
+        "lossless": false,
+        "metadata": "EXIF/ICC/XMP removed",
+        "method": 4,
+        "quality": 82,
+        "resize": "LANCZOS contain; no crop or upscale"
+      },
+      "source": "assets/driver images/nico-hulkenberg.png",
+      "sourceSha256": "d88425bdb01571654dbc670e2a33ba8e8abb1c7d709e68e444af0f09f92830b8",
+      "status": "available",
+      "transparentPixelFraction": 0.38309280960648145
+    },
+    {
+      "assetId": "asset-driver-oliver-bearman",
+      "entityId": "driver-oliver-bearman",
+      "intendedUse": "Transparent portrait with separate live identity/role",
+      "kind": "portrait",
+      "name": "Oliver Bearman",
+      "objectPosition": "center 22%",
+      "originalAlphaExtrema": [
+        0,
+        254
+      ],
+      "originalHeight": 1536,
+      "originalMetadataKinds": [],
+      "originalMode": "RGBA",
+      "originalWidth": 1024,
+      "provenance": "User-supplied repository illustration; explicit stable-identity mapping retained from reviewed portrait/track manifests.",
+      "resizedAlphaPreservedExactly": true,
+      "rights": "Creator and redistribution licence not supplied; no publication-rights or photographic-authenticity claim.",
+      "runtimeAlphaExtrema": [
+        0,
+        255
+      ],
+      "runtimeBytes": 38900,
+      "runtimeHeight": 576,
+      "runtimeSha256": "c8d94ce1fb32cbb4d4e5e10ebfa6032a9e1fcb059523a34cc408a957e88afa9c",
+      "runtimeWidth": 384,
+      "settings": {
+        "alpha_quality": 100,
+        "exact": true,
+        "format": "WEBP",
+        "lossless": false,
+        "metadata": "EXIF/ICC/XMP removed",
+        "method": 4,
+        "quality": 82,
+        "resize": "LANCZOS contain; no crop or upscale"
+      },
+      "source": "assets/driver images/oliver-bearman.png",
+      "sourceSha256": "aaf357af0cb96f5eb12bed0312ac3fa53c3cdd35201128ed09299bffd9d45449",
+      "status": "available",
+      "transparentPixelFraction": 0.3452736183449074
+    },
+    {
+      "assetId": "asset-driver-oscar-piastri",
+      "entityId": "driver-oscar-piastri",
+      "intendedUse": "Transparent portrait with separate live identity/role",
+      "kind": "portrait",
+      "name": "Oscar Piastri",
+      "objectPosition": "center 22%",
+      "originalAlphaExtrema": [
+        0,
+        254
+      ],
+      "originalHeight": 1536,
+      "originalMetadataKinds": [],
+      "originalMode": "RGBA",
+      "originalWidth": 1024,
+      "provenance": "User-supplied repository illustration; explicit stable-identity mapping retained from reviewed portrait/track manifests.",
+      "resizedAlphaPreservedExactly": true,
+      "rights": "Creator and redistribution licence not supplied; no publication-rights or photographic-authenticity claim.",
+      "runtimeAlphaExtrema": [
+        0,
+        255
+      ],
+      "runtimeBytes": 33040,
+      "runtimeHeight": 576,
+      "runtimeSha256": "d3eea53a43b1452647b449e800431757b93c401247f9161b0b48f8954438416a",
+      "runtimeWidth": 384,
+      "settings": {
+        "alpha_quality": 100,
+        "exact": true,
+        "format": "WEBP",
+        "lossless": false,
+        "metadata": "EXIF/ICC/XMP removed",
+        "method": 4,
+        "quality": 82,
+        "resize": "LANCZOS contain; no crop or upscale"
+      },
+      "source": "assets/driver images/oscar-piastri.png",
+      "sourceSha256": "c53b43f3045403e4483f02f420cf5b77c4fe866165846d7387b05b323a11fb0e",
+      "status": "available",
+      "transparentPixelFraction": 0.3895806206597222
+    },
+    {
+      "assetId": "asset-driver-patricio-oward",
+      "entityId": "driver-patricio-oward",
+      "intendedUse": "Transparent portrait with separate live identity/role",
+      "kind": "portrait",
+      "name": "Pato O’Ward",
+      "objectPosition": "center 22%",
+      "originalAlphaExtrema": [
+        0,
+        254
+      ],
+      "originalHeight": 1536,
+      "originalMetadataKinds": [],
+      "originalMode": "RGBA",
+      "originalWidth": 1024,
+      "provenance": "User-supplied repository illustration; explicit stable-identity mapping retained from reviewed portrait/track manifests.",
+      "resizedAlphaPreservedExactly": true,
+      "rights": "Creator and redistribution licence not supplied; no publication-rights or photographic-authenticity claim.",
+      "runtimeAlphaExtrema": [
+        0,
+        255
+      ],
+      "runtimeBytes": 35710,
+      "runtimeHeight": 576,
+      "runtimeSha256": "5579058cb6c58218ba926996f483e92324dae55bf831211a8b9ecddcd8d9e45a",
+      "runtimeWidth": 384,
+      "settings": {
+        "alpha_quality": 100,
+        "exact": true,
+        "format": "WEBP",
+        "lossless": false,
+        "metadata": "EXIF/ICC/XMP removed",
+        "method": 4,
+        "quality": 82,
+        "resize": "LANCZOS contain; no crop or upscale"
+      },
+      "source": "assets/driver images/patricio-oward.png",
+      "sourceSha256": "9e40e3dade1deebbe78b57ff7c10a21e07d1e7ac25cc6627f803a86ad57be706",
+      "status": "available",
+      "transparentPixelFraction": 0.36098451967592593
+    },
+    {
+      "assetId": "asset-driver-pierre-gasly",
+      "entityId": "driver-pierre-gasly",
+      "intendedUse": "Transparent portrait with separate live identity/role",
+      "kind": "portrait",
+      "name": "Pierre Gasly",
+      "objectPosition": "center 22%",
+      "originalAlphaExtrema": [
+        0,
+        254
+      ],
+      "originalHeight": 1536,
+      "originalMetadataKinds": [],
+      "originalMode": "RGBA",
+      "originalWidth": 1024,
+      "provenance": "User-supplied repository illustration; explicit stable-identity mapping retained from reviewed portrait/track manifests.",
+      "resizedAlphaPreservedExactly": true,
+      "rights": "Creator and redistribution licence not supplied; no publication-rights or photographic-authenticity claim.",
+      "runtimeAlphaExtrema": [
+        0,
+        255
+      ],
+      "runtimeBytes": 37820,
+      "runtimeHeight": 576,
+      "runtimeSha256": "fec9c13e88126e95d95f21f9c5876ecb2320c5b4685704775d41269d32d8ebef",
+      "runtimeWidth": 384,
+      "settings": {
+        "alpha_quality": 100,
+        "exact": true,
+        "format": "WEBP",
+        "lossless": false,
+        "metadata": "EXIF/ICC/XMP removed",
+        "method": 4,
+        "quality": 82,
+        "resize": "LANCZOS contain; no crop or upscale"
+      },
+      "source": "assets/driver images/pierre-gasly.png",
+      "sourceSha256": "c63ee70b7a630cad8d42763c9dcc35680c0cc9534efc6cecdac55d54581c32d5",
+      "status": "available",
+      "transparentPixelFraction": 0.38231517650462965
+    },
+    {
+      "assetId": "asset-driver-sergio-perez",
+      "entityId": "driver-sergio-perez",
+      "intendedUse": "Transparent portrait with separate live identity/role",
+      "kind": "portrait",
+      "name": "Sergio Pérez",
+      "objectPosition": "center 22%",
+      "originalAlphaExtrema": [
+        0,
+        254
+      ],
+      "originalHeight": 1536,
+      "originalMetadataKinds": [],
+      "originalMode": "RGBA",
+      "originalWidth": 1024,
+      "provenance": "User-supplied repository illustration; explicit stable-identity mapping retained from reviewed portrait/track manifests.",
+      "resizedAlphaPreservedExactly": true,
+      "rights": "Creator and redistribution licence not supplied; no publication-rights or photographic-authenticity claim.",
+      "runtimeAlphaExtrema": [
+        0,
+        255
+      ],
+      "runtimeBytes": 33408,
+      "runtimeHeight": 576,
+      "runtimeSha256": "e82a593d4d510a911757d7b2e681b3c634f7a0ef110a4103ac2b799b5c9820ec",
+      "runtimeWidth": 384,
+      "settings": {
+        "alpha_quality": 100,
+        "exact": true,
+        "format": "WEBP",
+        "lossless": false,
+        "metadata": "EXIF/ICC/XMP removed",
+        "method": 4,
+        "quality": 82,
+        "resize": "LANCZOS contain; no crop or upscale"
+      },
+      "source": "assets/driver images/sergio-perez.png",
+      "sourceSha256": "2de8461083cb764ac8427d44172145f7071cbb74bceed7e256b76647c89c4698",
+      "status": "available",
+      "transparentPixelFraction": 0.3554416232638889
+    },
+    {
+      "assetId": "asset-driver-stoffel-vandoorne",
+      "entityId": "driver-stoffel-vandoorne",
+      "intendedUse": "Transparent portrait with separate live identity/role",
+      "kind": "portrait",
+      "name": "Stoffel Vandoorne",
+      "objectPosition": "center 22%",
+      "originalAlphaExtrema": [
+        0,
+        254
+      ],
+      "originalHeight": 1536,
+      "originalMetadataKinds": [],
+      "originalMode": "RGBA",
+      "originalWidth": 1024,
+      "provenance": "User-supplied repository illustration; explicit stable-identity mapping retained from reviewed portrait/track manifests.",
+      "resizedAlphaPreservedExactly": true,
+      "rights": "Creator and redistribution licence not supplied; no publication-rights or photographic-authenticity claim.",
+      "runtimeAlphaExtrema": [
+        0,
+        255
+      ],
+      "runtimeBytes": 31584,
+      "runtimeHeight": 576,
+      "runtimeSha256": "7f2fbe1a73da504d837ee8554c19ae3d2da030d348aacb0ece5512ee4fa38021",
+      "runtimeWidth": 384,
+      "settings": {
+        "alpha_quality": 100,
+        "exact": true,
+        "format": "WEBP",
+        "lossless": false,
+        "metadata": "EXIF/ICC/XMP removed",
+        "method": 4,
+        "quality": 82,
+        "resize": "LANCZOS contain; no crop or upscale"
+      },
+      "source": "assets/driver images/stoffel-vandoorne.png",
+      "sourceSha256": "1a11cbcf9bc755155f6a1903bcafa47c3e352bc945f2fcc9e544ee4359ccc235",
+      "status": "available",
+      "transparentPixelFraction": 0.3806468822337963
+    },
+    {
+      "assetId": "asset-driver-valtteri-bottas",
+      "entityId": "driver-valtteri-bottas",
+      "intendedUse": "Transparent portrait with separate live identity/role",
+      "kind": "portrait",
+      "name": "Valtteri Bottas",
+      "objectPosition": "center 22%",
+      "originalAlphaExtrema": [
+        0,
+        254
+      ],
+      "originalHeight": 1536,
+      "originalMetadataKinds": [],
+      "originalMode": "RGBA",
+      "originalWidth": 1024,
+      "provenance": "User-supplied repository illustration; explicit stable-identity mapping retained from reviewed portrait/track manifests.",
+      "resizedAlphaPreservedExactly": true,
+      "rights": "Creator and redistribution licence not supplied; no publication-rights or photographic-authenticity claim.",
+      "runtimeAlphaExtrema": [
+        0,
+        255
+      ],
+      "runtimeBytes": 33642,
+      "runtimeHeight": 576,
+      "runtimeSha256": "8f36699187909ea70ee52b3e3220c989e72ca9251bac87ee00fdb693cf47fa3f",
+      "runtimeWidth": 384,
+      "settings": {
+        "alpha_quality": 100,
+        "exact": true,
+        "format": "WEBP",
+        "lossless": false,
+        "metadata": "EXIF/ICC/XMP removed",
+        "method": 4,
+        "quality": 82,
+        "resize": "LANCZOS contain; no crop or upscale"
+      },
+      "source": "assets/driver images/valtteri-bottas.png",
+      "sourceSha256": "ec7d99df867a48e1da9ea1e39412c467548d1b166faee33b16833102862f366e",
+      "status": "available",
+      "transparentPixelFraction": 0.36146827980324076
+    },
+    {
+      "assetId": "asset-driver-yuki-tsunoda",
+      "entityId": "driver-yuki-tsunoda",
+      "intendedUse": "Transparent portrait with separate live identity/role",
+      "kind": "portrait",
+      "name": "Yuki Tsunoda",
+      "objectPosition": "center 22%",
+      "originalAlphaExtrema": [
+        0,
+        254
+      ],
+      "originalHeight": 1536,
+      "originalMetadataKinds": [],
+      "originalMode": "RGBA",
+      "originalWidth": 1024,
+      "provenance": "User-supplied repository illustration; explicit stable-identity mapping retained from reviewed portrait/track manifests.",
+      "resizedAlphaPreservedExactly": true,
+      "rights": "Creator and redistribution licence not supplied; no publication-rights or photographic-authenticity claim.",
+      "runtimeAlphaExtrema": [
+        0,
+        255
+      ],
+      "runtimeBytes": 35040,
+      "runtimeHeight": 576,
+      "runtimeSha256": "0a8108d9d8f83e7f91baa0b0ca54684a2bca3103b782a1f9fa8796f8a5b2ae5e",
+      "runtimeWidth": 384,
+      "settings": {
+        "alpha_quality": 100,
+        "exact": true,
+        "format": "WEBP",
+        "lossless": false,
+        "metadata": "EXIF/ICC/XMP removed",
+        "method": 4,
+        "quality": 82,
+        "resize": "LANCZOS contain; no crop or upscale"
+      },
+      "source": "assets/driver images/yuki-tsunoda.png",
+      "sourceSha256": "01223c8877293df260db2ee6f5917bb20fda691b4ea55f47225b3f6bdb46a5a9",
+      "status": "available",
+      "transparentPixelFraction": 0.3400065104166667
+    },
+    {
+      "assetId": "asset-driver-zhou-guanyu",
+      "entityId": "driver-zhou-guanyu",
+      "intendedUse": "Transparent portrait with separate live identity/role",
+      "kind": "portrait",
+      "name": "Zhou Guanyu",
+      "objectPosition": "center 22%",
+      "originalAlphaExtrema": [
+        0,
+        254
+      ],
+      "originalHeight": 1536,
+      "originalMetadataKinds": [],
+      "originalMode": "RGBA",
+      "originalWidth": 1024,
+      "provenance": "User-supplied repository illustration; explicit stable-identity mapping retained from reviewed portrait/track manifests.",
+      "resizedAlphaPreservedExactly": true,
+      "rights": "Creator and redistribution licence not supplied; no publication-rights or photographic-authenticity claim.",
+      "runtimeAlphaExtrema": [
+        0,
+        255
+      ],
+      "runtimeBytes": 35250,
+      "runtimeHeight": 576,
+      "runtimeSha256": "780ea4819f5c343542c9a77df62e880835878f273d581df40d5d8d5e448535c7",
+      "runtimeWidth": 384,
+      "settings": {
+        "alpha_quality": 100,
+        "exact": true,
+        "format": "WEBP",
+        "lossless": false,
+        "metadata": "EXIF/ICC/XMP removed",
+        "method": 4,
+        "quality": 82,
+        "resize": "LANCZOS contain; no crop or upscale"
+      },
+      "source": "assets/driver images/zhou-guanyu.png",
+      "sourceSha256": "380e8e39ad450c6e88e49c868104ff35b8ec8feeca2304a53d794b859a46875b",
+      "status": "available",
+      "transparentPixelFraction": 0.37509946469907407
+    },
+    {
+      "assetId": "asset-track-albert-park",
+      "entityId": "track-albert-park",
+      "intendedUse": "Illustrative circuit context; never geometry or performance data",
+      "kind": "circuit",
+      "name": "Albert Park Grand Prix Circuit",
+      "objectPosition": "center center",
+      "originalAlphaExtrema": [
+        255,
+        255
+      ],
+      "originalHeight": 1024,
+      "originalMetadataKinds": [],
+      "originalMode": "RGB",
+      "originalWidth": 1536,
+      "provenance": "User-supplied repository illustration; explicit stable-identity mapping retained from reviewed portrait/track manifests.",
+      "resizedAlphaPreservedExactly": true,
+      "rights": "Creator and redistribution licence not supplied; no publication-rights or photographic-authenticity claim.",
+      "runtimeAlphaExtrema": [
+        255,
+        255
+      ],
+      "runtimeBytes": 136956,
+      "runtimeHeight": 640,
+      "runtimeSha256": "9409ac3e9df1e1aab7bd9c9dc7c91686eccc667eaf50de782c8d151c6439a8f1",
+      "runtimeWidth": 960,
+      "settings": {
+        "alpha_quality": 100,
+        "exact": true,
+        "format": "WEBP",
+        "lossless": false,
+        "metadata": "EXIF/ICC/XMP removed",
+        "method": 4,
+        "quality": 82,
+        "resize": "LANCZOS contain; no crop or upscale"
+      },
+      "source": "assets/track images/albert-park.png",
+      "sourceSha256": "deee9733627002c24ae4b551557a9d6efcd4b4d5f4a0271a40724a2b355e74ee",
+      "status": "available",
+      "transparentPixelFraction": 0.0
+    },
+    {
+      "assetId": "asset-track-baku",
+      "entityId": "track-baku",
+      "intendedUse": "Illustrative circuit context; never geometry or performance data",
+      "kind": "circuit",
+      "name": "Baku City Circuit",
+      "objectPosition": "center center",
+      "originalAlphaExtrema": [
+        255,
+        255
+      ],
+      "originalHeight": 1024,
+      "originalMetadataKinds": [],
+      "originalMode": "RGB",
+      "originalWidth": 1536,
+      "provenance": "User-supplied repository illustration; explicit stable-identity mapping retained from reviewed portrait/track manifests.",
+      "resizedAlphaPreservedExactly": true,
+      "rights": "Creator and redistribution licence not supplied; no publication-rights or photographic-authenticity claim.",
+      "runtimeAlphaExtrema": [
+        255,
+        255
+      ],
+      "runtimeBytes": 141730,
+      "runtimeHeight": 640,
+      "runtimeSha256": "d85c5d16d1b9b55e563c204b3b8a7f3029885b64c10b7fa464702c07b69f80be",
+      "runtimeWidth": 960,
+      "settings": {
+        "alpha_quality": 100,
+        "exact": true,
+        "format": "WEBP",
+        "lossless": false,
+        "metadata": "EXIF/ICC/XMP removed",
+        "method": 4,
+        "quality": 82,
+        "resize": "LANCZOS contain; no crop or upscale"
+      },
+      "source": "assets/track images/baku-city-circuit.png",
+      "sourceSha256": "cc6e8da62fd1c82e36ac28670e4f2b6261f1cae8b7d9d13a2c374c3378f567bd",
+      "status": "available",
+      "transparentPixelFraction": 0.0
+    },
+    {
+      "assetId": "asset-track-barcelona-catalunya",
+      "entityId": "track-barcelona-catalunya",
+      "intendedUse": "Illustrative circuit context; never geometry or performance data",
+      "kind": "circuit",
+      "name": "Circuit de Barcelona-Catalunya",
+      "objectPosition": "center center",
+      "originalAlphaExtrema": [
+        255,
+        255
+      ],
+      "originalHeight": 1024,
+      "originalMetadataKinds": [],
+      "originalMode": "RGB",
+      "originalWidth": 1536,
+      "provenance": "User-supplied repository illustration; explicit stable-identity mapping retained from reviewed portrait/track manifests.",
+      "resizedAlphaPreservedExactly": true,
+      "rights": "Creator and redistribution licence not supplied; no publication-rights or photographic-authenticity claim.",
+      "runtimeAlphaExtrema": [
+        255,
+        255
+      ],
+      "runtimeBytes": 141502,
+      "runtimeHeight": 640,
+      "runtimeSha256": "29cdbdc3a5cb9cd08857b18c2c89d31865e2918ae69320634fab7ba558921032",
+      "runtimeWidth": 960,
+      "settings": {
+        "alpha_quality": 100,
+        "exact": true,
+        "format": "WEBP",
+        "lossless": false,
+        "metadata": "EXIF/ICC/XMP removed",
+        "method": 4,
+        "quality": 82,
+        "resize": "LANCZOS contain; no crop or upscale"
+      },
+      "source": "assets/track images/circuit-de-barcelona-catalunya.png",
+      "sourceSha256": "b3f2e8d51bfb585fb816c2eabfccc2cedfec32b36dde58b85050abd7adfb3994",
+      "status": "available",
+      "transparentPixelFraction": 0.0
+    },
+    {
+      "assetId": "asset-track-circuit-gilles-villeneuve",
+      "entityId": "track-circuit-gilles-villeneuve",
+      "intendedUse": "Illustrative circuit context; never geometry or performance data",
+      "kind": "circuit",
+      "name": "Circuit Gilles-Villeneuve",
+      "objectPosition": "center center",
+      "originalAlphaExtrema": [
+        255,
+        255
+      ],
+      "originalHeight": 1024,
+      "originalMetadataKinds": [],
+      "originalMode": "RGB",
+      "originalWidth": 1536,
+      "provenance": "User-supplied repository illustration; explicit stable-identity mapping retained from reviewed portrait/track manifests.",
+      "resizedAlphaPreservedExactly": true,
+      "rights": "Creator and redistribution licence not supplied; no publication-rights or photographic-authenticity claim.",
+      "runtimeAlphaExtrema": [
+        255,
+        255
+      ],
+      "runtimeBytes": 145470,
+      "runtimeHeight": 640,
+      "runtimeSha256": "9cb6adb4d5b10e49a5972c4dd6dc0fd43df9cad2a2d1546faffc876397d0f91d",
+      "runtimeWidth": 960,
+      "settings": {
+        "alpha_quality": 100,
+        "exact": true,
+        "format": "WEBP",
+        "lossless": false,
+        "metadata": "EXIF/ICC/XMP removed",
+        "method": 4,
+        "quality": 82,
+        "resize": "LANCZOS contain; no crop or upscale"
+      },
+      "source": "assets/track images/circuit-gilles-villeneuve.png",
+      "sourceSha256": "3cafda534cab24579c533c79d512f4f7691399e6ee2f4399a233cf22df81d4c8",
+      "status": "available",
+      "transparentPixelFraction": 0.0
+    },
+    {
+      "assetId": "asset-track-cota",
+      "entityId": "track-cota",
+      "intendedUse": "Illustrative circuit context; never geometry or performance data",
+      "kind": "circuit",
+      "name": "Circuit of The Americas",
+      "objectPosition": "center center",
+      "originalAlphaExtrema": [
+        255,
+        255
+      ],
+      "originalHeight": 1024,
+      "originalMetadataKinds": [],
+      "originalMode": "RGB",
+      "originalWidth": 1536,
+      "provenance": "User-supplied repository illustration; explicit stable-identity mapping retained from reviewed portrait/track manifests.",
+      "resizedAlphaPreservedExactly": true,
+      "rights": "Creator and redistribution licence not supplied; no publication-rights or photographic-authenticity claim.",
+      "runtimeAlphaExtrema": [
+        255,
+        255
+      ],
+      "runtimeBytes": 117002,
+      "runtimeHeight": 640,
+      "runtimeSha256": "46d0c3ab76473d372f46e668f515e51adaa6e820363721d2b6af2a855c6bab7d",
+      "runtimeWidth": 960,
+      "settings": {
+        "alpha_quality": 100,
+        "exact": true,
+        "format": "WEBP",
+        "lossless": false,
+        "metadata": "EXIF/ICC/XMP removed",
+        "method": 4,
+        "quality": 82,
+        "resize": "LANCZOS contain; no crop or upscale"
+      },
+      "source": "assets/track images/circuit-of-the-americas.png",
+      "sourceSha256": "2f424b96fa2e790d30c50506326420252cdec7b4641e8b92b03925958efd3cee",
+      "status": "available",
+      "transparentPixelFraction": 0.0
+    },
+    {
+      "assetId": "asset-track-hungaroring",
+      "entityId": "track-hungaroring",
+      "intendedUse": "Illustrative circuit context; never geometry or performance data",
+      "kind": "circuit",
+      "name": "Hungaroring",
+      "objectPosition": "center center",
+      "originalAlphaExtrema": [
+        255,
+        255
+      ],
+      "originalHeight": 1024,
+      "originalMetadataKinds": [],
+      "originalMode": "RGB",
+      "originalWidth": 1536,
+      "provenance": "User-supplied repository illustration; explicit stable-identity mapping retained from reviewed portrait/track manifests.",
+      "resizedAlphaPreservedExactly": true,
+      "rights": "Creator and redistribution licence not supplied; no publication-rights or photographic-authenticity claim.",
+      "runtimeAlphaExtrema": [
+        255,
+        255
+      ],
+      "runtimeBytes": 116960,
+      "runtimeHeight": 640,
+      "runtimeSha256": "6aad48c354a2ec5e94f3641e68bfc174e23c215535635e58675c78f16f9127ad",
+      "runtimeWidth": 960,
+      "settings": {
+        "alpha_quality": 100,
+        "exact": true,
+        "format": "WEBP",
+        "lossless": false,
+        "metadata": "EXIF/ICC/XMP removed",
+        "method": 4,
+        "quality": 82,
+        "resize": "LANCZOS contain; no crop or upscale"
+      },
+      "source": "assets/track images/hungaroring.png",
+      "sourceSha256": "71e4ce8f66381d925b0feb94322a3be6d721ea8f9a122ec49a890468459026f5",
+      "status": "available",
+      "transparentPixelFraction": 0.0
+    },
+    {
+      "assetId": "asset-track-interlagos",
+      "entityId": "track-interlagos",
+      "intendedUse": "Illustrative circuit context; never geometry or performance data",
+      "kind": "circuit",
+      "name": "Autodromo Jose Carlos Pace",
+      "objectPosition": "center center",
+      "originalAlphaExtrema": [
+        255,
+        255
+      ],
+      "originalHeight": 1024,
+      "originalMetadataKinds": [],
+      "originalMode": "RGB",
+      "originalWidth": 1536,
+      "provenance": "User-supplied repository illustration; explicit stable-identity mapping retained from reviewed portrait/track manifests.",
+      "resizedAlphaPreservedExactly": true,
+      "rights": "Creator and redistribution licence not supplied; no publication-rights or photographic-authenticity claim.",
+      "runtimeAlphaExtrema": [
+        255,
+        255
+      ],
+      "runtimeBytes": 121334,
+      "runtimeHeight": 640,
+      "runtimeSha256": "e514e1fbe8e9833ac2e8150ed5822e9cc1c60b04a1dc2681fca615d8ba807de5",
+      "runtimeWidth": 960,
+      "settings": {
+        "alpha_quality": 100,
+        "exact": true,
+        "format": "WEBP",
+        "lossless": false,
+        "metadata": "EXIF/ICC/XMP removed",
+        "method": 4,
+        "quality": 82,
+        "resize": "LANCZOS contain; no crop or upscale"
+      },
+      "source": "assets/track images/interlagos.png",
+      "sourceSha256": "5ac3e6a2844fe3861d07eea80244c38e4c64b85e50fdf3ac726d15a1df1b76aa",
+      "status": "available",
+      "transparentPixelFraction": 0.0
+    },
+    {
+      "assetId": "asset-track-las-vegas",
+      "entityId": "track-las-vegas",
+      "intendedUse": "Illustrative circuit context; never geometry or performance data",
+      "kind": "circuit",
+      "name": "Las Vegas Strip Circuit",
+      "objectPosition": "center center",
+      "originalAlphaExtrema": [
+        255,
+        255
+      ],
+      "originalHeight": 1024,
+      "originalMetadataKinds": [],
+      "originalMode": "RGB",
+      "originalWidth": 1536,
+      "provenance": "User-supplied repository illustration; explicit stable-identity mapping retained from reviewed portrait/track manifests.",
+      "resizedAlphaPreservedExactly": true,
+      "rights": "Creator and redistribution licence not supplied; no publication-rights or photographic-authenticity claim.",
+      "runtimeAlphaExtrema": [
+        255,
+        255
+      ],
+      "runtimeBytes": 139586,
+      "runtimeHeight": 640,
+      "runtimeSha256": "e50ab74f2d6823caf93d635fc33939bc33c24f41f732f0792edda38f19cfdb3a",
+      "runtimeWidth": 960,
+      "settings": {
+        "alpha_quality": 100,
+        "exact": true,
+        "format": "WEBP",
+        "lossless": false,
+        "metadata": "EXIF/ICC/XMP removed",
+        "method": 4,
+        "quality": 82,
+        "resize": "LANCZOS contain; no crop or upscale"
+      },
+      "source": "assets/track images/las-vegas-strip-circuit.png",
+      "sourceSha256": "83afb07e49cc308d3396a38e6c5f790c495639860592733d778eed7cfe94c546",
+      "status": "available",
+      "transparentPixelFraction": 0.0
+    },
+    {
+      "assetId": "asset-track-lusail",
+      "entityId": "track-lusail",
+      "intendedUse": "Illustrative circuit context; never geometry or performance data",
+      "kind": "circuit",
+      "name": "Lusail International Circuit",
+      "objectPosition": "center center",
+      "originalAlphaExtrema": [
+        255,
+        255
+      ],
+      "originalHeight": 1024,
+      "originalMetadataKinds": [],
+      "originalMode": "RGB",
+      "originalWidth": 1536,
+      "provenance": "User-supplied repository illustration; explicit stable-identity mapping retained from reviewed portrait/track manifests.",
+      "resizedAlphaPreservedExactly": true,
+      "rights": "Creator and redistribution licence not supplied; no publication-rights or photographic-authenticity claim.",
+      "runtimeAlphaExtrema": [
+        255,
+        255
+      ],
+      "runtimeBytes": 98420,
+      "runtimeHeight": 640,
+      "runtimeSha256": "9acfb975b6f1886c86fa5866e7c5101fe428e1761fa970e9b0321e5a21384b04",
+      "runtimeWidth": 960,
+      "settings": {
+        "alpha_quality": 100,
+        "exact": true,
+        "format": "WEBP",
+        "lossless": false,
+        "metadata": "EXIF/ICC/XMP removed",
+        "method": 4,
+        "quality": 82,
+        "resize": "LANCZOS contain; no crop or upscale"
+      },
+      "source": "assets/track images/lusail-international-circuit.png",
+      "sourceSha256": "b29bb4fb438eb81cdbc8ce2f13068dfd22b97d2f86defd2b6f8fdb294b4e7cd3",
+      "status": "available",
+      "transparentPixelFraction": 0.0
+    },
+    {
+      "assetId": "asset-track-madring",
+      "entityId": "track-madring",
+      "intendedUse": "Illustrative circuit context; never geometry or performance data",
+      "kind": "circuit",
+      "name": "Madring",
+      "objectPosition": "center center",
+      "originalAlphaExtrema": [
+        255,
+        255
+      ],
+      "originalHeight": 1024,
+      "originalMetadataKinds": [],
+      "originalMode": "RGB",
+      "originalWidth": 1536,
+      "provenance": "User-supplied repository illustration; explicit stable-identity mapping retained from reviewed portrait/track manifests.",
+      "resizedAlphaPreservedExactly": true,
+      "rights": "Creator and redistribution licence not supplied; no publication-rights or photographic-authenticity claim.",
+      "runtimeAlphaExtrema": [
+        255,
+        255
+      ],
+      "runtimeBytes": 120686,
+      "runtimeHeight": 640,
+      "runtimeSha256": "de7f5b21f96d6db8335d4314fcaa26f32dc8c74107403df6a3a6c694560ec23e",
+      "runtimeWidth": 960,
+      "settings": {
+        "alpha_quality": 100,
+        "exact": true,
+        "format": "WEBP",
+        "lossless": false,
+        "metadata": "EXIF/ICC/XMP removed",
+        "method": 4,
+        "quality": 82,
+        "resize": "LANCZOS contain; no crop or upscale"
+      },
+      "source": "assets/track images/madring.png",
+      "sourceSha256": "d23bd88a4b2a8b495a0fcef14ebd3c5572c5bf27063d2550138a5a3688c7b22b",
+      "status": "available",
+      "transparentPixelFraction": 0.0
+    },
+    {
+      "assetId": "asset-track-marina-bay",
+      "entityId": "track-marina-bay",
+      "intendedUse": "Illustrative circuit context; never geometry or performance data",
+      "kind": "circuit",
+      "name": "Marina Bay Street Circuit",
+      "objectPosition": "center center",
+      "originalAlphaExtrema": [
+        255,
+        255
+      ],
+      "originalHeight": 1024,
+      "originalMetadataKinds": [],
+      "originalMode": "RGB",
+      "originalWidth": 1536,
+      "provenance": "User-supplied repository illustration; explicit stable-identity mapping retained from reviewed portrait/track manifests.",
+      "resizedAlphaPreservedExactly": true,
+      "rights": "Creator and redistribution licence not supplied; no publication-rights or photographic-authenticity claim.",
+      "runtimeAlphaExtrema": [
+        255,
+        255
+      ],
+      "runtimeBytes": 130958,
+      "runtimeHeight": 640,
+      "runtimeSha256": "48a86623e3a15142d6fea23c1116258faec78ab1e7a0707beeba1655961e9484",
+      "runtimeWidth": 960,
+      "settings": {
+        "alpha_quality": 100,
+        "exact": true,
+        "format": "WEBP",
+        "lossless": false,
+        "metadata": "EXIF/ICC/XMP removed",
+        "method": 4,
+        "quality": 82,
+        "resize": "LANCZOS contain; no crop or upscale"
+      },
+      "source": "assets/track images/marina-bay-street-circuit.png",
+      "sourceSha256": "0c2e84f5b2849eb84bab1831a53049a4a3a5aba28d6367ab967f525559b3762f",
+      "status": "available",
+      "transparentPixelFraction": 0.0
+    },
+    {
+      "assetId": "asset-track-mexico-city",
+      "entityId": "track-mexico-city",
+      "intendedUse": "Illustrative circuit context; never geometry or performance data",
+      "kind": "circuit",
+      "name": "Autodromo Hermanos Rodriguez",
+      "objectPosition": "center center",
+      "originalAlphaExtrema": [
+        255,
+        255
+      ],
+      "originalHeight": 1024,
+      "originalMetadataKinds": [],
+      "originalMode": "RGB",
+      "originalWidth": 1536,
+      "provenance": "User-supplied repository illustration; explicit stable-identity mapping retained from reviewed portrait/track manifests.",
+      "resizedAlphaPreservedExactly": true,
+      "rights": "Creator and redistribution licence not supplied; no publication-rights or photographic-authenticity claim.",
+      "runtimeAlphaExtrema": [
+        255,
+        255
+      ],
+      "runtimeBytes": 150108,
+      "runtimeHeight": 640,
+      "runtimeSha256": "1b481799ec19d29a8fe11f57d04fb409a2556bd12247680aee3a81ba87b685fe",
+      "runtimeWidth": 960,
+      "settings": {
+        "alpha_quality": 100,
+        "exact": true,
+        "format": "WEBP",
+        "lossless": false,
+        "metadata": "EXIF/ICC/XMP removed",
+        "method": 4,
+        "quality": 82,
+        "resize": "LANCZOS contain; no crop or upscale"
+      },
+      "source": "assets/track images/autodromo-hermanos-rodriguez.png",
+      "sourceSha256": "f623cc85beb2f756c5ada85be07ffb76a04c0851ed53c889cebeb5656020f35e",
+      "status": "available",
+      "transparentPixelFraction": 0.0
+    },
+    {
+      "assetId": "asset-track-miami",
+      "entityId": "track-miami",
+      "intendedUse": "Illustrative circuit context; never geometry or performance data",
+      "kind": "circuit",
+      "name": "Miami International Autodrome",
+      "objectPosition": "center center",
+      "originalAlphaExtrema": [
+        255,
+        255
+      ],
+      "originalHeight": 1024,
+      "originalMetadataKinds": [],
+      "originalMode": "RGB",
+      "originalWidth": 1536,
+      "provenance": "User-supplied repository illustration; explicit stable-identity mapping retained from reviewed portrait/track manifests.",
+      "resizedAlphaPreservedExactly": true,
+      "rights": "Creator and redistribution licence not supplied; no publication-rights or photographic-authenticity claim.",
+      "runtimeAlphaExtrema": [
+        255,
+        255
+      ],
+      "runtimeBytes": 132498,
+      "runtimeHeight": 640,
+      "runtimeSha256": "1ea11857c6992cc4a76a9df850d5c407c0456cdefdda71e5f3775de1f0cd39dd",
+      "runtimeWidth": 960,
+      "settings": {
+        "alpha_quality": 100,
+        "exact": true,
+        "format": "WEBP",
+        "lossless": false,
+        "metadata": "EXIF/ICC/XMP removed",
+        "method": 4,
+        "quality": 82,
+        "resize": "LANCZOS contain; no crop or upscale"
+      },
+      "source": "assets/track images/miami-international-autodrome.png",
+      "sourceSha256": "abd87865ca3f7aa75ea5bb4f0cb0bb2abfa832816ae152c0f9ef7cec1aefc1e0",
+      "status": "available",
+      "transparentPixelFraction": 0.0
+    },
+    {
+      "assetId": "asset-track-monaco",
+      "entityId": "track-monaco",
+      "intendedUse": "Illustrative circuit context; never geometry or performance data",
+      "kind": "circuit",
+      "name": "Circuit de Monaco",
+      "objectPosition": "center center",
+      "originalAlphaExtrema": [
+        255,
+        255
+      ],
+      "originalHeight": 1024,
+      "originalMetadataKinds": [],
+      "originalMode": "RGB",
+      "originalWidth": 1536,
+      "provenance": "User-supplied repository illustration; explicit stable-identity mapping retained from reviewed portrait/track manifests.",
+      "resizedAlphaPreservedExactly": true,
+      "rights": "Creator and redistribution licence not supplied; no publication-rights or photographic-authenticity claim.",
+      "runtimeAlphaExtrema": [
+        255,
+        255
+      ],
+      "runtimeBytes": 170778,
+      "runtimeHeight": 640,
+      "runtimeSha256": "6d6c21bcfe7d0c3fdd09427eb0e6e912a16d9fd1ff054203000917d44ebc975e",
+      "runtimeWidth": 960,
+      "settings": {
+        "alpha_quality": 100,
+        "exact": true,
+        "format": "WEBP",
+        "lossless": false,
+        "metadata": "EXIF/ICC/XMP removed",
+        "method": 4,
+        "quality": 82,
+        "resize": "LANCZOS contain; no crop or upscale"
+      },
+      "source": "assets/track images/circuit-de-monaco.png",
+      "sourceSha256": "441849b8af0b5586abe36764c0907a583c193b53bf02dbf494070ec4d5a159ec",
+      "status": "available",
+      "transparentPixelFraction": 0.0
+    },
+    {
+      "assetId": "asset-track-monza",
+      "entityId": "track-monza",
+      "intendedUse": "Illustrative circuit context; never geometry or performance data",
+      "kind": "circuit",
+      "name": "Autodromo Nazionale Monza",
+      "objectPosition": "center center",
+      "originalAlphaExtrema": [
+        255,
+        255
+      ],
+      "originalHeight": 1024,
+      "originalMetadataKinds": [],
+      "originalMode": "RGB",
+      "originalWidth": 1536,
+      "provenance": "User-supplied repository illustration; explicit stable-identity mapping retained from reviewed portrait/track manifests.",
+      "resizedAlphaPreservedExactly": true,
+      "rights": "Creator and redistribution licence not supplied; no publication-rights or photographic-authenticity claim.",
+      "runtimeAlphaExtrema": [
+        255,
+        255
+      ],
+      "runtimeBytes": 157930,
+      "runtimeHeight": 640,
+      "runtimeSha256": "a01fe3789151b5a2f237e668175ea191b6f44da9051c6b5cd7c9ab965181191e",
+      "runtimeWidth": 960,
+      "settings": {
+        "alpha_quality": 100,
+        "exact": true,
+        "format": "WEBP",
+        "lossless": false,
+        "metadata": "EXIF/ICC/XMP removed",
+        "method": 4,
+        "quality": 82,
+        "resize": "LANCZOS contain; no crop or upscale"
+      },
+      "source": "assets/track images/monza.png",
+      "sourceSha256": "6d0e8871860416d774aec81956190b59b0169314c325ba2341364fead6bb1af5",
+      "status": "available",
+      "transparentPixelFraction": 0.0
+    },
+    {
+      "assetId": "asset-track-red-bull-ring",
+      "entityId": "track-red-bull-ring",
+      "intendedUse": "Illustrative circuit context; never geometry or performance data",
+      "kind": "circuit",
+      "name": "Red Bull Ring",
+      "objectPosition": "center center",
+      "originalAlphaExtrema": [
+        255,
+        255
+      ],
+      "originalHeight": 1024,
+      "originalMetadataKinds": [],
+      "originalMode": "RGB",
+      "originalWidth": 1536,
+      "provenance": "User-supplied repository illustration; explicit stable-identity mapping retained from reviewed portrait/track manifests.",
+      "resizedAlphaPreservedExactly": true,
+      "rights": "Creator and redistribution licence not supplied; no publication-rights or photographic-authenticity claim.",
+      "runtimeAlphaExtrema": [
+        255,
+        255
+      ],
+      "runtimeBytes": 119498,
+      "runtimeHeight": 640,
+      "runtimeSha256": "f5dfc5683adaa0ce49b9e3f592e23c9641bf9a3c5709d17a9932a5f33b808a28",
+      "runtimeWidth": 960,
+      "settings": {
+        "alpha_quality": 100,
+        "exact": true,
+        "format": "WEBP",
+        "lossless": false,
+        "metadata": "EXIF/ICC/XMP removed",
+        "method": 4,
+        "quality": 82,
+        "resize": "LANCZOS contain; no crop or upscale"
+      },
+      "source": "assets/track images/red-bull-ring.png",
+      "sourceSha256": "22ae2c8094781bdc2fa6633f8fdcd0ff49c8a1b26ebe068de21a690b3ae96162",
+      "status": "available",
+      "transparentPixelFraction": 0.0
+    },
+    {
+      "assetId": "asset-track-sepang",
+      "entityId": "track-sepang",
+      "intendedUse": "Illustrative circuit context; never geometry or performance data",
+      "kind": "circuit",
+      "name": "Sepang International Circuit",
+      "objectPosition": "center center",
+      "originalAlphaExtrema": [
+        255,
+        255
+      ],
+      "originalHeight": 1024,
+      "originalMetadataKinds": [],
+      "originalMode": "RGB",
+      "originalWidth": 1536,
+      "provenance": "User-supplied repository illustration; explicit stable-identity mapping retained from reviewed portrait/track manifests.",
+      "resizedAlphaPreservedExactly": true,
+      "rights": "Creator and redistribution licence not supplied; no publication-rights or photographic-authenticity claim.",
+      "runtimeAlphaExtrema": [
+        255,
+        255
+      ],
+      "runtimeBytes": 108580,
+      "runtimeHeight": 640,
+      "runtimeSha256": "40ee5436932596322121936946aae059cff3de083fffcfac7cc74f181e6322b7",
+      "runtimeWidth": 960,
+      "settings": {
+        "alpha_quality": 100,
+        "exact": true,
+        "format": "WEBP",
+        "lossless": false,
+        "metadata": "EXIF/ICC/XMP removed",
+        "method": 4,
+        "quality": 82,
+        "resize": "LANCZOS contain; no crop or upscale"
+      },
+      "source": "assets/track images/sepang-international-circuit.png",
+      "sourceSha256": "596212f8caae577ec8de95c9fa9bfdc0b71a60be2620f9e01ffe3eb53063242c",
+      "status": "available",
+      "transparentPixelFraction": 0.0
+    },
+    {
+      "assetId": "asset-track-shanghai",
+      "entityId": "track-shanghai",
+      "intendedUse": "Illustrative circuit context; never geometry or performance data",
+      "kind": "circuit",
+      "name": "Shanghai International Circuit",
+      "objectPosition": "center center",
+      "originalAlphaExtrema": [
+        255,
+        255
+      ],
+      "originalHeight": 1024,
+      "originalMetadataKinds": [],
+      "originalMode": "RGB",
+      "originalWidth": 1536,
+      "provenance": "User-supplied repository illustration; explicit stable-identity mapping retained from reviewed portrait/track manifests.",
+      "resizedAlphaPreservedExactly": true,
+      "rights": "Creator and redistribution licence not supplied; no publication-rights or photographic-authenticity claim.",
+      "runtimeAlphaExtrema": [
+        255,
+        255
+      ],
+      "runtimeBytes": 125572,
+      "runtimeHeight": 640,
+      "runtimeSha256": "8cb433a6accca222636fd7dcbfe68269ccd39a2bfa36c104bfa473564ac69685",
+      "runtimeWidth": 960,
+      "settings": {
+        "alpha_quality": 100,
+        "exact": true,
+        "format": "WEBP",
+        "lossless": false,
+        "metadata": "EXIF/ICC/XMP removed",
+        "method": 4,
+        "quality": 82,
+        "resize": "LANCZOS contain; no crop or upscale"
+      },
+      "source": "assets/track images/shanghai-international-circuit.png",
+      "sourceSha256": "80a5a75f4907c7bdd163f5ba13324437622363ccc9a15c8eaba06271cb565dc5",
+      "status": "available",
+      "transparentPixelFraction": 0.0
+    },
+    {
+      "assetId": "asset-track-silverstone",
+      "entityId": "track-silverstone",
+      "intendedUse": "Illustrative circuit context; never geometry or performance data",
+      "kind": "circuit",
+      "name": "Silverstone Circuit",
+      "objectPosition": "center center",
+      "originalAlphaExtrema": [
+        255,
+        255
+      ],
+      "originalHeight": 1024,
+      "originalMetadataKinds": [],
+      "originalMode": "RGB",
+      "originalWidth": 1536,
+      "provenance": "User-supplied repository illustration; explicit stable-identity mapping retained from reviewed portrait/track manifests.",
+      "resizedAlphaPreservedExactly": true,
+      "rights": "Creator and redistribution licence not supplied; no publication-rights or photographic-authenticity claim.",
+      "runtimeAlphaExtrema": [
+        255,
+        255
+      ],
+      "runtimeBytes": 120792,
+      "runtimeHeight": 640,
+      "runtimeSha256": "af34dc119547ddb0b72b3de900dd605308fd685eadfbd5fe6c95c5fbf1d7c4e6",
+      "runtimeWidth": 960,
+      "settings": {
+        "alpha_quality": 100,
+        "exact": true,
+        "format": "WEBP",
+        "lossless": false,
+        "metadata": "EXIF/ICC/XMP removed",
+        "method": 4,
+        "quality": 82,
+        "resize": "LANCZOS contain; no crop or upscale"
+      },
+      "source": "assets/track images/silverstone.png",
+      "sourceSha256": "13ba34da66b5c2d3ac193e27f30fd37a9313463ebc100e92ddf9ddeb3aed580d",
+      "status": "available",
+      "transparentPixelFraction": 0.0
+    },
+    {
+      "assetId": "asset-track-spa-francorchamps",
+      "entityId": "track-spa-francorchamps",
+      "intendedUse": "Illustrative circuit context; never geometry or performance data",
+      "kind": "circuit",
+      "name": "Circuit de Spa-Francorchamps",
+      "objectPosition": "center center",
+      "originalAlphaExtrema": [
+        255,
+        255
+      ],
+      "originalHeight": 1024,
+      "originalMetadataKinds": [],
+      "originalMode": "RGB",
+      "originalWidth": 1536,
+      "provenance": "User-supplied repository illustration; explicit stable-identity mapping retained from reviewed portrait/track manifests.",
+      "resizedAlphaPreservedExactly": true,
+      "rights": "Creator and redistribution licence not supplied; no publication-rights or photographic-authenticity claim.",
+      "runtimeAlphaExtrema": [
+        255,
+        255
+      ],
+      "runtimeBytes": 147642,
+      "runtimeHeight": 640,
+      "runtimeSha256": "d6076d483e1f1500773cc535f3ee40c16f133a16900eb275939b5bc47c651983",
+      "runtimeWidth": 960,
+      "settings": {
+        "alpha_quality": 100,
+        "exact": true,
+        "format": "WEBP",
+        "lossless": false,
+        "metadata": "EXIF/ICC/XMP removed",
+        "method": 4,
+        "quality": 82,
+        "resize": "LANCZOS contain; no crop or upscale"
+      },
+      "source": "assets/track images/spa-francorchamps.png",
+      "sourceSha256": "bad849b08204d35e4c8c4cd8a755194cef78da60cdfc5aa635d24550d8fbec1c",
+      "status": "available",
+      "transparentPixelFraction": 0.0
+    },
+    {
+      "assetId": "asset-track-suzuka",
+      "entityId": "track-suzuka",
+      "intendedUse": "Illustrative circuit context; never geometry or performance data",
+      "kind": "circuit",
+      "name": "Suzuka Circuit",
+      "objectPosition": "center center",
+      "originalAlphaExtrema": [
+        255,
+        255
+      ],
+      "originalHeight": 1024,
+      "originalMetadataKinds": [],
+      "originalMode": "RGB",
+      "originalWidth": 1536,
+      "provenance": "User-supplied repository illustration; explicit stable-identity mapping retained from reviewed portrait/track manifests.",
+      "resizedAlphaPreservedExactly": true,
+      "rights": "Creator and redistribution licence not supplied; no publication-rights or photographic-authenticity claim.",
+      "runtimeAlphaExtrema": [
+        255,
+        255
+      ],
+      "runtimeBytes": 125826,
+      "runtimeHeight": 640,
+      "runtimeSha256": "5f2280cef5e255269b3904c87891e142a05ac87766077495df8535154089339a",
+      "runtimeWidth": 960,
+      "settings": {
+        "alpha_quality": 100,
+        "exact": true,
+        "format": "WEBP",
+        "lossless": false,
+        "metadata": "EXIF/ICC/XMP removed",
+        "method": 4,
+        "quality": 82,
+        "resize": "LANCZOS contain; no crop or upscale"
+      },
+      "source": "assets/track images/suzuka.png",
+      "sourceSha256": "c6d345de914c08da41bb5c68c7153fd85dcf23132397e48c094b70845b713cc5",
+      "status": "available",
+      "transparentPixelFraction": 0.0
+    },
+    {
+      "assetId": "asset-track-yas-marina",
+      "entityId": "track-yas-marina",
+      "intendedUse": "Illustrative circuit context; never geometry or performance data",
+      "kind": "circuit",
+      "name": "Yas Marina Circuit",
+      "objectPosition": "center center",
+      "originalAlphaExtrema": [
+        255,
+        255
+      ],
+      "originalHeight": 1024,
+      "originalMetadataKinds": [],
+      "originalMode": "RGB",
+      "originalWidth": 1536,
+      "provenance": "User-supplied repository illustration; explicit stable-identity mapping retained from reviewed portrait/track manifests.",
+      "resizedAlphaPreservedExactly": true,
+      "rights": "Creator and redistribution licence not supplied; no publication-rights or photographic-authenticity claim.",
+      "runtimeAlphaExtrema": [
+        255,
+        255
+      ],
+      "runtimeBytes": 96658,
+      "runtimeHeight": 640,
+      "runtimeSha256": "b88a6c41d68713903b8ac5f33856b7b099c319ed8be5d54c9d59f7f2f600fcf6",
+      "runtimeWidth": 960,
+      "settings": {
+        "alpha_quality": 100,
+        "exact": true,
+        "format": "WEBP",
+        "lossless": false,
+        "metadata": "EXIF/ICC/XMP removed",
+        "method": 4,
+        "quality": 82,
+        "resize": "LANCZOS contain; no crop or upscale"
+      },
+      "source": "assets/track images/yas-marina-circuit.png",
+      "sourceSha256": "c271dd471e13413b6d975b0f40d6592cf6064e0a62f7844848b6f31aeefc2232",
+      "status": "available",
+      "transparentPixelFraction": 0.0
+    },
+    {
+      "assetId": "asset-track-zandvoort",
+      "entityId": "track-zandvoort",
+      "intendedUse": "Illustrative circuit context; never geometry or performance data",
+      "kind": "circuit",
+      "name": "Circuit Zandvoort",
+      "objectPosition": "center center",
+      "originalAlphaExtrema": [
+        255,
+        255
+      ],
+      "originalHeight": 1024,
+      "originalMetadataKinds": [],
+      "originalMode": "RGB",
+      "originalWidth": 1536,
+      "provenance": "User-supplied repository illustration; explicit stable-identity mapping retained from reviewed portrait/track manifests.",
+      "resizedAlphaPreservedExactly": true,
+      "rights": "Creator and redistribution licence not supplied; no publication-rights or photographic-authenticity claim.",
+      "runtimeAlphaExtrema": [
+        255,
+        255
+      ],
+      "runtimeBytes": 122044,
+      "runtimeHeight": 640,
+      "runtimeSha256": "04990c648f58f0b9513be69ce7bd0864cd5a35bcd590fd9893da392ca0e9195f",
+      "runtimeWidth": 960,
+      "settings": {
+        "alpha_quality": 100,
+        "exact": true,
+        "format": "WEBP",
+        "lossless": false,
+        "metadata": "EXIF/ICC/XMP removed",
+        "method": 4,
+        "quality": 82,
+        "resize": "LANCZOS contain; no crop or upscale"
+      },
+      "source": "assets/track images/zandvoort.png",
+      "sourceSha256": "b671c6a6f5d94b940c92f464a4dc93875366954b9704ab6937192c4d3c61af8d",
+      "status": "available",
+      "transparentPixelFraction": 0.0
+    }
+  ],
+  "toolVersions": {
+    "libwebp": "1.6.0",
+    "pillow": "12.3.0",
+    "python": "3.12.14"
+  }
+}
