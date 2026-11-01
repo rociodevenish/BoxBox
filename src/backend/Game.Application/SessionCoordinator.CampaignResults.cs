@@ -13,7 +13,7 @@ public sealed partial class SessionCoordinator
    StoredSession? saved;
    try{saved=persistence.Read(sessionId);}catch(Exception){throw new SessionFault(SessionFailure.StorageUnavailable,"Weekend result storage unavailable.");}
    if(saved is null)return null;
-   var record=JsonSerializer.Deserialize<RecoveryRecord>(saved.Payload,BrowserReplay.JsonOptions);
+   var record=DecodeRecovery(saved.Payload);
    var race=record?.Lobby?.Race;
    if(race is null||race.Lifecycle!="finished")return null;
    if(record!.Lobby!.CampaignPresets is not {} frozen||race.PendingPlan is not null||race.PendingCommand is not null)
