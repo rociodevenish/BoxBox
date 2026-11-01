@@ -1,6 +1,6 @@
 # S16 progress — 2 November 2026
 
-This is a work-in-progress checkpoint, not release acceptance. Canonical scope and status remain in [issues #21–25](https://github.com/rociodevenish/BoxBox/issues/25). The integration branch is `codex/s16-full-calendar-content`; draft PR [#117](https://github.com/rociodevenish/BoxBox/pull/117) is stacked on the S14–S15 branch in #112.
+This is a work-in-progress checkpoint, not release acceptance. Canonical scope and status remain in [issues #21–25](https://github.com/rociodevenish/BoxBox/issues/25). The integration branch is `codex/s16-full-calendar-content`. Earlier PR [#117](https://github.com/rociodevenish/BoxBox/pull/117) was merged into its S14–S15 base branch; current `main` does not contain those S16 changes. This checkpoint is published in a new draft PR against `main`.
 
 ## Committed implementation
 
@@ -31,7 +31,7 @@ At this progress checkpoint, frontend typecheck passed again and the committed F
 2. **Regression completion:** resolve the shared preparation fallback assertion; rerun affected personnel, synthetic-controller and shared cases. Run the still-unreached assistance, control, deadlines and hosted steps, and the final named cards step. Rerun typecheck/build for the final changes and reconcile results without counting duplicate cases.
 3. **[#25 — campaign and historical recovery](https://github.com/rociodevenish/BoxBox/issues/25):** finish the evidence tool and its asset/input integrity smoke; pin a clean final source revision. Complete all 23 actual emulator-backed weekends, 220 automatic development choices and 22 explicit claimed-team Save commitments. Retain per-event private checkpoints and separate campaign/weekend size, operation and timing measurements.
 4. Verify that full archive in a fresh process, including frozen qualifying/race inputs and results, retained asset bytes, catalogue update/removal, unsupported-version rejection without save loss, durable resume and retry checks. Publish a reviewed report without private recovery payloads. The earlier ten-minute diagnostic stopped at 21/23 and is not acceptance.
-5. Run fresh, independent Standards and Spec reviews; resolve findings in one fix branch, rerun affected checks and record a final completion manifest. Only then resolve the canonical issues and mark the draft PR ready. Retarget the stacked PR after #112 lands and clean up merged implementation worktrees while retaining integration.
+5. Run fresh, independent Standards and Spec reviews; resolve findings in one fix branch, rerun affected checks and record a final completion manifest. Only then resolve the canonical issues and mark the draft PR ready. Clean up merged implementation worktrees while retaining integration.
 
 ## Existing evidence
 
