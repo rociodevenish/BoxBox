@@ -23,6 +23,9 @@ export function frozenDriverCard(driver:FrozenDriver,ownership:DriverCardViewMod
 export function personnelCard(card:{id:string;name:string;role:string;price:number;effectLabel:string;attributes?:Record<string,number>|null;driver?:FrozenDriver|null;presentation?:PersonnelPresentation|null}):ContentCardViewModel {
  const display=card.presentation;
  const facts=Object.entries(card.driver?.ratings??card.attributes??{}).map(([key,value])=>({label:attributeLabel(key),value:value+' / 100',state:display?.inactiveAttributes.includes(key)?'Inactive':display?.implementedAttributes.includes(key)?'Implemented · phase or role dependent':'Scope not supplied'}));
+ const notes=[card.effectLabel];
+ if(card.driver)notes.push('Preferences describe compatibility, separately from quality.',display?readableScope(display.effectScope)!:'Detailed 1–100 game inputs. Starts applies to the automatic standing start; wet skill depends on wet conditions. No headline stars are converted into pace.');
+ else if(display)notes.push(display.effectScope,display.preferenceMeaning);
  return {id:card.id,name:card.name,role:card.role,context:display?.identityKind==='fictional-staff'?'Fictional staff':display?.referenceRole,priceLabel:card.price+' credits',image:display?.image,
-  facts:card.driver?['Pace','Racecraft','Tyres','Consistency','Technical'].map(label=>({label,value:display?.simpleGroups[label]===undefined?'Unknown':display.simpleGroups[label]+' / 5'})):facts.filter(f=>f.state!=='Inactive'),details:facts,preferences:card.driver?.preferences.map(p=>p.label),notes:[card.effectLabel,...(display?[readableScope(display.effectScope)!,display.preferenceMeaning]:[])]};
+  facts:card.driver?['Pace','Racecraft','Tyres','Consistency','Technical'].map(label=>({label,value:display?.simpleGroups[label]===undefined?'Unknown':display.simpleGroups[label]+' / 5'})):facts.filter(f=>f.state!=='Inactive'),details:facts,preferences:card.driver?.preferences.map(p=>p.label),notes};
 }

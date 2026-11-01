@@ -97,7 +97,7 @@ export class RacePage extends RaceSession {
         return {id:reaction.identity,kind:'weather',lap:state.leaderLap,driverName:'Circuit',portraitUrl:null,compound:null,
             summary:'Observed '+reaction.band+' band at '+reaction.time.toFixed(1)+'s · track wetness '+(reaction.observed.wetness*100).toFixed(0)+'%. Both-car tyre decisions are open.'+(reaction.safetyCarActive?' Combined with Safety Car control: Conserve and Neutral; committed stops and the existing deadline continue.':''),minimalist:true};
     }
-    private identity(id:string){return this.publicState()?.opening?.cars.find(car=>car.entryId===id);}
+    private identity(id:string){const opening=this.publicState()?.opening?.cars.find(car=>car.entryId===id);if(opening)return opening;const known=this.publicState()?.classification.find(car=>car.driverId===id);return known?{name:this.driverName(id),slug:'',teamId:known.teamId}:undefined;}
     private driverName(id:string){return this.publicState()?.opening?this.publicState()?.classification.find(car=>car.driverId===id)?.name??'Driver '+Number(id.slice(-2)):'Driver '+Number(id.slice(-2));}
     private eventModel(event: PublicState['events'][number]): PublicRaceEvent {
         const name = this.driverName(event.driverId);
