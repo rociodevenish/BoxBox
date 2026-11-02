@@ -13,7 +13,36 @@ public static class CampaignSaveIntegrity
   try
   {
    if(record.Schema!=CampaignCoordinator.Schema||record.CampaignId!=id||string.IsNullOrWhiteSpace(record.HostUid)||record.Revision<1||record.Input is null||string.IsNullOrWhiteSpace(record.ContentVersion)||string.IsNullOrWhiteSpace(record.CalendarVersion))throw new ArgumentException();
+   if(record.Input.ContentVersion is {} requested&&(requested is not(CampaignCoordinator.ContentVersion or ReleaseContent.PilotVersion or ReleaseContent.FullCalendarVersion or ReleaseContent.PersonnelVersion or ReleaseContent.CardVersion)||record.ContentVersion!=requested))throw new ArgumentException();
+   if(record.Input.ContentVersion is (ReleaseContent.PilotVersion or ReleaseContent.FullCalendarVersion or ReleaseContent.PersonnelVersion or ReleaseContent.CardVersion)&&record.ContentSnapshot is null)throw new ArgumentException();
+   if(record.ContentSnapshot is {} snapshot)
+   {
+    if(snapshot.Assets.Any(a=>!ReleaseContent.SafeAssetUrl(a.RuntimeUrl)))throw new ArgumentException();
+    CarConstruction.ValidateCatalogue(snapshot.Construction);
+    if(record.Input.ContentVersion==ReleaseContent.PersonnelVersion||!snapshot.PersonnelDetails.IsDefault||!snapshot.PaidPackageOptions.IsDefault)
+    {
+     ReleasePersonnel.Validate(snapshot.PersonnelDetails,snapshot.PaidPackageOptions,[RacePackages.Baseline],record.Acquisition?.Pool);
+     if(record.FrozenPresets.Values.SelectMany(p=>p).Any(p=>p.PackageLibrary.Length!=1||JsonSerializer.Serialize(p.PackageLibrary[0])!=JsonSerializer.Serialize(RacePackages.Baseline)))throw new ArgumentException();
+    }
+    if(snapshot.Sources.Length!=4||snapshot.Sources.Select(s=>s.Id).Distinct().Count()!=4||snapshot.Sources.Any(s=>string.IsNullOrWhiteSpace(s.SchemaVersion)||string.IsNullOrWhiteSpace(s.DataVersion))||string.IsNullOrWhiteSpace(snapshot.Provenance)||snapshot.Assets.Select(a=>a.Id).Distinct().Count()!=snapshot.Assets.Length)throw new ArgumentException();
+    if(snapshot.Sources.Single(s=>s.Id=="construction") is not {} source||source.SchemaVersion+"/"+source.DataVersion!=snapshot.Construction.SourceVersion)throw new ArgumentException();
+    if(record.Construction is {} constructionSnapshot&&JsonSerializer.Serialize(constructionSnapshot.Catalogue)!=JsonSerializer.Serialize(snapshot.Construction))throw new ArgumentException();
+   }
    if(record.Calendar is null||record.Teams is null||record.FrozenPresets is null||record.EventConditions is null||record.Calendar.Length<2||record.Teams.Length==0||record.EventIndex<0||record.EventIndex>=record.Calendar.Length)throw new ArgumentException();
+   foreach(var preset in record.FrozenPresets.Values.SelectMany(p=>p))
+   {
+    ReleaseCardValidation.Image(preset.Circuit.Image,preset.Circuit.Id);
+    ReleaseCardValidation.Reference(preset.Circuit.Image,record.ContentSnapshot?.Assets??[]);
+    foreach(var car in preset.Cars)
+    {
+     if(record.ContentVersion==ReleaseContent.CardVersion&&car.Driver.Presentation is null)throw new ArgumentException();
+     ReleaseCardValidation.Person(car.Driver.Presentation,car.Driver.Id,"Driver");
+     ReleaseCardValidation.Reference(car.Driver.Presentation?.Image,record.ContentSnapshot?.Assets??[]);
+    }
+   }
+   foreach(var person in record.Acquisition?.Pool.People??[])
+    ReleaseCardValidation.Person(person.Presentation,person.Id,person.Role,person.Price);
+   if(record.Input.Calendar=="full"&&(!ReleaseContent.IsFullCalendar(record.ContentVersion)||record.Calendar.Length!=23||record.Calendar.Select(e=>e.SourceEventId).Distinct().Count()!=23||record.Calendar.Any(e=>string.IsNullOrWhiteSpace(e.SourceEventId)||string.IsNullOrWhiteSpace(e.EventName)||string.IsNullOrWhiteSpace(e.Summary)||!DateOnly.TryParse(e.WeekendStart,out var start)||!DateOnly.TryParse(e.WeekendEnd,out var end)||end<start)))throw new ArgumentException();
    if(record.Lifecycle is not("acquiring" or "constructing" or "created" or "event-preparation" or "active-weekend" or "event-result-committed" or "season-complete"))throw new ArgumentException();
    if(record.Acquisition is {} acquisition)PersonnelAcquisition.Validate(acquisition);
    if(record.Construction is {} construction)CarConstruction.Validate(construction,record.Teams.Select(t=>t.TeamId).ToArray());
@@ -53,6 +82,15 @@ public static class CampaignSaveIntegrity
     if(e.Order!=index+1||e.EventId!=$"{id}-event-{index+1:00}"||e.SessionId!=$"{e.EventId}-weekend"||string.IsNullOrWhiteSpace(e.TrackVersion)||versions.Events[e.EventId]!=expected.Events[e.EventId])throw new ArgumentException();
     var presets=record.FrozenPresets[e.EventId];var conditions=record.EventConditions[e.EventId];
     if(presets.Length!=record.Teams.Length||conditions.Laps!=record.Input.Laps)throw new ArgumentException();
+    if(record.Input.Calendar=="full")
+    {
+     if(conditions is not{Incidents:not null,SafetyCar:not null,Weather:not null,WetTyres:not null,WeatherReactions:not null,Track:{PitRoute:not null}}
+      ||conditions.DisruptionPolicyVersion!=ReleaseContent.CircuitProfileVersion+"/"+e.TrackId
+      ||JsonSerializer.Serialize(conditions.Track)!=JsonSerializer.Serialize(presets[0].Circuit.Track))throw new ArgumentException();
+     // Validate frozen consumer contracts without reopening any deployment catalogue or changing saved inputs.
+     var sample=WeekendPreparation.Prepare(presets[0],record.Input.Laps,new());
+     _=new RaceEngine(conditions,sample.Cars.Select(c=>c.RaceDriver).ToArray(),record.Input.Seed);
+    }
     foreach(var (team,teamIndex) in record.Teams.Select((t,i)=>(t,i)))
     {
      var preset=presets[teamIndex];

@@ -1,0 +1,34 @@
+{
+  "schema": "full-release-capture-v1",
+  "complete": true,
+  "events": 23,
+  "contentVersion": "release-2026-cards-v1",
+  "sourceCommit": "d5410a737cee7085ef9236f45720ed2cf638dfef",
+  "elapsedMilliseconds": 712082.2344,
+  "metrics": {
+    "campaign": {
+      "reads": 418,
+      "writes": 160,
+      "successfulWrites": 159,
+      "readBytes": 61970356,
+      "writeBytes": 23721639,
+      "maximumEncodedBytes": 261773,
+      "maximumRawBytes": 34351538,
+      "readMilliseconds": 7068.158000000004,
+      "writeMilliseconds": 2205.4929999999995
+    },
+    "weekend": {
+      "reads": 1274,
+      "writes": 352,
+      "successfulWrites": 352,
+      "readBytes": 66595115,
+      "writeBytes": 17754528,
+      "maximumEncodedBytes": 169316,
+      "maximumRawBytes": 5025676,
+      "readMilliseconds": 11983.910800000001,
+      "writeMilliseconds": 3445.8099999999995
+    }
+  },
+  "injectedFailures": 2,
+  "scope": "Actual Firestore-backed preset campaign; metrics are this process segment (all segments retained in usage); final acceptance additionally requires independent verify and final #24 coverage"
+}

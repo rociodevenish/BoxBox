@@ -43,6 +43,7 @@ else if(builder.Environment.IsDevelopment()&&builder.Configuration["Wakeups:Mode
 }
 builder.Services.AddSingleton<SessionCoordinator>();
 builder.Services.AddSingleton<ICampaignStore,CampaignStore>();
+builder.Services.AddSingleton<CampaignContentCatalog>(_=>new());
 builder.Services.AddSingleton<CampaignCoordinator>();
 builder.Services.ConfigureHttpJsonOptions(options => options.SerializerOptions.Converters.Add(new JsonStringEnumConverter()));
 var app = builder.Build();

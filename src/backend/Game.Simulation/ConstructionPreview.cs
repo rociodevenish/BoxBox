@@ -13,12 +13,7 @@ public static class ConstructionPreview
   var cost=CarConstruction.Cost(catalogue,choices);
   // Locked source headlineDerivation weights summarize detailed points; they never
   // become simulation inputs or convert card stars back into performance.
-  var groups=new Dictionary<string,double>{
-   {"Speed",ratings["topSpeed"]*.5+ratings["accelerationDeployment"]*.5},
-   {"Cornering",ratings["highSpeedAero"]*.55+ratings["lowSpeedAero"]*.45},
-   {"Mechanical Grip",ratings["mechanicalGrip"]*.4+ratings["braking"]*.3+ratings["traction"]*.3},
-   {"Tyres",ratings["tyreWear"]*.55+ratings["tyreTemperature"]*.45},
-   {"Reliability",ratings["reliability"]}}.ToImmutableDictionary();
+  var groups=SimpleGroups(ratings);
   // Supported directional compatibility is one existing mechanical axis. Six authored
   // handling labels do not create six new physics inputs. No staff pace effects.
   var mechanical=CarConstruction.MechanicalAxis(catalogue,choices);
@@ -41,5 +36,14 @@ public static class ConstructionPreview
    return new ConstructionTrackPreview(circuit.Id,circuit.Name,circuit.Slug,circuit.Version,gains.ToImmutable(),weaknesses.ToImmutable(),straight>corners?"Greater relative straight demand":"Greater relative cornering demand");
   }).ToImmutableArray();
   return new(Version,cost,balance,balance-cost,cost<=balance,ratings,groups,fits,tracks,"Free editable draft; 1 budgetUnit = 1 credit. Remaining credits fund future flexibility. First two stacked modifier points apply fully, further points at half strength, capped at six; final detailed values stay 1–100. Indicative comparisons against the supplied baseline (Reliability 84), not guaranteed pace. No future weather or incidents are observed. Base Car, permanent development, Race Package and Weekend Setup are separate layers. Reliability affects incident resilience only when the existing incident policy is enabled; otherwise it is inactive.");
+ }
+ public static ImmutableDictionary<string,double> SimpleGroups(IReadOnlyDictionary<string,double> ratings)
+ {
+  return new Dictionary<string,double>{
+   {"Speed",ratings["topSpeed"]*.5+ratings["accelerationDeployment"]*.5},
+   {"Cornering",ratings["highSpeedAero"]*.55+ratings["lowSpeedAero"]*.45},
+   {"Mechanical Grip",ratings["mechanicalGrip"]*.4+ratings["braking"]*.3+ratings["traction"]*.3},
+   {"Tyres",ratings["tyreWear"]*.55+ratings["tyreTemperature"]*.45},
+   {"Reliability",ratings["reliability"]}}.ToImmutableDictionary();
  }
 }

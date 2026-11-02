@@ -37,6 +37,8 @@
     </div>
   </div>
   <div class="card-body">
+    @if(driver().referenceRole){<p>{{driver().referenceRole}}</p>}
+    @if(driver().effectScope){<p>{{driver().effectScope}}</p>}
     @if(!driver().portrait || failedPortrait()===driver().portrait?.url){
     <p class="fallback-message">Portrait unavailable</p>
     }
@@ -61,11 +63,12 @@
     @if(variant()==='expanded'){
     <div class="expanded">
       <h3>Detailed attributes</h3>
+      @if(!driver().details.length){<p>Detailed game attributes unavailable in this saved card.</p>}
       <dl class="attributes">
         @for(detail of driver().details;track detail.label){
         <div class="attribute">
           <dt>{{detail.label}}</dt>
-          <dd>{{detail.displayValue!==undefined?detail.displayValue+' / '+detail.scale:detail.rating===null?'Unknown':detail.rating+' / 5'}}</dd>
+          <dd>{{detail.displayValue!==undefined?detail.displayValue+' / '+detail.scale:detail.rating===null?'Unknown':detail.rating+' / 5'}} @if(detail.state){<small>{{detail.state}}</small>}</dd>
         </div>
         }
       </dl>
@@ -100,11 +103,20 @@
       Close <span aria-hidden="true">×</span>
     </button>
   </div>
+  @if(driver().priceLabel){<p>{{driver().priceLabel}}</p>}
+  @if(driver().referenceRole){<p>{{driver().referenceRole}}</p>}
+  @if(driver().effectScope){<p>{{driver().effectScope}}</p>}
+  <h3>Simple groups · authored display ratings</h3>
+  <dl class="attributes">
+    @for(group of groups;track group){<div class="attribute"><dt>{{group}}</dt><dd>{{driver().attributes[group]===null?'Unknown':driver().attributes[group]+' / 5'}}</dd></div>}
+  </dl>
+  <h3>Detailed game inputs · 1–100</h3>
+  @if(!driver().details.length){<p>Detailed game attributes unavailable in this saved card.</p>}
   <dl class="attributes">
     @for(detail of driver().details;track detail.label){
     <div class="attribute">
       <dt>{{detail.label}}</dt>
-      <dd>{{detail.displayValue!==undefined?detail.displayValue+' / '+detail.scale:detail.rating===null?'Unknown':detail.rating+' / 5'}}</dd>
+      <dd>{{detail.displayValue!==undefined?detail.displayValue+' / '+detail.scale:detail.rating===null?'Unknown':detail.rating+' / 5'}} @if(detail.state){<small>{{detail.state}}</small>}</dd>
     </div>
     }
   </dl>

@@ -40,8 +40,8 @@ public sealed partial class SessionCoordinator
         var savedLobby=lobby is null?null:new SavedLobby(lobby.Id,lobby.Code,lobby.Host,lobby.Input,lobby.Revision,
             lobby.Players.ToArray(),lobby.Devices.ToArray(),lobby.Assignments,lobby.Lifecycle,lobby.RequiredTeams,lobby.ScriptedTeams,
             race is null?null:CaptureRace(race),lobby.ModuleState,lobby.CampaignPresets,lobby.CampaignConditions);
-        return JsonSerializer.Serialize(new RecoveryRecord(RecoverySchema,SimulationVersions.SegmentedModel,
-            SimulationVersions.SegmentedRandomness,ContentVersion,race?.ScriptVersion??OpponentScript.Version,savedLobby,lobby is null&&race is not null?CaptureRace(race):null),BrowserReplay.JsonOptions);
+        return BoundedRecoveryJson.Encode(new RecoveryRecord(RecoverySchema,SimulationVersions.SegmentedModel,
+            SimulationVersions.SegmentedRandomness,ContentVersion,race?.ScriptVersion??OpponentScript.Version,savedLobby,lobby is null&&race is not null?CaptureRace(race):null),"session-brotli-json-v1",()=>new SessionFault(SessionFailure.InvalidInput,"Session recovery exceeds supported storage bounds. No saved data was changed. Preserve the current session for diagnostics and restore a compatible deployment with a reviewed larger storage format."));
     }
     // Called while holding gate; no acknowledgement or notification precedes this conditional write.
     private void Persist(string id)
@@ -129,9 +129,17 @@ public sealed partial class SessionCoordinator
         Persist(session.Id);
         return acknowledgement;
     }
+    private static RecoveryRecord DecodeRecovery(string payload)
+    {
+        RecoveryRecord saved;
+        try{saved=BoundedRecoveryJson.Decode<RecoveryRecord>(payload,"session-brotli-json-v1")??throw new InvalidDataException("Missing recovery record.");}
+        catch(Exception error) when(error is JsonException or ArgumentException or InvalidOperationException or NullReferenceException or KeyNotFoundException or InvalidDataException or FormatException)
+        {throw new SessionFault(SessionFailure.Conflict,"Saved session recovery is incompatible or damaged. Preserve its last saved data and deploy its compatible version.");}
+        return saved;
+    }
     private void Restore(string id,StoredSession record)
     {
-        var saved=JsonSerializer.Deserialize<RecoveryRecord>(record.Payload,BrowserReplay.JsonOptions)??throw new InvalidDataException("Missing recovery record.");
+        var saved=DecodeRecovery(record.Payload);
         if(saved.Schema!=RecoverySchema||saved.Model!=SimulationVersions.SegmentedModel||saved.Randomness!=SimulationVersions.SegmentedRandomness||saved.Content!=ContentVersion||!OpponentScript.Supports(saved.Policy))
         {
             var limitation="Saved race uses an incompatible schema, simulation, randomness, content or decision policy version. Deploy its compatible version to resume; saved inputs are preserved.";

@@ -8,9 +8,9 @@ test('saved carousel offers and Scout survive refresh and lost acknowledgement o
  await page.getByRole('link',{name:'Campaigns',exact:true}).click();await page.getByLabel('Personnel').selectOption('acquisition');await page.getByRole('button',{name:'Create campaign',exact:true}).click();
  await expect(page.getByRole('heading',{name:'Personnel acquisition',exact:true})).toBeVisible();const picker=(await page.getByText(/^Current picker:/).textContent())!.split(': ')[1].split(' · ')[0];await page.getByRole('button',{name:'Claim '+picker,exact:true}).click();await page.getByRole('button',{name:'Open personnel for '+picker,exact:true}).click();
  await expect(page.getByText('100 credits remaining',{exact:true})).toBeVisible();const cards=page.getByRole('region',{name:'Reserved personnel offers'});await expect(cards.getByRole('article')).toHaveCount(3);const first=await cards.getByRole('heading').first().textContent();
- await expect(cards.getByText('Future economy effects', {exact:false}).first()).toBeVisible();
+ await expect(cards.getByText('Future economy effects', {exact:false})).toHaveCount(0);
  await expect(cards.locator('.staff-fallback')).toHaveCount(3);
- await expect(cards.getByText('Future economy effects · No current performance bonus',{exact:true})).toHaveCount(3);
+ await expect(cards.getByText(/Efficiency contributes once to the bounded development discount/)).toHaveCount(3);
  await page.reload();await page.getByRole('button',{name:'Open personnel for '+picker,exact:true}).click();await expect(cards.getByRole('heading').first()).toHaveText(first!);
  await expect(page.getByText('2 Scout tokens remaining',{exact:true})).toBeVisible();
  let release!:()=>void;const held=new Promise<void>(resolve=>{release=resolve;});let received!:()=>void;const fetched=new Promise<void>(resolve=>{received=resolve;});let delivered!:()=>void;const completed=new Promise<void>(resolve=>{delivered=resolve;});

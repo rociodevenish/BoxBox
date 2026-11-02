@@ -3,7 +3,8 @@ using Game.Domain;
 using Game.Simulation;
 namespace Game.Application;
 
-public sealed record OpeningCar(string EntryId,string Name,string Slug,string TeamId,int GridPosition,int Position,int PositionsGained);
+public sealed record OpeningCar(string EntryId,string Name,string Slug,string TeamId,int GridPosition,int Position,int PositionsGained,
+ [property:System.Text.Json.Serialization.JsonIgnore(Condition=System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)] CardImage? Image=null);
 public sealed record PublicOpening(string Version,string Boundary,IReadOnlyList<OpeningCar> Cars);
 
 public sealed partial class SessionCoordinator
@@ -19,13 +20,13 @@ public sealed partial class SessionCoordinator
         var opening=AutomaticRaceStart.Replay(replay).Opening;
         return session.OpeningSummary=new(replay.Input.ModelVersion,opening.WeatherReaction is {} weather?$"Weather reaction at {weather.Time:F1}s":opening.Interruption is {} incident?$"Safety Car at {incident.Time:F1}s":"Leader lap 1 crossing",opening.Classification.Select(c=>new OpeningCar(c.DriverId,
             source[c.DriverId].Source.Driver.Name,source[c.DriverId].Source.Driver.Slug,source[c.DriverId].Source.TeamId,
-            grid[c.DriverId],c.Position,grid[c.DriverId]-c.Position)).ToArray());
+            grid[c.DriverId],c.Position,grid[c.DriverId]-c.Position,source[c.DriverId].Source.Driver.Presentation?.Image)).ToArray());
     }
     private void CreateOpening(Lobby lobby,QualifyingState qualifying,IReadOnlyList<QualifyingRank> grid)
     {
         if(lobby.Race is not null)return;
         var weekends=qualifying.Preparation.Teams.OrderBy(t=>t.TeamId,StringComparer.Ordinal).Select(t=>t.Effective).ToArray();
-        if(openingDisruptions?.ForCircuit(weekends[0].Source.Circuit.Id) is {} enabled)
+        if(lobby.CampaignConditions?.DisruptionPolicyVersion is null&&openingDisruptions?.ForCircuit(weekends[0].Source.Circuit.Id) is {} enabled)
         {
             if(enabled.Route is null)throw new SessionFault(SessionFailure.InvalidInput,"Safety Car activation requires an authored circuit pit route.");
             weekends=weekends.Select(weekend=>weekend with{Configuration=WeekendPresetCatalog.IncidentInputs(weekend,enabled.Incidents).Configuration with{Track=weekend.Configuration.Track with{PitRoute=enabled.Route},DisruptionPolicyVersion=enabled.SourceVersion}}).ToArray();

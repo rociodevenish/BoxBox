@@ -8,7 +8,7 @@ public sealed partial class SessionCoordinator
 {
     private EffectiveWeekend ApplyWeekendConditions(Lobby lobby,EffectiveWeekend effective)
     {
-        if(lobby.CampaignConditions is {} frozen)return effective with{Configuration=effective.Configuration with{Weather=frozen.Weather,WetTyres=frozen.WetTyres,WeatherReactions=frozen.WeatherReactions}};
+        if(lobby.CampaignConditions is {} frozen)return effective with{Configuration=effective.Configuration with{Weather=frozen.Weather,WetTyres=frozen.WetTyres,WeatherReactions=frozen.WeatherReactions,Incidents=frozen.Incidents,SafetyCar=frozen.SafetyCar,DisruptionPolicyVersion=frozen.DisruptionPolicyVersion,Track=effective.Configuration.Track with{PitRoute=frozen.Track.PitRoute}}};
         var configuration=presets.Get(lobby.Input.Preset!,lobby.Input.Laps!.Value).Configuration;
         if(configuration.Weather is null&&configuration.WetTyres is null)return effective;
         return effective with{Configuration=effective.Configuration with{
@@ -318,7 +318,7 @@ public sealed partial class SessionCoordinator
                 team.Practice.Result.Feedback.Setup,team.Practice.Result.Feedback.CircuitFeedback,
                 team.Practice.Result.Feedback.Compromises,team.Practice.Result.Feedback.Drivers,
                 RacePackages.Migrate(team.Practice.Preset).SelectedPackage,
-                RacePackages.Selected(RacePackages.Migrate(team.Practice.Preset)).Name),ProjectPreparationGuidance(lobby,team,assignment),team.Observed,team.Forecast);
+                RacePackages.Selected(RacePackages.Migrate(team.Practice.Preset)).Name),ProjectPreparationGuidance(lobby,team,assignment),team.Observed,team.Forecast,team.Preset.Cars[0].Driver.Presentation is null?null:ConstructionPreview.SimpleGroups(team.Preset.Cars[0].Car.Ratings));
 
     // Explicit preset identity; constructor metadata and illustrative card stars never provide coefficients.
     private static readonly (string First,string Second)[] PreparationDrivers = [

@@ -1,0 +1,464 @@
+{
+  "assets": [
+    {
+      "assetId": "asset-driver-alexander-albon",
+      "entityId": "driver-alexander-albon",
+      "height": 576,
+      "objectPosition": "center 22%",
+      "runtimeUrl": "/content/caaabe5d4bff4aa8d3fdb6dea4449beacfb722290b9b8336d17100bda37a395d.webp",
+      "status": "available",
+      "width": 384
+    },
+    {
+      "assetId": "asset-driver-andrea-kimi-antonelli",
+      "entityId": "driver-andrea-kimi-antonelli",
+      "height": 576,
+      "objectPosition": "center 22%",
+      "runtimeUrl": "/content/295b54e5e48203d57f1de734d591f37646da51b0a1070231e0c84c57a5c2de51.webp",
+      "status": "available",
+      "width": 384
+    },
+    {
+      "assetId": "asset-driver-antonio-giovinazzi",
+      "entityId": "driver-antonio-giovinazzi",
+      "height": 576,
+      "objectPosition": "center 22%",
+      "runtimeUrl": "/content/695f6db64d851ca18abf396e08ed2e51853a4349781451ff89ea800292383d41.webp",
+      "status": "available",
+      "width": 384
+    },
+    {
+      "assetId": "asset-driver-arvid-lindblad",
+      "entityId": "driver-arvid-lindblad",
+      "height": 576,
+      "objectPosition": "center 22%",
+      "runtimeUrl": "/content/e1528991558a95843448599d472b89e2db70983baa0f03e9f1f6edc4b53c0daf.webp",
+      "status": "available",
+      "width": 384
+    },
+    {
+      "assetId": "asset-driver-carlos-sainz",
+      "entityId": "driver-carlos-sainz",
+      "height": 576,
+      "objectPosition": "center 22%",
+      "runtimeUrl": "/content/80f78d32ec56ee5d91d298722c8fb52c954677936b023da3f1e1e4bea1c6e167.webp",
+      "status": "available",
+      "width": 384
+    },
+    {
+      "assetId": "asset-driver-charles-leclerc",
+      "entityId": "driver-charles-leclerc",
+      "height": 576,
+      "objectPosition": "center 22%",
+      "runtimeUrl": "/content/fa9a1674f8948c731186570f1cf1f77e05608eff6351d80c29e67fb686047f19.webp",
+      "status": "available",
+      "width": 384
+    },
+    {
+      "assetId": "asset-driver-esteban-ocon",
+      "entityId": "driver-esteban-ocon",
+      "height": 576,
+      "objectPosition": "center 22%",
+      "runtimeUrl": "/content/d63c553d8dcfbb13c2a61d7b2893b1fe3f777f1762d63f037926f8211f0cee8f.webp",
+      "status": "available",
+      "width": 384
+    },
+    {
+      "assetId": "asset-driver-fernando-alonso",
+      "entityId": "driver-fernando-alonso",
+      "height": 576,
+      "objectPosition": "center 22%",
+      "runtimeUrl": "/content/7ff76b14d901b2c1edc0ebd066f829de6cd0ae15e57267251c9498cf898c06c9.webp",
+      "status": "available",
+      "width": 384
+    },
+    {
+      "assetId": "asset-driver-franco-colapinto",
+      "entityId": "driver-franco-colapinto",
+      "height": 576,
+      "objectPosition": "center 22%",
+      "runtimeUrl": "/content/22dae6ad16774cc58e7704e43ec924190a045517a47360e3e2642354afbee9d3.webp",
+      "status": "available",
+      "width": 384
+    },
+    {
+      "assetId": "asset-driver-gabriel-bortoleto",
+      "entityId": "driver-gabriel-bortoleto",
+      "height": 576,
+      "objectPosition": "center 22%",
+      "runtimeUrl": "/content/40ffb218d15dfa28e9041a9ba1a1af68f053de00edb4df871414bce47e867700.webp",
+      "status": "available",
+      "width": 384
+    },
+    {
+      "assetId": "asset-driver-george-russell",
+      "entityId": "driver-george-russell",
+      "height": 576,
+      "objectPosition": "center 22%",
+      "runtimeUrl": "/content/0bbf6aeca1962a092360e938d4a7c8fec537ed96284c5514157f7c9667a23f5d.webp",
+      "status": "available",
+      "width": 384
+    },
+    {
+      "assetId": "asset-driver-isack-hadjar",
+      "entityId": "driver-isack-hadjar",
+      "height": 576,
+      "objectPosition": "center 22%",
+      "runtimeUrl": "/content/827d52f8d443c89bba0cb62c3b2973e7ebe7e1f19d00e04640090ab782019bcc.webp",
+      "status": "available",
+      "width": 384
+    },
+    {
+      "assetId": "asset-driver-jack-doohan",
+      "entityId": "driver-jack-doohan",
+      "height": 576,
+      "objectPosition": "center 22%",
+      "runtimeUrl": "/content/b5c3c26345f80f48930cdadd957816d1b8ff1bf67c065bfbf64555619d43b55f.webp",
+      "status": "available",
+      "width": 384
+    },
+    {
+      "assetId": "asset-driver-lance-stroll",
+      "entityId": "driver-lance-stroll",
+      "height": 576,
+      "objectPosition": "center 22%",
+      "runtimeUrl": "/content/912e2aa960b78188f2b40759109c8d4cae80933e75575b9038db03ab639db0ad.webp",
+      "status": "available",
+      "width": 384
+    },
+    {
+      "assetId": "asset-driver-lando-norris",
+      "entityId": "driver-lando-norris",
+      "height": 576,
+      "objectPosition": "center 22%",
+      "runtimeUrl": "/content/1f23a3e659e16d06194cbacc1f6eb0ab09f451907949a7a0d55b725fb07bd055.webp",
+      "status": "available",
+      "width": 384
+    },
+    {
+      "assetId": "asset-driver-lewis-hamilton",
+      "entityId": "driver-lewis-hamilton",
+      "height": 576,
+      "objectPosition": "center 22%",
+      "runtimeUrl": "/content/e01906a43209ad17de680a70c742b05ca63f926edcae0dd85909ea17926ab413.webp",
+      "status": "available",
+      "width": 384
+    },
+    {
+      "assetId": "asset-driver-liam-lawson",
+      "entityId": "driver-liam-lawson",
+      "height": 576,
+      "objectPosition": "center 22%",
+      "runtimeUrl": "/content/d9eedd74ad537faf43358569622e1652f6eb909636bf58be44ca23b70703535d.webp",
+      "status": "available",
+      "width": 384
+    },
+    {
+      "assetId": "asset-driver-max-verstappen",
+      "entityId": "driver-max-verstappen",
+      "height": 576,
+      "objectPosition": "center 22%",
+      "runtimeUrl": "/content/05cc78070b0e610aad89cd4570e304fc71e1f57591b6463b03eb55abc3a943cc.webp",
+      "status": "available",
+      "width": 384
+    },
+    {
+      "assetId": "asset-driver-nico-hulkenberg",
+      "entityId": "driver-nico-hulkenberg",
+      "height": 576,
+      "objectPosition": "center 22%",
+      "runtimeUrl": "/content/af4a6dbe4c935ede5f79fbd4b8f97518fde7f6ea77f57208be101913f61b8900.webp",
+      "status": "available",
+      "width": 384
+    },
+    {
+      "assetId": "asset-driver-oliver-bearman",
+      "entityId": "driver-oliver-bearman",
+      "height": 576,
+      "objectPosition": "center 22%",
+      "runtimeUrl": "/content/c8d94ce1fb32cbb4d4e5e10ebfa6032a9e1fcb059523a34cc408a957e88afa9c.webp",
+      "status": "available",
+      "width": 384
+    },
+    {
+      "assetId": "asset-driver-oscar-piastri",
+      "entityId": "driver-oscar-piastri",
+      "height": 576,
+      "objectPosition": "center 22%",
+      "runtimeUrl": "/content/d3eea53a43b1452647b449e800431757b93c401247f9161b0b48f8954438416a.webp",
+      "status": "available",
+      "width": 384
+    },
+    {
+      "assetId": "asset-driver-patricio-oward",
+      "entityId": "driver-patricio-oward",
+      "height": 576,
+      "objectPosition": "center 22%",
+      "runtimeUrl": "/content/5579058cb6c58218ba926996f483e92324dae55bf831211a8b9ecddcd8d9e45a.webp",
+      "status": "available",
+      "width": 384
+    },
+    {
+      "assetId": "asset-driver-pierre-gasly",
+      "entityId": "driver-pierre-gasly",
+      "height": 576,
+      "objectPosition": "center 22%",
+      "runtimeUrl": "/content/fec9c13e88126e95d95f21f9c5876ecb2320c5b4685704775d41269d32d8ebef.webp",
+      "status": "available",
+      "width": 384
+    },
+    {
+      "assetId": "asset-driver-sergio-perez",
+      "entityId": "driver-sergio-perez",
+      "height": 576,
+      "objectPosition": "center 22%",
+      "runtimeUrl": "/content/e82a593d4d510a911757d7b2e681b3c634f7a0ef110a4103ac2b799b5c9820ec.webp",
+      "status": "available",
+      "width": 384
+    },
+    {
+      "assetId": "asset-driver-stoffel-vandoorne",
+      "entityId": "driver-stoffel-vandoorne",
+      "height": 576,
+      "objectPosition": "center 22%",
+      "runtimeUrl": "/content/7f2fbe1a73da504d837ee8554c19ae3d2da030d348aacb0ece5512ee4fa38021.webp",
+      "status": "available",
+      "width": 384
+    },
+    {
+      "assetId": "asset-driver-valtteri-bottas",
+      "entityId": "driver-valtteri-bottas",
+      "height": 576,
+      "objectPosition": "center 22%",
+      "runtimeUrl": "/content/8f36699187909ea70ee52b3e3220c989e72ca9251bac87ee00fdb693cf47fa3f.webp",
+      "status": "available",
+      "width": 384
+    },
+    {
+      "assetId": "asset-driver-yuki-tsunoda",
+      "entityId": "driver-yuki-tsunoda",
+      "height": 576,
+      "objectPosition": "center 22%",
+      "runtimeUrl": "/content/0a8108d9d8f83e7f91baa0b0ca54684a2bca3103b782a1f9fa8796f8a5b2ae5e.webp",
+      "status": "available",
+      "width": 384
+    },
+    {
+      "assetId": "asset-driver-zhou-guanyu",
+      "entityId": "driver-zhou-guanyu",
+      "height": 576,
+      "objectPosition": "center 22%",
+      "runtimeUrl": "/content/780ea4819f5c343542c9a77df62e880835878f273d581df40d5d8d5e448535c7.webp",
+      "status": "available",
+      "width": 384
+    },
+    {
+      "assetId": "asset-track-albert-park",
+      "entityId": "track-albert-park",
+      "height": 640,
+      "objectPosition": "center center",
+      "runtimeUrl": "/content/9409ac3e9df1e1aab7bd9c9dc7c91686eccc667eaf50de782c8d151c6439a8f1.webp",
+      "status": "available",
+      "width": 960
+    },
+    {
+      "assetId": "asset-track-baku",
+      "entityId": "track-baku",
+      "height": 640,
+      "objectPosition": "center center",
+      "runtimeUrl": "/content/d85c5d16d1b9b55e563c204b3b8a7f3029885b64c10b7fa464702c07b69f80be.webp",
+      "status": "available",
+      "width": 960
+    },
+    {
+      "assetId": "asset-track-barcelona-catalunya",
+      "entityId": "track-barcelona-catalunya",
+      "height": 640,
+      "objectPosition": "center center",
+      "runtimeUrl": "/content/29cdbdc3a5cb9cd08857b18c2c89d31865e2918ae69320634fab7ba558921032.webp",
+      "status": "available",
+      "width": 960
+    },
+    {
+      "assetId": "asset-track-circuit-gilles-villeneuve",
+      "entityId": "track-circuit-gilles-villeneuve",
+      "height": 640,
+      "objectPosition": "center center",
+      "runtimeUrl": "/content/9cb6adb4d5b10e49a5972c4dd6dc0fd43df9cad2a2d1546faffc876397d0f91d.webp",
+      "status": "available",
+      "width": 960
+    },
+    {
+      "assetId": "asset-track-cota",
+      "entityId": "track-cota",
+      "height": 640,
+      "objectPosition": "center center",
+      "runtimeUrl": "/content/46d0c3ab76473d372f46e668f515e51adaa6e820363721d2b6af2a855c6bab7d.webp",
+      "status": "available",
+      "width": 960
+    },
+    {
+      "assetId": "asset-track-hungaroring",
+      "entityId": "track-hungaroring",
+      "height": 640,
+      "objectPosition": "center center",
+      "runtimeUrl": "/content/6aad48c354a2ec5e94f3641e68bfc174e23c215535635e58675c78f16f9127ad.webp",
+      "status": "available",
+      "width": 960
+    },
+    {
+      "assetId": "asset-track-interlagos",
+      "entityId": "track-interlagos",
+      "height": 640,
+      "objectPosition": "center center",
+      "runtimeUrl": "/content/e514e1fbe8e9833ac2e8150ed5822e9cc1c60b04a1dc2681fca615d8ba807de5.webp",
+      "status": "available",
+      "width": 960
+    },
+    {
+      "assetId": "asset-track-las-vegas",
+      "entityId": "track-las-vegas",
+      "height": 640,
+      "objectPosition": "center center",
+      "runtimeUrl": "/content/e50ab74f2d6823caf93d635fc33939bc33c24f41f732f0792edda38f19cfdb3a.webp",
+      "status": "available",
+      "width": 960
+    },
+    {
+      "assetId": "asset-track-lusail",
+      "entityId": "track-lusail",
+      "height": 640,
+      "objectPosition": "center center",
+      "runtimeUrl": "/content/9acfb975b6f1886c86fa5866e7c5101fe428e1761fa970e9b0321e5a21384b04.webp",
+      "status": "available",
+      "width": 960
+    },
+    {
+      "assetId": "asset-track-madring",
+      "entityId": "track-madring",
+      "height": 640,
+      "objectPosition": "center center",
+      "runtimeUrl": "/content/de7f5b21f96d6db8335d4314fcaa26f32dc8c74107403df6a3a6c694560ec23e.webp",
+      "status": "available",
+      "width": 960
+    },
+    {
+      "assetId": "asset-track-marina-bay",
+      "entityId": "track-marina-bay",
+      "height": 640,
+      "objectPosition": "center center",
+      "runtimeUrl": "/content/48a86623e3a15142d6fea23c1116258faec78ab1e7a0707beeba1655961e9484.webp",
+      "status": "available",
+      "width": 960
+    },
+    {
+      "assetId": "asset-track-mexico-city",
+      "entityId": "track-mexico-city",
+      "height": 640,
+      "objectPosition": "center center",
+      "runtimeUrl": "/content/1b481799ec19d29a8fe11f57d04fb409a2556bd12247680aee3a81ba87b685fe.webp",
+      "status": "available",
+      "width": 960
+    },
+    {
+      "assetId": "asset-track-miami",
+      "entityId": "track-miami",
+      "height": 640,
+      "objectPosition": "center center",
+      "runtimeUrl": "/content/1ea11857c6992cc4a76a9df850d5c407c0456cdefdda71e5f3775de1f0cd39dd.webp",
+      "status": "available",
+      "width": 960
+    },
+    {
+      "assetId": "asset-track-monaco",
+      "entityId": "track-monaco",
+      "height": 640,
+      "objectPosition": "center center",
+      "runtimeUrl": "/content/6d6c21bcfe7d0c3fdd09427eb0e6e912a16d9fd1ff054203000917d44ebc975e.webp",
+      "status": "available",
+      "width": 960
+    },
+    {
+      "assetId": "asset-track-monza",
+      "entityId": "track-monza",
+      "height": 640,
+      "objectPosition": "center center",
+      "runtimeUrl": "/content/a01fe3789151b5a2f237e668175ea191b6f44da9051c6b5cd7c9ab965181191e.webp",
+      "status": "available",
+      "width": 960
+    },
+    {
+      "assetId": "asset-track-red-bull-ring",
+      "entityId": "track-red-bull-ring",
+      "height": 640,
+      "objectPosition": "center center",
+      "runtimeUrl": "/content/f5dfc5683adaa0ce49b9e3f592e23c9641bf9a3c5709d17a9932a5f33b808a28.webp",
+      "status": "available",
+      "width": 960
+    },
+    {
+      "assetId": "asset-track-sepang",
+      "entityId": "track-sepang",
+      "height": 640,
+      "objectPosition": "center center",
+      "runtimeUrl": "/content/40ee5436932596322121936946aae059cff3de083fffcfac7cc74f181e6322b7.webp",
+      "status": "available",
+      "width": 960
+    },
+    {
+      "assetId": "asset-track-shanghai",
+      "entityId": "track-shanghai",
+      "height": 640,
+      "objectPosition": "center center",
+      "runtimeUrl": "/content/8cb433a6accca222636fd7dcbfe68269ccd39a2bfa36c104bfa473564ac69685.webp",
+      "status": "available",
+      "width": 960
+    },
+    {
+      "assetId": "asset-track-silverstone",
+      "entityId": "track-silverstone",
+      "height": 640,
+      "objectPosition": "center center",
+      "runtimeUrl": "/content/af34dc119547ddb0b72b3de900dd605308fd685eadfbd5fe6c95c5fbf1d7c4e6.webp",
+      "status": "available",
+      "width": 960
+    },
+    {
+      "assetId": "asset-track-spa-francorchamps",
+      "entityId": "track-spa-francorchamps",
+      "height": 640,
+      "objectPosition": "center center",
+      "runtimeUrl": "/content/d6076d483e1f1500773cc535f3ee40c16f133a16900eb275939b5bc47c651983.webp",
+      "status": "available",
+      "width": 960
+    },
+    {
+      "assetId": "asset-track-suzuka",
+      "entityId": "track-suzuka",
+      "height": 640,
+      "objectPosition": "center center",
+      "runtimeUrl": "/content/5f2280cef5e255269b3904c87891e142a05ac87766077495df8535154089339a.webp",
+      "status": "available",
+      "width": 960
+    },
+    {
+      "assetId": "asset-track-yas-marina",
+      "entityId": "track-yas-marina",
+      "height": 640,
+      "objectPosition": "center center",
+      "runtimeUrl": "/content/b88a6c41d68713903b8ac5f33856b7b099c319ed8be5d54c9d59f7f2f600fcf6.webp",
+      "status": "available",
+      "width": 960
+    },
+    {
+      "assetId": "asset-track-zandvoort",
+      "entityId": "track-zandvoort",
+      "height": 640,
+      "objectPosition": "center center",
+      "runtimeUrl": "/content/04990c648f58f0b9513be69ce7bd0864cd5a35bcd590fd9893da392ca0e9195f.webp",
+      "status": "available",
+      "width": 960
+    }
+  ],
+  "schemaVersion": "content-assets-v1"
+}

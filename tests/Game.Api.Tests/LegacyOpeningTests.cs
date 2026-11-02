@@ -49,7 +49,14 @@ public sealed partial class QualifyingTests
         public string Write(string id,string? expected,string payload,string? code)=>Write(id,expected,payload,code,null);
         public string Write(string id,string? expected,string payload,string? code,ScheduledWakeup? wakeup)
         {
-            var document=JsonNode.Parse(payload)!;var race=document["lobby"]?["race"];
+            var document=JsonNode.Parse(payload)!;
+            if(document["storageFormat"] is not null)
+            {
+                using var input=new MemoryStream(Convert.FromBase64String(document["data"]!.GetValue<string>()));
+                using var decoder=new System.IO.Compression.BrotliStream(input,System.IO.Compression.CompressionMode.Decompress);
+                document=JsonNode.Parse(decoder)!;
+            }
+            var race=document["lobby"]?["race"];
             if(Opening is null&&race?["opening"] is {} saved)
             {
                 var replay=saved.Deserialize<AutomaticStartReplay>(BrowserReplay.JsonOptions)!;

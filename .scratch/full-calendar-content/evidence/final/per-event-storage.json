@@ -1,0 +1,284 @@
+{
+  "schema": "full-release-per-event-evidence-v1",
+  "sourceCommit": "d5410a737cee7085ef9236f45720ed2cf638dfef",
+  "timingSource": "Actual CLI checkpoint output, cumulative to nearest 0.1 second; includes earlier events and between-event work",
+  "storageSource": "Actual result checkpoints; encoded envelope and declared raw payload byte sizes",
+  "events": [
+    {
+      "event": 1,
+      "cumulativeCaptureSeconds": 14.5,
+      "campaign": {
+        "rawBytes": 1942915,
+        "encodedBytes": 38645
+      },
+      "weekend": {
+        "rawBytes": 3128841,
+        "encodedBytes": 41389
+      }
+    },
+    {
+      "event": 2,
+      "cumulativeCaptureSeconds": 22.1,
+      "campaign": {
+        "rawBytes": 2489946,
+        "encodedBytes": 45074
+      },
+      "weekend": {
+        "rawBytes": 3254560,
+        "encodedBytes": 46832
+      }
+    },
+    {
+      "event": 3,
+      "cumulativeCaptureSeconds": 28.1,
+      "campaign": {
+        "rawBytes": 3182394,
+        "encodedBytes": 53113
+      },
+      "weekend": {
+        "rawBytes": 3402820,
+        "encodedBytes": 46525
+      }
+    },
+    {
+      "event": 4,
+      "cumulativeCaptureSeconds": 37,
+      "campaign": {
+        "rawBytes": 4107567,
+        "encodedBytes": 64845
+      },
+      "weekend": {
+        "rawBytes": 3620683,
+        "encodedBytes": 46360
+      }
+    },
+    {
+      "event": 5,
+      "cumulativeCaptureSeconds": 49.5,
+      "campaign": {
+        "rawBytes": 5258090,
+        "encodedBytes": 78461
+      },
+      "weekend": {
+        "rawBytes": 3883895,
+        "encodedBytes": 50389
+      }
+    },
+    {
+      "event": 6,
+      "cumulativeCaptureSeconds": 64.5,
+      "campaign": {
+        "rawBytes": 6610667,
+        "encodedBytes": 95587
+      },
+      "weekend": {
+        "rawBytes": 3945904,
+        "encodedBytes": 47576
+      }
+    },
+    {
+      "event": 7,
+      "cumulativeCaptureSeconds": 81.7,
+      "campaign": {
+        "rawBytes": 8092740,
+        "encodedBytes": 114236
+      },
+      "weekend": {
+        "rawBytes": 4133774,
+        "encodedBytes": 49449
+      }
+    },
+    {
+      "event": 8,
+      "cumulativeCaptureSeconds": 101,
+      "campaign": {
+        "rawBytes": 9613518,
+        "encodedBytes": 127653
+      },
+      "weekend": {
+        "rawBytes": 4167020,
+        "encodedBytes": 50983
+      }
+    },
+    {
+      "event": 9,
+      "cumulativeCaptureSeconds": 123.3,
+      "campaign": {
+        "rawBytes": 11166299,
+        "encodedBytes": 133627
+      },
+      "weekend": {
+        "rawBytes": 4220420,
+        "encodedBytes": 51902
+      }
+    },
+    {
+      "event": 10,
+      "cumulativeCaptureSeconds": 148.3,
+      "campaign": {
+        "rawBytes": 12730525,
+        "encodedBytes": 141967
+      },
+      "weekend": {
+        "rawBytes": 4253946,
+        "encodedBytes": 52006
+      }
+    },
+    {
+      "event": 11,
+      "cumulativeCaptureSeconds": 174.7,
+      "campaign": {
+        "rawBytes": 14292556,
+        "encodedBytes": 146612
+      },
+      "weekend": {
+        "rawBytes": 4226753,
+        "encodedBytes": 50241
+      }
+    },
+    {
+      "event": 12,
+      "cumulativeCaptureSeconds": 208.7,
+      "campaign": {
+        "rawBytes": 15853997,
+        "encodedBytes": 152359
+      },
+      "weekend": {
+        "rawBytes": 4250724,
+        "encodedBytes": 50506
+      }
+    },
+    {
+      "event": 13,
+      "cumulativeCaptureSeconds": 240.2,
+      "campaign": {
+        "rawBytes": 17414484,
+        "encodedBytes": 157130
+      },
+      "weekend": {
+        "rawBytes": 4266238,
+        "encodedBytes": 51458
+      }
+    },
+    {
+      "event": 14,
+      "cumulativeCaptureSeconds": 274.7,
+      "campaign": {
+        "rawBytes": 18958382,
+        "encodedBytes": 163125
+      },
+      "weekend": {
+        "rawBytes": 4338708,
+        "encodedBytes": 50002
+      }
+    },
+    {
+      "event": 15,
+      "cumulativeCaptureSeconds": 311.3,
+      "campaign": {
+        "rawBytes": 20530767,
+        "encodedBytes": 174386
+      },
+      "weekend": {
+        "rawBytes": 4385862,
+        "encodedBytes": 53367
+      }
+    },
+    {
+      "event": 16,
+      "cumulativeCaptureSeconds": 350.5,
+      "campaign": {
+        "rawBytes": 22126411,
+        "encodedBytes": 182297
+      },
+      "weekend": {
+        "rawBytes": 4462013,
+        "encodedBytes": 57266
+      }
+    },
+    {
+      "event": 17,
+      "cumulativeCaptureSeconds": 392.6,
+      "campaign": {
+        "rawBytes": 23743693,
+        "encodedBytes": 188943
+      },
+      "weekend": {
+        "rawBytes": 4479248,
+        "encodedBytes": 57445
+      }
+    },
+    {
+      "event": 18,
+      "cumulativeCaptureSeconds": 435.8,
+      "campaign": {
+        "rawBytes": 25411715,
+        "encodedBytes": 197163
+      },
+      "weekend": {
+        "rawBytes": 4557697,
+        "encodedBytes": 57384
+      }
+    },
+    {
+      "event": 19,
+      "cumulativeCaptureSeconds": 483,
+      "campaign": {
+        "rawBytes": 27088634,
+        "encodedBytes": 211227
+      },
+      "weekend": {
+        "rawBytes": 4720439,
+        "encodedBytes": 59132
+      }
+    },
+    {
+      "event": 20,
+      "cumulativeCaptureSeconds": 533.1,
+      "campaign": {
+        "rawBytes": 28859379,
+        "encodedBytes": 222697
+      },
+      "weekend": {
+        "rawBytes": 4851213,
+        "encodedBytes": 61132
+      }
+    },
+    {
+      "event": 21,
+      "cumulativeCaptureSeconds": 593.1,
+      "campaign": {
+        "rawBytes": 30624082,
+        "encodedBytes": 233797
+      },
+      "weekend": {
+        "rawBytes": 4867826,
+        "encodedBytes": 60208
+      }
+    },
+    {
+      "event": 22,
+      "cumulativeCaptureSeconds": 649.7,
+      "campaign": {
+        "rawBytes": 32452064,
+        "encodedBytes": 244701
+      },
+      "weekend": {
+        "rawBytes": 5010336,
+        "encodedBytes": 59985
+      }
+    },
+    {
+      "event": 23,
+      "cumulativeCaptureSeconds": 708.3,
+      "campaign": {
+        "rawBytes": 34351538,
+        "encodedBytes": 261773
+      },
+      "weekend": {
+        "rawBytes": 5025676,
+        "encodedBytes": 60955
+      }
+    }
+  ]
+}

@@ -1,0 +1,20 @@
+{
+  "command": "C:/Projects/F1Game/.tools/dotnet/dotnet.exe",
+  "args": [
+    "test",
+    "tests/Game.Api.Tests/Game.Api.Tests.csproj",
+    "--no-build",
+    "--no-restore",
+    "--filter",
+    "FullyQualifiedName~PersonnelReleaseTests.Missing_paid_option",
+    "-m:1",
+    "-nr:false",
+    "--nologo"
+  ],
+  "cwd": "C:\\Projects\\F1Game\\.tools\\worktrees\\s16-23",
+  "pid": 10640,
+  "startedAt": "2026-10-30T20:11:04.850Z",
+  "status": "failed",
+  "exitCode": 1,
+  "elapsedMs": 2045
+}

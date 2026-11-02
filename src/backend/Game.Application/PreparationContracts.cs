@@ -23,5 +23,6 @@ public record PreparationTeamSnapshot(string SessionId, string TeamId, long Revi
     string Lifecycle, WeekendSetup Setup, WeekendPreset Preset,
     string Summary, string ModelVersion, PracticeSnapshot? Assessment,PreparationGuidance Guidance,
     [property:System.Text.Json.Serialization.JsonIgnore(Condition=System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)] CurrentWeather? Weather=null,
-    [property:System.Text.Json.Serialization.JsonIgnore(Condition=System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)] TeamWeatherForecast? Forecast=null);
+    [property:System.Text.Json.Serialization.JsonIgnore(Condition=System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)] TeamWeatherForecast? Forecast=null,
+    [property:System.Text.Json.Serialization.JsonIgnore(Condition=System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)] IReadOnlyDictionary<string,double>? SourceCarGroups=null);
 public record SetupAck(string CommandId, string SessionId, string TeamId, long Revision, string Lifecycle);
