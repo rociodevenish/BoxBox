@@ -1,0 +1,42 @@
+{
+  "schema": "full-release-recovery-bench-v1",
+  "coldTypedReadMilliseconds": 22218.841,
+  "coldWeekendRecoveryMilliseconds": 1518.6267,
+  "warmTypedReadMilliseconds": [
+    2180.8358,
+    2037.6016,
+    2072.7927
+  ],
+  "catalogAbsent": true,
+  "differentDeploymentCatalog": true,
+  "retainedAssetCount": 51,
+  "unsupportedPreserved": true,
+  "corruptPreserved": true,
+  "originalPreserved": true,
+  "peakWorkingSet": 1491144704,
+  "metrics": {
+    "campaign": {
+      "reads": 16,
+      "writes": 2,
+      "successfulWrites": 2,
+      "readBytes": 3943077,
+      "writeBytes": 529040,
+      "maximumEncodedBytes": 264523,
+      "maximumRawBytes": 34351565,
+      "readMilliseconds": 424.3881,
+      "writeMilliseconds": 52.1472
+    },
+    "weekend": {
+      "reads": 2,
+      "writes": 0,
+      "successfulWrites": 0,
+      "readBytes": 121910,
+      "writeBytes": 0,
+      "maximumEncodedBytes": 60955,
+      "maximumRawBytes": 5025676,
+      "readMilliseconds": 22.6077,
+      "writeMilliseconds": 0
+    }
+  },
+  "scope": "Fresh-process durable application recovery; alternative deployment factory read only in update probe, never in frozen verify"
+}

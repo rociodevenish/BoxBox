@@ -1,6 +1,6 @@
 # S16 — Full-calendar content and card coverage
 
-Status: ready-for-agent
+Status: resolved
 Blocked by: campaign, personnel, car construction and Race Package content contracts; implemented weekend mechanics and visual foundation.
 
 ## Problem Statement
@@ -77,3 +77,5 @@ Audit all four files and reconcile cross-references, scales and budgets. Verify 
 ## Further Notes
 
 The complete content pack enables the full-calendar mode that earlier campaign work kept gated. This spec completes coverage; release readiness owns final integrated balance acceptance. Testing boundaries reuse the user's approved public contracts and browser gallery.
+
+Completion evidence: [2 November 2026](evidence/completion.md). Canonical issues #21–25 are closed; source/model and performance limits are recorded with the evidence.

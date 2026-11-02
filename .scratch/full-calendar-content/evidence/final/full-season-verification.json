@@ -1,0 +1,9 @@
+{
+  "schema": "full-release-verification-v1",
+  "complete": true,
+  "sourceCommit": "d5410a737cee7085ef9236f45720ed2cf638dfef",
+  "contentVersion": "release-2026-cards-v1",
+  "events": 23,
+  "elapsedMilliseconds": 60103.903,
+  "catalogAccess": "none; frozen archive and versioned runtime only"
+}

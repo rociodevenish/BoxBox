@@ -1,0 +1,150 @@
+{
+  "schema": "s16-completion-verification-v1",
+  "date": "2026-11-02",
+  "implementationCommit": "3cde432",
+  "captureCommit": "d5410a737cee7085ef9236f45720ed2cf638dfef",
+  "api": {
+    "passed": 297,
+    "failed": 0,
+    "report": "s16-api-final.trx"
+  },
+  "simulation": {
+    "passed": 369,
+    "failed": 0
+  },
+  "tooling": {
+    "passed": 3
+  },
+  "assetCli": {
+    "passed": 10,
+    "packagedAssets": 51,
+    "retainedLegacyFiles": 55
+  },
+  "typecheck": "passed",
+  "productionBuild": "passed",
+  "browser": [
+    {
+      "name": "development",
+      "passed": 2,
+      "skipped": 0,
+      "runId": "2026-11-02T04-20-07-026Z-5db2887e-4089-416a-a3ae-ad4092659a2a",
+      "elapsedMilliseconds": 77539
+    },
+    {
+      "name": "development-delay",
+      "passed": 1,
+      "skipped": 1,
+      "runId": "2026-11-02T04-20-07-026Z-5db2887e-4089-416a-a3ae-ad4092659a2a",
+      "elapsedMilliseconds": 62006
+    },
+    {
+      "name": "development-guidance",
+      "passed": 1,
+      "skipped": 0,
+      "runId": "2026-11-02T04-20-07-026Z-5db2887e-4089-416a-a3ae-ad4092659a2a",
+      "elapsedMilliseconds": 57641
+    },
+    {
+      "name": "packages",
+      "passed": 4,
+      "skipped": 0,
+      "runId": "2026-11-02T04-20-07-026Z-5db2887e-4089-416a-a3ae-ad4092659a2a",
+      "elapsedMilliseconds": 78499
+    },
+    {
+      "name": "packages-rich",
+      "passed": 1,
+      "skipped": 0,
+      "runId": "2026-11-02T04-26-52-615Z-3e2a3d6b-835f-4ad4-8775-168f74c2f36b",
+      "elapsedMilliseconds": 211610
+    },
+    {
+      "name": "packages-rush",
+      "passed": 1,
+      "skipped": 0,
+      "runId": "2026-11-02T04-26-52-615Z-3e2a3d6b-835f-4ad4-8775-168f74c2f36b",
+      "elapsedMilliseconds": 60185
+    },
+    {
+      "name": "content",
+      "passed": 3,
+      "skipped": 0,
+      "runId": "2026-11-02T04-40-08-506Z-34959775-7bd3-4c3c-9ccc-00a68b0aa9d6",
+      "elapsedMilliseconds": 63365
+    },
+    {
+      "name": "gallery",
+      "passed": 34,
+      "skipped": 0,
+      "runId": "2026-11-02T04-13-58-240Z-6c909f41-02d5-4b8f-800a-af66270f3e7a",
+      "elapsedMilliseconds": 19396
+    },
+    {
+      "name": "browser",
+      "passed": 22,
+      "skipped": 0,
+      "runId": "2026-11-02T04-13-58-240Z-6c909f41-02d5-4b8f-800a-af66270f3e7a",
+      "elapsedMilliseconds": 129065
+    },
+    {
+      "name": "boundary",
+      "passed": 2,
+      "skipped": 0,
+      "runId": "2026-11-02T04-13-58-240Z-6c909f41-02d5-4b8f-800a-af66270f3e7a",
+      "elapsedMilliseconds": 35915
+    },
+    {
+      "name": "assistance",
+      "passed": 1,
+      "skipped": 0,
+      "runId": "2026-11-02T04-40-08-506Z-34959775-7bd3-4c3c-9ccc-00a68b0aa9d6",
+      "elapsedMilliseconds": 168335
+    },
+    {
+      "name": "control",
+      "passed": 1,
+      "skipped": 0,
+      "runId": "2026-11-02T04-47-57-243Z-21b9b2d4-0828-4008-849a-3c142825a890",
+      "elapsedMilliseconds": 56169
+    },
+    {
+      "name": "deadlines",
+      "passed": 1,
+      "skipped": 0,
+      "runId": "2026-11-02T04-47-57-243Z-21b9b2d4-0828-4008-849a-3c142825a890",
+      "elapsedMilliseconds": 31582
+    },
+    {
+      "name": "hosted",
+      "passed": 1,
+      "skipped": 0,
+      "runId": "2026-11-02T04-47-57-243Z-21b9b2d4-0828-4008-849a-3c142825a890",
+      "elapsedMilliseconds": 22196
+    }
+  ],
+  "cards": {
+    "passed": 2,
+    "failed": 0,
+    "elapsedMilliseconds": 121362,
+    "report": "cards-final-command.json"
+  },
+  "shared": {
+    "uniquePassingCases": 15,
+    "unaffectedPassingCases": 14,
+    "focusedPassingCases": 2,
+    "overlappingPreviouslyPassingCases": 1,
+    "focusedReport": "shared-preparation-final-command.json",
+    "note": "Original 15-case run passed14; the legacy-image regression and its tablet companion passed in the final focused rerun. Count the shared scenarios once."
+  },
+  "intentionalSkip": "The delayed-development configuration skips the ordinary-budget case; ordinary development executes it successfully.",
+  "reconciledFailures": [
+    "Four role-effect metadata mutations rejected after validator fix. A proposed legacy-source-label rejection was withdrawn; established compatibility preserved.",
+    "Disabled construction contrast, narrow effect text and signed-modifier wrapping corrected; final cards regenerated.",
+    "Package aero-label assertion aligned with the shared label.",
+    "Shared preparation legacy circuit image restored and named fallback exercised.",
+    "A Windows progress-file sharing failure retained a resumable checkpoint; bounded replacement retry added. Fresh23-event capture passed.",
+    "One local control-server startup timeout occurred before tests; unchanged control/deadline/hosted retry passed with diagnostics.",
+    "Linux detached Firestore cleanup corrected; hosted run41388815216 passed the earlier startup boundary and reached the separately fixed legacy-image case."
+  ],
+  "ci": "Consult the current PR check for the final branch revision; local acceptance is complete. No production deployment claim."
+}
