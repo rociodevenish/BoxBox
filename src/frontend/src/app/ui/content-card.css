@@ -2,3 +2,4 @@
 .driver{border-top:4px solid var(--color-driver)}.driver .role{color:var(--color-driver)}.driver img{background:repeating-linear-gradient(138deg,var(--color-border) 0 32px,transparent 32px 62px,var(--color-driver) 62px 94px,transparent 94px 124px)}
 dl>div.wide{display:block}.wide dt{margin-bottom:4px}.wide dd{text-align:left;white-space:normal;overflow-wrap:normal}.art,.body{min-width:0}@media(min-width:1100px){.landscape{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:24px;align-items:center}.landscape .art img{max-height:350px}.landscape h3{font-size:38px}}
 .content-card{container-type:inline-size}@container(max-width:320px){dl>div:has(small){display:block}dl>div:has(small) dd{text-align:left;margin-top:4px}small{max-width:none}}
+dl>div:not(.wide)>dd{white-space:nowrap}dl>div:not(.wide)>dd small{white-space:normal}
