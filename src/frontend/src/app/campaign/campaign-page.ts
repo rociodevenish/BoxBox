@@ -1,6 +1,5 @@
 import {ContentCard} from '../ui/content-card';
-import {ContentCardViewModel,PersonnelPresentation,FrozenDriver,CardImage,personnelCard,imageUrl,attributeLabel} from '../ui/content-card.model';
-import tracks from '../../../public/tracks/manifest.json';
+import {ContentCardViewModel,PersonnelPresentation,FrozenDriver,CardImage,personnelCard,imageUrl,attributeLabel,legacyCircuitImage} from '../ui/content-card.model';
 import portraits from '../../../public/portraits/manifest.json';
 import {Component,signal} from '@angular/core';
 import type {User} from 'firebase/auth';
@@ -25,7 +24,7 @@ interface ConstructionTeam {recommendation?:ConstructionRecommendation|null;conf
 interface Joined {campaign:Campaign;weekend:{lobby:{sessionId:string};membership:{deviceId:string}}}
 @Component({selector:'app-campaign-page',imports:[ContentCard],templateUrl:'./campaign-page.html',styleUrl:'./campaign-page.css'})
 export class CampaignPage {
- calendarView(event:Event):ContentCardViewModel{return {id:event.eventId,name:event.trackName,role:'Circuit',context:event.eventName,image:event.image??(this.campaign()?.contentVersion!=='release-2026-cards-v1'&&this.trackImage(event.trackId)?{assetId:'legacy-'+event.trackId,entityId:event.trackId,url:this.trackImage(event.trackId),objectPosition:'center center',width:960,height:640}:null),facts:[{label:'Event',value:String(event.order)},...(event.weekendStart?[{label:'Weekend begins',value:event.weekendStart,wide:true},{label:'Weekend ends',value:event.weekendEnd??'',wide:true}]:[])],notes:event.summary?[event.summary]:[]};}
+ calendarView(event:Event):ContentCardViewModel{return {id:event.eventId,name:event.trackName,role:'Circuit',context:event.eventName,image:event.image??(this.campaign()?.contentVersion!=='release-2026-cards-v1'?legacyCircuitImage(event.trackId):null),facts:[{label:'Event',value:String(event.order)},...(event.weekendStart?[{label:'Weekend begins',value:event.weekendStart,wide:true},{label:'Weekend ends',value:event.weekendEnd??'',wide:true}]:[])],notes:event.summary?[event.summary]:[]};}
  personnelView(card:PersonnelCard){return personnelCard(card);}
  optionView(option:ConstructionOption):ContentCardViewModel{return {id:option.id,name:option.name,role:'Car option',priceLabel:option.cost+' credits',facts:Object.entries(option.modifiers).map(([key,value])=>({label:this.attributeLabel(key),value:(value>0?'+':'')+value})),notes:[option.summary,'Changes apply through the saved bounded construction rules.']};}
  carView(own:ConstructionTeam):ContentCardViewModel{return {id:own.teamId,name:own.confirmed?'Confirmed Base Car':'Saved draft',role:'Car',priceLabel:own.preview.cost+' credits',facts:Object.entries(own.preview.groups).map(([label,value])=>({label,value:value.toFixed(1)+' / 100'})),details:Object.entries(own.preview.ratings).map(([key,value])=>({label:this.attributeLabel(key),value:value.toFixed(1)+' / 100',state:key==='reliability'?'Conditional · existing mechanical-failure policy':'Implemented'})),notes:['Both cars share this Base Car. Source attributes and displayed groups come from the saved preview.']};}
@@ -76,7 +75,7 @@ export class CampaignPage {
  previousPoints(result:Result,id:string){let total=0;for(const report of this.campaign()?.results??[]){if(report.eventId===result.eventId)break;total+=this.awarded(report,id);}return total;}
  readonly failedTrackAssets=signal<string[]>([]);
  trackAssetFailed(id:string){this.failedTrackAssets.update(ids=>ids.includes(id)?ids:[...ids,id]);}
- trackImage(id:string){return tracks.tracks.find(track=>track.id===id)?.url??'';}
+ trackImage(id:string){return legacyCircuitImage(id)?.url??'';}
  portrait(id:string){const asset=portraits.portraits.find(driver=>'driver-'+driver.driverId===id);return asset?'/'+asset.runtimeUrl:'';}
  readonly failedConstructionAssets=signal<string[]>([]);
  constructionAssetFailed(id:string){this.failedConstructionAssets.update(ids=>ids.includes(id)?ids:[...ids,id]);}
