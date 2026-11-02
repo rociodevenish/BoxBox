@@ -17,7 +17,10 @@ var mode=args[0];var output=Path.GetFullPath(args[1]);
 string? Option(string key){var i=Array.IndexOf(args,key);return i<0?null:i+1<args.Length?args[i+1]:throw new ArgumentException("Missing "+key);}
 var partial=args.Contains("--partial");
 T Read<T>(string path)=>JsonSerializer.Deserialize<T>(File.ReadAllText(path),json)??throw new InvalidDataException(path);
-void Write<T>(string path,T value){Directory.CreateDirectory(Path.GetDirectoryName(path)!);File.WriteAllText(path+".tmp",JsonSerializer.Serialize(value,json));File.Move(path+".tmp",path,true);}
+void Write<T>(string path,T value){Directory.CreateDirectory(Path.GetDirectoryName(path)!);File.WriteAllText(path+".tmp",JsonSerializer.Serialize(value,json));for(var attempt=0;;attempt++){
+ try{File.Move(path+".tmp",path,true);break;}
+ catch(Exception error)when(attempt<10&&error is IOException or UnauthorizedAccessException){Thread.Sleep(50);}
+}}
 Archive LoadArchive(){using var file=File.OpenRead(Path.Combine(output,"campaign.json.gz"));using var gzip=new GZipStream(file,CompressionMode.Decompress);return JsonSerializer.Deserialize<Archive>(gzip,json)??throw new InvalidDataException("Missing archive");}
 void SaveArchive(Archive value){var name=Path.Combine(output,"campaign.json.gz");using(var file=File.Create(name+".tmp"))using(var gzip=new GZipStream(file,CompressionLevel.Optimal))JsonSerializer.Serialize(gzip,value,json);File.Move(name+".tmp",name,true);}
 if(mode=="verify"){
