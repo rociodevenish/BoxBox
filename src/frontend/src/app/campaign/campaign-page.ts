@@ -1,5 +1,5 @@
 import {ContentCard} from '../ui/content-card';
-import {ContentCardViewModel,PersonnelPresentation,FrozenDriver,CardImage,personnelCard,imageUrl} from '../ui/content-card.model';
+import {ContentCardViewModel,PersonnelPresentation,FrozenDriver,CardImage,personnelCard,imageUrl,attributeLabel} from '../ui/content-card.model';
 import tracks from '../../../public/tracks/manifest.json';
 import portraits from '../../../public/portraits/manifest.json';
 import {Component,signal} from '@angular/core';
@@ -112,7 +112,7 @@ export class CampaignPage {
  attributes(card:PersonnelCard){return Object.entries(card.driver?.ratings??card.attributes??{});}
  developmentText(text:string){return text.replace(/[a-z]+(?:[A-Z][a-z]+)+/g,key=>this.attributeLabel(key));}
  changedDevelopmentAttributes(){const own=this.development();return Object.entries(own?.currentCar??{}).filter(([key,value])=>value!==own?.nextCar[key]);}
- attributeLabel(key:string){if(key==='accelerationDeployment')return 'Acceleration';const label=key.replace(/([a-z])([A-Z])/g,'$1 $2');return label.charAt(0).toUpperCase()+label.slice(1);}
+ attributeLabel=attributeLabel;
  hireOption(id:string){return this.personnel()?.hireOptions.find(option=>option.personId===id);}
  rosterSlot(id:string){return this.slotLabel(this.personnel()?.hires.find(h=>h.personId===id)?.slot??'');}
  filledSlot(slot:string){return this.personnel()?.hires.some(h=>h.slot===slot)??false;}

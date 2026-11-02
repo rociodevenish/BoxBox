@@ -12,14 +12,16 @@ public static class ReleaseCardValidation
  {
   if(image is not null&&!assets.Any(a=>a.Id==image.AssetId&&a.EntityId==image.EntityId&&a.RuntimeUrl==image.Url))throw new ArgumentException("Card image differs from its frozen asset mapping.");
  }
- public static void Person(PersonnelPresentation? display,string id,bool driver,int? price=null)
+ public static void Person(PersonnelPresentation? display,string id,string role,int? price=null)
  {
   if(display is null)return;
+  var driver=role=="Driver";var implemented=ReleasePersonnel.ImplementedAttributes(role);var inactive=ReleasePersonnel.InactiveAttributes(role);
   if(display.PersonId!=id||display.Price<0||price is {} actual&&display.Price!=actual||string.IsNullOrWhiteSpace(display.EffectScope)
    ||string.IsNullOrWhiteSpace(display.RatingScale)||string.IsNullOrWhiteSpace(display.PreferenceMeaning)
    ||display.IdentityKind!=(driver?"real-driver":"fictional-staff")||string.IsNullOrWhiteSpace(display.ReferenceRole)
    ||display.ImplementedAttributes.IsDefault||display.InactiveAttributes.IsDefault||display.ImplementedAttributes.Intersect(display.InactiveAttributes).Any())throw new ArgumentException("Unsupported personnel presentation.");
   if(driver&&(!display.SimpleGroups.Keys.ToHashSet().SetEquals(["Pace","Racecraft","Tyres","Consistency","Technical"])||display.SimpleGroups.Values.Any(v=>v is <1 or >5))||!driver&&display.SimpleGroups.Count!=0)throw new ArgumentException("Invalid authored Simple groups.");
+  if(display.ImplementedAttributes.Length!=implemented.Length||!display.ImplementedAttributes.ToHashSet().SetEquals(implemented)||display.InactiveAttributes.Length!=inactive.Length||!display.InactiveAttributes.ToHashSet().SetEquals(inactive))throw new ArgumentException("Card effect labels differ from supported personnel role.");
   Image(display.Image,id);
  }
 }

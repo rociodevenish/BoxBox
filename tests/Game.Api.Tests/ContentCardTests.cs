@@ -10,6 +10,21 @@ namespace Game.Api.Tests;
 public sealed class ContentCardTests
 {
  [Theory]
+ [InlineData("Manager")][InlineData("Race Engineer")][InlineData("Technical Engineer")][InlineData("Driver")]
+ public async Task New_pack_rejects_card_effect_labels_that_disagree_with_supported_role(string role)
+ {
+  var original=ReleaseContent.Cards();var person=original.Personnel.People.First(p=>p.Role==role);
+  var display=person.Presentation! with{ImplementedAttributes=person.Presentation!.ImplementedAttributes.Add("unsupported-effect")};
+  var changed=person with{Presentation=display,Driver=person.Driver is {} driver?driver with{Presentation=display}:null};
+  var broken=original with{Personnel=original.Personnel with{People=original.Personnel.People.Replace(person,changed)}};
+  var token=await LobbyTests.Identity(false);
+  await using var server=LobbyTests.Server().WithWebHostBuilder(b=>b.ConfigureServices(s=>s.Replace(ServiceDescriptor.Singleton(new CampaignContentCatalog([broken])))));
+  using var client=server.CreateClient();client.DefaultRequestHeaders.Authorization=new("Bearer",token);
+  var result=await client.PostAsJsonAsync("/api/campaigns",new{commandId=Guid.NewGuid().ToString(),name="Effect host",calendar="full",contentVersion=ReleaseContent.CardVersion});
+  Assert.Equal(System.Net.HttpStatusCode.BadRequest,result.StatusCode);
+ }
+
+ [Theory]
  [InlineData("https://example.test/a.webp",false)][InlineData("//example.test/a.webp",false)][InlineData("/content/../secret.webp",false)]
  [InlineData("/content/%2e%2e/secret.webp",false)][InlineData("/content/unmapped.webp",false)]
  [InlineData("/content/0000000000000000000000000000000000000000000000000000000000000000.webp",false)]

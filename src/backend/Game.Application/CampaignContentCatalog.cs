@@ -50,7 +50,7 @@ public sealed class CampaignContentCatalog
   foreach(var person in pack.Personnel.People)
   {
    if(pack.Version==ReleaseContent.CardVersion&&person.Presentation is null)throw new ArgumentException("Missing frozen card presentation.");
-   ReleaseCardValidation.Person(person.Presentation,person.Id,person.Driver is not null,person.Price);
+   ReleaseCardValidation.Person(person.Presentation,person.Id,person.Role,person.Price);
    ReleaseCardValidation.Reference(person.Presentation?.Image,pack.Assets);
    if(person.Presentation?.Image is {} portrait&&!ReleaseContent.BundledCardImage(portrait))throw new ArgumentException("Unbundled card image.");
    if(person.Driver is {} shown&&JsonSerializer.Serialize(shown.Presentation)!=JsonSerializer.Serialize(person.Presentation))throw new ArgumentException("Driver presentation must match its actual frozen personnel card.");

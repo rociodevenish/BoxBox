@@ -1,5 +1,5 @@
 import {ContentCard} from '../ui/content-card';
-import {ContentCardViewModel,CardImage,FrozenDriver,frozenDriverCard} from '../ui/content-card.model';
+import {attributeLabel,ContentCardViewModel,CardImage,FrozenDriver,frozenDriverCard} from '../ui/content-card.model';
 import {Component,signal} from '@angular/core';
 import {HubConnection,HubConnectionBuilder} from '@microsoft/signalr';
 import type {User} from 'firebase/auth';
@@ -39,7 +39,7 @@ export class PreparationPage {
  circuitView(circuit:Circuit):ContentCardViewModel{const demands=this.entries(circuit.demands);const shown=this.display?demands.slice().sort((a,b)=>b[1]-a[1]||a[0].localeCompare(b[0])).slice(0,3):demands;return {id:circuit.id,name:circuit.name,role:'Circuit',image:circuit.image,landscape:this.display,facts:shown.map(([key,value])=>({label:this.label(key),value:value+' / 100'})),notes:[...(circuit.summary?[circuit.summary]:[]),this.display?'Major circuit demands · authored game scores. Full demands are available on team preparation.':'Higher demand means that capability matters more here. Illustration is context only; circuit demands are authored game scores.']};}
  packageView(packageVersion:PackageVersion):ContentCardViewModel{return {id:packageVersion.packageId,name:packageVersion.name+' · v'+packageVersion.version,role:'Race Package',context:packageVersion.completed?'Completed · available':'Pending · unavailable',facts:[...this.entries(packageVersion.strengths).map(([key,value])=>({label:this.label(key),value:'+'+value})),...this.entries(packageVersion.compromises).map(([key,value])=>({label:this.label(key)+' compromise',value:String(value)}))],notes:[packageVersion.applicability,'Reliability affects only an enabled mechanical-failure consumer. Selection is free; exactly one completed version applies.']};}
  entries(values:Record<string,number>){return Object.entries(values);}
- label(key:string){return ({topSpeed:'Top Speed',accelerationDeployment:'Acceleration / Energy Deployment',highSpeedCornering:'High-Speed Cornering',lowSpeedCornering:'Low-Speed Cornering',mechanicalGrip:'Mechanical Grip',tyreDegradation:'Tyre Degradation',tyreThermalDemand:'Tyre Thermal Demand',tyreWear:'Tyre Preservation',tyreTemperature:'Tyre Temperature Management',racePace:'Race Pace',setupFeedback:'Setup Feedback'} as Record<string,string>)[key]??key.replace(/([A-Z])/g,' $1').replace(/^./,c=>c.toUpperCase());}
+ label=attributeLabel;
  card(driver:Driver):DriverCardViewModel {return frozenDriverCard(driver);}
 
  useRecommendation(){const recommendation=this.team()?.guidance?.recommendation;if(this.editable()&&recommendation)this.draft.set({...recommendation.setup});}

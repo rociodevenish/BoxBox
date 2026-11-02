@@ -36,12 +36,12 @@ public static class CampaignSaveIntegrity
     foreach(var car in preset.Cars)
     {
      if(record.ContentVersion==ReleaseContent.CardVersion&&car.Driver.Presentation is null)throw new ArgumentException();
-     ReleaseCardValidation.Person(car.Driver.Presentation,car.Driver.Id,true);
+     ReleaseCardValidation.Person(car.Driver.Presentation,car.Driver.Id,"Driver");
      ReleaseCardValidation.Reference(car.Driver.Presentation?.Image,record.ContentSnapshot?.Assets??[]);
     }
    }
    foreach(var person in record.Acquisition?.Pool.People??[])
-    ReleaseCardValidation.Person(person.Presentation,person.Id,person.Driver is not null,person.Price);
+    ReleaseCardValidation.Person(person.Presentation,person.Id,person.Role,person.Price);
    if(record.Input.Calendar=="full"&&(!ReleaseContent.IsFullCalendar(record.ContentVersion)||record.Calendar.Length!=23||record.Calendar.Select(e=>e.SourceEventId).Distinct().Count()!=23||record.Calendar.Any(e=>string.IsNullOrWhiteSpace(e.SourceEventId)||string.IsNullOrWhiteSpace(e.EventName)||string.IsNullOrWhiteSpace(e.Summary)||!DateOnly.TryParse(e.WeekendStart,out var start)||!DateOnly.TryParse(e.WeekendEnd,out var end)||end<start)))throw new ArgumentException();
    if(record.Lifecycle is not("acquiring" or "constructing" or "created" or "event-preparation" or "active-weekend" or "event-result-committed" or "season-complete"))throw new ArgumentException();
    if(record.Acquisition is {} acquisition)PersonnelAcquisition.Validate(acquisition);
